@@ -1,0 +1,15 @@
+/* Figma Styles of your File */
+:root {
+  /* Colors */
+  /* Fonts */
+  /* Effects */
+}
+/* Figma Color Variables of your File */
+:root,
+[data-variable-collection-mode="mode-1"] {
+  /* mode-1 */
+  --gunmetal: #40464b;
+  --carbon-black: #1f1f1f;
+  --iron-gray: #40464b;
+  --porcelain: #fffffc;
+}
