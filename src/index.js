@@ -1,20 +1,17 @@
 const express = require('express');
 const path = require('path');
-const bcrypt = require('bcrypt');
 
 const app = express();
 
-app.set("view engine", 'ejs');
+// app.set("view engine", 'ejs');
+app.set("view engine", 'hbs');
 
 // Login page = Landing Page
-app.get("/", (req, res) => {
-    res.render("login");
+// Route to login.html
+// localhost:3000/login
+app.get('/', async function(req, res) {
+    res.sendFile(path.join(__dirname, '../views/login.html'));
 });
-
-app.get("/signup", (req, res) => {
-    res.render("signup");
-});
-
 
 const port = process.env.PORT || 3000;
 
