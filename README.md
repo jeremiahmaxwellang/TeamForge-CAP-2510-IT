@@ -36,6 +36,10 @@ npm install express hbs path express-fileupload express-session mongoose cookie-
 cd Downloads/TeamForge-CAP-2510-IT
 ```
 
+* Run the Node Server
+```
+node src/index.js
+```
 
 * On your browser, enter the URL "localhost:3000" to access the homepage
 
@@ -48,7 +52,7 @@ Jeremiah Maxwell Ang
 [@jeremiahmaxwellang](https://github.com/jeremiahmaxwellang)
 
 Trebis Detablan
-[@jeremiahmaxwellang](https://github.com/jeremiahmaxwellang)
+[@hailrain](https://github.com/trebisdetablan)
 
 Charles Kevin Duelas
 [@Duelly01](https://github.com/Duelly01)
@@ -57,5 +61,4 @@ Justin Nicolai Lee
 [@juicetice](https://github.com/juiceticedlsu)
 
 ## Acknowledgments
-* Sir Arturo Caronongan
-* [techie delight](https://www.techiedelight.com/generate-sha-256-hash-javascript/)
+* Sir Liandro Tabora
