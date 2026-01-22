@@ -9,10 +9,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "TeamForge is a Decision Support System for Collegiate League of Legends Esports Teams",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "hbs": "^4.2.0",
-    "path": "^0.12.7"
-  }
+    "path": "^0.12.7",
+    "router": "^2.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT/issues"
+  },
+  "homepage": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT#readme"
 }
