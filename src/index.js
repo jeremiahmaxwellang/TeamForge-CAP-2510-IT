@@ -22,7 +22,10 @@ app.get('/', async function(req, res) {
     res.sendFile(path.join(__dirname, '../views/login.html'));
 });
 
-
+// Signup
+app.get('/signup', async function(req, res) {
+    res.sendFile(path.join(__dirname, '../views/signup.html'));
+});
 
 
 app.listen(port, () => {
