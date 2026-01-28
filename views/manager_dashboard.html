@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --carbon-black: #0c0c0c;
+            --gunmetal: #2a3439;
+            --dark: #1a1a1a;
+            --white: #f5f5f5;
+            --accent: #4ecdc4;
+            --text-light: #e0e0e0;
+            --text-dark: #333;
+            --border-color: #404040;
+            --card-bg: #222;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--carbon-black);
+            color: var(--white);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 240px;
+            background-color: var(--dark);
+            padding: 25px 0;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .logo-container {
+            padding: 0 25px 30px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+        
+        .logo i {
+            color: var(--accent);
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+        
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 15px 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background-color: var(--gunmetal);
+            color: var(--accent);
+        }
+        
+        .nav-links a.active {
+            background-color: var(--gunmetal);
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .nav-links i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--white);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid var(--accent);
+        }
+        
+        /* Dashboard Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-header h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        
+        .card-header i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .card-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--white);
+        }
+        
+        .card-change {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .positive {
+            color: #4CAF50;
+        }
+        
+        .negative {
+            color: #f44336;
+        }
+        
+        /* Charts Section */
+        .charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .chart-placeholder {
+            height: 250px;
+            background-color: var(--dark);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+        
+        /* Recent Activity */
+        .activity-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .activity-list {
+            list-style: none;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--gunmetal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--accent);
+        }
+        
+        .activity-details h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .activity-details p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .charts {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 0;
+            }
+            
+            .logo span, .nav-links span {
+                display: none;
+            }
+            
+            .logo i {
+                margin-right: 0;
+                font-size: 1.8rem;
+            }
+            
+            .nav-links a {
+                justify-content: center;
+                padding: 15px 0;
+            }
+            
+            .nav-links i {
+                margin-right: 0;
+                font-size: 1.4rem;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .user-info {
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="logo-container">
+            <div class="logo">
+                <i class="fas fa-chart-network"></i>
+                <span>CarbonDash</span>
+            </div>
+        </div>
+        
+        <ul class="nav-links">
+            <li>
+                <a href="#" class="active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Support</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <h1>Dashboard Overview</h1>
+            <div class="user-info">
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=4ecdc4&color=fff" alt="User Avatar">
+                <span>Admin User</span>
+            </div>
+        </header>
+        
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Total Revenue</h3>
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="card-value">$42,580</div>
+                <div class="card-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12.5% from last month</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>Active Users</h3>
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-value">3,249</div>
+                <div class="card-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>8.2% from last week</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>Conversion Rate</h3>
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="card-value">4.7%</div>
+                <div class="card-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>1.3% from last month</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>Avg. Session Duration</h3>
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-value">4m 32s</div>
+                <div class="card-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>0.5m from last week</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="charts">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Revenue Overview</h3>
+                    <select style="background-color: var(--dark); color: var(--white); padding: 5px; border-radius: 5px; border: 1px solid var(--border-color);">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 3 months</option>
+                    </select>
+                </div>
+                <div class="chart-placeholder">
+                    <div style="text-align: center;">
+                        <i class="fas fa-chart-area" style="font-size: 3rem; margin-bottom: 10px; display: block; color: var(--accent);"></i>
+                        Revenue Chart Area
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Traffic Sources</h3>
+                    <select style="background-color: var(--dark); color: var(--white); padding: 5px; border-radius: 5px; border: 1px solid var(--border-color);">
+                        <option>This Week</option>
+                        <option>This Month</option>
+                    </select>
+                </div>
+                <div class="chart-placeholder">
+                    <div style="text-align: center;">
+                        <i class="fas fa-chart-pie" style="font-size: 3rem; margin-bottom: 10px; display: block; color: var(--accent);"></i>
+                        Traffic Pie Chart
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="activity-container">
+            <div class="chart-header">
+                <h3>Recent Activity</h3>
+                <a href="#" style="color: var(--accent); text-decoration: none; font-size: 0.9rem;">View All</a>
+            </div>
+            
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>New user registered</h4>
+                        <p>John Doe just signed up • 10 min ago</p>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>New order placed</h4>
+                        <p>Order #4562 from Sarah Smith • 45 min ago</p>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>Revenue milestone reached</h4>
+                        <p>$50k monthly revenue achieved • 2 hours ago</p>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>System updated</h4>
+                        <p>Dashboard v2.3 deployed successfully • 5 hours ago</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Carbon Dashboard Template • © 2023 All Rights Reserved</p>
+        </footer>
+    </main>
+    
+    <script>
+        // Set active navigation link on click
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                document.querySelectorAll('.nav-links a').forEach(item => {
+                    item.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Update current date in header
+        const months = ["January", "February", "March", "April", "May", "June", 
+                       "July", "August", "September", "October", "November", "December"];
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        
+        const today = new Date();
+        const dateStr = `${days[today.getDay()]}, ${months[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
+        
+        // Add date to header if needed
+        // document.querySelector('.header h1').innerHTML += ` <span style="font-size: 1rem; color: var(--text-light); font-weight: normal;">${dateStr}</span>`;
+        
+        // Randomize stats values on page load for demo purposes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate random stats for demo
+            const revenue = Math.floor(Math.random() * 20000) + 35000;
+            const users = Math.floor(Math.random() * 2000) + 2000;
+            const conversion = (Math.random() * 3 + 2).toFixed(1);
+            const sessionMin = Math.floor(Math.random() * 2) + 3;
+            const sessionSec = Math.floor(Math.random() * 60);
+            
+            document.querySelector('.card:nth-child(1) .card-value').textContent = '$' + revenue.toLocaleString();
+            document.querySelector('.card:nth-child(2) .card-value').textContent = users.toLocaleString();
+            document.querySelector('.card:nth-child(3) .card-value').textContent = conversion + '%';
+            document.querySelector('.card:nth-child(4) .card-value').textContent = `${sessionMin}m ${sessionSec}s`;
+        });
+    </script>
+</body>
+</html>
