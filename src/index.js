@@ -11,6 +11,9 @@ const port = process.env.PORT || 3000;
 
 app.set("view engine", 'hbs');
 
+// Everything inside /public will now be accessible from root ("/")
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Example on how to use Routes
 // https://www.youtube.com/watch?v=H9M02of22z4
 app.use("/api/contacts", require("../routes/contactRoutes"));
@@ -25,6 +28,11 @@ app.get('/', async function(req, res) {
 // Signup
 app.get('/signup', async function(req, res) {
     res.sendFile(path.join(__dirname, '../views/signup.html'));
+});
+
+// Register
+app.get('/register', async function(req, res) {
+    res.sendFile(path.join(__dirname, '../views/register.html'));
 });
 
 

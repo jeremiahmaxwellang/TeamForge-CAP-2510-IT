@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TeamForge Registration</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: url("/images/background_photo.png") no-repeat center center / cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .registration-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 40px;
+            width: 490px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .registration-box h2 {
+            margin-bottom: 25px;
+        }
+
+        .registration-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .registration-box input,
+        .registration-box select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .registration-box button {
+            width: 70%;
+            padding: 12px;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .registration-box button:hover {
+            background: #333;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div class="registration-box">
+        <h2>Complete Your Registration</h2>
+
+        <label>Full Name</label>
+        <input type="text" placeholder="Enter your full name">
+
+        <label>Riot ID</label>
+        <input type="text" placeholder="Enter your Riot ID">
+
+        <label>GPA</label>
+        <select>
+            <option value="">Enter your GPA</option>
+            <option>1.0</option>
+            <option>1.5</option>
+            <option>2.0</option>
+            <option>2.5</option>
+            <option>3.0</option>
+            <option>3.5</option>
+            <option>4.0</option>
+        </select>
+
+        <label>CGPA</label>
+        <input type="number" step="0.5" min="1.0" max="4.0" placeholder="Enter your CGPA">
+
+        <label>Current Rank</label>
+        <select>
+            <option value="">Select current rank</option>
+            <option>Challenger</option>
+            <option>Grand Master</option>
+            <option>Master</option>
+            <option>Diamond I</option>
+            <option>Diamond II</option>
+            <option>Diamond III</option>
+            <option>Diamond IV</option>
+        </select>
+
+        <label>Peak Rank</label>
+        <select>
+            <option value="">Select peak rank</option>
+            <option>Challenger</option>
+            <option>Grand Master</option>
+            <option>Master</option>
+            <option>Diamond I</option>
+            <option>Diamond II</option>
+            <option>Diamond III</option>
+            <option>Diamond IV</option>
+        </select>
+
+        <label>Primary Role</label>
+        <select>
+            <option value="">Select primary role</option>
+            <option>Top</option>
+            <option>Mid</option>
+            <option>Bot</option>
+            <option>Jungler</option>
+            <option>Support</option>
+        </select>
+
+        <label>Secondary Role</label>
+        <select>
+            <option value="">Select secondary role</option>
+            <option>Top</option>
+            <option>Mid</option>
+            <option>Bot</option>
+            <option>Jungler</option>
+            <option>Support</option>
+        </select>
+
+        <button>Continue</button>
+    </div>
+
+</body>
+</html>
