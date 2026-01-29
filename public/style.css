@@ -1,0 +1,147 @@
+@import url('/vars.css');
+
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: var(--porcelain); /* Background color from Figma variables */
+    height: 100vh;
+}
+
+.container {
+    width: 100%;
+    height: auto;
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 136px;
+    background-color: var(--carbon-black); /* Sidebar background color from Figma variables */
+    color: var(--porcelain); /* Sidebar text color from Figma variables */
+    padding: 20px;
+    height: 100vh;
+    flex-shrink: 0; /* Prevents sidebar from shrinking */
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    color: var(--porcelain); /* Sidebar link color from Figma variables */
+    text-decoration: none;
+}
+
+/* Main content styles */
+.main-content {
+    flex-grow: 1; /* Allows the main content to take the remaining space */
+    background-color: var(--porcelain); /* Main content background color */
+    height: 100vh; /* Ensure the main content fills the height */
+}
+
+/* Adjust layout of sidebar and main content */
+.content-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+header h1, header h2 {
+    margin: 0;
+    color: var(--gunmetal); /* Header color from Figma variables */
+}
+
+.header_container {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--carbon-black); /* Dark background similar to the image */
+    padding: 10px 20px;
+    color: var(--porcelain); /* Text color */
+}
+
+.header_container .logo {
+    width: 40px; /* Adjust logo size */
+    height: 40px; /* Adjust logo size */
+    margin-right: 10px;
+}
+
+.header_container .logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.header_container .logo span {
+    color: var(--porcelain); /* Logo text color */
+}
+
+.header_container .team-name {
+    font-size: 18px;
+    color: var(--porcelain); /* Team name text color */
+}
+
+.header_container .profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--iron-gray); /* Placeholder background for profile icon */
+}
+
+.player-info {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: var(--iron-gray); /* Player info background color from Figma variables */
+    border-radius: 5px;
+}
+
+.profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+/* Tabs styling */
+.tabs ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+}
+
+.tabs ul li {
+    margin-right: 15px;
+}
+
+.tabs ul li a {
+    color: var(--gunmetal); /* Tab text color from Figma variables */
+    text-decoration: none;
+}
+
+/* Match history section */
+.match-history {
+    margin-top: 20px;
+}
+
+.match-stats {
+    background-color: var(--iron-gray); /* Match stats background color from Figma variables */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.match-details .match {
+    background-color: var(--porcelain); /* Match details background color */
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.match-stats-section {
+    margin-top: 20px;
+}
