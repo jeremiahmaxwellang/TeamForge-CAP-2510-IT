@@ -2,6 +2,8 @@
 :root {
   /* Colors */
   /* Fonts */
+    --font-road-rage: 'Road Rage', sans-serif;
+
   /* Effects */
 }
 /* Figma Color Variables of your File */
@@ -12,4 +14,11 @@
   --carbon-black: #1f1f1f;
   --iron-gray: #40464b;
   --porcelain: #fffffc;
+}
+
+@font-face {
+  font-family: 'Road Rage';
+  src: url('/fonts/Road_Rage.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
 }
