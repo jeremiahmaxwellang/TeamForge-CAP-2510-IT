@@ -31,14 +31,13 @@ body {
     margin: 0; /* Removes default margin */
 }
 
-.sidebar ul li {    
+.sidebar ul li {
     text-align: center; /* Ensures the text is centered if there's text next to the image */
 }
 
 .sidebar ul li a {
     margin-bottom: 20px;
-
-    color: var(--porcelain);
+    color: var(--porcelain); /* Default text color */
     text-decoration: none; /* Removes underline from links */
     display: flex; /* Make <a> a flex container */
     flex-direction: column; /* Stack the image and text vertically */
@@ -51,11 +50,17 @@ body {
     width: 50%; /* Adjust image size */
     height: auto; /* Maintain aspect ratio */
     margin-bottom: 5px; /* Space between image and text */
+    transition: filter 0.3s ease; /* Smooth transition for the image */
 }
 
-.sidebar ul li:hover {
+.sidebar ul li a:hover {
     background-color: #f0f0f0; /* Hover effect */
     border-radius: 5px;
+    color: var(--carbon-black); /* Invert text color on hover */
+}
+
+.sidebar ul li a:hover img {
+    filter: invert(1); /* Inverts the color of the logo image */
 }
 
 /* Main content styles */
