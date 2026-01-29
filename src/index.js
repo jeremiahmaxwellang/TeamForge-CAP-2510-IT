@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 
 app.set("view engine", 'hbs');
 
-// Everything inside /public will now be accessible from root ("/")
+// Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Example on how to use Routes
@@ -22,7 +22,8 @@ app.use("/api/contacts", require("../routes/contactRoutes"));
 // Route to login.html
 // localhost:3000
 app.get('/', async function(req, res) {
-    res.sendFile(path.join(__dirname, '../views/login.html'));
+    res.sendFile(path.join(__dirname, '../views/login.html')); 
+    //change this back to login.html
 });
 
 // Signup
@@ -35,7 +36,12 @@ app.get('/register', async function(req, res) {
     res.sendFile(path.join(__dirname, '../views/register.html'));
 });
 
+// Player Performance Analysis Page
+app.get('/player_analysis', async function(req, res) {
+    res.sendFile(path.join(__dirname, '../views/player_analysis.html')); 
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+
