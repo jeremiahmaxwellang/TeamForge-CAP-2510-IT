@@ -130,11 +130,20 @@ header h1, header h2 {
 }
 
 /* Player Profile Details Section */
+.player_info_section {
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+/* Left Rectangle Container Column */
 .player-info {
     margin: 20px;
     padding: 20px;
     background-color: var(--porcelain); /* Player info background color from Figma variables */
-    border-radius: 5px;
+    border-radius: 20px;
+    height: auto;
+    display: inline-block;
 }
 
 .profile-img {
@@ -155,6 +164,7 @@ header h1, header h2 {
 }
 
 .player-info .player-details h3 {
+    font-size: 24px;
     margin: 0;
     color: var(--carbon-black); /* Player name color from Figma variables */
 }
@@ -163,6 +173,94 @@ header h1, header h2 {
     margin: 0px;
     padding: 5px 0;
     color: var(--carbon-black); /* Player details color from Figma variables */
+}
+
+.player_contact {
+    margin-top: 10px;
+}
+
+.player_contact h3 {
+    font-size: 20px;
+    padding-bottom: 5px;
+    margin: 0;
+    color: var(--carbon-black); /* Contact info header color from Figma variables */
+}
+
+.player_contact p {
+    margin: 0;
+    padding-bottom: 5px;
+    color: var(--carbon-black); /* Contact info text color from Figma variables */
+}
+
+/* Left Column for Player Details, Rank, and Student Information */
+.rank_and_student_info {
+    margin: 0;
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Player's Current and Peak Rank */
+/* Top Container for Right Side */
+.rank_container {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--porcelain); /* Rank container background color from Figma variables */
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+.rank_and_student_info .rank_container .current_rank, .peak_rank {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+}
+
+.rank_and_student_info .rank_container .current_rank h3,
+.rank_and_student_info .rank_container .peak_rank h3,
+.rank_and_student_info .rank_container .current_rank p,
+.rank_and_student_info .rank_container .peak_rank p {
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: var(--carbon-black); /* Rank text color from Figma variables */
+}
+
+.vertical_line {
+  width: 5px;
+  background-color: #000; /* Black color for the vertical line */
+  height: 100%; /* Adjust the height as needed */
+}
+
+.rank_icon {
+    height: 90px;
+    width: 90px;
+}
+
+/* Student's Information */
+/* Bottom Container for Left Side */
+.student_info_container {
+    padding: 20px;
+    background-color: var(--porcelain); /* Student info container background color from Figma variables */
+    border-radius: 20px;
+    height: auto;
+    width: auto;
+    display: inline-block;
+}
+
+.student_info_container h3 {
+    font-size: 24px;
+    margin: 0;
+    color: var(--carbon-black); /* Student info header color from Figma variables */
+}
+
+.student_info_container p {
+    margin: 0;
+    padding: 5px 0;
+    color: var(--carbon-black); /* Student info text color from Figma variables */
 }
 
 /* Tabs styling */
