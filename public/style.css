@@ -192,6 +192,57 @@ header h1, header h2 {
     color: var(--carbon-black); /* Contact info text color from Figma variables */
 }
 
+/* Styles for Selected Player Dropdown */
+.player-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.player-dropdown-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--carbon-black);
+    cursor: pointer;
+}
+
+.player-dropdown-btn::after {
+    content: " ▾";
+    font-size: 36px;
+}
+
+.player-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    min-width: 220px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.player-dropdown-menu a {
+    display: block;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: var(--carbon-black);
+    font-size: 14px;
+}
+
+.player-dropdown-menu a:hover {
+    background-color: #f2f2f2;
+}
+
+/* Show dropdown on hover */
+.player-dropdown:hover .player-dropdown-menu {
+    display: block;
+}
+
 /* Left Column for Player Details, Rank, and Student Information */
 .rank_and_student_info {
     margin: 0;
@@ -253,6 +304,7 @@ header h1, header h2 {
 
 .student_info_container h3 {
     font-size: 24px;
+    padding: 5px 0;
     margin: 0;
     color: var(--carbon-black); /* Student info header color from Figma variables */
 }
