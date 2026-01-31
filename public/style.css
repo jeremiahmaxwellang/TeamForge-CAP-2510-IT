@@ -66,7 +66,7 @@ body {
 /* Main content styles */
 .main-content {
     flex-grow: 1; /* Allows the main content to take the remaining space */
-    background-color: var(--porcelain); /* Main content background color */
+    background-color: var(--gunmetal); /* Main content background color */
     height: 100vh; /* Ensure the main content fills the height */
 }
 
@@ -83,7 +83,7 @@ header h1, header h2 {
 
 .header_title {
     font-family: var(--font-road-rage); /* Using the Road Rage font */
-    font-size: 36px;
+    font-size: 48px;
     margin-left: 30px;
     color: var(--porcelain);
 }
@@ -116,7 +116,7 @@ header h1, header h2 {
 }
 
 .header_container .team-name {
-    font-size: 18px;
+    font-size: 36px;
     color: var(--porcelain); 
     margin-left: auto;
     margin-right: 20px;
@@ -129,10 +129,11 @@ header h1, header h2 {
     background-color: var(--iron-gray); /* Placeholder background for profile icon */
 }
 
+/* Player Profile Details Section */
 .player-info {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: var(--iron-gray); /* Player info background color from Figma variables */
+    margin: 20px;
+    padding: 20px;
+    background-color: var(--porcelain); /* Player info background color from Figma variables */
     border-radius: 5px;
 }
 
@@ -140,6 +141,28 @@ header h1, header h2 {
     width: 100px;
     height: 100px;
     border-radius: 50%;
+}
+
+.player-info .player-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-info .profile_with_details {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.player-info .player-details h3 {
+    margin: 0;
+    color: var(--carbon-black); /* Player name color from Figma variables */
+}
+
+.player-info .player-details p {
+    margin: 0px;
+    padding: 5px 0;
+    color: var(--carbon-black); /* Player details color from Figma variables */
 }
 
 /* Tabs styling */
