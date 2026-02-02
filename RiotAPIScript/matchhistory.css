@@ -1,0 +1,106 @@
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #f4f4f4; /* Light gray background */
+  color: #333;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 { font-size: 24px; color: #333; margin-bottom: 20px; }
+.tag { color: #888; font-weight: normal; font-size: 0.8em; }
+
+/* MATCH CARD STYLES */
+.match-card {
+  display: flex;
+  align-items: center;
+  border-left: 6px solid #ccc;
+  background: white;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  height: 100px;
+  overflow: hidden;
+}
+
+/* Win/Loss Coloring */
+.match-card.win {
+  background-color: #ecf2ff; /* Light Blue */
+  border-left-color: #5383e8;
+}
+.match-card.loss {
+  background-color: #fff1f3; /* Light Red */
+  border-left-color: #e84057;
+}
+
+/* SECTIONS WITHIN THE CARD */
+.game-info {
+  width: 100px;
+  text-align: center;
+  font-size: 12px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+.game-result { font-weight: bold; font-size: 14px; }
+.win .game-result { color: #2c58b6; }
+.loss .game-result { color: #d31a31; }
+
+.champ-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 15px;
+}
+.champ-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.1);
+}
+.champ-name { font-size: 11px; margin-top: 4px; color: #555; }
+
+.kda-info {
+  width: 120px;
+  text-align: center;
+}
+.kda-score { font-size: 16px; font-weight: bold; color: #333; }
+.kda-ratio { font-size: 12px; color: #777; margin-top: 4px; }
+.kda-ratio span { font-weight: bold; color: #333; }
+
+.stats-info {
+  flex-grow: 1;
+  font-size: 12px;
+  color: #777;
+  padding-left: 20px;
+}
+.stat-row { margin-bottom: 3px; }
+
+.items-info {
+  display: flex;
+  gap: 2px;
+  margin-right: 20px;
+}
+.item-box {
+  width: 25px;
+  height: 25px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+}
+.item-box img { width: 100%; height: 100%; border-radius: 3px; }
+
+/* RAW DATA SECTION */
+.raw-section {
+  margin-top: 40px;
+  background: #222;
+  color: #0f0; /* Matrix Green */
+  padding: 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+pre { margin: 0; font-family: monospace; font-size: 12px; }
