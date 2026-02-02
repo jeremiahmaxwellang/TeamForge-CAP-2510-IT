@@ -56,7 +56,21 @@ var RadarChart = {
         .attr("height", bbox.height + (padding*2))
         .attr("rx","5").attr("ry","5")
         .style("fill", cfg.backgroundTooltipColor).style("opacity", cfg.backgroundTooltipOpacity);
-        tooltip.attr("transform", "translate(" + (coords[0]+10) + "," + (coords[1]-10) + ")")
+
+        // --- FIX STARTS HERE --- 
+        // Default: 10px to the right
+        var xPos = coords[0] + 10;
+        var yPos = coords[1] - 10;
+
+        // Check if tooltip goes beyond the chart width (cfg.w)
+        // bbox.width is the text width, padding*2 accounts for the box
+        if (xPos + bbox.width + (padding*2) > cfg.w) {
+            // Flip it to the left side of the mouse
+            xPos = coords[0] - bbox.width - 20; 
+        }
+        
+        tooltip.attr("transform", "translate(" + xPos + "," + yPos + ")");
+        // --- FIX ENDS HERE ---
       }
     }
     function radar(selection) {
@@ -297,9 +311,29 @@ var RadarChart = {
           .classed({circle: 1, 'd3-enter': 1})
           .on('mouseover', function(dd){
             d3.event.stopPropagation();
-            setTooltip(tooltip, cfg.tooltipFormatValue(dd[0].value));
-            //container.classed('focus', 1);
-            //container.select('.area.radar-chart-serie'+dd[1]).classed('focused', 1);
+            
+            // 1. Identify which Stat we are hovering (e.g., "Vision")
+            var axisName = dd[0].axis;
+            var tooltipString = "";
+
+            // 2. Loop through ALL players in the data to get their score for this stat
+            data.forEach(function(player, i){
+              // Find the matching axis object for this player
+              var stat = player.axes.filter(function(a){ return a.axis === axisName; })[0];
+              
+              if (stat) {
+                // Get the real number
+                var val = stat.originalValue || stat.value;
+                // Get the player name (or fallback to P1/P2)
+                var name = player.className || ("P" + (i+1));
+                
+                // Add to our text (e.g. "Faker: 8.5   ")
+                tooltipString += name + ": " + val + "    ";
+              }
+            });
+
+            // 3. Show the combined text
+            setTooltip(tooltip, tooltipString.trim());
           })
           .on('mouseout', function(dd){
             d3.event.stopPropagation();

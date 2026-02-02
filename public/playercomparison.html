@@ -1,218 +1,173 @@
 <!DOCTYPE html>
 <html>
-<meta charset="utf-8">
-<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
-<link rel="stylesheet" href="../src/radar-chart.css">
 <head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+  <link rel="stylesheet" href="../src/radar-chart.css">
   <style>
-    body {
-      padding: 20px;
-    }
-    .radar-chart .area {
-      fill-opacity: 0.7;
-    }
-    .radar-chart.focus .area {
-      fill-opacity: 0.3;
-    }
-    .radar-chart.focus .area.focused {
-      fill-opacity: 0.9;
-    }
-    .area.germany, .germany .circle {
-      fill: #FFD700;
-      stroke: none;
-    }
-    .area.argentina, .argentina .circle {
-      fill: #ADD8E6;
-      stroke: none;
-    }
-    /* COMPARISON STUFF */
-    /* Main container to align items in a row */
-    .comparison-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px; /* Space between elements */
-      font-family: sans-serif;
-    }
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
 
-    /* Player Profile Styles */
-    .player-profile {
-      text-align: center;
-      width: 150px;
-    }
+  /* CHART COLORS */
+  .radar-chart .area { fill-opacity: 0.7; }
+  .radar-chart.focus .area { fill-opacity: 0.3; }
+  .radar-chart.focus .area.focused { fill-opacity: 0.9; }
+  
+  .area.Player1, .Player1 .circle {
+    fill: #FFD700; /* Gold */
+    stroke: none;
+  }
+  .area.Player2, .Player2 .circle {
+    fill: #ADD8E6; /* Blue */
+    stroke: none;
+  }
 
-    .player-pfp {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%; /* Makes image circular */
-      object-fit: cover;
-    }
+  /* LAYOUT */
+  .dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
 
-    .player-ign {
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 1.2em;
-    }
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+  }
 
-    /* Chart Container Size */
-    #chart-container {
-      width: 400px; 
-      height: 400px;
-    }
-  </style>
+  /* PLAYER CARDS */
+  .player-card { text-align: center; width: 150px; }
+  .player-pfp {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    border: 4px solid #333;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  .player-name { font-weight: bold; font-size: 1.4em; }
 
-  <script type="text/javascript" src="../src/d3.v3.js"></script>
-  <script type="text/javascript" src="../src/radar-chart.js"></script>
+  /* CHART CONTAINER */
+  #chart-container {
+    width: 400px;
+    height: 400px;
+  }
+
+  /* STATS TABLE */
+  #stats-container {
+    width: 500px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .stats-header {
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #555;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+</style>
+
+<script type="text/javascript" src="../src/d3.v3.js"></script>
+<script type="text/javascript" src="../src/radar-chart.js"></script>
 </head>
 <body>
-    <h1>Radar Chart from CSV file</h1>
-    <p>Include data in CSV format. The <strong>first row are the headers</strong> and the <strong>first column is the class names.</strong></p>
-
-    <textarea id="data" cols="60" rows="15">name,Vision Score,Obj Control,Roam Score,Utility,GPM,XPD15
-xXElonMuskXx,1.8,4,7,9,7.1,1.2
-Trumpator420,1.2,6,5,7,7.2,0.9</textarea>
-<p>
-Width: <input type="number" name="w" id="w" class="form-control" value="400" min="200" max="2000" step="" required="required" title="">
-Height: <input type="number" name="h" id="h" class="form-control" value="400" min="200" max="2000" step="" required="required" title="">
-</p>
-<p>
-<button onclick='showRadar()' class="btn btn-default" style="width:200px;height:50px;">Draw!</button>
-</p>
-<script type="text/javascript">
-
-  function showRadar(){
-    var data = [];
-    var chart = RadarChart.chart();
-  
-  var c = document.getElementById("data").value,
-      w = document.getElementById("w").value,
-      h = document.getElementById("h").value,
-  csv = c.split("\n").map(function(i){return i.split(",")})
-  headers = []
-  csv.forEach(function(item, i){
-    if(i==0){
-      headers = item;
-    }else{
-      newSeries = {};
-      item.forEach( function(v, j){
-        if(j==0){
-          newSeries.className = v;
-          newSeries.axes = [];
-        }else{
-          newSeries.axes.push({"axis":[headers[j]], "value": parseFloat(v)});
-        }
-      });
-      data.push(newSeries);
-    }
-  })
-RadarChart.defaultConfig.radius = 5;
-RadarChart.defaultConfig.w = w;
-RadarChart.defaultConfig.h = h;
-RadarChart.draw("#chart-container", data);
-function animate(elem,time) {
-    if( !elem) return;
-    var to = elem.offsetTop;
-    var from = window.scrollY;
-    var start = new Date().getTime(),
-        timer = setInterval(function() {
-            var step = Math.min(1,(new Date().getTime()-start)/time);
-            window.scrollTo(0,(from+step*(to-from))+1);
-            if( step == 1){ clearInterval(timer);};
-        },25);
-        window.scrollTo(0,(from+1));
-    }
-
-var divVal = document.getElementById('chart-container');
-animate(divVal,600);
-}
-</script>
 
 <h1>Player Comparison</h1>
 
-  <div class="comparison-container">
-    <div class="player-profile">
-      <img src="../img/elonmusk.jpg" alt="Player 1" class="player-pfp">
-      <div class="player-ign">xXElonMuskXx</div>
+<div class="dashboard-container">
+    
+    <div class="top-row">
+      <div class="player-card">
+        <img src="..\img\elonmusk.jpg" class="player-pfp" style="border-color: #FFD700;">
+        <div class="player-name">xXElonMuskXx</div>
+      </div>
+
+      <div id="chart-container"></div>
+
+      <div class="player-card">
+        <img src="..\img\trump.webp" class="player-pfp" style="border-color: #ADD8E6;">
+        <div class="player-name">Trumpator420</div>
+      </div>
     </div>
 
-    <div id="chart-container"></div>
-
-    <div class="player-profile">
-      <img src="../img/trump.webp" alt="Player 2" class="player-pfp">
-      <div class="player-ign">Trumpator420</div>
+    <div id="stats-container">
+      <div class="stats-header">OTHER STATS</div>
+      <div id="stats-list"></div>
     </div>
+
   </div>
-  <script>
-    // RAW DATA (replace with get data later)
-    var rawData = [
-      {
-        className: 'xXElonMuskXx',
-        axes: [
-          {axis: "Vision Score", value: 1.8},
-          {axis: "Dmg Mitigated", value: 800},
-          {axis: "Obj Control", value: 4},
-          {axis: "Roam Score", value: 7},
-          {axis: "Utility", value: 9},
-          {axis: "GPM", value: 7.1}
-        ]
-      },
-      {
-        className: 'Trumpator420',
-        axes: [
-          {axis: "Vision Score", value: 1.2},
-          {axis: "Dmg Mitigated", value: 650},
-          {axis: "Obj Control", value: 6},
-          {axis: "Roam Score", value: 5},
-          {axis: "Utility", value: 7},
-          {axis: "GPM", value: 7.1}
-        ]
-      }
-    ];
 
-    // DYNAMIC ADJUSTMENT FUNCTION
-    function processData(data) {
-      // Create a copy of data to avoid breaking the original numbers
-      var processed = JSON.parse(JSON.stringify(data));
-      
-      // Find the Maximum value for EACH axis (stat) independently
-      var maxValues = {};
-      data.forEach(function(player) {
-        player.axes.forEach(function(stat) {
-          // If this stat isn't in our list yet, or if this player has a higher score
-          if (!maxValues[stat.axis] || stat.value > maxValues[stat.axis]) {
-            maxValues[stat.axis] = stat.value;
-          }
-        });
-      });
-
-      // Convert every stat to a 0-1 scale (Percentage) based on the Max
-      processed.forEach(function(player) {
-        player.axes.forEach(function(stat) {
-          // SAVE THE REAL VALUE FIRST
-          stat.originalValue = stat.value;
-          // ex. If the max is 800 and I have 400, my value becomes 0.5 (50%)
-          // tiny buffer (|| 1) to avoid dividing by zero
-          stat.value = stat.value / (maxValues[stat.axis] || 1);
-        });
-      });
-
-      return processed;
+<script type="text/javascript">
+  // 1. CHART DATA (Only keep the small 0-10 scores here)
+  var chartData = [
+    {
+      className: 'xXElonMuskXx',
+      axes: [
+        {axis: "Vision", value: 8.5},
+        {axis: "Roaming", value: 7.2},
+        {axis: "Mechanics", value: 9.5},
+        {axis: "Obj Control", value: 6.0},
+        {axis: "Consistency", value: 8.0}
+      ]
+    },
+    {
+      className: 'Trumpator420',
+      axes: [
+        {axis: "Vision", value: 6.0},
+        {axis: "Roaming", value: 5.5},
+        {axis: "Mechanics", value: 9.8},
+        {axis: "Obj Control", value: 8.5},
+        {axis: "Consistency", value: 7.5}
+      ]
     }
+  ];
 
-    // Combine them into one array for the library
-    var chartData = processData(rawData);
+  // 2. EXTRA STATS (Move the big numbers here)
+  var extraStats = [
+    { label: "Damage Mitigated", p1: 8540, p2: 6200 },
+    { label: "Gold Per Minute", p1: 445, p2: 510 },
+    { label: "Total Damage", p1: 22000, p2: 26500 },
+    { label: "CS @ 15", p1: 140, p2: 155 }
+  ];
 
-    // Configuration for the chart size
-    RadarChart.defaultConfig.w = 400;
-    RadarChart.defaultConfig.h = 400;
-    // Size of the dots
-    RadarChart.defaultConfig.radius = 5;
-    // Sets the outer edge of the chart to always be "100%" (or 1.0) or whatever it is set to
-    RadarChart.defaultConfig.maxValue = 1.5;
+  // --- DRAW THE RADAR CHART ---
+  RadarChart.defaultConfig.w = 400;
+  RadarChart.defaultConfig.h = 400;
+  RadarChart.defaultConfig.radius = 5;
+  RadarChart.defaultConfig.maxValue = 10; // Set scale to 0-10
+  RadarChart.draw("#chart-container", chartData);
 
-    // Draw the chart in the center div
-    RadarChart.draw("#chart-container", chartData);
-  </script>
+
+  // --- DRAW THE EXTRA STATS TABLE ---
+  var statsList = document.getElementById("stats-list");
+  
+  extraStats.forEach(function(stat) {
+    // Simple HTML for each row
+    var row = document.createElement("div");
+    row.style.cssText = "display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;";
+    
+    row.innerHTML = `
+      <span style="font-weight:bold; color: #b89b00;">${stat.p1.toLocaleString()}</span>
+      <span style="color: #555;">${stat.label}</span>
+      <span style="font-weight:bold; color: #5ca0b5;">${stat.p2.toLocaleString()}</span>
+    `;
+    statsList.appendChild(row);
+  });
+</script>
 
 <script type="text/javascript">
     //RadarChart.defaultConfig.levelTick = true;
