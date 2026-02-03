@@ -5,19 +5,19 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema teamforge-db
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema teamforge-db
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+CREATE SCHEMA IF NOT EXISTS `teamforge-db` DEFAULT CHARACTER SET utf8 ;
+USE `teamforge-db` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`users`
+-- Table `teamforge-db`.`users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`users` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`users` (
   `userId` INT UNSIGNED NOT NULL,
   `email` VARCHAR(254) NOT NULL,
   `passwordHash` VARCHAR(254) NULL,
@@ -32,9 +32,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`players`
+-- Table `teamforge-db`.`players`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`players` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`players` (
   `userId` INT UNSIGNED NOT NULL,
   `gameName` VARCHAR(254) NULL,
   `tagLine` VARCHAR(5) NULL,
@@ -54,16 +54,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`players` (
   PRIMARY KEY (`userId`),
   CONSTRAINT `fk_players_users`
     FOREIGN KEY (`userId`)
-    REFERENCES `mydb`.`users` (`userId`)
+    REFERENCES `teamforge-db`.`users` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`announcements`
+-- Table `teamforge-db`.`announcements`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`announcements` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`announcements` (
   `announcementId` INT NOT NULL,
   `userId` INT UNSIGNED NOT NULL,
   `title` VARCHAR(254) NULL,
@@ -73,16 +73,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`announcements` (
   INDEX `fk_announcements_users1_idx` (`userId` ASC) VISIBLE,
   CONSTRAINT `fk_announcements_users1`
     FOREIGN KEY (`userId`)
-    REFERENCES `mydb`.`users` (`userId`)
+    REFERENCES `teamforge-db`.`users` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`matches`
+-- Table `teamforge-db`.`matches`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`matches` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`matches` (
   `matchId` VARCHAR(45) NOT NULL,
   `userId` INT UNSIGNED NOT NULL,
   `gameCreation` BIGINT(20) NULL,
@@ -97,16 +97,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`matches` (
   INDEX `fk_matches_players1_idx` (`userId` ASC) VISIBLE,
   CONSTRAINT `fk_matches_players1`
     FOREIGN KEY (`userId`)
-    REFERENCES `mydb`.`players` (`userId`)
+    REFERENCES `teamforge-db`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`matchParticipants`
+-- Table `teamforge-db`.`matchParticipants`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`matchParticipants` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`matchParticipants` (
   `matchId` VARCHAR(45) NOT NULL,
   `puuid` VARCHAR(245) NULL,
   `riotIdGameTag` VARCHAR(45) NULL,
@@ -160,16 +160,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`matchParticipants` (
   PRIMARY KEY (`matchId`),
   CONSTRAINT `fk_match_participants_matches1`
     FOREIGN KEY (`matchId`)
-    REFERENCES `mydb`.`matches` (`matchId`)
+    REFERENCES `teamforge-db`.`matches` (`matchId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`vods`
+-- Table `teamforge-db`.`vods`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`vods` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`vods` (
   `userId` INT UNSIGNED NOT NULL,
   `name` VARCHAR(45) NULL,
   `date` DATE NULL,
@@ -180,16 +180,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`vods` (
   PRIMARY KEY (`userId`),
   CONSTRAINT `fk_vods_players1`
     FOREIGN KEY (`userId`)
-    REFERENCES `mydb`.`players` (`userId`)
+    REFERENCES `teamforge-db`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`evaluations`
+-- Table `teamforge-db`.`evaluations`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`evaluations` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`evaluations` (
   `playerId` INT UNSIGNED NOT NULL,
   `comment` LONGTEXT NULL,
   `evaluationscol` VARCHAR(45) NULL,
@@ -200,16 +200,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`evaluations` (
   PRIMARY KEY (`playerId`),
   CONSTRAINT `fk_evaluations_players1`
     FOREIGN KEY (`playerId`)
-    REFERENCES `mydb`.`players` (`userId`)
+    REFERENCES `teamforge-db`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`applicantQuestions`
+-- Table `teamforge-db`.`applicantQuestions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`applicantQuestions` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`applicantQuestions` (
   `questionId` INT NOT NULL,
   `question` LONGTEXT NULL,
   PRIMARY KEY (`questionId`))
@@ -217,9 +217,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`applicantAnswers`
+-- Table `teamforge-db`.`applicantAnswers`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`applicantAnswers` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`applicantAnswers` (
   `userId` INT UNSIGNED NOT NULL,
   `questionId` INT NOT NULL,
   `answer` LONGTEXT NULL,
@@ -227,21 +227,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`applicantAnswers` (
   INDEX `fk_applicantAnswers_applicantQuestions1_idx` (`questionId` ASC) VISIBLE,
   CONSTRAINT `fk_applicantAnswers_applicantQuestions1`
     FOREIGN KEY (`questionId`)
-    REFERENCES `mydb`.`applicantQuestions` (`questionId`)
+    REFERENCES `teamforge-db`.`applicantQuestions` (`questionId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_applicantAnswers_users1`
     FOREIGN KEY (`userId`)
-    REFERENCES `mydb`.`users` (`userId`)
+    REFERENCES `teamforge-db`.`users` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`benchmarks`
+-- Table `teamforge-db`.`benchmarks`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`benchmarks` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`benchmarks` (
   `benchmarkId` INT NOT NULL,
   `role` ENUM('Top', 'Jungle', 'Mid', 'ADC', 'Support') NULL,
   `metricName` VARCHAR(45) NULL,
@@ -252,9 +252,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`championPool`
+-- Table `teamforge-db`.`championPool`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`championPool` (
+CREATE TABLE IF NOT EXISTS `teamforge-db`.`championPool` (
   `userId` INT UNSIGNED NOT NULL,
   `championId` INT NOT NULL,
   `championName` VARCHAR(45) NULL,
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`championPool` (
   PRIMARY KEY (`userId`, `championId`),
   CONSTRAINT `fk_championPool_players1`
     FOREIGN KEY (`userId`)
-    REFERENCES `mydb`.`players` (`userId`)
+    REFERENCES `teamforge-db`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
