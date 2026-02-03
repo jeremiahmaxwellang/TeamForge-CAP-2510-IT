@@ -379,4 +379,281 @@ header h1, header h2 {
   transform: scaleX(1);
 }
 
+/* Overview Overlay Styles */
+
+/* Basic styling for the overlay */
+.overlay {
+  display: none; /* Hidden by default */
+  position: fixed; /* Fix the overlay to the screen */
+  top: 0; /* Position at the top of the page */
+  left: 0; /* Position at the left edge of the page */
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+  z-index: 1000; /* Ensure the overlay is on top of other content */
+  justify-content: center; /* Center the content */
+  align-items: center; /* Vertically center the content */
+}
+
+/* Style for the overlay content (inside the .overlay) */
+.overlay .overview-screen {
+  background-color: white; /* Background for the content */
+  padding: 20px;
+  max-width: 80%; /* Limit the width of the content */
+  max-height: 80%; /* Limit the height of the content */
+  overflow-y: auto; /* Allow scrolling if content is too long */
+  border-radius: 10px; /* Round corners */
+  position: relative;
+}
+
+/* Styling for the close button inside the overlay */
+.close-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #f44336; /* Red background */
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Optional: Style for when you hover over the close button */
+.close-overlay:hover {
+  background-color: #d32f2f;
+}
+
+/* General Box Sizing */
+.overview-screen,
+.overview-screen * {
+  box-sizing: border-box;
+}
+
+/* Header Row */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+/* Player List Header */
+.player-list-header {
+  font-family: "Roboto-Medium", sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #000000;
+}
+
+/* Ranked Container */
+.column-2 {
+  border-radius: 20px;
+  border: 1px solid #000000;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  width: 250px;
+}
+
+.ranked {
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: 36px;
+  font-weight: 400;
+  color: #000000;
+}
+
+/* Most Used Champions */
+.most-used-champs {
+  background: #626262;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  width: 100%;
+}
+
+.pie-chart {
+  width: 83px;
+  height: 83px;
+  object-fit: cover;
+}
+
+/* Player Stats */
+.column-12, .column-22 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+._27-4-wr, ._1-14-kda {
+  font-family: "Roboto-Medium", sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.last-15-games, ._2-9-7-3-5-3 {
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+/* Champion Data */
+.champion-1, .champion-2 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.image-13 {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.word-column {
+  display: flex;
+  flex-direction: column;
+}
+
+._1-14-kda2, ._0-87-kda {
+  font-family: "Roboto-Medium", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+._2-w-5-l, ._0-95-kda {
+  font-family: "Roboto-Light", sans-serif;
+  font-size: 20px;
+  font-weight: 300;
+  color: #ffffff;
+}
+
+/* Match History */
+.match-history {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.player-list-header2 {
+  font-family: "Roboto-Medium", sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.row-12 {
+  display: flex;
+  gap: 10px;
+}
+
+.details-1, .details-2 {
+  display: flex;
+  flex-direction: column;
+}
+
+.normal-draft {
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: 24px;
+  color: #000000;
+}
+
+.match-time {
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: 20px;
+  color: #444444;
+}
+
+.loss {
+  font-family: "Roboto-Medium", sans-serif;
+  font-size: 20px;
+  color: #ff0000;
+}
+
+/* Team Information */
+.column-23 {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+
+.column-14 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.icon-1, .icon-2, .icon-3, .icon-4 {
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+}
+
+.column-32 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+._0-6-2 {
+  font-family: "Roboto-Bold", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+._0-33-kda {
+  font-family: "Roboto-Bold", sans-serif;
+  font-size: 16px;
+  color: #000000;
+}
+
+._0-33-kda-span {
+  font-weight: 700;
+}
+
+._28-cs-1, ._10-vision {
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: 16px;
+  color: #000000;
+}
+
+/* Right Column */
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 312px;
+}
+
+.image-19 {
+  width: 543px;
+  height: 456px;
+  object-fit: cover;
+  aspect-ratio: 543/456;
+}
+
+
 /* End of player_analysis styles */
