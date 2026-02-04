@@ -4,7 +4,7 @@ const con = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'teamforge-db',
+    database: 'teamforgedb',
 });
 // password may vary from device to device
 

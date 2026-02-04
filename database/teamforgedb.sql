@@ -5,19 +5,19 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema teamforge-db
+-- Schema teamforgedb
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema teamforge-db
+-- Schema teamforgedb
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `teamforge-db` DEFAULT CHARACTER SET utf8 ;
-USE `teamforge-db` ;
+CREATE SCHEMA IF NOT EXISTS `teamforgedb` DEFAULT CHARACTER SET utf8 ;
+USE `teamforgedb` ;
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`users`
+-- Table `teamforgedb`.`users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`users` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
   `userId` INT UNSIGNED NOT NULL,
   `email` VARCHAR(254) NOT NULL,
   `passwordHash` VARCHAR(254) NULL,
@@ -32,9 +32,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`players`
+-- Table `teamforgedb`.`players`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`players` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `userId` INT UNSIGNED NOT NULL,
   `gameName` VARCHAR(254) NULL,
   `tagLine` VARCHAR(5) NULL,
@@ -54,16 +54,16 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`players` (
   PRIMARY KEY (`userId`),
   CONSTRAINT `fk_players_users`
     FOREIGN KEY (`userId`)
-    REFERENCES `teamforge-db`.`users` (`userId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`announcements`
+-- Table `teamforgedb`.`announcements`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`announcements` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`announcements` (
   `announcementId` INT NOT NULL,
   `userId` INT UNSIGNED NOT NULL,
   `title` VARCHAR(254) NULL,
@@ -73,16 +73,16 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`announcements` (
   INDEX `fk_announcements_users1_idx` (`userId` ASC) VISIBLE,
   CONSTRAINT `fk_announcements_users1`
     FOREIGN KEY (`userId`)
-    REFERENCES `teamforge-db`.`users` (`userId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`matches`
+-- Table `teamforgedb`.`matches`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`matches` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`matches` (
   `matchId` VARCHAR(45) NOT NULL,
   `userId` INT UNSIGNED NOT NULL,
   `gameCreation` BIGINT(20) NULL,
@@ -93,21 +93,22 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`matches` (
   `gameStartTimestamp` BIGINT(20) NULL,
   `gameType` VARCHAR(45) NULL,
   `gameVersion` VARCHAR(45) NULL,
-  PRIMARY KEY (`matchId`, `userId`),
+  PRIMARY KEY (`matchId`),
   INDEX `fk_matches_players1_idx` (`userId` ASC) VISIBLE,
   CONSTRAINT `fk_matches_players1`
     FOREIGN KEY (`userId`)
-    REFERENCES `teamforge-db`.`players` (`userId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`matchParticipants`
+-- Table `teamforgedb`.`matchParticipants`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`matchParticipants` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
   `matchId` VARCHAR(45) NOT NULL,
+  `participantId` INT NOT NULL,
   `puuid` VARCHAR(245) NULL,
   `riotIdGameTag` VARCHAR(45) NULL,
   `riotIdTagline` VARCHAR(45) NULL,
@@ -133,7 +134,6 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`matchParticipants` (
   `item5` INT NULL,
   `item6` INT NULL,
   `neutralMinionsKilled` INT NULL,
-  `participantId` INT NULL,
   `role` VARCHAR(45) NULL,
   `soloKills` INT NULL,
   `teamId` INT NULL,
@@ -157,19 +157,19 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`matchParticipants` (
   `damageShare` DECIMAL(6,2) NULL,
   `visionScoreShare` DECIMAL(6,2) NULL,
   `proximityToAdc` DECIMAL(6,2) NULL,
-  PRIMARY KEY (`matchId`),
-  CONSTRAINT `fk_match_participants_matches1`
+  PRIMARY KEY (`matchId`, `participantId`),
+  CONSTRAINT `fk_matchParticipants_matches1`
     FOREIGN KEY (`matchId`)
-    REFERENCES `teamforge-db`.`matches` (`matchId`)
+    REFERENCES `teamforgedb`.`matches` (`matchId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`vods`
+-- Table `teamforgedb`.`vods`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`vods` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`vods` (
   `userId` INT UNSIGNED NOT NULL,
   `name` VARCHAR(45) NULL,
   `date` DATE NULL,
@@ -180,16 +180,16 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`vods` (
   PRIMARY KEY (`userId`),
   CONSTRAINT `fk_vods_players1`
     FOREIGN KEY (`userId`)
-    REFERENCES `teamforge-db`.`players` (`userId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`evaluations`
+-- Table `teamforgedb`.`evaluations`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`evaluations` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`evaluations` (
   `playerId` INT UNSIGNED NOT NULL,
   `comment` LONGTEXT NULL,
   `evaluationscol` VARCHAR(45) NULL,
@@ -200,16 +200,16 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`evaluations` (
   PRIMARY KEY (`playerId`),
   CONSTRAINT `fk_evaluations_players1`
     FOREIGN KEY (`playerId`)
-    REFERENCES `teamforge-db`.`players` (`userId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`applicantQuestions`
+-- Table `teamforgedb`.`applicantQuestions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`applicantQuestions` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantQuestions` (
   `questionId` INT NOT NULL,
   `question` LONGTEXT NULL,
   PRIMARY KEY (`questionId`))
@@ -217,9 +217,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`applicantAnswers`
+-- Table `teamforgedb`.`applicantAnswers`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`applicantAnswers` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantAnswers` (
   `userId` INT UNSIGNED NOT NULL,
   `questionId` INT NOT NULL,
   `answer` LONGTEXT NULL,
@@ -227,21 +227,21 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`applicantAnswers` (
   INDEX `fk_applicantAnswers_applicantQuestions1_idx` (`questionId` ASC) VISIBLE,
   CONSTRAINT `fk_applicantAnswers_applicantQuestions1`
     FOREIGN KEY (`questionId`)
-    REFERENCES `teamforge-db`.`applicantQuestions` (`questionId`)
+    REFERENCES `teamforgedb`.`applicantQuestions` (`questionId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_applicantAnswers_users1`
     FOREIGN KEY (`userId`)
-    REFERENCES `teamforge-db`.`users` (`userId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`benchmarks`
+-- Table `teamforgedb`.`benchmarks`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`benchmarks` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`benchmarks` (
   `benchmarkId` INT NOT NULL,
   `role` ENUM('Top', 'Jungle', 'Mid', 'ADC', 'Support') NULL,
   `metricName` VARCHAR(45) NULL,
@@ -252,9 +252,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforge-db`.`championPool`
+-- Table `teamforgedb`.`championPool`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforge-db`.`championPool` (
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`championPool` (
   `userId` INT UNSIGNED NOT NULL,
   `championId` INT NOT NULL,
   `championName` VARCHAR(45) NULL,
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS `teamforge-db`.`championPool` (
   PRIMARY KEY (`userId`, `championId`),
   CONSTRAINT `fk_championPool_players1`
     FOREIGN KEY (`userId`)
-    REFERENCES `teamforge-db`.`players` (`userId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
