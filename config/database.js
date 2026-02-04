@@ -1,14 +1,11 @@
-let mysql = require('mysql2');
+let mysql = require('mysql2/promise');
 
-const con = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'teamforgedb',
+const mySqlPool = mysql.createPool({
+    host:'localhost',
+    user:'root',
+    password:'root1234!',
+    database:'teamforgedb'
 });
 // password may vary from device to device
 
-con.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected to the database!");
-});
+module.exports = mySqlPool;
