@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const overviewButton = document.getElementById('overviewButton');
-  const overlayContainer = document.getElementById('overlay-container');
+    const overviewButton = document.getElementById('overviewButton');
+    const overlayContainer = document.getElementById('overlay-container');
 
-  function closeOverlay() {
-    const overlay = overlayContainer.querySelector('.overlay');
-    if (overlay) overlay.style.display = 'none';
-  }
+    function closeOverlay() {
+        const overlay = overlayContainer.querySelector('.overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
 
-  // Safely attach click handler to overviewButton
+  // Attach click handler to the overviewButton
   if (overviewButton && overlayContainer) {
     overviewButton.addEventListener('click', function(e) {
       e.preventDefault();
@@ -22,16 +22,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
           const overlay = overlayContainer.querySelector('.overlay');
           if (overlay) {
-            // Show overlay
-            overlay.style.display = 'flex';
+            // Show overlay under the buttons
+            overlay.style.display = 'block'; // Show overlay below the navigation buttons
 
-            // Close when clicking outside the content
+            // Close the overlay when clicking outside the content
             overlay.addEventListener('click', function(event) {
               if (event.target === this) closeOverlay();
             });
 
-            // Close button if present
-            const closeButton = overlay.querySelector('.close-overlay');
             if (closeButton) closeButton.addEventListener('click', closeOverlay);
           }
         })

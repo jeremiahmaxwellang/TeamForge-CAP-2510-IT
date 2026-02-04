@@ -5,18 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Match History Overlay</title>
-    <link rel="stylesheet" href="/css/overlay.css"> <!-- Link to the CSS for styling -->
+    <link rel="stylesheet" href="/css/style.css"> <!-- Link to the CSS for styling -->
     </head>
 <body>
     <div class="overlay">
-        <div class="overview-screen">
-            <button class="close-overlay" aria-label="Close">×</button>
-            <!-- Your overlay content here -->
-            <div class="header-row">
+        <!-- Your overlay content here -->
+            <div class="overview-container">
                 <div class="match-history-header">
                     <div class="header-text">Match History:</div>
-                    <div class="ranked">Ranked</div>
+                    <!-- Dropdown button for "Ranked" -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn">Ranked</button>
+                        <div class="dropdown-content">
+                            <a href="#">Ranked</a>
+                            <a href="#">Casual</a>
+                            <a href="#">ARAM</a>
+                        </div>
+                    </div>
                 </div>
+                
                 <div class="match-info">
                     <div class="wr-kda">
                         <div class="win-rate">27.4% WR</div>
@@ -31,22 +38,12 @@
                         <div class="kda-2">0.87 KDA</div>
                     </div>
                 </div>
+
             </div>
             
             <div class="match-history">
                 <!-- Your match history details here -->
             </div>
-        </div>
     </div>
-    <script>
-        // Guarded close handler (in case script runs standalone)
-        const closeBtn = document.querySelector('.close-overlay');
-        if (closeBtn) {
-          closeBtn.addEventListener('click', function() {
-            const overlay = document.querySelector('.overlay');
-            if (overlay) overlay.style.display = 'none';
-          });
-        }
-    </script>
 </body>
 </html>
