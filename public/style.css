@@ -1,4 +1,5 @@
 @import url('/vars.css');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 /* Start of player_analysis styles */
 /* Global styles */
@@ -399,14 +400,22 @@ header h1, header h2 {
 /* Minimal overlay styles */
 .overlay {
     box-sizing: border-box; /* include padding in width calculations */
-    width: calc(100% - 40px); /* leave space for padding on small screens */
-    max-width: 1200px; /* prevent overlay from growing beyond viewport */
-    margin: 15px auto 0; /* center and keep below the tabs */
-    background-color: white; /* White background for content area */
+    width: auto;
+    max-width: calc(100% - 30px); /* leave 15px margin on each side without causing overflow */
+    margin: 15px; /* uniform margin around overlay */
+    background-color: var(--porcelain); /* White background for content area */
     padding: 15px;
     border-radius: 10px;
-    overflow-x: auto; /* prevent horizontal overflow */
-    word-wrap: break-word;
+    overflow: visible; /* prevent internal scrollbars */
+    word-break: break-word; /* break long words to avoid overflow */
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+    padding: 12px;
+  }
 }
 
 /* Ensure the overview container does not force overflow */
@@ -500,56 +509,120 @@ header h1, header h2 {
     display: block;
 }
 
-.match-info {
+.player_average_info {
+    background-color: #626262;
+    border-radius: 18px;
+    padding: 20px;
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 28px;
+    overflow: hidden;
 }
 
-.wr-kda {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.win-rate,
-.kda {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 5px 0;
-}
-
-.game-stats {
+/* Each section inside the stat bar */
+.player_average_info > div {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
 }
 
-.last-15-games,
+.player_average_info > div:last-child {
+    border-right: none;
+}
+
+/* Winrate donut + text */
+.winrate {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+    padding-left: 96px; /* space for the donut */
+}
+
+.winrate::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: conic-gradient(#28b5ff 0 40%, #ff6b6b 40% 72%, #ffd866 72% 100%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+/* create inner hole for donut */
+.winrate::after {
+    content: "";
+    position: absolute;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #626262;
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,0.03);
+}
+
+/* third column for KDA info */
+.winrate .percentWin {
+    font-size: 28px;
+    font-weight: 600;
+    font-family: 'Roboto', sans-serif;
+    color: var(--porcelain);
+}
+
+.winrate .totalGames {
+    font-size: 21px;
+    color: var(--porcelain);
+    font-family: 'Roboto', sans-serif;
+}
+
 .stat-values {
-    font-size: 16px;
-    margin: 5px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
 }
 
-.kda-info {
+/* KDA block (3rd Column) */
+.KDA_info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: 6px;
+    min-width: 140px;
 }
 
-.kda-1,
-.kda-2 {
-    font-size: 16px;
-    margin: 5px 0;
-    color: #555;
+.KDA_info .KDA {
+    font-size: 28px;
+    font-weight: 600;
+    font-family: 'Roboto', sans-serif;
+    color: var(--porcelain);
 }
 
-.match-history {
-    width: 100%;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+.KDA_info .Summarized_KDA {
+    font-size: 21px;
+    color: var(--porcelain);
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+    .player_average_info {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .player_average_info > div {
+        border-right: none;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .winrate { min-width: 0; padding-left: 80px; }
 }
 
 /* Additional styles for responsive design */
@@ -565,6 +638,5 @@ header h1, header h2 {
 /* Example small typographic styles */
 .header-text{ font-weight: 700; }
 .match-history{ margin-top: 12px; }
-
 
 /* End of player_analysis styles */
