@@ -6,7 +6,10 @@ TeamForge is a Decision Support System for Collegiate League of Legends Esports 
 ### Dependencies
 
 * NodeJS v22 or higher
-* SQL
+Download here: [https://nodejs.org/en/download](https://nodejs.org/en/download)
+
+* MySQL Server and Workbench
+Download here: [https://dev.mysql.com/downloads/installer/](https://dev.mysql.com/downloads/installer/)
 
 ### Installation
 
@@ -25,7 +28,7 @@ npm init -y
 
 * Use [npm] to install the required Node libraries
 ```
-npm install express hbs path express-fileupload express-session mongoose cookie-parser
+npm install express dotenv hbs path express-fileupload express-session cookie-parser
 ```
 
 ### Executing program
