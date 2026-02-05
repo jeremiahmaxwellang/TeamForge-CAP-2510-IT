@@ -125,7 +125,7 @@
 
                 <section class="tabs">
                     <ul>
-                        <li><a href="#" class="active">Overview</a></li>
+                        <li><a href="#" class="active" id="overviewButton">Overview</a></li>
                         <li><a href="#">Comparison</a></li>
                         <li><a href="#">VODs</a></li>
                         <li><a href="#">Champion Pool</a></li>
@@ -133,9 +133,16 @@
                     </ul>
                 </section>
 
+                <section class="overlay-content">
+                    <!-- Overlay content will be dynamically loaded here -->
+                    <div id="overlay-container"></div>
+                </section>
+
             </div>
         </div>
     </div>
-    <script src="src/script.js"></script>
+    
+    <!-- Link to the external JavaScript file -->
+    <script src="/js/player_analysis.js"></script>
 </body>
 </html>

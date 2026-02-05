@@ -37,6 +37,11 @@ app.get('/player_analysis', async function(req, res) {
     res.sendFile(path.join(__dirname, '../views/player_analysis.html')); 
 });
 
+// Serve overlay HTML for player overview
+app.get('/player_overview.html', async function(req, res) {
+    res.sendFile(path.join(__dirname, '../views/player_analysis_overlays/player_overview.html'));
+});
+
 
 mySqlPool.query('SELECT 1').then(() => {
     console.log('MySQL DB Connected');
