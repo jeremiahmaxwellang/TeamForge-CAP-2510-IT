@@ -18,14 +18,14 @@ USE `teamforgedb` ;
 -- Table `teamforgedb`.`users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
-  `userId` INT UNSIGNED NOT NULL,
+  `userId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(254) NOT NULL,
   `passwordHash` VARCHAR(254) NULL,
   `firstname` VARCHAR(254) NOT NULL,
   `lastname` VARCHAR(254) NOT NULL,
   `position` ENUM('Team Manager', 'Team Coach', 'Player', 'Applicant') NOT NULL,
   `discord` VARCHAR(45) NULL,
-  `status` VARCHAR(45) NOT NULL,
+  `status` ENUM('Active', 'Inactive', 'Deactivated') NOT NULL,
   `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`userId`))
 ENGINE = InnoDB;
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `tagLine` VARCHAR(5) NULL,
   `currentRank` VARCHAR(45) NULL,
   `peakRank` VARCHAR(45) NULL,
-  `primaryRole` ENUM('Top', 'Mid', 'Jungle', 'Bot ADC', 'Bot Support') NULL,
-  `secondaryRole` ENUM('Top', 'Mid', 'Jungle', 'Bot ADC', 'Bot Support') NULL,
+  `primaryRole` ENUM('TOP', 'MIDDLE', 'JUNGLE', 'CARRY', 'SUPPORT') NULL,
+  `secondaryRole` ENUM('TOP', 'MIDDLE', 'JUNGLE', 'CARRY', 'SUPPORT') NULL,
   `puuid` VARCHAR(245) NULL,
   `accountRegion` ENUM('AMERICAS', 'ASIA', 'EUROPE', 'SEA') NULL,
   `schoolId` VARCHAR(45) NULL,
