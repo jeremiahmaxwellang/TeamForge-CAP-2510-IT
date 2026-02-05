@@ -1,6 +1,6 @@
 USE teamforgedb;
 
--- Manager 
+-- Manager
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
 (
@@ -29,63 +29,136 @@ VALUES
 );
 
 -- Players
--- INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
--- VALUES 
--- (
---     3,
---     'trebis_detablan@dlsu.edu.ph',
---     '1234',
---     'Trebis',
---     'Detablan',
---     'Player',
---     'hailrain#hailrain',
---     'Active'
--- );
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
+VALUES 
+(
+    3,
+    'tartaros@gmail.com',
+    '1234',
+    'Jotaro',
+    'Joestar',
+    'Player',
+    'hailrain#hailrain',
+    'Active'
+),
+(
+    4,
+    'haimehen@gmail.com',
+    '1234',
+    'Jaime',
+    'Henry',
+    'Player',
+    'Coww2#coww2',
+    'Active'
+),
+(
+    5,
+    'kalachuchi@gmail.com',
+    '1234',
+    'Kala',
+    'Chuchi',
+    'Player',
+    'Cowwean#cowwrean',
+    'Active'
+),
+(
+    6,
+    'vacrowned@gmail.com',
+    '1234',
+    'Crow',
+    'Ned',
+    'Player',
+    'Cowwean#cowwrean',
+    'Active'
+),
+(
+    7,
+    '5starprod@gmail.com',
+    '1234',
+    'Jonah',
+    'Jameson',
+    'Player',
+    'Jonah#jameson',
+    'Active'
+),
+(
+    8,
+    'mushimiko@gmail.com',
+    '1234',
+    'Mikhail',
+    'Sy',
+    'Player',
+    'Rascal#1234',
+    'Active'
+),
+(
+    9,
+    'lancr1226@gmail.com',
+    '1234',
+    'Lance',
+    'Go',
+    'Player',
+    'Cowwean#cowwrean',
+    'Active'
+)
+;
 
--- INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
--- VALUES 
--- (
---     4,
---     'jeremiahang2004@gmail.com',
---     '1234',
---     'Maxwell',
---     'Ang',
---     'Player',
---     'Coww2#coww2',
---     'Active'
--- );
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA)
+VALUES 
+(
+    3,
+    'VA Tartaros',
+    'VA1',
+    'Diamond II',
+    'Master I',
+    'MIDDLE',
+    'Bot Support',
+    '12345678',
+    'BSIT',
+    '3.4',
+    '3.3'
+),
+(
+    4,
+    'Haimehen',
+    '41yk',
+    'Diamond II',
+    'Diamond III',
+    'JUNGLE',
+    'SUPPORT',
+    '12345678',
+    'BSIT',
+    '3.5',
+    '3.2'
+),
+(
+    5,
+    'Kalachuchi',
+    'Wendy',
+    'Diamond II',
+    'Diamond III',
+    'CARRY',
+    'SUPPORT',
+    '12345678',
+    'BSIT',
+    '3.5',
+    '3.2'
+),
+(
+    6,
+    'VA Crowned',
+    '1013',
+    'Diamond II',
+    'Diamond III',
+    'SUPPORT',
+    'SUPPORT',
+    '12345678',
+    'BSIT',
+    '3.5',
+    '3.2'
+),
 
--- INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA)
--- VALUES 
--- (
---     3,
---     'kialos',
---     'akali',
---     'Diamond II',
---     'Master I',
---     'Mid',
---     'Bot Support',
---     '12345678',
---     'BSIT',
---     '3.4',
---     '3.3'
--- );
-
--- INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA)
--- VALUES 
--- (
---     4,
---     'Cowwrean',
---     'moo',
---     'Diamond II',
---     'Diamond III',
---     'Bot ADC',
---     'Jungle',
---     '12345678',
---     'BSIT',
---     '3.5',
---     '3.2'
--- );
+;
 
 -- Applicants
 -- =========================

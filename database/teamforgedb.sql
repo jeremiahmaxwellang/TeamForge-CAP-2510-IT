@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
   `passwordHash` VARCHAR(254) NULL,
   `firstname` VARCHAR(254) NOT NULL,
   `lastname` VARCHAR(254) NOT NULL,
-  `position` ENUM('Team Manager', 'Team Coach', 'Player', 'Applicant') NOT NULL,
+  `position` ENUM('Team Manager', 'Team Coach', 'Player', 'Sub', 'Applicant') NOT NULL,
   `discord` VARCHAR(45) NULL,
   `status` ENUM('Active', 'Inactive', 'Deactivated') NOT NULL,
   `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `applicationStatus` VARCHAR(45) NULL,
   `winrate` DECIMAL(6,2) NULL,
   `averageKDA` DECIMAL(6,2) NULL,
+  `teamId` INT NULL,
   PRIMARY KEY (`userId`),
   CONSTRAINT `fk_players_users`
     FOREIGN KEY (`userId`)
