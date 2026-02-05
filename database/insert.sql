@@ -87,3 +87,73 @@ VALUES
 --     '3.2'
 -- );
 
+-- Applicants
+-- =========================
+-- First Applicant
+-- =========================
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
+VALUES (
+    5,
+    'trebis_detablan@dlsu.edu.ph',
+    'hashed_password_1',
+    'Trebis',
+    'Detablan',
+    'Applicant',
+    'applicant1#1234',
+    'Active'
+);
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA, applicationStatus, winrate, averageKDA)
+VALUES (
+    5,
+    'MrBreast',
+    'GCE',
+    'Gold',
+    'Platinum',
+    'Top',
+    'Mid',
+    'PUUID_SAMPLE_1',
+    'ASIA',
+    '2021-00001',
+    'BSIT',
+    3.25,
+    3.30,
+    'Pending',
+    52.50,
+    3.10
+);
+
+-- =========================
+-- Second Applicant
+-- =========================
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
+VALUES (
+    6,
+    'justin_nicolai_lee@dlsu.edu.ph',
+    'hashed_password_2',
+    'Justin',
+    'Lee',
+    'Applicant',
+    'applicant2#5678',
+    'Active'
+);
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA, applicationStatus, winrate, averageKDA)
+VALUES (
+    6,
+    'MrBreast',
+    'GCE',
+    'Silver',
+    'Gold',
+    'Top',
+    'Jungle',
+    'PUUID_SAMPLE_2',
+    'ASIA',
+    '2021-00002',
+    'BSIT',
+    3.10,
+    3.20,
+    'Pending',
+    48.75,
+    2.85
+);
