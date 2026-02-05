@@ -55,7 +55,7 @@ VALUES
     5,
     'kalachuchi@gmail.com',
     '1234',
-    'Kala',
+    'Wendy',
     'Chuchi',
     'Player',
     'Cowwean#cowwrean',
@@ -87,7 +87,7 @@ VALUES
     '1234',
     'Mikhail',
     'Sy',
-    'Player',
+    'Sub',
     'Rascal#1234',
     'Active'
 ),
@@ -100,19 +100,18 @@ VALUES
     'Player',
     'Cowwean#cowwrean',
     'Active'
-)
-;
+);
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, schoolId, course, lastGPA, CGPA)
 VALUES 
 (
     3,
     'VA Tartaros',
     'VA1',
-    'Diamond II',
-    'Master I',
+    'Diamond III',
+    'Grandmaster',
     'MIDDLE',
-    'Bot Support',
+    'JUNGLE',
     '12345678',
     'BSIT',
     '3.4',
@@ -122,10 +121,10 @@ VALUES
     4,
     'Haimehen',
     '41yk',
-    'Diamond II',
-    'Diamond III',
-    'JUNGLE',
-    'SUPPORT',
+    'Diamond IV',
+    'Master',
+    'TOP',
+    'MIDDLE',
     '12345678',
     'BSIT',
     '3.5',
@@ -135,9 +134,22 @@ VALUES
     5,
     'Kalachuchi',
     'Wendy',
-    'Diamond II',
-    'Diamond III',
+    'Emerald I',
+    'Diamond IV',
     'CARRY',
+    'SUPPORT',
+    '12345678',
+    'BSIT',
+    '3.1',
+    '2.9'
+),
+(
+    6,
+    'VA Crowned',
+    '1013',
+    'Emerald III',
+    'Diamond III',
+    'SUPPORT',
     'SUPPORT',
     '12345678',
     'BSIT',
@@ -145,88 +157,118 @@ VALUES
     '3.2'
 ),
 (
-    6,
-    'VA Crowned',
-    '1013',
+    7,
+    '5star',
+    'Prod',
     'Diamond II',
-    'Diamond III',
-    'SUPPORT',
-    'SUPPORT',
+    'Diamond IV',
+    'JUNGLE',
+    'CARRY',
+    '12345678',
+    'BSIT',
+    '2.9',
+    '3.0'
+),
+(
+    8,
+    'VA Mushi',
+    'Miko',
+    'Diamond II',
+    'Diamond IV',
+    'JUNGLE',
+    'TOP',
     '12345678',
     'BSIT',
     '3.5',
-    '3.2'
+    '3.1'
 ),
-
-;
+(
+    9,
+    'lancr',
+    '1226',
+    'Emerald I',
+    'Diamond II',
+    'JUNGLE',
+    'CARRY',
+    '12345678',
+    'BSIT',
+    '2.1',
+    '1.9'
+);
 
 -- Applicants
--- =========================
--- First Applicant
--- =========================
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
 VALUES (
-    5,
+    10,
     'trebis_detablan@dlsu.edu.ph',
     'hashed_password_1',
     'Trebis',
     'Detablan',
     'Applicant',
-    'applicant1#1234',
+    'Hailrain#hailrain',
     'Active'
-);
-
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA, applicationStatus, winrate, averageKDA)
-VALUES (
-    5,
-    'MrBreast',
-    'GCE',
-    'Gold',
-    'Platinum',
-    'Top',
-    'Mid',
-    'PUUID_SAMPLE_1',
-    'ASIA',
-    '2021-00001',
-    'BSIT',
-    3.25,
-    3.30,
-    'Pending',
-    52.50,
-    3.10
-);
-
--- =========================
--- Second Applicant
--- =========================
-INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
-VALUES (
-    6,
+),
+(
+    11,
     'justin_nicolai_lee@dlsu.edu.ph',
     'hashed_password_2',
     'Justin',
     'Lee',
     'Applicant',
-    'applicant2#5678',
+    'juicetice#_juicetice_',
+    'Active'
+),
+(
+    12,
+    'jeremiahang2004@gmail.com',
+    'hashed_password_2',
+    'Jerry',
+    'Lin',
+    'Applicant',
+    'Coww2#coww2',
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, puuid, accountRegion, schoolId, course, lastGPA, CGPA, applicationStatus, winrate, averageKDA)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, schoolId, course, lastGPA, CGPA, applicationStatus)
 VALUES (
-    6,
-    'MrBreast',
-    'GCE',
-    'Silver',
-    'Gold',
-    'Top',
-    'Jungle',
-    'PUUID_SAMPLE_2',
-    'ASIA',
-    '2021-00002',
-    'BSIT',
+    10,
+    'Kialos',
+    'akali',
+    'Diamond III',
+    'Diamond IV',
+    'CARRY',
+    'MIDDLE',
+    '12100001',
+    'BSCS-NIS',
+    3.25,
+    3.30,
+    'Pending'
+),
+(
+    11,
+    'Pr1m3put1n',
+    '3135',
+    'Bronze I',
+    'Silver I',
+    'JUNGLE',
+    'MIDDLE',
+    '12100002',
+    'BSCS-ST',
     3.10,
     3.20,
-    'Pending',
-    48.75,
-    2.85
+    'Pending'
+),
+(
+    12,
+    'Cowwrean',
+    'moo',
+    'Diamond III',
+    'Diamond IV',
+    'CARRY',
+    'JUNGLE',
+    '12203653',
+    'BSIT',
+    1.9,
+    2.9,
+    'Pending'
 );
