@@ -1,4 +1,6 @@
 const express = require('express');
+
+// Call the controller
 const { 
     getUsers, 
     getUserById, 

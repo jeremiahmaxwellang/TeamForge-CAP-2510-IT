@@ -11,15 +11,10 @@ app.set("view engine", 'hbs');
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Routes 
+// Routes (make sure to call the controller in each route)
 // https://www.youtube.com/watch?v=H9M02of22z4
 app.use('/api/v1/users', require("../routes/userRoutes"));
 app.use("/api/contacts", require("../routes/contactRoutes"));
-
-// Controllers
-const {getUsers} = require("../controllers/userController");
-const {getContact} = require("../controllers/contactController");
-
 
 // Login
 app.get('/', async function(req, res) {

@@ -1,3 +1,6 @@
+// Controllers
+// - contain all the backend and sql queries
+
 const db = require("../config/database");
 
 // GET ALL USERS
@@ -25,7 +28,7 @@ const getUsers = async (req,res) => {
     }
 }
 
-// GET USER BY Email
+// GET USER BY ID
 const getUserById = async (req, res) => {
     try {
         const id = req.params.id
