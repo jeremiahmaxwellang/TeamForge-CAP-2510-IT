@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
           players.forEach(player => {
               const link = document.createElement("a");
               link.href = "#";
-              link.textContent = player.gameName;
+              link.textContent = `${player.gameName} (${player.primaryRole})`;
               link.addEventListener("click", () => loadPlayer(player.userId));
               dropdownMenu.appendChild(link);
           });
