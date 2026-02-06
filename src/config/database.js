@@ -3,10 +3,6 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 let mysql = require('mysql2/promise');
 
 const mySqlPool = mysql.createPool({
-    host:'localhost',
-    user:'root',
-    password:'password',
-    database:'teamforgedb'
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
