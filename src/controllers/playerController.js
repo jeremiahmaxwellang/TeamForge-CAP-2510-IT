@@ -4,9 +4,7 @@ const db = require("../config/database");
 exports.getAllPlayers = async (req, res) => {
   try {
     const sql = `
-      SELECT u.userId, u.firstname, u.lastname, u.email, u.discord,
-             p.gameName, p.tagLine, p.currentRank, p.peakRank,
-             p.primaryRole, p.secondaryRole, p.course, p.schoolId
+      SELECT u.*, p.*
       FROM users u
       JOIN players p ON u.userId = p.userId
       WHERE u.position = 'Player'
@@ -23,9 +21,7 @@ exports.getPlayerById = async (req, res) => {
   try {
     const playerId = req.params.id;
     const sql = `
-      SELECT u.userId, u.firstname, u.lastname, u.email, u.discord,
-             p.gameName, p.tagLine, p.currentRank, p.peakRank,
-             p.primaryRole, p.secondaryRole, p.course, p.schoolId
+      SELECT u.*, p.*
       FROM users u
       JOIN players p ON u.userId = p.userId
       WHERE u.userId = ? AND u.position = 'Player'
@@ -35,6 +31,27 @@ exports.getPlayerById = async (req, res) => {
       return res.status(404).json({ message: 'Player not found' });
     }
     res.json(results[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Update puuid
+exports.updatePuuid = async (req, res) => {
+  try {
+    const playerId = req.params.id;
+    const { puuid } = req.body;
+
+    const sql = `
+      UPDATE players 
+      SET puuid = ?
+      WHERE userId = ?;
+    `;
+    const [result] = await db.query(sql, [puuid, playerId]);
+     
+    res.json({ success: true, affectedRows: result.affectedRows }); 
+    console.log("PUUID update result:", result);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

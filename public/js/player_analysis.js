@@ -1,48 +1,70 @@
 document.addEventListener('DOMContentLoaded', function() {
-  console.log("event listener");
 
-  // Load one player’s details into overlay
-  function loadPlayer(playerId) {
-      fetch(`/player_analysis/players/${playerId}`)
-          .then(res => res.json())
-          .then(player => {
-              console.log("Fetched player:", player);
+    // Helper for updating puuid in sql
+    function updatePuuid(userId, puuid) {
+        fetch(`/player_analysis/players/${userId}/puuid`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ puuid })
+        })
+            .then(res => res.json())
+            .then(data => console.log("Update response:", data))
+            .catch(err => console.error("Error updating PUUID:", err));
+    }
 
-              // RIOT API: Fetch PUUID of Selected Player
-              // riot/puuid route found in routes/riotApiRoutes
-              let puuid = "";
+    // Load one player’s details into overlay
+    function loadPlayer(playerId) {
+        fetch(`/player_analysis/players/${playerId}`)
+            .then(res => res.json())
+            .then(player => {
+                console.log("Fetched player:", player);
 
-              fetch(`/riot/puuid/${player.gameName}/${player.tagLine}`)
-                .then(res => res.json())
-                .then(data => {
-                  // console.log("PUUID:", data.puuid);
-                  return data; // pass data forward
-                })
-                .then(data => {
-                  puuid = data.puuid;
-                  console.log("Stored PUUID:", puuid);
+                // Change to Year Level later
+                document.getElementById("year").textContent = `PUUID: ${player.puuid}`; // TO ADD IN DB: YEAR LEVEL - Jer
 
-                  const btn = document.getElementById("player-dropdown-btn");
-                  btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
+                // RIOT API: Fetch PUUID of Selected Player
+                // riot/puuid route found in routes/riotApiRoutes
+                let puuid = "";
 
-                  document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`;
-                  document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`;
+                if(!player.puuid){
+                    fetch(`/riot/puuid/${player.gameName}/${player.tagLine}`)
+                        .then(res => res.json())
+                        .then(data => {
+                        // console.log("PUUID:", data.puuid);
+                        return data; // pass data forward
+                        })
+                        .then(data => {
+                            puuid = data.puuid;
+                            console.log("Stored PUUID:", puuid);
 
-                  document.getElementById("email").textContent = `Email: ${player.email}`;
-                  document.getElementById("discord").textContent = `Discord: ${player.discord}`;
+                            // update puuid in sql if null
+                            updatePuuid(player.userId, puuid);
 
-                  document.getElementById("schoolId").textContent = `School ID: ${player.schoolId}`;
-                  document.getElementById("course").textContent = `Course: ${player.course}`;
+                            // Change to Year Level later
+                            document.getElementById("year").textContent = `PUUID: ${puuid}`; // TO ADD IN DB: YEAR LEVEL - Jer
+                        })
+                        .catch(err => console.error(err));
+                }
+                
 
-                  // Change to Year Level later
-                  document.getElementById("year").textContent = `PUUID: ${puuid}`; // TO ADD IN DB: YEAR LEVEL - Jer
-                })
-                .catch(err => console.error(err));
+                    const btn = document.getElementById("player-dropdown-btn");
+                    btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
 
-             
-          })
-          .catch(err => console.error(err));
-  }
+                    document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`;
+                    document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`;
+
+                    document.getElementById("email").textContent = `Email: ${player.email}`;
+                    document.getElementById("discord").textContent = `Discord: ${player.discord}`;
+
+                    document.getElementById("schoolId").textContent = `School ID: ${player.schoolId}`;
+                    document.getElementById("course").textContent = `Course: ${player.course}`;
+
+
+
+                
+            })
+            .catch(err => console.error(err));
+    }
 
   // Fetch all players and populate dropdown
   fetch('/player_analysis/players')

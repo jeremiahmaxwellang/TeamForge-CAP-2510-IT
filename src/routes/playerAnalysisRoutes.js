@@ -16,6 +16,10 @@ router.get('/players', playerController.getAllPlayers);
 // GET /players/:id [fetch player by ID]
 router.get('/players/:id', playerController.getPlayerById);
 
+// Update puuid
+router.put('/players/:id/puuid', playerController.updatePuuid);
+
+
 // /player_analysis
 router.get('/', async function(req, res) {
     res.sendFile(path.join(viewsPath, 'player_analysis.html')); 
