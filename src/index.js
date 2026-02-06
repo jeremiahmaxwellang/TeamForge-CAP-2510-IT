@@ -13,7 +13,8 @@ global.viewsPath = path.join(process.cwd(), 'views');
 
 // Routes 
 app.use("/", require("./routes/authRoutes")); // login routes
-app.use('/player_analysis', require("./routes/playerAnalysisRoutes"));
+app.use('/player_analysis', require('./routes/playerAnalysisRoutes'));
+
 app.use('/api/v1/users', require("./routes/userRoutes"));
 
 

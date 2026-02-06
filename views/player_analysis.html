@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Performance Analysis</title>
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/player_analysis.js"></script>
 </head>
 <body>
     <div class="container">
@@ -74,26 +75,22 @@
                             </div>
                             <div class="player-details">
                                 <div class="player-dropdown">
-                                    <button class="player-dropdown-btn">
-                                        JeffreyNolsland (Top-Laner)
+                                    <button class="player-dropdown-btn" id="player-dropdown-btn">
+                                        No Player Found
                                     </button>
 
-                                    <div class="player-dropdown-menu">
-                                        <a href="#">EisenTheWarrior</a>
-                                        <a href="#">FrierenTheSlayer</a>
-                                        <a href="#">HeiterThePriest</a>
-                                        <a href="#">HimmelTheHero</a>
+                                    <div class="player-dropdown-menu" id="player-dropdown-menu">
                                     </div>
                                 </div>
-                                <p>Primary Role: Jungler</p>
-                                <p>Secondary Role: Top</p>
+                                <p id="primaryRole"></p>
+                                <p id="secondaryRole"></p>
                             </div>
                         </div>
                     
                         <div class="player_contact">
                             <h3>Contact Information:</h3>
-                            <p>Email: jeremiah_ang@dlsu.edu.ph</p>
-                            <p>Discord: JeffreyNolsland#1234</p>
+                            <p id="email">Email:</p>
+                            <p id="discord">Discord:</p>
                         </div>
                     </div>
 
@@ -117,19 +114,19 @@
 
                         <div class="student_info_container">
                             <h3>Student Information:</h3>
-                            <p>Student ID: 123456789</p>
-                            <p>Course: BS Computer Science</p>
-                            <p>Year Level: 3rd Year</p>
+                            <p id="schoolId"></p>
+                            <p id="course"></p>
+                            <p id="year"></p>
                     </div>
                 </section>
 
                 <section class="tabs">
                     <ul>
-                        <li><a href="#" class="active" id="overviewButton">Overview</a></li>
-                        <li><a href="#">Comparison</a></li>
-                        <li><a href="#">VODs</a></li>
-                        <li><a href="#">Champion Pool</a></li>
-                        <li><a href="#">Evaluation</a></li>
+                        <li><a href="/player_analysis/overview" class="active" id="overviewButton">Overview</a></li>
+                        <li><a href="#" class="active" id="comparisonButton">Comparison</a></li>
+                        <li><a href="#" class="active" id="vodsButton">VODs</a></li>
+                        <li><a href="#" class="active" id="championButton">Champion Pool</a></li>
+                        <li><a href="#" class="active" id="evaluationButton">Evaluation</a></li>
                     </ul>
                 </section>
 
@@ -142,7 +139,5 @@
         </div>
     </div>
     
-    <!-- Link to the external JavaScript file -->
-    <script src="/js/player_analysis.js"></script>
 </body>
 </html>

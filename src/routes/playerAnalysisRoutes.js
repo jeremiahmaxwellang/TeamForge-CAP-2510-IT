@@ -1,6 +1,20 @@
+/**
+ * PLAYER ANALYSIS ROUTES
+ * - Routes under /player_analysis
+ */
+
 const express = require('express'); 
 const path = require('path'); 
 const router = express.Router();
+
+// Controller
+const playerController = require('../controllers/playerController');
+
+// GET all players
+router.get('/players', playerController.getAllPlayers);
+
+// GET /players/:id [fetch player by ID]
+router.get('/players/:id', playerController.getPlayerById);
 
 // /player_analysis
 router.get('/', async function(req, res) {
