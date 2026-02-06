@@ -6,7 +6,10 @@ const app = express();
 app.use(cors());
 
 // --- CONFIGURATION ---
-const API_KEY = 'RGAPI-fcd39861-b852-46bd-b292-fb003b9254f8'; // <--- PASTE KEY HERE
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+
+const apiKey = process.env.API_KEY;
+
 const MATCH_REGION = 'sea'; // 'sea' for PH/SG/VN
 
 // --- HELPER FUNCTION: The "Debug.js" Logic ---
@@ -15,7 +18,7 @@ function riotRequest(url) {
     return new Promise((resolve, reject) => {
         const options = {
             headers: {
-                'X-Riot-Token': API_KEY,
+                'X-Riot-Token': apiKey,
                 'User-Agent': 'NodeJS-Server'
             }
         };
