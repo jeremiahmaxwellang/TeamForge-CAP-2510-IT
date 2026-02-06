@@ -8,18 +8,38 @@ document.addEventListener('DOMContentLoaded', function() {
           .then(player => {
               console.log("Fetched player:", player);
 
-              const btn = document.getElementById("player-dropdown-btn");
-              btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
+              // RIOT API: Fetch PUUID of Selected Player
+              // riot/puuid route found in routes/riotApiRoutes
+              let puuid = "";
 
-              document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`;
-              document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`;
+              fetch(`/riot/puuid/${player.gameName}/${player.tagLine}`)
+                .then(res => res.json())
+                .then(data => {
+                  // console.log("PUUID:", data.puuid);
+                  return data; // pass data forward
+                })
+                .then(data => {
+                  puuid = data.puuid;
+                  console.log("Stored PUUID:", puuid);
 
-              document.getElementById("email").textContent = `Email: ${player.email}`;
-              document.getElementById("discord").textContent = `Discord: ${player.discord}`;
+                  const btn = document.getElementById("player-dropdown-btn");
+                  btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
 
-              document.getElementById("schoolId").textContent = `School ID: ${player.schoolId}`;
-              document.getElementById("course").textContent = `Course: ${player.course}`;
-              document.getElementById("year").textContent = `Year: ${player.year}`; // i dont have this in the schema pala
+                  document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`;
+                  document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`;
+
+                  document.getElementById("email").textContent = `Email: ${player.email}`;
+                  document.getElementById("discord").textContent = `Discord: ${player.discord}`;
+
+                  document.getElementById("schoolId").textContent = `School ID: ${player.schoolId}`;
+                  document.getElementById("course").textContent = `Course: ${player.course}`;
+
+                  // Change to Year Level later
+                  document.getElementById("year").textContent = `PUUID: ${puuid}`; // TO ADD IN DB: YEAR LEVEL - Jer
+                })
+                .catch(err => console.error(err));
+
+             
           })
           .catch(err => console.error(err));
   }
