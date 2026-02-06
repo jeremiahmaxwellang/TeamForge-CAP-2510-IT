@@ -49,41 +49,70 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===================  OVERLAY BACKEND  ============================
     const overviewButton = document.getElementById('overviewButton');
+    const comparisonButton = document.getElementById('comparisonButton');
+    const vodsButton = document.getElementById('vodsButton');
+    const championButton = document.getElementById('championButton');
+    const evaluationButton = document.getElementById('evaluationButton');
     const overlayContainer = document.getElementById('overlay-container');
+    const tabButtons = [overviewButton, comparisonButton, vodsButton, championButton, evaluationButton];
 
     function closeOverlay() {
         const overlay = overlayContainer.querySelector('.overlay');
         if (overlay) overlay.style.display = 'none';
     }
 
-  // Attach click handler to the overviewButton
-  if (overviewButton && overlayContainer) {
-    overviewButton.addEventListener('click', function(e) {
-      e.preventDefault();
+    function setActiveTab(activeButton) {
+        // Remove active class from all tabs
+        tabButtons.forEach(btn => {
+            if (btn) btn.classList.remove('active');
+        });
+        // Add active class to the clicked tab
+        activeButton.classList.add('active');
+    }
 
-      fetch('/player_analysis/overview')
-        .then(response => {
-          if (!response.ok) throw new Error('Network response was not ok');
-          return response.text();
-        })
-        .then(html => {
-          overlayContainer.innerHTML = html;
+    // Attach click handlers to all tab buttons
+    if (overlayContainer) {
+        tabButtons.forEach(button => {
+            if (button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    setActiveTab(this);
 
-          const overlay = overlayContainer.querySelector('.overlay');
-          if (overlay) {
-            // Show overlay under the buttons
-            overlay.style.display = 'block'; // Show overlay below the navigation buttons
+                    // Map buttons to their overlay URLs
+                    const urlMap = {
+                        'overviewButton': '/player_analysis/overview',
+                        'comparisonButton': '/player_analysis/comparison',
+                        'vodsButton': '/player_analysis/vods',
+                        'championButton': '/player_analysis/champion',
+                        'evaluationButton': '/player_analysis/evaluation'
+                    };
 
-            // Close the overlay when clicking outside the content
-            overlay.addEventListener('click', function(event) {
-              if (event.target === this) closeOverlay();
-            });
+                    const url = urlMap[this.id];
+                    if (url) {
+                        fetch(url)
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network response was not ok');
+                                return response.text();
+                            })
+                            .then(html => {
+                                overlayContainer.innerHTML = html;
 
-            const closeButton = overlayContainer.querySelector('.close-button');
-            if (closeButton) closeButton.addEventListener('click', closeOverlay);
-          }
-        })
-        .catch(err => console.log('Error loading overlay:', err));
-    });
-  }
+                                const overlay = overlayContainer.querySelector('.overlay');
+                                if (overlay) {
+                                    overlay.style.display = 'block';
+
+                                    overlay.addEventListener('click', function(event) {
+                                        if (event.target === this) closeOverlay();
+                                    });
+
+                                    const closeButton = overlayContainer.querySelector('.close-button');
+                                    if (closeButton) closeButton.addEventListener('click', closeOverlay);
+                                }
+                            })
+                            .catch(err => console.log('Error loading overlay:', err));
+                    }
+                });
+            }
+        });
+    }
 });
