@@ -10,8 +10,6 @@ const express = require('express');
 const path = require('path');
 const router = express.Router();
 
-const viewsPath = path.join(process.cwd(), 'views');
-
 // Login
 router.get('/', (req, res) => {
     res.sendFile(path.join(viewsPath, 'login.html'));
@@ -19,12 +17,12 @@ router.get('/', (req, res) => {
 
 // Signup
 router.get('/signup', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../views/signup.html'));
+    res.sendFile(path.join(viewsPath, 'signup.html'));
 });
 
 // Registration
 router.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../views/register.html'));
+    res.sendFile(path.join(viewsPath, 'register.html'));
 });
 
 module.exports = router;
