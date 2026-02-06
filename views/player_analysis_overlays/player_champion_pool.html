@@ -1,68 +1,95 @@
 <!-- overlay.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match History Overlay</title>
+    <title>Ranked Champion Pool</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
-    </head>
+</head>
+
 <body>
     <div class="overlay">
         <!-- Overlay content here -->
-            <div class="overview-container">
-                <div class="match-history-header">
-                    <div class="header-text">Champion Pool:</div>
-                    <!-- Dropdown button for "Ranked" -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn">Ranked</button>
-                        <div class="dropdown-content">
-                            <a href="#">Ranked</a>
-                            <a href="#">Casual</a>
-                            <a href="#">ARAM</a>
-                        </div>
+        <div class="overview-container">
+            <div class="match-history-header">
+                <div class="header-text">Champion Pool:</div>
+                <!-- Dropdown button for "Ranked" -->
+                <div class="dropdown">
+                    <button class="dropdown-btn">Ranked</button>
+                    <div class="dropdown-content">
+                        <a href="#">Ranked</a>
+                        <a href="#">Casual</a>
+                        <a href="#">ARAM</a>
                     </div>
                 </div>
-                
-                <div class="player_average_info">
-                    <!-- Column 2 -->
-                    <div class="winrate">
-                        <div class="percentWin">27.4% WR</div>
-                        <div class="totalGames">Last 15 Games</div>
-                    </div>
-                    <!-- Column 3 -->
-                    <div class="KDA_info">
-                        <div class="KDA">1.14 KDA</div>
-                        <div class="Summarized_KDA">2.9 / 7.3 / 5.3</div>
-                    </div>
-                    <!-- Column 4 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 5 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 6 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-
             </div>
-            
+
+            <div class="table-container">
+                <h2>Ranked Champion Pool</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Champion</th>
+                            <th>Role</th>
+                            <th>Games</th>
+                            <th>LP</th>
+                            <th>WR</th>
+                            <th>KDA</th>
+                            <th>CS/M</th>
+                            <th>GD@15</th>
+                            <th>DPM</th>
+                            <th>KP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Thresh</td>
+                            <td>🛡️ Support</td>
+                            <td>200</td>
+                            <td>+593</td>
+                            <td>56.5%</td>
+                            <td>4.0 / 6.8 / 16.3 (3.0)</td>
+                            <td>1.2</td>
+                            <td>+174</td>
+                            <td>524</td>
+                            <td>55.5%</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Thresh</td>
+                            <td>🛡️ Support</td>
+                            <td>200</td>
+                            <td>+593</td>
+                            <td>56.5%</td>
+                            <td>4.0 / 6.8 / 16.3 (3.0)</td>
+                            <td>1.2</td>
+                            <td>+174</td>
+                            <td>524</td>
+                            <td>55.5%</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Thresh</td>
+                            <td>🛡️ Support</td>
+                            <td>200</td>
+                            <td>+593</td>
+                            <td>56.5%</td>
+                            <td>4.0 / 6.8 / 16.3 (3.0)</td>
+                            <td>1.2</td>
+                            <td>+174</td>
+                            <td>524</td>
+                            <td>55.5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
     </div>
 </body>
+
 </html>
