@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(player => {
                 console.log("Fetched player:", player);
 
-                // Change to Year Level later
-                document.getElementById("year").textContent = `PUUID: ${player.puuid}`; // TO ADD IN DB: YEAR LEVEL - Jer
+                // Remove later
+                document.getElementById("puuid").textContent = `PUUID: ${player.puuid}`;
 
                 // RIOT API: Fetch PUUID of Selected Player
                 // riot/puuid route found in routes/riotApiRoutes
@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             // update puuid in sql if null
                             updatePuuid(player.userId, puuid);
 
-                            // Change to Year Level later
-                            document.getElementById("year").textContent = `PUUID: ${puuid}`; // TO ADD IN DB: YEAR LEVEL - Jer
+                            // Remove later
+                            document.getElementById("puuid").textContent = `PUUID: ${puuid}`;
                         })
                         .catch(err => console.error(err));
                 }
@@ -58,10 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     document.getElementById("schoolId").textContent = `School ID: ${player.schoolId}`;
                     document.getElementById("course").textContent = `Course: ${player.course}`;
+                    document.getElementById("year").textContent = `Year Level: ${player.yearLevel}`;
 
-
-
-                
             })
             .catch(err => console.error(err));
     }
@@ -74,10 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
           const dropdownMenu = document.querySelector(".player-dropdown-menu");
           dropdownMenu.innerHTML = ""; // clear existing
 
-          if(players.length > 0){
-            loadPlayer(players[0].userId);
-          }
-
           players.forEach(player => {
               const link = document.createElement("a");
               link.href = "#";
@@ -85,6 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
               link.addEventListener("click", () => loadPlayer(player.userId));
               dropdownMenu.appendChild(link);
           });
+
+        //   //auto load first player if none 
+            if(players.length > 0){
+                loadPlayer(players[0].userId);
+            }
       })
       .catch(err => console.error(err));
 

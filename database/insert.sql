@@ -1,5 +1,23 @@
 USE teamforgedb;
 
+-- Team Details
+INSERT INTO teamDetails(teamName)
+VALUES ('Viridis Arcus');
+
+-- League Roles
+INSERT INTO leagueRoles(roleId, displayedRole, role, teamPosition)
+VALUES 
+(1, 'Top', 'NONE', 'TOP'),
+(2, 'Jungle', 'NONE', 'JUNGLE'),
+(3, 'Mid', 'SOLO', 'MIDDLE'),
+(4, 'AD Carry', 'CARRY', 'BOTTOM'),
+(5, 'Support', 'SUPPORT', 'UTILITY'),
+(6, 'Sub Top ', 'NONE', 'TOP'),
+(7, 'Sub Jungle', 'NONE', 'JUNGLE'),
+(8, 'Sub Mid', 'SOLO', 'MIDDLE'),
+(9, 'Sub AD Carry', 'CARRY', 'BOTTOM'),
+(10, 'Sub Support', 'SUPPORT', 'UTILITY');
+
 -- Manager
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
@@ -29,7 +47,7 @@ VALUES
 );
 
 -- Players
-INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
 (
     3,
@@ -68,7 +86,7 @@ VALUES
     'Crow',
     'Ned',
     'Player',
-    'Cowwean#cowwrean',
+    'syl#syl',
     'Active'
 ),
 (
@@ -87,7 +105,7 @@ VALUES
     '1234',
     'Mikhail',
     'Sy',
-    'Sub',
+    'Player',
     'Rascal#1234',
     'Active'
 ),
@@ -98,11 +116,11 @@ VALUES
     'Lance',
     'Go',
     'Player',
-    'Cowwean#cowwrean',
+    'not#applicable',
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, schoolId, course, lastGPA, CGPA)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel)
 VALUES 
 (
     3,
@@ -110,12 +128,13 @@ VALUES
     'VA1',
     'Diamond III',
     'Grandmaster',
-    'MIDDLE',
-    'JUNGLE',
-    '12345678',
-    'BSIT',
+    3,
+    2,
+    '12304219',
+    'BSCS-SE',
     '3.4',
-    '3.3'
+    '3.3',
+    '3rd Year'
 ),
 (
     4,
@@ -123,12 +142,13 @@ VALUES
     '41yk',
     'Diamond IV',
     'Master',
-    'TOP',
-    'MIDDLE',
-    '12345678',
-    'BSIT',
+    1,
+    3,
+    '12445678',
+    'BSCS-NIS',
     '3.5',
-    '3.2'
+    '3.2',
+    '2nd Year'
 ),
 (
     5,
@@ -136,12 +156,13 @@ VALUES
     'Wendy',
     'Emerald I',
     'Diamond IV',
-    'CARRY',
-    'SUPPORT',
-    '12345678',
+    4,
+    5,
+    '12254321',
     'BSIT',
     '3.1',
-    '2.9'
+    '2.9',
+    '4th Year'
 ),
 (
     6,
@@ -149,12 +170,13 @@ VALUES
     '1013',
     'Emerald III',
     'Diamond III',
-    'SUPPORT',
-    'SUPPORT',
-    '12345678',
-    'BSIT',
+    5,
+    5,
+    '12387654',
+    'BSND',
     '3.5',
-    '3.2'
+    '3.2',
+    '3rd Year'
 ),
 (
     7,
@@ -162,12 +184,13 @@ VALUES
     'Prod',
     'Diamond II',
     'Diamond IV',
-    'JUNGLE',
-    'CARRY',
-    '12345678',
+    2,
+    4,
+    '12277765',
     'BSIT',
     '2.9',
-    '3.0'
+    '3.0',
+    '4th Year'
 ),
 (
     8,
@@ -175,12 +198,13 @@ VALUES
     'Miko',
     'Diamond II',
     'Diamond IV',
-    'JUNGLE',
-    'TOP',
-    '12345678',
+    7,
+    1,
+    '12404219',
     'BSIT',
     '3.5',
-    '3.1'
+    '3.1',
+    '2nd Year'
 ),
 (
     9,
@@ -188,16 +212,17 @@ VALUES
     '1226',
     'Emerald I',
     'Diamond II',
-    'JUNGLE',
-    'CARRY',
-    '12345678',
+    2,
+    4,
+    '12367890',
     'BSIT',
     '2.1',
-    '1.9'
+    '1.9',
+    '2nd Year'
 );
 
 -- Applicants
-INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES (
     10,
     'trebis_detablan@dlsu.edu.ph',
@@ -229,15 +254,15 @@ VALUES (
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRole, secondaryRole, schoolId, course, lastGPA, CGPA, applicationStatus)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, applicationStatus)
 VALUES (
     10,
     'Kialos',
     'akali',
     'Diamond III',
     'Diamond IV',
-    'CARRY',
-    'MIDDLE',
+    4,
+    3,
     '12100001',
     'BSCS-NIS',
     3.25,
@@ -250,8 +275,8 @@ VALUES (
     '3135',
     'Bronze I',
     'Silver I',
-    'JUNGLE',
-    'MIDDLE',
+    2,
+    3,
     '12100002',
     'BSCS-ST',
     3.10,
@@ -264,8 +289,8 @@ VALUES (
     'moo',
     'Diamond III',
     'Diamond IV',
-    'CARRY',
-    'JUNGLE',
+    4,
+    2,
     '12203653',
     'BSIT',
     1.9,

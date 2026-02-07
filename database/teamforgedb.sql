@@ -32,6 +32,18 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `teamforgedb`.`leagueRoles`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`leagueRoles` (
+  `roleId` INT NOT NULL,
+  `displayedRole` VARCHAR(45) NULL,
+  `role` VARCHAR(45) NULL,
+  `teamPosition` VARCHAR(45) NULL,
+  PRIMARY KEY (`roleId`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `teamforgedb`.`players`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
@@ -40,8 +52,8 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `tagLine` VARCHAR(5) NULL,
   `currentRank` VARCHAR(45) NULL,
   `peakRank` VARCHAR(45) NULL,
-  `primaryRole` ENUM('TOP', 'MIDDLE', 'JUNGLE', 'CARRY', 'SUPPORT') NULL,
-  `secondaryRole` ENUM('TOP', 'MIDDLE', 'JUNGLE', 'CARRY', 'SUPPORT') NULL,
+  `primaryRoleId` INT NOT NULL,
+  `secondaryRoleId` INT NULL,
   `puuid` VARCHAR(245) NULL,
   `accountRegion` ENUM('AMERICAS', 'ASIA', 'EUROPE', 'SEA') NULL,
   `schoolId` VARCHAR(45) NULL,
@@ -52,10 +64,24 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `winrate` DECIMAL(6,2) NULL,
   `averageKDA` DECIMAL(6,2) NULL,
   `teamId` INT NULL,
+  `yearLevel` VARCHAR(45) NULL,
+  `profilePhoto` VARCHAR(260) NULL,
   PRIMARY KEY (`userId`),
+  INDEX `fk_players_leagueRoles1_idx` (`primaryRoleId` ASC) VISIBLE,
+  INDEX `fk_players_leagueRoles2_idx` (`secondaryRoleId` ASC) VISIBLE,
   CONSTRAINT `fk_players_users`
     FOREIGN KEY (`userId`)
     REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_players_leagueRoles1`
+    FOREIGN KEY (`primaryRoleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_players_leagueRoles2`
+    FOREIGN KEY (`secondaryRoleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -113,6 +139,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
   `puuid` VARCHAR(245) NULL,
   `riotIdGameTag` VARCHAR(45) NULL,
   `riotIdTagline` VARCHAR(45) NULL,
+  `queueId` INT NULL,
   `assists` INT NULL,
   `champLevel` INT NULL,
   `championId` INT NULL,
@@ -244,11 +271,17 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`benchmarks` (
   `benchmarkId` INT NOT NULL,
-  `role` ENUM('Top', 'Jungle', 'Mid', 'ADC', 'Support') NULL,
+  `roleId` INT NULL,
   `metricName` VARCHAR(45) NULL,
   `benchmarkValue` DECIMAL(6,2) NULL,
   `comparator` VARCHAR(45) NULL,
-  PRIMARY KEY (`benchmarkId`))
+  PRIMARY KEY (`benchmarkId`),
+  INDEX `fk_benchmarks_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
+  CONSTRAINT `fk_benchmarks_leagueRoles1`
+    FOREIGN KEY (`roleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -272,6 +305,16 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`championPool` (
     REFERENCES `teamforgedb`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`teamDetails`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`teamDetails` (
+  `teamName` VARCHAR(45) NOT NULL,
+  `teamIcon` VARCHAR(260) NULL,
+  PRIMARY KEY (`teamName`))
 ENGINE = InnoDB;
 
 
