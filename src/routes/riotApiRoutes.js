@@ -10,4 +10,10 @@ const riotApiController = require('../controllers/riotApiController'); // backen
 // Route: GET /riot/puuid/:gameName/:tagLine
 router.get('/puuid/:gameName/:tagLine', riotApiController.getPuuid);
 
+// Route: GET /riot/matches/:puuid/:queueId
+router.get('/matches/:puuid/:queueId', riotApiController.getRecentMatches);
+
+// Route: GET /riot/match/:matchId
+router.get('/match/:matchId', riotApiController.getMatchDetails);
+
 module.exports = router;

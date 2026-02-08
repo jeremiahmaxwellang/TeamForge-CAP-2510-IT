@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // RIOT API: Fetch PUUID of Selected Player
                 // riot/puuid route found in routes/riotApiRoutes
-                let puuid = "";
+                let puuid = player.puuid || "";
 
                 if(!player.puuid){
                     fetch(`/riot/puuid/${player.gameName}/${player.tagLine}`)
@@ -42,8 +42,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             // Remove later
                             document.getElementById("puuid").textContent = `PUUID: ${puuid}`;
+
+                            // Fetch recent matches after PUUID is retrieved
+                            fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
                         })
                         .catch(err => console.error(err));
+                } else {
+                    // PUUID already exists, fetch recent matches
+                    fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+                    
                 }
                 
 
@@ -87,6 +94,29 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(err => console.error(err));
 
+    // Fetch recent matches for a player by PUUID and queue ID
+    function fetchRecentMatches(puuid, queueId) {
+        return fetch(`/riot/matches/${puuid}/${queueId}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Recent matches:", data.matches);
+
+                // Fetch details for each match ID
+                const matchDetailsPromises = data.matches.map(matchId => fetchMatchDetails(matchId));
+                return Promise.all(matchDetailsPromises);
+            })
+            .catch(err => console.error("Error fetching recent matches:", err));
+    }
+
+    function fetchMatchDetails(matchId) {
+        return fetch(`/riot/match/${matchId}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Match details for", matchId, ":", data);
+                return data;
+            })
+            .catch(err => console.error("Error fetching match details:", err));
+    }
 
 // ===================  OVERLAY BACKEND  ============================
     const overviewButton = document.getElementById('overviewButton');
