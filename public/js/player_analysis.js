@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const btn = document.getElementById("player-dropdown-btn");
                     btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
+                    btn.setAttribute("data-player-id", player.userId);
 
                     document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`;
                     document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`;
@@ -105,6 +106,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const matchDetailsPromises = data.matches.map(matchId => fetchMatchDetails(matchId));
                 return Promise.all(matchDetailsPromises);
             })
+            .then(matchesData => {
+                // Store all fetched match details to database
+                const currentPlayerId = document.getElementById("player-dropdown-btn").getAttribute("data-player-id");
+                if (currentPlayerId && matchesData.length > 0) {
+                    storeMatchesToDatabase(currentPlayerId, matchesData);
+                }
+                return matchesData;
+            })
             .catch(err => console.error("Error fetching recent matches:", err));
     }
 
@@ -113,9 +122,43 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(res => res.json())
             .then(data => {
                 console.log("Match details for", matchId, ":", data);
-                return data;
+                return data.matchDetails;
             })
             .catch(err => console.error("Error fetching match details:", err));
+    }
+
+    // Store match details to database in batches
+    function storeMatchesToDatabase(userId, matchesData) {
+        const validMatches = matchesData.filter(m => m && m.metadata && m.info);
+        
+        if (validMatches.length === 0) {
+            console.log("No valid matches to store");
+            return;
+        }
+
+        // Send matches in batches of 5 to avoid payload size issues
+        const batchSize = 5;
+        const batches = [];
+        for (let i = 0; i < validMatches.length; i += batchSize) {
+            batches.push(validMatches.slice(i, i + batchSize));
+        }
+
+        console.log(`Storing ${validMatches.length} matches in ${batches.length} batches...`);
+
+        batches.forEach((batch, batchIndex) => {
+            setTimeout(() => {
+                fetch(`/riot/matches/${userId}/store-multiple`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ matches: batch })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(`Batch ${batchIndex + 1}/${batches.length} stored:`, data);
+                    })
+                    .catch(err => console.error(`Error storing batch ${batchIndex + 1}:`, err));
+            }, batchIndex * 500); // Stagger requests by 500ms
+        });
     }
 
 // ===================  OVERLAY BACKEND  ============================
