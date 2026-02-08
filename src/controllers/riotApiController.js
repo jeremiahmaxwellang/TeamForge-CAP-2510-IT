@@ -56,7 +56,7 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     if (queueId) params.append('queue', queueId);  // Only append queue if it's provided
 
     // Log the final request URL for debugging
-    console.log(`Fetching matches URL: ${url}?${params.toString()}`);
+    // console.log(`Fetching matches URL: ${url}?${params.toString()}`);
 
     // Make the API request to fetch recent matches
     const response = await fetch(`${url}?${params.toString()}`, {
@@ -91,6 +91,50 @@ exports.getRecentMatches = async (req, res) => {
         // Call fetchRecentMatches with the correct parameters
         const matches = await fetchRecentMatches(puuid, queueId, parseInt(start), matchCount);
         res.json({ matches });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// FETCH match details by matchId
+async function fetchMatchDetails(matchId) {
+    // Define the region for the API request
+    const region = 'sea';
+
+    // URL to fetch match details by matchId
+    const url = `https://${region}.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}`;
+
+    // Log the final request URL for debugging
+    console.log(`Fetching match details URL: ${url}`);
+
+    // Make the API request to fetch match details
+    const response = await fetch(url, {
+        headers: {
+            'X-Riot-Token': apiKey,
+            'User-Agent': 'NodeJS-Server'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Print out the fetched data to the console
+    console.log("Fetched match details:", data);
+    
+    return data;
+}
+
+// getMatchDetails is called in riotApiRoutes to fetch detailed information about a specific match
+exports.getMatchDetails = async (req, res) => {
+    try {
+        const { matchId } = req.params;
+        
+        // Call fetchMatchDetails with the matchId
+        const matchDetails = await fetchMatchDetails(matchId);
+        res.json({ matchDetails });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

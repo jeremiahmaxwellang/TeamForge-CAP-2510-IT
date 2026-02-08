@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     // PUUID already exists, fetch recent matches
                     fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+                    
                 }
                 
 
@@ -100,30 +101,21 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log("Recent matches:", data.matches);
 
-                // Try to render basic match info if the overlay/container exists
-                const container = document.querySelector('.overview-container') || document.getElementById('overlay-container');
-                if (container) {
-                    let list = container.querySelector('.recent-matches');
-                    if (!list) {
-                        list = document.createElement('div');
-                        list.className = 'recent-matches';
-                        container.appendChild(list);
-                    }
-                    list.innerHTML = `<div>Matches found: ${data.matches.length}</div>`;
-                    if (data.matches.length > 0) {
-                        const ul = document.createElement('ul');
-                        data.matches.slice(0, 20).forEach(id => {
-                            const li = document.createElement('li');
-                            li.textContent = id;
-                            ul.appendChild(li);
-                        });
-                        list.appendChild(ul);
-                    }
-                }
-
-                return data.matches;
+                // Fetch details for each match ID
+                const matchDetailsPromises = data.matches.map(matchId => fetchMatchDetails(matchId));
+                return Promise.all(matchDetailsPromises);
             })
             .catch(err => console.error("Error fetching recent matches:", err));
+    }
+
+    function fetchMatchDetails(matchId) {
+        return fetch(`/riot/match/${matchId}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Match details for", matchId, ":", data);
+                return data;
+            })
+            .catch(err => console.error("Error fetching match details:", err));
     }
 
 // ===================  OVERLAY BACKEND  ============================
