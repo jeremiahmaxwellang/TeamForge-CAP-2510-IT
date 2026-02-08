@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // RIOT API: Fetch PUUID of Selected Player
                 // riot/puuid route found in routes/riotApiRoutes
-                let puuid = "";
+                let puuid = player.puuid || "";
 
                 if(!player.puuid){
                     fetch(`/riot/puuid/${player.gameName}/${player.tagLine}`)
@@ -42,8 +42,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             // Remove later
                             document.getElementById("puuid").textContent = `PUUID: ${puuid}`;
+
+                            // Fetch recent matches after PUUID is retrieved
+                            fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
                         })
                         .catch(err => console.error(err));
+                } else {
+                    // PUUID already exists, fetch recent matches
+                    fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
                 }
                 
 
@@ -87,6 +93,39 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(err => console.error(err));
 
+    // Fetch recent matches for a player by PUUID and queue ID
+
+    function fetchRecentMatches(puuid, queueId) {
+        return fetch(`/riot/matches/${puuid}/${queueId}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Recent matches:", data.matches);
+
+                // Try to render basic match info if the overlay/container exists
+                const container = document.querySelector('.overview-container') || document.getElementById('overlay-container');
+                if (container) {
+                    let list = container.querySelector('.recent-matches');
+                    if (!list) {
+                        list = document.createElement('div');
+                        list.className = 'recent-matches';
+                        container.appendChild(list);
+                    }
+                    list.innerHTML = `<div>Matches found: ${data.matches.length}</div>`;
+                    if (data.matches.length > 0) {
+                        const ul = document.createElement('ul');
+                        data.matches.slice(0, 20).forEach(id => {
+                            const li = document.createElement('li');
+                            li.textContent = id;
+                            ul.appendChild(li);
+                        });
+                        list.appendChild(ul);
+                    }
+                }
+
+                return data.matches;
+            })
+            .catch(err => console.error("Error fetching recent matches:", err));
+    }
 
 // ===================  OVERLAY BACKEND  ============================
     const overviewButton = document.getElementById('overviewButton');
