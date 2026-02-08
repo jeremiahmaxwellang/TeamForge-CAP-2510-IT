@@ -41,21 +41,24 @@ exports.getPuuid = async (req, res) => {
 };
 
 // FETCH recent matches for a player by PUUID and queue ID
-async function fetchRecentMatches(puuid, queueId, start = 0, count = 15) {
+async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     // Define the region for the API request
     const region = 'sea';
 
-    // URL  to fetch matches by PUUID, with query parameters for pagination and queue filtering
+    // URL to fetch matches by PUUID, with query parameters for pagination and queue filtering
     const url = `https://${region}.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids`;
 
+    // Set up the parameters with default values
     const params = new URLSearchParams();
-    params.append('start', start);
-    params.append('count', count);
-    if (queueId) params.append('queue', queueId);
+    params.append('start', start);     // Starting index of the match list
+    params.append('count', count);     // Count of matches to retrieve (default: 15)
 
-    // log the final request URL for debugging
+    if (queueId) params.append('queue', queueId);  // Only append queue if it's provided
+
+    // Log the final request URL for debugging
     console.log(`Fetching matches URL: ${url}?${params.toString()}`);
 
+    // Make the API request to fetch recent matches
     const response = await fetch(`${url}?${params.toString()}`, {
         headers: {
             'X-Riot-Token': apiKey,
@@ -63,7 +66,7 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count = 15) {
         }
     });
 
-    if(!response.ok) {
+    if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
@@ -79,8 +82,14 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count = 15) {
 exports.getRecentMatches = async (req, res) => {
     try {
         const { puuid, queueId } = req.params;
-        const { start = 0, count = 20 } = req.query;
-        const matches = await fetchRecentMatches(puuid, queueId, parseInt(start), parseInt(count));
+        // Default start to 0 and count to 15 if not provided in the query
+        const { start = 0, count = 15 } = req.query;
+        
+        // Ensure that count is parsed as an integer
+        const matchCount = parseInt(count) || 15;  // Default to 15 if not a valid number
+        
+        // Call fetchRecentMatches with the correct parameters
+        const matches = await fetchRecentMatches(puuid, queueId, parseInt(start), matchCount);
         res.json({ matches });
     } catch (err) {
         res.status(500).json({ error: err.message });

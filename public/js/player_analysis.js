@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
       .catch(err => console.error(err));
 
     // Fetch recent matches for a player by PUUID and queue ID
-
     function fetchRecentMatches(puuid, queueId) {
         return fetch(`/riot/matches/${puuid}/${queueId}`)
             .then(res => res.json())
