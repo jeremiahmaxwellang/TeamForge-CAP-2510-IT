@@ -7,6 +7,7 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 
 const apiKey = process.env.API_KEY;
+const db = require('../config/database');
 // console.log(apiKey);
 
 // FETCH PUUID of a player
@@ -122,7 +123,7 @@ async function fetchMatchDetails(matchId) {
     const data = await response.json();
     
     // Print out the fetched data to the console
-    console.log("Fetched match details:", data);
+    // console.log("Fetched match details:", data);
     
     return data;
 }
@@ -135,6 +136,119 @@ exports.getMatchDetails = async (req, res) => {
         // Call fetchMatchDetails with the matchId
         const matchDetails = await fetchMatchDetails(matchId);
         res.json({ matchDetails });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// STORE match details in the database
+async function storeMatchDetails(userId, matchData) {
+    try {
+        // Extract relevant data from the Riot API response
+        const matchId = matchData.metadata.matchId;
+        
+        const gameCreation = matchData.info.gameCreation;
+        const gameDuration = matchData.info.gameDuration;
+        const gameEndTimestamp = matchData.info.gameEndTimestamp;
+        const gameMode = matchData.info.gameMode;
+        const gameName = matchData.info.gameName;
+        const gameStartTimestamp = matchData.info.gameStartTimestamp;
+        const gameType = matchData.info.gameType;
+        const gameVersion = matchData.info.gameVersion;
+
+        console.log("Storing match details for gameCreation:", gameCreation);
+
+        // SQL query to insert match details
+        const sql = `
+            INSERT INTO matches 
+            (matchId, userId, gameCreation, gameDuration, gameEndTimestamp, gameMode, gameName, gameStartTimestamp, gameType, gameVersion)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+            gameDuration = VALUES(gameDuration),
+            gameEndTimestamp = VALUES(gameEndTimestamp),
+            gameMode = VALUES(gameMode),
+            gameName = VALUES(gameName),
+            gameStartTimestamp = VALUES(gameStartTimestamp),
+            gameType = VALUES(gameType),
+            gameVersion = VALUES(gameVersion);
+        `;
+
+        const [result] = await db.query(sql, [
+            matchId,
+            userId,
+            gameCreation,
+            gameDuration,
+            gameEndTimestamp,
+            gameMode,
+            gameName,
+            gameStartTimestamp,
+            gameType,
+            gameVersion
+        ]);
+
+        console.log("Match details stored successfully:", matchId);
+        return result;
+    } catch (err) {
+        console.error("Error storing match details:", err.message);
+        throw err;
+    }
+}
+
+// saveMatchDetails is called via API to store match details
+exports.saveMatchDetails = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const matchData = req.body;
+
+        // Validate that required fields exist
+        if (!matchData.metadata || !matchData.info) {
+            return res.status(400).json({ error: 'Invalid match data format' });
+        }
+
+        const result = await storeMatchDetails(userId, matchData);
+        res.json({ success: true, message: 'Match details stored successfully', affectedRows: result.affectedRows });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Bulk store multiple match details
+exports.saveMultipleMatches = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { matches } = req.body;
+
+        // Validate that matches is an array
+        if (!Array.isArray(matches)) {
+            return res.status(400).json({ error: 'matches must be an array' });
+        }
+
+        // Store all matches and track results
+        const results = [];
+        const errors = [];
+
+        for (const matchData of matches) {
+            try {
+                if (!matchData.metadata || !matchData.info) {
+                    errors.push({ matchId: matchData?.metadata?.match_id || 'unknown', error: 'Invalid match data format' });
+                    continue;
+                }
+                const result = await storeMatchDetails(userId, matchData);
+                results.push({ matchId: matchData.metadata.match_id, success: true });
+            } catch (err) {
+                errors.push({ matchId: matchData?.metadata?.match_id || 'unknown', error: err.message });
+            }
+        }
+
+        res.json({
+            success: true,
+            message: `Stored ${results.length} matches`,
+            totalProcessed: matches.length,
+            successful: results.length,
+            failed: errors.length,
+            results,
+            errors: errors.length > 0 ? errors : undefined
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
