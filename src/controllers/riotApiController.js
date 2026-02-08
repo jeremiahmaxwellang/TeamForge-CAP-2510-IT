@@ -41,7 +41,7 @@ exports.getPuuid = async (req, res) => {
 };
 
 // FETCH recent matches for a player by PUUID and queue ID
-async function fetchRecentMatches(puuid, queueId, start = 0, count = 20) {
+async function fetchRecentMatches(puuid, queueId, start = 0, count = 15) {
     // Define the region for the API request
     const region = 'sea';
 
