@@ -22,4 +22,10 @@ router.post('/match/:userId/store', riotApiController.saveMatchDetails);
 // Route: POST /riot/matches/:userId/store-multiple - Store multiple matches
 router.post('/matches/:userId/store-multiple', riotApiController.saveMultipleMatches);
 
+// Route: POST /riot/match/:matchId/participants - Store participants from a single match
+router.post('/match/:matchId/participants', riotApiController.saveMatchParticipants);
+
+// Route: POST /riot/participants/batch - Batch upload participants from multiple matches
+router.post('/participants/batch', riotApiController.saveMultipleMatchParticipants);
+
 module.exports = router;
