@@ -259,7 +259,7 @@ exports.saveMultipleMatches = async (req, res) => {
 // Extract participant data from match details
 async function extractParticipantData(matchId, matchData) {
     try {
-        console.log(`[EXTRACT PARTICIPANTS] Extracting participant data for match: ${matchId}`);
+        // console.log(`[EXTRACT PARTICIPANTS] Extracting participant data for match: ${matchId}`);
         
         if (!matchData.info || !Array.isArray(matchData.info.participants)) {
             throw new Error('Invalid match data structure - missing participants array');
@@ -269,7 +269,7 @@ async function extractParticipantData(matchId, matchData) {
         const participantsData = [];
 
         participants.forEach((participant, index) => {
-            console.log(`[EXTRACT PARTICIPANTS] Processing participant ${index + 1}/${participants.length} - ${participant.riotIdGameName || 'Unknown'}`);
+            // console.log(`[EXTRACT PARTICIPANTS] Processing participant ${index + 1}/${participants.length} - ${participant.riotIdGameName || 'Unknown'}`);
             
             // Calculate per-minute stats
             const minutesDuration = gameDuration / 60;
@@ -338,11 +338,11 @@ async function extractParticipantData(matchId, matchData) {
                 damageShare: participant.challenges?.damagePerMinute ? (participant.challenges.damagePerMinute).toFixed(2) : 0
             };
 
-            console.log(`[EXTRACT PARTICIPANTS] Extracted - ${participant.championName} | KDA: ${kda} | CS: ${participant.minionsKilled || 0} | Gold: ${participant.goldEarned || 0}`);
+            // console.log(`[EXTRACT PARTICIPANTS] Extracted - ${participant.championName} | KDA: ${kda} | CS: ${participant.minionsKilled || 0} | Gold: ${participant.goldEarned || 0}`);
             participantsData.push(participantData);
         });
 
-        console.log(`[EXTRACT PARTICIPANTS] Successfully extracted ${participantsData.length} participants from match ${matchId}`);
+        // console.log(`[EXTRACT PARTICIPANTS] Successfully extracted ${participantsData.length} participants from match ${matchId}`);
         return participantsData;
     } catch (err) {
         console.error(`[EXTRACT PARTICIPANTS] ERROR extracting participants for match ${matchId}:`, err.message);
@@ -353,7 +353,7 @@ async function extractParticipantData(matchId, matchData) {
 // Store a single participant to the database
 async function storeParticipantDetails(participantData) {
     try {
-        console.log(`[STORE PARTICIPANT] Storing participant ${participantData.participantId} from match ${participantData.matchId} - ${participantData.championName}`);
+        // console.log(`[STORE PARTICIPANT] Storing participant ${participantData.participantId} from match ${participantData.matchId} - ${participantData.championName}`);
         
         const sql = `
             INSERT INTO matchParticipants 
@@ -458,7 +458,7 @@ async function storeParticipantDetails(participantData) {
 
         const [result] = await db.query(sql, values);
         
-        console.log(`[STORE PARTICIPANT] ✓ Successfully stored participant ${participantData.participantId} from match ${participantData.matchId}`);
+        // console.log(`[STORE PARTICIPANT] ✓ Successfully stored participant ${participantData.participantId} from match ${participantData.matchId}`);
         return result;
     } catch (err) {
         console.error(`[STORE PARTICIPANT] ✗ ERROR storing participant ${participantData.participantId}:`, err.message);
@@ -472,7 +472,7 @@ exports.saveMatchParticipants = async (req, res) => {
         const { matchId } = req.params;
         const { matchData } = req.body;
 
-        console.log(`[API] saveMatchParticipants called for match: ${matchId}`);
+        // console.log(`[API] saveMatchParticipants called for match: ${matchId}`);
 
         // Validate match data
         if (!matchData || !matchData.info) {
