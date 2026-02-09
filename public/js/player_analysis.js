@@ -2,22 +2,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Helper for updating puuid in sql
     function updatePuuid(userId, puuid) {
+        console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}: ${puuid}`);
         fetch(`/player_analysis/players/${userId}/puuid`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ puuid })
         })
             .then(res => res.json())
-            .then(data => console.log("Update response:", data))
-            .catch(err => console.error("Error updating PUUID:", err));
+            .then(data => {
+                console.log(`[UPDATE PUUID] ✓ Successfully updated PUUID:`, data);
+            })
+            .catch(err => console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err));
     }
 
     // Load one player’s details into overlay
     function loadPlayer(playerId) {
+        console.log(`[LOAD PLAYER] Loading player: ${playerId}`);
         fetch(`/player_analysis/players/${playerId}`)
             .then(res => res.json())
             .then(player => {
-                console.log("Fetched player:", player);
+                console.log(`[LOAD PLAYER] ✓ Loaded player data:`, player);
 
                 // Remove later
                 document.getElementById("puuid").textContent = `PUUID: ${player.puuid}`;
@@ -27,15 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 let puuid = player.puuid || "";
 
                 if(!player.puuid){
+                    console.log(`[LOAD PLAYER] PUUID not found, fetching from Riot API: ${player.gameName}#${player.tagLine}`);
                     fetch(`/riot/puuid/${player.gameName}/${player.tagLine}`)
                         .then(res => res.json())
                         .then(data => {
-                        // console.log("PUUID:", data.puuid);
+                        console.log(`[LOAD PLAYER] ✓ Retrieved PUUID from Riot API:`, data.puuid);
                         return data; // pass data forward
                         })
                         .then(data => {
                             puuid = data.puuid;
-                            console.log("Stored PUUID:", puuid);
+                            console.log(`[LOAD PLAYER] Stored PUUID:`, puuid);
 
                             // update puuid in sql if null
                             updatePuuid(player.userId, puuid);
@@ -44,11 +49,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             document.getElementById("puuid").textContent = `PUUID: ${puuid}`;
 
                             // Fetch recent matches after PUUID is retrieved
+                            console.log(`[LOAD PLAYER] Initiating match fetch with PUUID: ${puuid}`);
                             fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
                         })
-                        .catch(err => console.error(err));
+                        .catch(err => console.error(`[LOAD PLAYER] ✗ Error fetching PUUID:`, err));
                 } else {
                     // PUUID already exists, fetch recent matches
+                    console.log(`[LOAD PLAYER] PUUID exists: ${puuid}, fetching matches...`);
                     fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
                     
                 }
@@ -69,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById("year").textContent = `Year Level: ${player.yearLevel}`;
 
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error(`[LOAD PLAYER] ✗ Error loading player data:`, err));
     }
 
   // Fetch all players and populate dropdown
@@ -93,38 +100,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadPlayer(players[0].userId);
             }
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error("[LOAD PLAYERS] ✗ Error loading player list:", err));
 
     // Fetch recent matches for a player by PUUID and queue ID
     function fetchRecentMatches(puuid, queueId) {
+        console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
         return fetch(`/riot/matches/${puuid}/${queueId}`)
             .then(res => res.json())
             .then(data => {
-                console.log("Recent matches:", data.matches);
+                console.log(`[FETCH MATCHES] ✓ Retrieved ${data.matches.length} match IDs:`, data.matches);
 
                 // Fetch details for each match ID
-                const matchDetailsPromises = data.matches.map(matchId => fetchMatchDetails(matchId));
+                const matchDetailsPromises = data.matches.map((matchId, index) => {
+                    console.log(`[FETCH MATCHES] Fetching details for match ${index + 1}/${data.matches.length}: ${matchId}`);
+                    return fetchMatchDetails(matchId);
+                });
                 return Promise.all(matchDetailsPromises);
             })
             .then(matchesData => {
+                console.log(`[FETCH MATCHES] ✓ Successfully fetched details for ${matchesData.length} matches`);
+                
                 // Store all fetched match details to database
                 const currentPlayerId = document.getElementById("player-dropdown-btn").getAttribute("data-player-id");
                 if (currentPlayerId && matchesData.length > 0) {
+                    console.log(`[FETCH MATCHES] Initiating database storage for player: ${currentPlayerId}`);
                     storeMatchesToDatabase(currentPlayerId, matchesData);
                 }
                 return matchesData;
             })
-            .catch(err => console.error("Error fetching recent matches:", err));
+            .catch(err => console.error("[FETCH MATCHES] ✗ Error fetching recent matches:", err));
     }
 
     function fetchMatchDetails(matchId) {
         return fetch(`/riot/match/${matchId}`)
             .then(res => res.json())
             .then(data => {
-                console.log("Match details for", matchId, ":", data);
                 return data.matchDetails;
             })
-            .catch(err => console.error("Error fetching match details:", err));
+            .catch(err => {
+                console.error(`[FETCH DETAILS] ✗ Error fetching match details for ${matchId}:`, err);
+                throw err;
+            });
     }
 
     // Store match details to database in batches
@@ -132,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const validMatches = matchesData.filter(m => m && m.metadata && m.info);
         
         if (validMatches.length === 0) {
-            console.log("No valid matches to store");
+            console.log("[STORE] No valid matches to store");
             return;
         }
 
@@ -143,10 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
             batches.push(validMatches.slice(i, i + batchSize));
         }
 
-        console.log(`Storing ${validMatches.length} matches in ${batches.length} batches...`);
-
         batches.forEach((batch, batchIndex) => {
             setTimeout(() => {
+                // Store match details
                 fetch(`/riot/matches/${userId}/store-multiple`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -154,11 +169,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                     .then(res => res.json())
                     .then(data => {
-                        console.log(`Batch ${batchIndex + 1}/${batches.length} stored:`, data);
+                        console.log(`[STORE] ✓ Match batch ${batchIndex + 1}/${batches.length} stored:`, data);
+                        
+                        // After storing matches, store participants
+                        storeMatchParticipantsBatch(batch);
                     })
-                    .catch(err => console.error(`Error storing batch ${batchIndex + 1}:`, err));
+                    .catch(err => console.error(`[STORE] ✗ Error storing match batch ${batchIndex + 1}:`, err));
             }, batchIndex * 500); // Stagger requests by 500ms
         });
+    }
+
+    // Store match participants in batches
+    function storeMatchParticipantsBatch(matchesData) {
+        if (!matchesData || matchesData.length === 0) {
+            console.log("[PARTICIPANTS] No matches to extract participants from");
+            return;
+        }
+
+        console.log(`[PARTICIPANTS] Preparing batch upload for ${matchesData.length} matches...`);
+
+        // Format data for batch upload
+        const batchData = matchesData.map(match => ({
+            matchId: match.metadata.matchId,
+            matchData: match
+        }));
+
+        // Send batch to server
+        fetch(`/riot/participants/batch`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ matches: batchData })
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(`[PARTICIPANTS] ✓ Batch upload complete:`, data);
+                console.log(`[PARTICIPANTS] Summary - Total: ${data.totalParticipants}, Stored: ${data.successfulParticipants}, Failed: ${data.failedParticipants}`);
+            })
+            .catch(err => console.error(`[PARTICIPANTS] ✗ Error uploading participants batch:`, err));
     }
 
 // ===================  OVERLAY BACKEND  ============================
