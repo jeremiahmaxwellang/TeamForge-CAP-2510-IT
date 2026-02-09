@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Player Dashboard</title>
+</head>
+<body>
+
+<h1>Player Dashboard</h1>
+<p>Welcome, <span id="playerName">Guest</span>!</p>
+
+<script>
+// Get user info from localStorage
+const user = JSON.parse(localStorage.getItem('user'));
+if (user && user.firstname && user.lastname) {
+    document.getElementById('playerName').textContent = user.firstname + ' ' + user.lastname;
+}
+</script>
+
+</body>
+</html>
+
+
