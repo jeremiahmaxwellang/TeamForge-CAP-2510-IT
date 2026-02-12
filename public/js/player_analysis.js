@@ -15,6 +15,33 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err));
     }
 
+    function fetchWinrate(puuid) {
+    console.log(`[FRONTEND] Requesting winrate for PUUID: ${puuid}`);
+    fetch(`/riot/winrate/${puuid}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            console.log(`[FRONTEND] ✓ Winrate Data Received:`, data);
+
+            // Target the specific class from player_overview.html
+            const percentWinEl = document.querySelector(".percentWin");
+            const totalGamesEl = document.querySelector(".totalGames");
+
+            if (percentWinEl) {
+                // data.winrate comes from riotApiController.js
+                percentWinEl.textContent = `${data.winrate}% WR`;
+            }
+
+            if (totalGamesEl) {
+                // Displays the breakdown (e.g., "Last 15 Games (8W - 7L)")
+                totalGamesEl.textContent = `Last ${data.total} Games (${data.wins}W - ${data.losses}L)`;
+            }
+        })
+        .catch(err => console.error("[FRONTEND] ✗ Error fetching winrate:", err));
+    }
+
     // Load one player’s details into overlay
     function loadPlayer(playerId) {
         console.log(`[LOAD PLAYER] Loading player: ${playerId}`);
@@ -51,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Fetch recent matches after PUUID is retrieved
                             console.log(`[LOAD PLAYER] Initiating match fetch with PUUID: ${puuid}`);
                             fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+
+                            fetchWinrate(puuid);
                         })
                         .catch(err => console.error(`[LOAD PLAYER] ✗ Error fetching PUUID:`, err));
                 } else {
@@ -58,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(`[LOAD PLAYER] PUUID exists: ${puuid}, fetching matches...`);
                     fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
                     
+                    fetchWinrate(puuid);
                 }
                 
 
@@ -108,11 +138,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return fetch(`/riot/matches/${puuid}/${queueId}`)
             .then(res => res.json())
             .then(data => {
-                console.log(`[FETCH MATCHES] ✓ Retrieved ${data.matches.length} match IDs:`, data.matches);
+                // console.log(`[FETCH MATCHES] ✓ Retrieved ${data.matches.length} match IDs:`, data.matches);
 
                 // Fetch details for each match ID
                 const matchDetailsPromises = data.matches.map((matchId, index) => {
-                    console.log(`[FETCH MATCHES] Fetching details for match ${index + 1}/${data.matches.length}: ${matchId}`);
+                    // console.log(`[FETCH MATCHES] Fetching details for match ${index + 1}/${data.matches.length}: ${matchId}`);
                     return fetchMatchDetails(matchId);
                 });
                 return Promise.all(matchDetailsPromises);
@@ -159,31 +189,41 @@ document.addEventListener('DOMContentLoaded', function() {
             batches.push(validMatches.slice(i, i + batchSize));
         }
 
-        batches.forEach((batch, batchIndex) => {
-            setTimeout(() => {
-                // Store match details
-                fetch(`/riot/matches/${userId}/store-multiple`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ matches: batch })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        console.log(`[STORE] ✓ Match batch ${batchIndex + 1}/${batches.length} stored:`, data);
-                        
-                        // After storing matches, store participants
-                        storeMatchParticipantsBatch(batch);
+        // Return a promise that resolves when all batches (and their participant uploads) complete
+        const batchPromises = batches.map((batch, batchIndex) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Store match details
+                    fetch(`/riot/matches/${userId}/store-multiple`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ matches: batch })
                     })
-                    .catch(err => console.error(`[STORE] ✗ Error storing match batch ${batchIndex + 1}:`, err));
-            }, batchIndex * 500); // Stagger requests by 500ms
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log(`[STORE] ✓ Match batch ${batchIndex + 1}/${batches.length} stored:`, data);
+
+                            // After storing matches, store participants and resolve when done
+                            storeMatchParticipantsBatch(batch)
+                                .then(participantResult => resolve({ storeResult: data, participantResult }))
+                                .catch(() => resolve({ storeResult: data }));
+                        })
+                        .catch(err => {
+                            console.error(`[STORE] ✗ Error storing match batch ${batchIndex + 1}:`, err);
+                            resolve({ error: err.message });
+                        });
+                }, batchIndex * 500); // Stagger requests by 500ms
+            });
         });
+
+        return Promise.all(batchPromises);
     }
 
     // Store match participants in batches
     function storeMatchParticipantsBatch(matchesData) {
         if (!matchesData || matchesData.length === 0) {
             console.log("[PARTICIPANTS] No matches to extract participants from");
-            return;
+            return Promise.resolve({ totalParticipants: 0, stored: 0 });
         }
 
         console.log(`[PARTICIPANTS] Preparing batch upload for ${matchesData.length} matches...`);
@@ -195,17 +235,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
 
         // Send batch to server
-        fetch(`/riot/participants/batch`, {
+        return fetch(`/riot/participants/batch`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ matches: batchData })
         })
             .then(res => res.json())
             .then(data => {
-                console.log(`[PARTICIPANTS] ✓ Batch upload complete:`, data);
-                console.log(`[PARTICIPANTS] Summary - Total: ${data.totalParticipants}, Stored: ${data.successfulParticipants}, Failed: ${data.failedParticipants}`);
+                // console.log(`[PARTICIPANTS] ✓ Batch upload complete:`, data);
+                // console.log(`[PARTICIPANTS] Summary - Total: ${data.totalParticipants}, Stored: ${data.successfulParticipants}, Failed: ${data.failedParticipants}`);
+                return data;
             })
-            .catch(err => console.error(`[PARTICIPANTS] ✗ Error uploading participants batch:`, err));
+            .catch(err => {
+                console.error(`[PARTICIPANTS] ✗ Error uploading participants batch:`, err);
+                return { error: err.message };
+            });
     }
 
 // ===================  OVERLAY BACKEND  ============================
