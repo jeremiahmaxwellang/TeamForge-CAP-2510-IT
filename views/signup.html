@@ -61,6 +61,31 @@
             background: #333;
         }
     </style>
+    <script>
+        function continueSignup() {
+            const email = document.querySelector('input[placeholder="Enter your email"]').value;
+            const password = document.querySelector('input[placeholder="Enter your password"]').value;
+            const confirmPassword = document.querySelector('input[placeholder="Confirm your password"]').value;
+
+            // Validation
+            if (!email || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            // Save signup data to localStorage to be used on registration page
+            sessionStorage.setItem('email', email);
+            sessionStorage.setItem('password', password);
+
+            // Redirect to registration page
+            window.location.href = '/register';
+        }
+    </script>
 </head>
 <body>
 
@@ -76,7 +101,7 @@
         <label>Confirm Password</label>
         <input type="password" placeholder="Confirm your password">
 
-        <button onclick="window.location.href='/register'">Continue</button>
+        <button onclick="continueSignup()">Continue</button>
     </div>
 
 </body>
