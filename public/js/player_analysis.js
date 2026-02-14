@@ -194,6 +194,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const kdaStats = calculateAverageKDA(matchesData, puuid);
                 updateKDADisplay(kdaStats);
                 
+                // Extract and display top 3 champions
+                const topChampions = getTop3Champions(matchesData, puuid);
+                updateChampionDisplay(topChampions);
+                
                 // Store all fetched match details to database
                 const currentPlayerId = document.getElementById("player-dropdown-btn").getAttribute("data-player-id");
                 if (currentPlayerId && matchesData.length > 0) {
@@ -283,6 +287,96 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             console.log(`[UPDATE KDA] ✗ summarizedKDAEl not found in DOM`);
         }
+    }
+
+    // Extract top 3 champions by games played
+    function getTop3Champions(matchesData, puuid) {
+        console.log(`[TOP 3 CHAMPS] Extracting top 3 champions from ${matchesData.length} matches`);
+        
+        const championStats = {};
+
+        matchesData.forEach((match) => {
+            if (match.info && match.info.participants) {
+                const playerParticipant = match.info.participants.find(p => p.puuid === puuid);
+                
+                if (playerParticipant) {
+                    const champName = playerParticipant.championName;
+                    const isWin = playerParticipant.win;
+                    const kills = playerParticipant.kills || 0;
+                    const deaths = playerParticipant.deaths || 0;
+                    const assists = playerParticipant.assists || 0;
+
+                    if (!championStats[champName]) {
+                        championStats[champName] = {
+                            name: champName,
+                            games: 0,
+                            wins: 0,
+                            losses: 0,
+                            totalKills: 0,
+                            totalDeaths: 0,
+                            totalAssists: 0
+                        };
+                    }
+
+                    championStats[champName].games += 1;
+                    championStats[champName].wins += isWin ? 1 : 0;
+                    championStats[champName].losses += isWin ? 0 : 1;
+                    championStats[champName].totalKills += kills;
+                    championStats[champName].totalDeaths += deaths;
+                    championStats[champName].totalAssists += assists;
+                }
+            }
+        });
+
+        // Sort by games played and get top 3
+        const sortedChamps = Object.values(championStats)
+            .sort((a, b) => b.games - a.games)
+            .slice(0, 3);
+
+        console.log(`[TOP 3 CHAMPS] Top champions:`, sortedChamps);
+        return sortedChamps;
+    }
+
+    // Update champion display with images and stats
+    function updateChampionDisplay(topChampions) {
+        console.log(`[UPDATE CHAMPS] Updating champion display for ${topChampions.length} champions`);
+        
+        topChampions.forEach((champ, index) => {
+            const champId = `champion${index + 1}`;
+            const champElement = document.getElementById(champId);
+            
+            if (champElement) {
+                // Calculate average KDA for this champion
+                const avgKills = (champ.totalKills / champ.games).toFixed(2);
+                const avgDeaths = (champ.totalDeaths / champ.games).toFixed(2);
+                const avgAssists = (champ.totalAssists / champ.games).toFixed(2);
+                const kdaRatio = ((champ.totalKills + champ.totalAssists) / (champ.totalDeaths || 1)).toFixed(2);
+                
+                // Update image
+                const img = champElement.querySelector('.champion-icon');
+                if (img) {
+                    img.src = `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${champ.name}.png`;
+                    img.alt = `${champ.name}`;
+                    console.log(`[UPDATE CHAMPS] Updated image for ${champ.name}`);
+                }
+                
+                // Update stats
+                const kdaElement = champElement.querySelector('.kda-1');
+                const advKdaElement = champElement.querySelector('.kda-2');
+                
+                if (kdaElement) {
+                    kdaElement.innerHTML = `${kdaRatio} KDA <span class="note">(${champ.wins}W ${champ.losses}L)</span>`;
+                }
+                
+                if (advKdaElement) {
+                    advKdaElement.textContent = `${avgKills} / ${avgDeaths} / ${avgAssists}`;
+                }
+                
+                console.log(`[UPDATE CHAMPS] ✓ Updated ${champ.name} - ${kdaRatio} KDA (${champ.wins}W ${champ.losses}L)`);
+            } else {
+                console.log(`[UPDATE CHAMPS] ✗ ${champId} element not found`);
+            }
+        });
     }
 
     // Store match details to database in batches
