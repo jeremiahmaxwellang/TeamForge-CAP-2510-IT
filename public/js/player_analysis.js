@@ -16,30 +16,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function fetchWinrate(puuid) {
-    console.log(`[FRONTEND] Requesting winrate for PUUID: ${puuid}`);
-    fetch(`/riot/winrate/${puuid}`)
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            console.log(`[FRONTEND] ✓ Winrate Data Received:`, data);
+        console.log(`[FRONTEND] Requesting winrate for PUUID: ${puuid}`);
+        
+        fetch(`/riot/winrate/${puuid}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log(`[FRONTEND] ✓ Winrate Data Received:`, data);
 
-            // Target the specific class from player_overview.html
-            const percentWinEl = document.querySelector(".percentWin");
-            const totalGamesEl = document.querySelector(".totalGames");
+                // Target the specific class from player_overview.html
+                const percentWinEl = document.querySelector(".percentWin");
+                const totalGamesEl = document.querySelector(".totalGames");
 
-            if (percentWinEl) {
-                // data.winrate comes from riotApiController.js
-                percentWinEl.textContent = `${data.winrate}% WR`;
-            }
+                if (percentWinEl) {
+                    // data.winrate comes from riotApiController.js
+                    percentWinEl.textContent = `${data.winrate}% WR`;
+                }
 
-            if (totalGamesEl) {
-                // Displays the breakdown (e.g., "Last 15 Games (8W - 7L)")
-                totalGamesEl.textContent = `Last ${data.total} Games (${data.wins}W - ${data.losses}L)`;
-            }
-        })
-        .catch(err => console.error("[FRONTEND] ✗ Error fetching winrate:", err));
+                if (totalGamesEl) {
+                    // Displays the breakdown (e.g., "Last 15 Games (8W - 7L)")
+                    totalGamesEl.textContent = `Last ${data.total} Games (${data.wins}W - ${data.losses}L)`;
+                }
+
+                // Combine this logic with the rest of the code
+                const winrateContainer = document.querySelector(".winrate");
+                console.log(`[FRONTEND] Targeting winrate container:`, winrateContainer);
+
+                if (winrateContainer) {
+                    // This triggers the CSS animation by updating the --p variable
+                    winrateContainer.style.setProperty('--p', `${data.winrate}%`);
+                }
+            })
+            .catch(err => console.error("[FRONTEND] ✗ Error fetching winrate:", err));
     }
 
     // Load one player’s details into overlay
@@ -94,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const btn = document.getElementById("player-dropdown-btn");
                     btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
                     btn.setAttribute("data-player-id", player.userId);
+                    btn.setAttribute("data-puuid", puuid);
 
                     document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`;
                     document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`;
@@ -312,6 +323,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                     const closeButton = overlayContainer.querySelector('.close-button');
                                     if (closeButton) closeButton.addEventListener('click', closeOverlay);
+                                    
+                                    // Refetch winrate for the Overview tab after overlay is loaded
+                                    if (this.id === 'overviewButton') {
+                                        const btn = document.getElementById("player-dropdown-btn");
+                                        const puuid = btn.getAttribute("data-puuid");
+                                        if (puuid) {
+                                            console.log(`[OVERVIEW TAB] Fetching winrate after overlay load`);
+                                            fetchWinrate(puuid);
+                                        }
+                                    }
                                 }
                             })
                             .catch(err => console.log('Error loading overlay:', err));
