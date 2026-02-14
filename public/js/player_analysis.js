@@ -169,19 +169,30 @@ document.addEventListener('DOMContentLoaded', function() {
     function fetchRecentMatches(puuid, queueId) {
         console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
         return fetch(`/riot/matches/${puuid}/${queueId}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
-                // console.log(`[FETCH MATCHES] ✓ Retrieved ${data.matches.length} match IDs:`, data.matches);
+                if (!data.matches || !Array.isArray(data.matches)) {
+                    throw new Error('Invalid response: matches array not found');
+                }
+                console.log(`[FETCH MATCHES] ✓ Retrieved ${data.matches.length} match IDs`);
 
                 // Fetch details for each match ID
                 const matchDetailsPromises = data.matches.map((matchId, index) => {
-                    // console.log(`[FETCH MATCHES] Fetching details for match ${index + 1}/${data.matches.length}: ${matchId}`);
                     return fetchMatchDetails(matchId);
                 });
                 return Promise.all(matchDetailsPromises);
             })
             .then(matchesData => {
                 console.log(`[FETCH MATCHES] ✓ Successfully fetched details for ${matchesData.length} matches`);
+                
+                // Calculate and display average KDA
+                const kdaStats = calculateAverageKDA(matchesData, puuid);
+                updateKDADisplay(kdaStats);
                 
                 // Store all fetched match details to database
                 const currentPlayerId = document.getElementById("player-dropdown-btn").getAttribute("data-player-id");
@@ -204,6 +215,74 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error(`[FETCH DETAILS] ✗ Error fetching match details for ${matchId}:`, err);
                 throw err;
             });
+    }
+
+    // Calculate average KDA from match data for the selected player
+    function calculateAverageKDA(matchesData, puuid) {
+        console.log(`[CALC KDA] Calculating average KDA for PUUID: ${puuid} from ${matchesData.length} matches`);
+        
+        let totalKills = 0;
+        let totalDeaths = 0;
+        let totalAssists = 0;
+        let validMatches = 0;
+
+        matchesData.forEach((match, index) => {
+            // Find the participant with matching PUUID
+            if (match.info && match.info.participants) {
+                const playerParticipant = match.info.participants.find(p => p.puuid === puuid);
+                
+                if (playerParticipant) {
+                    totalKills += playerParticipant.kills || 0;
+                    totalDeaths += playerParticipant.deaths || 0;
+                    totalAssists += playerParticipant.assists || 0;
+                    validMatches++;
+                    console.log(`[CALC KDA] Match ${index + 1}: ${playerParticipant.kills}/${playerParticipant.deaths}/${playerParticipant.assists}`);
+                }
+            }
+        });
+
+        console.log(`[CALC KDA] Total from ${validMatches} matches: ${totalKills}K / ${totalDeaths}D / ${totalAssists}A`);
+
+        // Calculate average stats
+        const avgKills = validMatches > 0 ? (totalKills / validMatches).toFixed(2) : 0;
+        const avgDeaths = validMatches > 0 ? (totalDeaths / validMatches).toFixed(2) : 0;
+        const avgAssists = validMatches > 0 ? (totalAssists / validMatches).toFixed(2) : 0;
+        
+        // Calculate KDA ratio
+        const kdaRatio = validMatches > 0 ? ((totalKills + totalAssists) / (totalDeaths || 1)).toFixed(2) : 0;
+
+        console.log(`[CALC KDA] Averages: ${avgKills}/${avgDeaths}/${avgAssists}, KDA Ratio: ${kdaRatio}`);
+
+        return {
+            kdaRatio,
+            avgKills,
+            avgDeaths,
+            avgAssists
+        };
+    }
+
+    // Update KDA display in player_overview
+    function updateKDADisplay(kdaStats) {
+        console.log(`[UPDATE KDA] Looking for KDA elements...`);
+        const averageKDAEl = document.querySelector("#averageKDA");
+        const summarizedKDAEl = document.querySelector("#summarizedKDA");
+
+        console.log(`[UPDATE KDA] averageKDAEl found:`, averageKDAEl);
+        console.log(`[UPDATE KDA] summarizedKDAEl found:`, summarizedKDAEl);
+
+        if (averageKDAEl) {
+            averageKDAEl.textContent = `${kdaStats.kdaRatio} KDA`;
+            console.log(`[UPDATE KDA] ✓ Updated averageKDA to: ${kdaStats.kdaRatio} KDA`);
+        } else {
+            console.log(`[UPDATE KDA] ✗ averageKDAEl not found in DOM`);
+        }
+
+        if (summarizedKDAEl) {
+            summarizedKDAEl.textContent = `${kdaStats.avgKills} / ${kdaStats.avgDeaths} / ${kdaStats.avgAssists}`;
+            console.log(`[UPDATE KDA] ✓ Updated summarizedKDA to: ${kdaStats.avgKills} / ${kdaStats.avgDeaths} / ${kdaStats.avgAssists}`);
+        } else {
+            console.log(`[UPDATE KDA] ✗ summarizedKDAEl not found in DOM`);
+        }
     }
 
     // Store match details to database in batches
@@ -346,13 +425,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                     const closeButton = overlayContainer.querySelector('.close-button');
                                     if (closeButton) closeButton.addEventListener('click', closeOverlay);
                                     
-                                    // Refetch winrate for the Overview tab after overlay is loaded
+                                    // Refetch winrate and KDA for the Overview tab after overlay is loaded
                                     if (this.id === 'overviewButton') {
                                         const btn = document.getElementById("player-dropdown-btn");
                                         const puuid = btn.getAttribute("data-puuid");
                                         if (puuid) {
-                                            console.log(`[OVERVIEW TAB] Fetching winrate after overlay load`);
+                                            console.log(`[OVERVIEW TAB] Fetching winrate and KDA after overlay load`);
                                             fetchWinrate(puuid);
+                                            fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
                                         }
                                     }
                                 }

@@ -57,7 +57,7 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     if (queueId) params.append('queue', queueId);  // Only append queue if it's provided
 
     // Log the final request URL for debugging
-    // console.log(`Fetching matches URL: ${url}?${params.toString()}`);
+    // console.log(`[FETCH RECENT MATCHES] URL: ${url}?${params.toString()}`);
 
     // Make the API request to fetch recent matches
     const response = await fetch(`${url}?${params.toString()}`, {
@@ -68,13 +68,15 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     });
 
     if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[FETCH RECENT MATCHES] API Error ${response.status}: ${errorText}`);
         throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
     
     // Print out the fetched data to the console
-    // console.log("Fetched recent matches:", data);
+    console.log(`[FETCH RECENT MATCHES] ✓ Retrieved ${data.length} match IDs`);
     
     return data;
 }
@@ -83,16 +85,22 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
 exports.getRecentMatches = async (req, res) => {
     try {
         const { puuid, queueId } = req.params;
+        // console.log(`[GET RECENT MATCHES] Starting with PUUID: ${puuid}, Queue: ${queueId}`);
+        
         // Default start to 0 and count to 15 if not provided in the query
         const { start = 0, count = 15 } = req.query;
         
         // Ensure that count is parsed as an integer
         const matchCount = parseInt(count) || 15;  // Default to 15 if not a valid number
         
+        console.log(`[GET RECENT MATCHES] Parameters - start: ${start}, count: ${matchCount}`);
+        
         // Call fetchRecentMatches with the correct parameters
         const matches = await fetchRecentMatches(puuid, queueId, parseInt(start), matchCount);
+        console.log(`[GET RECENT MATCHES] ✓ Retrieved ${matches.length} matches`);
         res.json({ matches });
     } catch (err) {
+        console.error(`[GET RECENT MATCHES] ✗ Error:`, err.message);
         res.status(500).json({ error: err.message });
     }
 };
