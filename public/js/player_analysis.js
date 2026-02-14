@@ -45,8 +45,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(`[FRONTEND] Targeting winrate container:`, winrateContainer);
 
                 if (winrateContainer) {
-                    // This triggers the CSS animation by updating the --p variable
-                    winrateContainer.style.setProperty('--p', `${data.winrate}%`);
+                    // Dynamically update the gradient for the ::before pseudo-element
+                    const winrate = data.winrate;
+                    const styleId = 'winrate-gradient-style';
+                    
+                    // Remove old style if it exists
+                    let styleElement = document.getElementById(styleId);
+                    if (styleElement) {
+                        styleElement.remove();
+                    }
+                    
+                    // Create new style with the current winrate gradient
+                    styleElement = document.createElement('style');
+                    styleElement.id = styleId;
+                    styleElement.textContent = `
+                        .winrate::before {
+                            background: conic-gradient(
+                                #28b5ff 0deg,
+                                #28b5ff ${(winrate / 100) * 360}deg,
+                                #ff6b6b ${(winrate / 100) * 360}deg,
+                                #ff6b6b 360deg
+                            ) !important;
+                        }
+                    `;
+                    document.head.appendChild(styleElement);
                 }
             })
             .catch(err => console.error("[FRONTEND] ✗ Error fetching winrate:", err));

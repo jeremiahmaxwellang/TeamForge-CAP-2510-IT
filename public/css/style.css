@@ -535,13 +535,6 @@ header h1, header h2 {
     padding-left: 96px; /* space for the donut */
 }
 
-/* This allows the browser to animate the custom property */
-@property --p {
-  syntax: '<percentage>';
-  inherits: false;
-  initial-value: 0%;
-}
-
 .winrate::before {
     content: "";
     position: absolute;
@@ -551,15 +544,13 @@ header h1, header h2 {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    /* 2. FIX: Use the variable for BOTH color stops to create a sharp edge */
     background: conic-gradient(
-        #28b5ff 0%, 
-        #28b5ff var(--p, 0%), 
-        #ff6b6b var(--p, 0%), 
-        #ff6b6b 100%
+        #28b5ff 0deg,
+        #28b5ff 0deg,
+        #ff6b6b 0deg,
+        #ff6b6b 360deg
     );
     box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-    transition: --p 1s ease-in-out; 
 }
 
 /* create inner hole for donut */
