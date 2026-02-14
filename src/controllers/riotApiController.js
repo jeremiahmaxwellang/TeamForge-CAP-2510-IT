@@ -266,22 +266,33 @@ exports.saveMultipleMatches = async (req, res) => {
 exports.getWinrate = async (req, res) => {
     try {
         const { puuid } = req.params;
+        const { queueId } = req.query;
 
         if (!puuid) {
             return res.status(400).json({ error: 'puuid is required' });
         }
 
+        console.log(`[Win Rate] Getting winrate for PUUID: ${puuid}, Queue: ${queueId || 'all'}`);
+
         // Select the player's most recent 15 participant records joined with match timestamps
-        const sql = `
-            SELECT mp.win, m.gameStartTimestamp, m.gameCreation
+        let sql = `
+            SELECT mp.win, m.gameStartTimestamp, m.gameCreation, m.queueId
             FROM matchParticipants mp
             JOIN matches m ON mp.matchId = m.matchId
             WHERE mp.puuid = ?
-            ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
-            LIMIT 15
         `;
+        const params = [puuid];
 
-        const [rows] = await db.query(sql, [puuid]);
+        // Add queue filter if provided
+        if (queueId) {
+            sql += ` AND m.queueId = ?`;
+            params.push(queueId);
+        }
+
+        sql += ` ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
+            LIMIT 15`;
+
+        const [rows] = await db.query(sql, params);
 
         const total = rows.length;
         if (total === 0) {
@@ -298,9 +309,9 @@ exports.getWinrate = async (req, res) => {
 
         res.json({ total, wins, losses, winrate });
 
-        console.log(`[Win Rate] Calculated winrate for puuid: ${winrate}% (${wins}W/${losses}L)`);
+        console.log(`[Win Rate] ✓ Calculated winrate for PUUID: ${winrate}% (${wins}W/${losses}L) - Queue: ${queueId || 'all'}`);
     } catch (err) {
-        console.error(`[Win Rate] ERROR in getWinrate:`, err.message);
+        console.error(`[Win Rate] ✗ ERROR in getWinrate:`, err.message);
         res.status(500).json({ error: err.message });
     }
 };

@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Store current queue ID (default to 420 = Ranked Solo/Duo)
+    let currentQueueId = 420;
+    const queueNames = {
+        '420': 'Ranked',
+        '440': 'Casual'
+    };
+
     // Helper for updating puuid in sql
     function updatePuuid(userId, puuid) {
         console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}: ${puuid}`);
@@ -15,16 +22,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err));
     }
 
-    function fetchWinrate(puuid) {
-        console.log(`[FRONTEND] Requesting winrate for PUUID: ${puuid}`);
+    function fetchWinrate(puuid, queueId = 420) {
+        console.log(`[FETCH WINRATE] Requesting winrate for PUUID: ${puuid}, Queue: ${queueId}`);
         
-        fetch(`/riot/winrate/${puuid}`)
+        fetch(`/riot/winrate/${puuid}?queueId=${queueId}`)
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
             })
             .then(data => {
-                console.log(`[FRONTEND] ✓ Winrate Data Received:`, data);
+                console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
 
                 // Target the specific class from player_overview.html
                 const percentWinEl = document.querySelector(".percentWin");
@@ -109,17 +116,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             // Fetch recent matches after PUUID is retrieved
                             console.log(`[LOAD PLAYER] Initiating match fetch with PUUID: ${puuid}`);
-                            fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+                            fetchRecentMatches(puuid, currentQueueId);
 
-                            fetchWinrate(puuid);
+                            fetchWinrate(puuid, currentQueueId);
                         })
                         .catch(err => console.error(`[LOAD PLAYER] ✗ Error fetching PUUID:`, err));
                 } else {
                     // PUUID already exists, fetch recent matches
                     console.log(`[LOAD PLAYER] PUUID exists: ${puuid}, fetching matches...`);
-                    fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+                    fetchRecentMatches(puuid, currentQueueId);
                     
-                    fetchWinrate(puuid);
+                    fetchWinrate(puuid, currentQueueId);
                 }
                 
 
@@ -481,6 +488,64 @@ document.addEventListener('DOMContentLoaded', function() {
         activeButton.classList.add('active');
     }
 
+    // Set up queue dropdown functionality
+    function setupQueueDropdown() {
+        const queueDropdownBtn = overlayContainer.querySelector('#queueDropdownBtn');
+        const queueDropdownContent = overlayContainer.querySelector('#queueDropdownContent');
+        const queueOptions = overlayContainer.querySelectorAll('#queueDropdownContent a');
+
+        if (!queueDropdownBtn || !queueDropdownContent) {
+            console.log('[QUEUE DROPDOWN] ✗ Queue dropdown button or content not found');
+            return;
+        }
+
+        console.log('[QUEUE DROPDOWN] ✓ Queue dropdown elements found, setting up listeners');
+
+        // Toggle dropdown visibility on button click
+        queueDropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            queueDropdownContent.style.display = 
+                queueDropdownContent.style.display === 'block' ? 'none' : 'block';
+            console.log('[QUEUE DROPDOWN] Toggled dropdown visibility');
+        });
+
+        // Handle queue option selection
+        queueOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                const queueId = this.getAttribute('data-queue');
+                const queueName = this.textContent;
+
+                console.log(`[QUEUE DROPDOWN] Selected: ${queueName} (Queue ID: ${queueId})`);
+
+                // Update button text
+                queueDropdownBtn.textContent = queueName;
+
+                // Hide dropdown
+                queueDropdownContent.style.display = 'none';
+
+                // Update current queue ID
+                currentQueueId = parseInt(queueId);
+
+                // Refetch matches with new queue ID
+                const btn = document.getElementById("player-dropdown-btn");
+                const puuid = btn.getAttribute("data-puuid");
+                if (puuid) {
+                    console.log(`[QUEUE DROPDOWN] Refetching matches and winrate for PUUID: ${puuid} with queue: ${currentQueueId}`);
+                    fetchWinrate(puuid, currentQueueId);
+                    fetchRecentMatches(puuid, currentQueueId);
+                }
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                queueDropdownContent.style.display = 'none';
+            }
+        });
+    }
+
     // Attach click handlers to all tab buttons
     if (overlayContainer) {
         tabButtons.forEach(button => {
@@ -507,6 +572,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             })
                             .then(html => {
                                 overlayContainer.innerHTML = html;
+                                
+                                // Set up queue dropdown functionality
+                                setupQueueDropdown();
 
                                 const overlay = overlayContainer.querySelector('.overlay');
                                 if (overlay) {
@@ -524,9 +592,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                         const btn = document.getElementById("player-dropdown-btn");
                                         const puuid = btn.getAttribute("data-puuid");
                                         if (puuid) {
-                                            console.log(`[OVERVIEW TAB] Fetching winrate and KDA after overlay load`);
+                                            console.log(`[OVERVIEW TAB] Fetching winrate and KDA after overlay load with queue: ${currentQueueId}`);
                                             fetchWinrate(puuid);
-                                            fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+                                            fetchRecentMatches(puuid, currentQueueId);
                                         }
                                     }
                                 }
