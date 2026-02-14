@@ -276,7 +276,7 @@ exports.getWinrate = async (req, res) => {
 
         // Select the player's most recent 15 participant records joined with match timestamps
         let sql = `
-            SELECT mp.win, m.gameStartTimestamp, m.gameCreation, m.queueId
+            SELECT mp.win, m.gameStartTimestamp, m.gameCreation, mp.queueId
             FROM matchParticipants mp
             JOIN matches m ON mp.matchId = m.matchId
             WHERE mp.puuid = ?
@@ -285,7 +285,7 @@ exports.getWinrate = async (req, res) => {
 
         // Add queue filter if provided
         if (queueId) {
-            sql += ` AND m.queueId = ?`;
+            sql += ` AND mp.queueId = ?`;
             params.push(queueId);
         }
 

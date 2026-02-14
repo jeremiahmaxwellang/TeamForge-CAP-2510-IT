@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.head.appendChild(styleElement);
                 }
             })
-            .catch(err => console.error("[FRONTEND] ✗ Error fetching winrate:", err));
+            .catch(err => console.error("[FETCH WINRATE] ✗ Error fetching winrate:", err));
     }
 
     // Load one player’s details into overlay
@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         const puuid = btn.getAttribute("data-puuid");
                                         if (puuid) {
                                             console.log(`[OVERVIEW TAB] Fetching winrate and KDA after overlay load with queue: ${currentQueueId}`);
-                                            fetchWinrate(puuid);
+                                            fetchWinrate(puuid, currentQueueId);
                                             fetchRecentMatches(puuid, currentQueueId);
                                         }
                                     }
