@@ -50,4 +50,56 @@ router.get('/evaluation', async function(req, res) {
     res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_evaluation.html'));
 });
 
+// ============ BENCHMARKS ROUTES ============
+
+/**
+ * GET /player_analysis/benchmarks/status
+ * Check if benchmarks table is empty
+ */
+router.get('/benchmarks/status', playerController.checkBenchmarkStatus);
+
+/**
+ * POST /player_analysis/benchmarks/initialize
+ * Initialize benchmarks - check if empty and insert defaults if needed
+ */
+router.post('/benchmarks/initialize', playerController.initializeBenchmarks);
+
+/**
+ * GET /player_analysis/benchmarks/all
+ * Get all benchmarks with role information
+ */
+router.get('/benchmarks/all', playerController.getAllBenchmarks);
+
+/**
+ * GET /player_analysis/benchmarks/role/:roleId
+ * Get benchmarks for a specific role
+ */
+router.get('/benchmarks/role/:roleId', playerController.getBenchmarksByRole);
+
+/**
+ * PUT /player_analysis/benchmarks/:benchmarkId
+ * Update a specific benchmark
+ */
+router.put('/benchmarks/:benchmarkId', playerController.updateBenchmark);
+
+/**
+ * DELETE /player_analysis/benchmarks/clear
+ * Clear all benchmarks (admin function)
+ */
+router.delete('/benchmarks/clear', playerController.clearBenchmarks);
+
+/**
+ * POST /player_analysis/benchmarks/compare
+ * Compare player stats against role benchmarks
+ * Request body: { roleId, playerStats: { metricName: value, ... } }
+ */
+router.post('/benchmarks/compare', playerController.comparePlayerToBenchmarks);
+
+/**
+ * POST /player_analysis/stats/calculate
+ * Calculate player stats from matchParticipants and compare against benchmarks
+ * Request body: { playerId, roleId }
+ */
+router.post('/stats/calculate', playerController.calculatePlayerStatsFromMatches);
+
 module.exports = router;
