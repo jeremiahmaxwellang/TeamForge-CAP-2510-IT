@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Store current queue ID (default to 420 = Ranked Solo/Duo)
+    let currentQueueId = 420;
+    const queueNames = {
+        '420': 'Ranked',
+        '440': 'Casual'
+    };
+
     // Helper for updating puuid in sql
     function updatePuuid(userId, puuid) {
         console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}: ${puuid}`);
@@ -15,31 +22,63 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err));
     }
 
-    function fetchWinrate(puuid) {
-    console.log(`[FRONTEND] Requesting winrate for PUUID: ${puuid}`);
-    fetch(`/riot/winrate/${puuid}`)
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            console.log(`[FRONTEND] ✓ Winrate Data Received:`, data);
+    function fetchWinrate(puuid, queueId = 420) {
+        console.log(`[FETCH WINRATE] Requesting winrate for PUUID: ${puuid}, Queue: ${queueId}`);
+        
+        fetch(`/riot/winrate/${puuid}?queueId=${queueId}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
 
-            // Target the specific class from player_overview.html
-            const percentWinEl = document.querySelector(".percentWin");
-            const totalGamesEl = document.querySelector(".totalGames");
+                // Target the specific class from player_overview.html
+                const percentWinEl = document.querySelector(".percentWin");
+                const totalGamesEl = document.querySelector(".totalGames");
 
-            if (percentWinEl) {
-                // data.winrate comes from riotApiController.js
-                percentWinEl.textContent = `${data.winrate}% WR`;
-            }
+                if (percentWinEl) {
+                    // data.winrate comes from riotApiController.js
+                    percentWinEl.textContent = `${data.winrate}% WR`;
+                }
 
-            if (totalGamesEl) {
-                // Displays the breakdown (e.g., "Last 15 Games (8W - 7L)")
-                totalGamesEl.textContent = `Last ${data.total} Games (${data.wins}W - ${data.losses}L)`;
-            }
-        })
-        .catch(err => console.error("[FRONTEND] ✗ Error fetching winrate:", err));
+                if (totalGamesEl) {
+                    // Displays the breakdown (e.g., "Last 15 Games (8W - 7L)")
+                    totalGamesEl.textContent = `Last ${data.total} Games (${data.wins}W - ${data.losses}L)`;
+                }
+
+                // Combine this logic with the rest of the code
+                const winrateContainer = document.querySelector(".winrate");
+                console.log(`[FRONTEND] Targeting winrate container:`, winrateContainer);
+
+                if (winrateContainer) {
+                    // Dynamically update the gradient for the ::before pseudo-element
+                    const winrate = data.winrate;
+                    const styleId = 'winrate-gradient-style';
+                    
+                    // Remove old style if it exists
+                    let styleElement = document.getElementById(styleId);
+                    if (styleElement) {
+                        styleElement.remove();
+                    }
+                    
+                    // Create new style with the current winrate gradient
+                    styleElement = document.createElement('style');
+                    styleElement.id = styleId;
+                    styleElement.textContent = `
+                        .winrate::before {
+                            background: conic-gradient(
+                                #28b5ff 0deg,
+                                #28b5ff ${(winrate / 100) * 360}deg,
+                                #ff6b6b ${(winrate / 100) * 360}deg,
+                                #ff6b6b 360deg
+                            ) !important;
+                        }
+                    `;
+                    document.head.appendChild(styleElement);
+                }
+            })
+            .catch(err => console.error("[FETCH WINRATE] ✗ Error fetching winrate:", err));
     }
 
     // Load one player’s details into overlay
@@ -77,23 +116,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             // Fetch recent matches after PUUID is retrieved
                             console.log(`[LOAD PLAYER] Initiating match fetch with PUUID: ${puuid}`);
-                            fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+                            fetchRecentMatches(puuid, currentQueueId);
 
-                            fetchWinrate(puuid);
+                            fetchWinrate(puuid, currentQueueId);
                         })
                         .catch(err => console.error(`[LOAD PLAYER] ✗ Error fetching PUUID:`, err));
                 } else {
                     // PUUID already exists, fetch recent matches
                     console.log(`[LOAD PLAYER] PUUID exists: ${puuid}, fetching matches...`);
-                    fetchRecentMatches(puuid, 420); // 420 = Ranked Solo/Duo
+                    fetchRecentMatches(puuid, currentQueueId);
                     
-                    fetchWinrate(puuid);
+                    fetchWinrate(puuid, currentQueueId);
                 }
                 
 
                     const btn = document.getElementById("player-dropdown-btn");
                     btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
                     btn.setAttribute("data-player-id", player.userId);
+                    btn.setAttribute("data-puuid", puuid);
 
                     document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`;
                     document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`;
@@ -136,19 +176,34 @@ document.addEventListener('DOMContentLoaded', function() {
     function fetchRecentMatches(puuid, queueId) {
         console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
         return fetch(`/riot/matches/${puuid}/${queueId}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
-                // console.log(`[FETCH MATCHES] ✓ Retrieved ${data.matches.length} match IDs:`, data.matches);
+                if (!data.matches || !Array.isArray(data.matches)) {
+                    throw new Error('Invalid response: matches array not found');
+                }
+                console.log(`[FETCH MATCHES] ✓ Retrieved ${data.matches.length} match IDs`);
 
                 // Fetch details for each match ID
                 const matchDetailsPromises = data.matches.map((matchId, index) => {
-                    // console.log(`[FETCH MATCHES] Fetching details for match ${index + 1}/${data.matches.length}: ${matchId}`);
                     return fetchMatchDetails(matchId);
                 });
                 return Promise.all(matchDetailsPromises);
             })
             .then(matchesData => {
                 console.log(`[FETCH MATCHES] ✓ Successfully fetched details for ${matchesData.length} matches`);
+                
+                // Calculate and display average KDA
+                const kdaStats = calculateAverageKDA(matchesData, puuid);
+                updateKDADisplay(kdaStats);
+                
+                // Extract and display top 3 champions
+                const topChampions = getTop3Champions(matchesData, puuid);
+                updateChampionDisplay(topChampions);
                 
                 // Store all fetched match details to database
                 const currentPlayerId = document.getElementById("player-dropdown-btn").getAttribute("data-player-id");
@@ -171,6 +226,164 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error(`[FETCH DETAILS] ✗ Error fetching match details for ${matchId}:`, err);
                 throw err;
             });
+    }
+
+    // Calculate average KDA from match data for the selected player
+    function calculateAverageKDA(matchesData, puuid) {
+        console.log(`[CALC KDA] Calculating average KDA for PUUID: ${puuid} from ${matchesData.length} matches`);
+        
+        let totalKills = 0;
+        let totalDeaths = 0;
+        let totalAssists = 0;
+        let validMatches = 0;
+
+        matchesData.forEach((match, index) => {
+            // Find the participant with matching PUUID
+            if (match.info && match.info.participants) {
+                const playerParticipant = match.info.participants.find(p => p.puuid === puuid);
+                
+                if (playerParticipant) {
+                    totalKills += playerParticipant.kills || 0;
+                    totalDeaths += playerParticipant.deaths || 0;
+                    totalAssists += playerParticipant.assists || 0;
+                    validMatches++;
+                    console.log(`[CALC KDA] Match ${index + 1}: ${playerParticipant.kills}/${playerParticipant.deaths}/${playerParticipant.assists}`);
+                }
+            }
+        });
+
+        console.log(`[CALC KDA] Total from ${validMatches} matches: ${totalKills}K / ${totalDeaths}D / ${totalAssists}A`);
+
+        // Calculate average stats
+        const avgKills = validMatches > 0 ? (totalKills / validMatches).toFixed(2) : 0;
+        const avgDeaths = validMatches > 0 ? (totalDeaths / validMatches).toFixed(2) : 0;
+        const avgAssists = validMatches > 0 ? (totalAssists / validMatches).toFixed(2) : 0;
+        
+        // Calculate KDA ratio
+        const kdaRatio = validMatches > 0 ? ((totalKills + totalAssists) / (totalDeaths || 1)).toFixed(2) : 0;
+
+        console.log(`[CALC KDA] Averages: ${avgKills}/${avgDeaths}/${avgAssists}, KDA Ratio: ${kdaRatio}`);
+
+        return {
+            kdaRatio,
+            avgKills,
+            avgDeaths,
+            avgAssists
+        };
+    }
+
+    // Update KDA display in player_overview
+    function updateKDADisplay(kdaStats) {
+        console.log(`[UPDATE KDA] Looking for KDA elements...`);
+        const averageKDAEl = document.querySelector("#averageKDA");
+        const summarizedKDAEl = document.querySelector("#summarizedKDA");
+
+        console.log(`[UPDATE KDA] averageKDAEl found:`, averageKDAEl);
+        console.log(`[UPDATE KDA] summarizedKDAEl found:`, summarizedKDAEl);
+
+        if (averageKDAEl) {
+            averageKDAEl.textContent = `${kdaStats.kdaRatio} KDA`;
+            console.log(`[UPDATE KDA] ✓ Updated averageKDA to: ${kdaStats.kdaRatio} KDA`);
+        } else {
+            console.log(`[UPDATE KDA] ✗ averageKDAEl not found in DOM`);
+        }
+
+        if (summarizedKDAEl) {
+            summarizedKDAEl.textContent = `${kdaStats.avgKills} / ${kdaStats.avgDeaths} / ${kdaStats.avgAssists}`;
+            console.log(`[UPDATE KDA] ✓ Updated summarizedKDA to: ${kdaStats.avgKills} / ${kdaStats.avgDeaths} / ${kdaStats.avgAssists}`);
+        } else {
+            console.log(`[UPDATE KDA] ✗ summarizedKDAEl not found in DOM`);
+        }
+    }
+
+    // Extract top 3 champions by games played
+    function getTop3Champions(matchesData, puuid) {
+        console.log(`[TOP 3 CHAMPS] Extracting top 3 champions from ${matchesData.length} matches`);
+        
+        const championStats = {};
+
+        matchesData.forEach((match) => {
+            if (match.info && match.info.participants) {
+                const playerParticipant = match.info.participants.find(p => p.puuid === puuid);
+                
+                if (playerParticipant) {
+                    const champName = playerParticipant.championName;
+                    const isWin = playerParticipant.win;
+                    const kills = playerParticipant.kills || 0;
+                    const deaths = playerParticipant.deaths || 0;
+                    const assists = playerParticipant.assists || 0;
+
+                    if (!championStats[champName]) {
+                        championStats[champName] = {
+                            name: champName,
+                            games: 0,
+                            wins: 0,
+                            losses: 0,
+                            totalKills: 0,
+                            totalDeaths: 0,
+                            totalAssists: 0
+                        };
+                    }
+
+                    championStats[champName].games += 1;
+                    championStats[champName].wins += isWin ? 1 : 0;
+                    championStats[champName].losses += isWin ? 0 : 1;
+                    championStats[champName].totalKills += kills;
+                    championStats[champName].totalDeaths += deaths;
+                    championStats[champName].totalAssists += assists;
+                }
+            }
+        });
+
+        // Sort by games played and get top 3
+        const sortedChamps = Object.values(championStats)
+            .sort((a, b) => b.games - a.games)
+            .slice(0, 3);
+
+        console.log(`[TOP 3 CHAMPS] Top champions:`, sortedChamps);
+        return sortedChamps;
+    }
+
+    // Update champion display with images and stats
+    function updateChampionDisplay(topChampions) {
+        console.log(`[UPDATE CHAMPS] Updating champion display for ${topChampions.length} champions`);
+        
+        topChampions.forEach((champ, index) => {
+            const champId = `champion${index + 1}`;
+            const champElement = document.getElementById(champId);
+            
+            if (champElement) {
+                // Calculate average KDA for this champion
+                const avgKills = (champ.totalKills / champ.games).toFixed(2);
+                const avgDeaths = (champ.totalDeaths / champ.games).toFixed(2);
+                const avgAssists = (champ.totalAssists / champ.games).toFixed(2);
+                const kdaRatio = ((champ.totalKills + champ.totalAssists) / (champ.totalDeaths || 1)).toFixed(2);
+                
+                // Update image
+                const img = champElement.querySelector('.champion-icon');
+                if (img) {
+                    img.src = `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${champ.name}.png`;
+                    img.alt = `${champ.name}`;
+                    console.log(`[UPDATE CHAMPS] Updated image for ${champ.name}`);
+                }
+                
+                // Update stats
+                const kdaElement = champElement.querySelector('.kda-1');
+                const advKdaElement = champElement.querySelector('.kda-2');
+                
+                if (kdaElement) {
+                    kdaElement.innerHTML = `${kdaRatio} KDA <span class="note">(${champ.wins}W ${champ.losses}L)</span>`;
+                }
+                
+                if (advKdaElement) {
+                    advKdaElement.textContent = `${avgKills} / ${avgDeaths} / ${avgAssists}`;
+                }
+                
+                console.log(`[UPDATE CHAMPS] ✓ Updated ${champ.name} - ${kdaRatio} KDA (${champ.wins}W ${champ.losses}L)`);
+            } else {
+                console.log(`[UPDATE CHAMPS] ✗ ${champId} element not found`);
+            }
+        });
     }
 
     // Store match details to database in batches
@@ -275,6 +488,64 @@ document.addEventListener('DOMContentLoaded', function() {
         activeButton.classList.add('active');
     }
 
+    // Set up queue dropdown functionality
+    function setupQueueDropdown() {
+        const queueDropdownBtn = overlayContainer.querySelector('#queueDropdownBtn');
+        const queueDropdownContent = overlayContainer.querySelector('#queueDropdownContent');
+        const queueOptions = overlayContainer.querySelectorAll('#queueDropdownContent a');
+
+        if (!queueDropdownBtn || !queueDropdownContent) {
+            console.log('[QUEUE DROPDOWN] ✗ Queue dropdown button or content not found');
+            return;
+        }
+
+        console.log('[QUEUE DROPDOWN] ✓ Queue dropdown elements found, setting up listeners');
+
+        // Toggle dropdown visibility on button click
+        queueDropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            queueDropdownContent.style.display = 
+                queueDropdownContent.style.display === 'block' ? 'none' : 'block';
+            console.log('[QUEUE DROPDOWN] Toggled dropdown visibility');
+        });
+
+        // Handle queue option selection
+        queueOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                const queueId = this.getAttribute('data-queue');
+                const queueName = this.textContent;
+
+                console.log(`[QUEUE DROPDOWN] Selected: ${queueName} (Queue ID: ${queueId})`);
+
+                // Update button text
+                queueDropdownBtn.textContent = queueName;
+
+                // Hide dropdown
+                queueDropdownContent.style.display = 'none';
+
+                // Update current queue ID
+                currentQueueId = parseInt(queueId);
+
+                // Refetch matches with new queue ID
+                const btn = document.getElementById("player-dropdown-btn");
+                const puuid = btn.getAttribute("data-puuid");
+                if (puuid) {
+                    console.log(`[QUEUE DROPDOWN] Refetching matches and winrate for PUUID: ${puuid} with queue: ${currentQueueId}`);
+                    fetchWinrate(puuid, currentQueueId);
+                    fetchRecentMatches(puuid, currentQueueId);
+                }
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                queueDropdownContent.style.display = 'none';
+            }
+        });
+    }
+
     // Attach click handlers to all tab buttons
     if (overlayContainer) {
         tabButtons.forEach(button => {
@@ -301,6 +572,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             })
                             .then(html => {
                                 overlayContainer.innerHTML = html;
+                                
+                                // Set up queue dropdown functionality
+                                setupQueueDropdown();
 
                                 const overlay = overlayContainer.querySelector('.overlay');
                                 if (overlay) {
@@ -312,6 +586,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                     const closeButton = overlayContainer.querySelector('.close-button');
                                     if (closeButton) closeButton.addEventListener('click', closeOverlay);
+                                    
+                                    // Refetch winrate and KDA for the Overview tab after overlay is loaded
+                                    if (this.id === 'overviewButton') {
+                                        const btn = document.getElementById("player-dropdown-btn");
+                                        const puuid = btn.getAttribute("data-puuid");
+                                        if (puuid) {
+                                            console.log(`[OVERVIEW TAB] Fetching winrate and KDA after overlay load with queue: ${currentQueueId}`);
+                                            fetchWinrate(puuid, currentQueueId);
+                                            fetchRecentMatches(puuid, currentQueueId);
+                                        }
+                                    }
                                 }
                             })
                             .catch(err => console.log('Error loading overlay:', err));

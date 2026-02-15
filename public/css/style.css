@@ -544,7 +544,12 @@ header h1, header h2 {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: conic-gradient(#28b5ff 0 40%, #ff6b6b 40% 72%, #ffd866 72% 100%);
+    background: conic-gradient(
+        #28b5ff 0deg,
+        #28b5ff 0deg,
+        #ff6b6b 0deg,
+        #ff6b6b 360deg
+    );
     box-shadow: 0 2px 8px rgba(0,0,0,0.35);
 }
 

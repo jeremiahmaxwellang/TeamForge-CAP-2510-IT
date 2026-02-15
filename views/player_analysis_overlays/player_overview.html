@@ -16,11 +16,10 @@
                     <div class="header-text">Match History:</div>
                     <!-- Dropdown button for "Ranked" -->
                     <div class="dropdown">
-                        <button class="dropdown-btn">Ranked</button>
-                        <div class="dropdown-content">
-                            <a href="#">Ranked</a>
-                            <a href="#">Casual</a>
-                            <a href="#">ARAM</a>
+                        <button class="dropdown-btn" id="queueDropdownBtn">Ranked</button>
+                        <div class="dropdown-content" id="queueDropdownContent">
+                            <a href="#" data-queue="420">Ranked</a>
+                            <a href="#" data-queue="440">Casual</a>
                         </div>
                     </div>
                 </div>
@@ -28,17 +27,17 @@
                 <div class="player_average_info">
                     <!-- Column 2 -->
                     <div class="winrate">
-                        <div class="percentWin">27.4% WR</div>
-                        <div class="totalGames">Last 15 Games</div>
+                        <div class="percentWin">percentWin placeholder</div>
+                        <div class="totalGames">totalGames placeholder</div>
                     </div>
                     
                     <!-- Column 3 -->
                     <div class="KDA_info">
-                        <div class="KDA">1.14 KDA</div>
-                        <div class="Summarized_KDA">2.9 / 7.3 / 5.3</div>
+                        <div class="KDA" id="averageKDA">KDA placeholder</div>
+                        <div class="Summarized_KDA" id="summarizedKDA">K/D/A placeholder</div>
                     </div>
                     <!-- Column 4 -->
-                    <div class="recently_played_champion">
+                    <div class="recently_played_champion" id="champion1">
                         <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
                         <div class="champion-stats">
                             <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
@@ -46,7 +45,7 @@
                         </div>
                     </div>
                     <!-- Column 5 -->
-                    <div class="recently_played_champion">
+                    <div class="recently_played_champion" id="champion2">
                         <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
                         <div class="champion-stats">
                             <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
@@ -54,7 +53,7 @@
                         </div>
                     </div>
                     <!-- Column 6 -->
-                    <div class="recently_played_champion">
+                    <div class="recently_played_champion" id="champion3">
                         <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
                         <div class="champion-stats">
                             <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
