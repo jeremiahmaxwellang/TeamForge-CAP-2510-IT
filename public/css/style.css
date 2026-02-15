@@ -650,4 +650,174 @@ header h1, header h2 {
 .header-text{ font-weight: 700; }
 .match-history{ margin-top: 12px; }
 
+/* Player Comparison Styles */
+.comparison-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--porcelain);
+    border-radius: 8px;
+}
+
+.comparison-header {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--carbon-black);
+    margin-bottom: 10px;
+}
+
+.player-selection {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.player-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-selector label {
+    font-weight: bold;
+    color: var(--carbon-black);
+    font-size: 14px;
+}
+
+.player-selector select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.comparison-content {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.comparison-content .player-card {
+    text-align: center;
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.comparison-content .player-pfp {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid #333;
+    object-fit: cover;
+    margin-bottom: 10px;
+    background-color: #e0e0e0;
+}
+
+.comparison-content .player-name {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: var(--carbon-black);
+    margin-bottom: 5px;
+}
+
+.comparison-content .player-rank {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.comparison-content #chart-container {
+    width: 400px;
+    height: 400px;
+    flex-shrink: 0;
+}
+
+.comparison-container .stats-container {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.comparison-container .stats-header {
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #555;
+    font-size: 16px;
+}
+
+.comparison-container .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+
+.comparison-container .stat-row span:first-child {
+    font-weight: bold;
+    color: #FFD700;
+    min-width: 80px;
+    text-align: right;
+}
+
+.comparison-container .stat-row span:nth-child(2) {
+    flex-grow: 1;
+    text-align: center;
+    color: #555;
+}
+
+.comparison-container .stat-row span:last-child {
+    font-weight: bold;
+    color: #ADD8E6;
+    min-width: 80px;
+    text-align: left;
+}
+
+.comparison-container .no-data {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-style: italic;
+}
+
+/* Radar chart colors */
+.radar-chart .area {
+    fill-opacity: 0.7;
+}
+
+.radar-chart.focus .area {
+    fill-opacity: 0.3;
+}
+
+.radar-chart.focus .area.focused {
+    fill-opacity: 0.9;
+}
+
+.area.Player1, .Player1 .circle {
+    fill: #FFD700;
+    stroke: none;
+}
+
+.area.Player2, .Player2 .circle {
+    fill: #ADD8E6;
+    stroke: none;
+}
+
 /* End of player_analysis styles */
