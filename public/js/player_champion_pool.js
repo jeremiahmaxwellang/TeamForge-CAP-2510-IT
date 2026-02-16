@@ -28,9 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${champ.championName}</td>
-                    <td>${champ.role}</td>
+                    <td>${champ.champ_role}</td>
                     <td>${champ.games}</td>
-                    <td>${champ.winRate || "N/A"}</td> <!-- if you add WR later -->
+                    <td>${champ.winrate || "N/A"}</td> <!-- if you add WR later -->
                     <td>${champ.avg_kills} / ${champ.avg_deaths} / ${champ.avg_assists}</td>
                     <td>${champ.avg_csm}</td>
                     <td>${champ.avg_golddiff || "N/A"}</td> <!-- placeholder -->

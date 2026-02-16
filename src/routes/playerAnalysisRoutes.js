@@ -9,6 +9,7 @@ const router = express.Router();
 
 // Controller
 const playerController = require('../controllers/playerController');
+const championPoolController = require('../controllers/championPoolController');
 
 // GET all players
 router.get('/players', playerController.getAllPlayers);
@@ -19,6 +20,8 @@ router.get('/players/:id', playerController.getPlayerById);
 // Update puuid
 router.put('/players/:id/puuid', playerController.updatePuuid);
 
+// NEW: route for controller
+router.get('/players/:id/champion_pool', championPoolController.getChampionPool); // <--- NEW
 
 // /player_analysis
 router.get('/', async function(req, res) {
