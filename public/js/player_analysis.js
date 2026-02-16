@@ -572,6 +572,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             })
                             .then(html => {
                                 overlayContainer.innerHTML = html;
+
+                                // NEW LOGIC FOR COMPARISON TAB
+                                if (this.id === 'comparisonButton') {
+                                    if (typeof window.initComparisonTab === 'function') {
+                                        window.initComparisonTab();
+                                    } else {
+                                        console.error('initComparisonTab not found! Make sure comparison.js is loaded in the main page.');
+                                    }
+                                }
                                 
                                 // Set up queue dropdown functionality
                                 setupQueueDropdown();

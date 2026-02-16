@@ -453,6 +453,7 @@ exports.comparePlayerToBenchmarks = async (req, res) => {
  * Calculate player stats from match participants and compare against benchmarks
  * POST /player_analysis/calculate-stats
  * Request body: { playerId, roleId }
+ * NOTE: Uses only the 15 most recent matches for averaging stats
  */
 exports.calculatePlayerStatsFromMatches = async (req, res) => {
   try {
@@ -466,12 +467,13 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
       return res.status(400).json({ error: 'roleId is required' });
     }
 
-    // Fetch all match participants for this player
+    // Fetch the 15 most recent match participants for this player
     const [matchParticipants] = await db.query(
       `SELECT mp.* FROM matchParticipants mp
        JOIN matches m ON mp.matchId = m.matchId
        WHERE m.userId = ?
-       ORDER BY m.gameCreation DESC`,
+       ORDER BY m.gameCreation DESC
+       LIMIT 15`,
       [playerId]
     );
 

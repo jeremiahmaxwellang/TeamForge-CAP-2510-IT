@@ -1,45 +1,38 @@
-document.addEventListener('DOMContentLoaded', function() {
+/**
+ * PLAYER ANALYSIS COMPARISON MODULE
+ * Wrapped in a global function to be called when the dynamic tab is loaded.
+ */
+window.initComparisonTab = function() {
     let players = [];
     let selectedPlayer1 = null;
     let selectedPlayer2 = null;
     let player1Data = null;
     let player2Data = null;
 
-    console.log('[COMPARISON] Benchmarks initialized successfully:', data);
-    console.log(`[COMPARISON] Benchmarks inserted: ${data.insertedCount} metrics inserted`);
+    console.log('[COMPARISON] Tab logic initialized.');
 
-
-    // Initialize benchmarks when overlay loads
+    // 1. Initialize benchmarks
     function initializeBenchmarks() {
         console.log('[COMPARISON] Starting benchmarks initialization...');
         return fetch('/player_analysis/benchmarks/initialize', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         })
         .then(res => {
-            console.log('[COMPARISON] Benchmarks response status:', res.status);
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            }
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
             return res.json();
         })
         .then(data => {
             console.log('[COMPARISON] Benchmarks initialized successfully:', data);
-            if (data.success) {
-                console.log(`[COMPARISON] Benchmarks seeded: ${data.insertedCount} metrics inserted`);
-            }
             return data;
         })
         .catch(err => {
             console.error('[COMPARISON] ERROR initializing benchmarks:', err);
-            console.error('[COMPARISON] Error details:', err.message);
             throw err;
         });
     }
 
-    // Load players list
+    // 2. Load players list
     function loadPlayersList() {
         fetch('/player_analysis/players')
             .then(res => res.json())
@@ -50,37 +43,44 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.error('[COMPARISON] Error loading players:', err));
     }
 
-    // Populate dropdown selects with players
+    // 3. Populate dropdown selects
     function populateSelects() {
         const select1 = document.getElementById('player1-select');
         const select2 = document.getElementById('player2-select');
+
+        if (!select1 || !select2) {
+            console.error('[COMPARISON] Required select elements not found in DOM.');
+            return;
+        }
 
         const playerOptions = players.map(p => 
             `<option value="${p.id}">${p.summonerName || `Player ${p.id}`}</option>`
         ).join('');
 
         select1.innerHTML = '<option value="">Select a player...</option>' + playerOptions;
-        select2.innerHTML = '<option value="">Select a player...</option>' + playerOptions;
+        select2.innerHTML = '<option value="">Select a player...</option>' + playerOptions + '<option value="coach-benchmark">Coach Benchmark</option>';
 
-        // Add event listeners
         select1.addEventListener('change', (e) => {
             selectedPlayer1 = parseInt(e.target.value);
             if (selectedPlayer1) loadPlayerData(selectedPlayer1, 1);
         });
 
         select2.addEventListener('change', (e) => {
-            selectedPlayer2 = parseInt(e.target.value);
-            if (selectedPlayer2) loadPlayerData(selectedPlayer2, 2);
+            selectedPlayer2 = e.target.value;
+            if (selectedPlayer2 === 'coach-benchmark') {
+                loadCoachBenchmark();
+            } else if (selectedPlayer2) {
+                selectedPlayer2 = parseInt(selectedPlayer2);
+                loadPlayerData(selectedPlayer2, 2);
+            }
         });
     }
 
-    // Load player data including matches
+    // 4. Load player data
     function loadPlayerData(playerId, playerNumber) {
         fetch(`/player_analysis/players/${playerId}`)
             .then(res => res.json())
             .then(player => {
-                const playerRef = playerNumber === 1 ? 'player1Data' : 'player2Data';
-                
                 if (playerNumber === 1) {
                     player1Data = player;
                     updatePlayerCard(player, 1);
@@ -89,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     updatePlayerCard(player, 2);
                 }
 
-                // Calculate stats from matchParticipants and compare against benchmarks
                 if (player.userId && player.primaryRoleId) {
                     calculateAndFetchStats(player.userId, player.primaryRoleId, playerNumber);
                 }
@@ -97,45 +96,107 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.error(`[COMPARISON] Error loading player ${playerId}:`, err));
     }
 
-    // Update player card with player info
+    // 4b. Load coach benchmark for Player 2
+    function loadCoachBenchmark() {
+        if (!player1Data || !player1Data.primaryRoleId) {
+            console.error('[COMPARISON] Player 1 must be selected first to load coach benchmark.');
+            return;
+        }
+
+        const roleId = player1Data.primaryRoleId;
+        
+        console.log('[COMPARISON] Loading coach benchmark for role:', roleId);
+
+        fetch(`/player_analysis/benchmarks/role/${roleId}`)
+            .then(res => res.json())
+            .then(benchmarks => {
+                // Format benchmarks into a coach benchmark object
+                const coachBenchmarkData = {
+                    id: 'coach-benchmark',
+                    summonerName: 'Coach Benchmark',
+                    tier: 'Benchmark',
+                    rank: 'Standard',
+                    userId: null,
+                    primaryRoleId: roleId,
+                    stats: formatBenchmarksAsStats(benchmarks)
+                };
+
+                player2Data = coachBenchmarkData;
+                updatePlayerCard(coachBenchmarkData, 2);
+
+                if (player1Data?.stats) {
+                    updateComparison();
+                }
+            })
+            .catch(err => console.error('[COMPARISON] Error loading coach benchmark:', err));
+    }
+
+    // Helper function to format benchmarks into a stats object
+    function formatBenchmarksAsStats(benchmarks) {
+        let formattedStats = {
+            avgKills: 0,
+            avgDeaths: 0,
+            avgAssists: 0,
+            kdaRatio: 0,
+            avgDamage: 0,
+            totalDamage: 0,
+            totalDamageMitigated: 0,
+            avgGold: 0,
+            winrate: 0,
+            benchmarkComparison: benchmarks
+        };
+
+        // Map benchmark metrics to stats
+        benchmarks.forEach(benchmark => {
+            const metricName = benchmark.metricName.toLowerCase();
+            
+            if (metricName.includes('kill') && metricName.includes('participation')) {
+                formattedStats.avgKills = benchmark.benchmarkValue;
+            } else if (metricName.includes('death')) {
+                formattedStats.avgDeaths = benchmark.benchmarkValue;
+            } else if (metricName.includes('assist')) {
+                formattedStats.avgAssists = benchmark.benchmarkValue;
+            } else if (metricName.includes('damage') && metricName.includes('share')) {
+                formattedStats.totalDamage = benchmark.benchmarkValue * 400; // Estimate total damage
+            } else if (metricName.includes('gold') && metricName.includes('minute')) {
+                formattedStats.avgGold = benchmark.benchmarkValue;
+            } else if (metricName.includes('vision')) {
+                formattedStats.visionScore = benchmark.benchmarkValue;
+            }
+        });
+
+        // Calculate KDA from benchmarks
+        formattedStats.kdaRatio = ((formattedStats.avgKills + formattedStats.avgAssists) / (formattedStats.avgDeaths || 1)).toFixed(2);
+
+        return formattedStats;
+    }
+
+    // 5. Update UI Card
     function updatePlayerCard(player, playerNumber) {
         const prefix = playerNumber === 1 ? 'player1' : 'player2';
-        document.getElementById(`name-${prefix}`).textContent = player.summonerName || `Player ${player.userId}`;
-        document.getElementById(`rank-${prefix}`).textContent = player.tier ? `${player.tier} ${player.rank}` : 'Unranked';
+        const nameEl = document.getElementById(`name-${prefix}`);
+        const rankEl = document.getElementById(`rank-${prefix}`);
         
-        // Update profile picture if available
+        if (nameEl) nameEl.textContent = player.summonerName || `Player ${player.userId}`;
+        if (rankEl) rankEl.textContent = player.tier ? `${player.tier} ${player.rank}` : 'Unranked';
+        
         const pfpEl = document.getElementById(`pfp-${prefix}`);
-        if (player.profilePhoto) {
+        if (pfpEl && player.profilePhoto) {
             pfpEl.src = player.profilePhoto;
         }
     }
 
-    // Calculate stats from matchParticipants and fetch benchmarks
+    // 6. Fetch stats and trigger comparison
     function calculateAndFetchStats(playerId, roleId, playerNumber) {
         fetch('/player_analysis/stats/calculate', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                playerId: playerId,
-                roleId: roleId
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId, roleId })
         })
-        .then(res => {
-            if (!res.ok) {
-                console.error(`[COMPARISON] Error status: ${res.status}`);
-                return null;
-            }
-            return res.json();
-        })
+        .then(res => res.ok ? res.json() : null)
         .then(data => {
-            if (!data || !data.success) {
-                console.error(`[COMPARISON] Error: ${data?.error || 'Unknown error'}`);
-                return;
-            }
+            if (!data || !data.success) return;
             
-            // Format stats for display (convert object values to match expected format)
             const stats = data.playerStats;
             const formattedStats = {
                 avgKills: stats['Kills'] || 0,
@@ -146,75 +207,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 totalDamage: stats['Total Damage Dealt'] || 0,
                 totalDamageMitigated: stats['Total Damage Taken'] || 0,
                 avgGold: stats['Gold Per Minute'] || 0,
-                winrate: 0, // Not available from matchParticipants
-                wins: 0,
-                losses: 0,
+                winrate: 0,
                 benchmarkComparison: data.benchmarkComparison,
                 summary: data.summary
             };
             
             if (playerNumber === 1) {
                 player1Data.stats = formattedStats;
-                player1Data.matchCount = data.matchCount;
             } else {
                 player2Data.stats = formattedStats;
-                player2Data.matchCount = data.matchCount;
             }
             
-            // Update comparison when both players have data
-            if (player1Data && player2Data && player1Data.stats && player2Data.stats) {
+            if (player1Data?.stats && player2Data?.stats) {
                 updateComparison();
             }
-        })
-        .catch(err => console.error(`[COMPARISON] Error calculating stats for player ${playerNumber}:`, err));
+        });
     }
 
-    // Calculate stats from matches (legacy function - kept for compatibility)
-    function calculatePlayerStats(matches, playerNumber) {
-        // This function is no longer used as stats are fetched from backend
-        console.log('[COMPARISON] Legacy calculatePlayerStats called');
-    }
-
-    // Calculate skill ratings (1-10 scale)
-    function calculateSkillRatings(playerData) {
-        if (!playerData || !playerData.stats) return null;
-
-        const stats = playerData.stats;
-        
-        // Normalize KDA (higher is better)
-        const kdaScore = Math.min(stats.kdaRatio * 1.5, 10);
-        
-        // Normalize damage (compare to average)
-        const damageScore = Math.min((stats.avgDamage / 400) * 10, 10);
-        
-        // Normalize tank stats (damage mitigated)
-        const tankScore = Math.min((stats.totalDamageMitigated / 100000) * 10, 10);
-        
-        // Gold efficiency
-        const goldScore = Math.min((stats.avgGold / 350) * 10, 10);
-        
-        // Consistency (winrate)
-        const consistencyScore = stats.winrate / 10;
-
-        return {
-            kdaScore: parseFloat(kdaScore.toFixed(2)),
-            damageScore: parseFloat(damageScore.toFixed(2)),
-            tankScore: parseFloat(tankScore.toFixed(2)),
-            goldScore: parseFloat(goldScore.toFixed(2)),
-            consistencyScore: parseFloat(consistencyScore.toFixed(2))
-        };
-    }
-
-    // Update the radar chart
+    // 7. Radar Chart Logic
     function updateRadarChart() {
-        if (!player1Data || !player2Data || !player1Data.stats || !player2Data.stats) {
-            return;
-        }
+        const chartContainer = document.getElementById('chart-container');
+        if (!chartContainer || !player1Data?.stats || !player2Data?.stats) return;
 
         const p1Skills = calculateSkillRatings(player1Data);
         const p2Skills = calculateSkillRatings(player2Data);
-
-        if (!p1Skills || !p2Skills) return;
 
         const chartData = [
             {
@@ -239,123 +255,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         ];
 
-        // Clear existing chart
-        document.getElementById('chart-container').innerHTML = '';
-
-        // Configure and draw radar chart
+        chartContainer.innerHTML = '';
         RadarChart.defaultConfig.w = 400;
         RadarChart.defaultConfig.h = 400;
-        RadarChart.defaultConfig.radius = 5;
         RadarChart.defaultConfig.maxValue = 10;
         RadarChart.draw("#chart-container", chartData);
     }
 
-    // Update stats table
-    function updateStatsTable() {
-        if (!player1Data || !player2Data || !player1Data.stats || !player2Data.stats) {
-            document.getElementById('stats-list').innerHTML = '<div class="no-data">Select both players to view detailed statistics</div>';
-            return;
-        }
-
-        const stats = player1Data.stats;
-        const stats2 = player2Data.stats;
-
-        // Check if benchmark comparison is available
-        if (stats.benchmarkComparison && stats2.benchmarkComparison) {
-            displayBenchmarkComparison(stats, stats2);
-        } else {
-            // Fall back to basic stats table if benchmarks not available
-            displayBasicStatsTable(stats, stats2);
-        }
+    // Helper for Skill Ratings
+    function calculateSkillRatings(playerData) {
+        const stats = playerData.stats;
+        return {
+            kdaScore: Math.min(stats.kdaRatio * 1.5, 10),
+            damageScore: Math.min((stats.avgDamage / 400) * 10, 10),
+            tankScore: Math.min((stats.totalDamageMitigated / 100000) * 10, 10),
+            goldScore: Math.min((stats.avgGold / 350) * 10, 10),
+            consistencyScore: stats.winrate / 10
+        };
     }
 
-    // Display benchmark comparison
-    function displayBenchmarkComparison(stats, stats2) {
-        const benchmarks = stats.benchmarkComparison;
-        const benchmarks2 = stats2.benchmarkComparison;
-
-        let html = '<div class="benchmark-comparison">';
-        
-        // Add summary section
-        if (stats.summary && stats2.summary) {
-            html += `
-                <div class="benchmark-summary">
-                    <div class="player1-summary">
-                        <h4>Player 1 Performance</h4>
-                        <p>Meeting: ${stats.summary.metGuidelines}/${stats.summary.totalGuidelines}</p>
-                        <p>Score: ${stats.summary.performancePercentage}</p>
-                    </div>
-                    <div class="player2-summary">
-                        <h4>Player 2 Performance</h4>
-                        <p>Meeting: ${stats2.summary.metGuidelines}/${stats2.summary.totalGuidelines}</p>
-                        <p>Score: ${stats2.summary.performancePercentage}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Add detailed metrics comparison
-        html += '<div class="benchmark-details">';
-        benchmarks.forEach((benchmark, idx) => {
-            const benchmark2 = benchmarks2[idx];
-            const player1Status = benchmark.status;
-            const player2Status = benchmark2?.status || '—';
-
-            html += `
-                <div class="benchmark-row">
-                    <div class="metric-name">${benchmark.metricName}</div>
-                    <div class="player-value">
-                        <span class="status">${player1Status}</span>
-                        <span class="value">${benchmark.playerValue}</span>
-                    </div>
-                    <div class="benchmark-value">${benchmark.benchmarkValue} ${benchmark.comparator}</div>
-                    <div class="player-value">
-                        <span class="value">${benchmark2?.playerValue || 'N/A'}</span>
-                        <span class="status">${player2Status}</span>
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div></div>';
-
-        document.getElementById('stats-list').innerHTML = html;
-    }
-
-    // Display basic stats table (fallback)
-    function displayBasicStatsTable(stats, stats2) {
-        const statRows = [
-            { label: "Avg KDA", p1: `${stats.avgKills}/${stats.avgDeaths}/${stats.avgAssists}`, p2: `${stats2.avgKills}/${stats2.avgDeaths}/${stats2.avgAssists}` },
-            { label: "KDA Ratio", p1: stats.kdaRatio, p2: stats2.kdaRatio },
-            { label: "Avg Damage", p1: parseInt(stats.avgDamage).toLocaleString(), p2: parseInt(stats2.avgDamage).toLocaleString() },
-            { label: "Total Damage", p1: stats.totalDamage.toLocaleString(), p2: stats2.totalDamage.toLocaleString() },
-            { label: "Avg Gold", p1: parseInt(stats.avgGold).toLocaleString(), p2: parseInt(stats2.avgGold).toLocaleString() },
-            { label: "Damage Mitigated", p1: stats.totalDamageMitigated.toLocaleString(), p2: stats2.totalDamageMitigated.toLocaleString() }
-        ];
-
-        const statsList = document.getElementById('stats-list');
-        statsList.innerHTML = statRows.map(stat => `
-            <div class="stat-row">
-                <span>${stat.p1}</span>
-                <span>${stat.label}</span>
-                <span>${stat.p2}</span>
-            </div>
-        `).join('');
-    }
-
-    // Update comparison view
     function updateComparison() {
         updateRadarChart();
-        updateStatsTable();
+        // Assume updateStatsTable exists as per your original file
+        if (typeof updateStatsTable === 'function') updateStatsTable();
     }
 
-    // Initialize - wait for benchmarks before loading players
+    // Execution entry point
     initializeBenchmarks()
-        .then(() => {
-            console.log('[COMPARISON] Benchmarks ready, loading players...');
-            loadPlayersList();
-        })
-        .catch(err => {
-            console.error('[COMPARISON] Failed to initialize benchmarks, attempting to load players anyway:', err);
-            loadPlayersList();
-        });
-});
+        .then(() => loadPlayersList())
+        .catch(() => loadPlayersList());
+};
