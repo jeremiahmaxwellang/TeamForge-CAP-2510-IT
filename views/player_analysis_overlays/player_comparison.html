@@ -1,65 +1,60 @@
-<!-- overlay.html -->
+<!-- Player Comparison Overlay -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match History Overlay</title>
+    <title>Player Comparison</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
-    </head>
+    <script type="text/javascript" src="/public/js/d3.v3.js"></script>
+    <script type="text/javascript" src="/public/js/radar-chart.js"></script>
+</head>
 <body>
     <div class="overlay">
-        <!-- Overlay content here -->
-            <div class="overview-container">
-                <div class="match-history-header">
-                    <div class="header-text">Comparison Tool:</div>
+        <div class="comparison-container">
+            <div class="comparison-header">Player Comparison</div>
 
-                    <!-- Dropdown button for "Ranked" -->
-                    <div class="dropdown">
-                        <p>Top Laners</p>
-                    </div>
-
+            <!-- Player Selection Section -->
+            <div class="player-selection">
+                <div class="player-selector">
+                    <label for="player1-select">Player 1:</label>
+                    <select id="player1-select" required></select>
                 </div>
-                
-                <div class="player_average_info">
-                    <!-- Column 2 -->
-                    <div class="winrate">
-                        <div class="percentWin">27.4% WR</div>
-                        <div class="totalGames">Last 15 Games</div>
-                    </div>
-                    <!-- Column 3 -->
-                    <div class="KDA_info">
-                        <div class="KDA">1.14 KDA</div>
-                        <div class="Summarized_KDA">2.9 / 7.3 / 5.3</div>
-                    </div>
-                    <!-- Column 4 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 5 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 6 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-
+                <div class="player-selector">
+                    <label for="player2-select">Player 2:</label>
+                    <select id="player2-select" required></select>
+                </div>
             </div>
-            
+
+            <!-- Comparison Content -->
+            <div class="comparison-content">
+                <!-- Player 1 Card -->
+                <div class="player-card" id="card-player1">
+                    <img id="pfp-player1" src="/images/sample_profile.png" alt="Player 1" class="player-pfp" style="border-color: #FFD700;">
+                    <div class="player-name" id="name-player1">Player 1</div>
+                    <div class="player-rank" id="rank-player1">-</div>
+                </div>
+
+                <!-- Radar Chart -->
+                <div id="chart-container"></div>
+
+                <!-- Player 2 Card -->
+                <div class="player-card" id="card-player2">
+                    <img id="pfp-player2" src="/images/sample_profile.png" alt="Player 2" class="player-pfp" style="border-color: #ADD8E6;">
+                    <div class="player-name" id="name-player2">Player 2</div>
+                    <div class="player-rank" id="rank-player2">-</div>
+                </div>
+            </div>
+
+            <!-- Stats Table -->
+            <div class="stats-container">
+                <div class="stats-header">DETAILED STATISTICS</div>
+                <div id="stats-list"></div>
+            </div>
+        </div>
     </div>
+
+    <script src="/public/js/player_analysis_comparison.js"></script>
 </body>
 </html>
