@@ -1,21 +1,21 @@
 /**
- * CHAMPION POOL TEMP FILE: player_champion_pool.js
- * - I moved this code from player_analysis.js to here cuz it's not working properly (Jer)
- * 
- * - todo: allow the Champion Pool overlay backend to fetch the champion pool
- * - may need to move this to player_analysis.js to work
+ * Player Analysis: Champion Pool Overlay Backend
  */
 
+window.OverlayChampion = {
+    init(userId) {
+        this.getChampionPool(userId);
+    },
 
-document.addEventListener("DOMContentLoaded", () => {
-    const tableBody = document.querySelector("table tbody");
-
-    console.log("champion pool script");
-    
-    getChampionPool(4);
-
-    function getChampionPool(userId) {
+    getChampionPool(userId) {
         console.log("champion pool script");
+        const tableBody = document.querySelector("table tbody");
+
+        if(!tableBody) {
+            console.error("[CHAMPION OVERLAY] ✗ Table body not found in DOM");
+            return;
+        }
+
         fetch(`/player_analysis/players/${userId}/champion_pool`)
             .then(res => res.json())
             .then(championPool => {
@@ -40,8 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     tableBody.appendChild(row);
                 });
+                console.log("[CHAMPION OVERLAY] ✓ Champion pool loaded successfully");
             })
             .catch(err => console.error("Error loading champion pool:", err));
     }
 
-});
+}
