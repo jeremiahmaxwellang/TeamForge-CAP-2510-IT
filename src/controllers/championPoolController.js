@@ -31,7 +31,7 @@ exports.getChampionPool = async (req, res) => {
         FROM matches m
         JOIN matchParticipants mp ON m.matchId = mp.matchId
         JOIN players p ON p.puuid = mp.puuid
-        WHERE m.userId = 4
+        WHERE m.userId = ?
         GROUP BY mp.championName, mp.championId, champ_role
         ORDER BY games DESC,  mp.championName;
         `;

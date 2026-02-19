@@ -597,6 +597,16 @@ document.addEventListener('DOMContentLoaded', function() {
                                             fetchRecentMatches(puuid, currentQueueId);
                                         }
                                     }
+
+                                    // Champion Pool
+                                    if(this.id === 'championButton') {
+                                        const btn = document.getElementById("player-dropdown-btn");
+                                        const userId = btn.getAttribute("data-player-id");
+
+                                        if(userId) {
+                                            OverlayChampion.init(userId);
+                                        }
+                                    }
                                 }
                             })
                             .catch(err => console.log('Error loading overlay:', err));
