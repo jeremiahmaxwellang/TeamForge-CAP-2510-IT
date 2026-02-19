@@ -20,90 +20,65 @@ async function isBenchmarksTableEmpty() {
 /**
  * Insert default benchmarks for all roles
  */
-async function insertDefaultBenchmarks() {
-  const benchmarks = [
-    // Top Lane (9 metrics)
-    { benchmarkId: 1, roleId: 1, metricName: "CS Per Minute", benchmarkValue: 7.8, comparator: ">=" },
-    { benchmarkId: 2, roleId: 1, metricName: "Gold Per Minute", benchmarkValue: 388.4, comparator: ">=" },
-    { benchmarkId: 3, roleId: 1, metricName: "CS Diff @15", benchmarkValue: -0.3, comparator: ">=" },
-    { benchmarkId: 4, roleId: 1, metricName: "XP Diff @15", benchmarkValue: -31.4, comparator: ">=" },
-    { benchmarkId: 5, roleId: 1, metricName: "Deaths", benchmarkValue: 3.2, comparator: "<=" },
-    { benchmarkId: 6, roleId: 1, metricName: "Solo Kills", benchmarkValue: 1.7, comparator: ">=" },
-    { benchmarkId: 7, roleId: 1, metricName: "Kill Participation", benchmarkValue: 44.4, comparator: ">=" },
-    { benchmarkId: 8, roleId: 1, metricName: "Damage to Buildings", benchmarkValue: 21.4, comparator: ">=" },
-    { benchmarkId: 9, roleId: 1, metricName: "Total Damage Taken", benchmarkValue: 24.5, comparator: ">=" },
-
-    // Jungle (8 metrics)
-    { benchmarkId: 10, roleId: 2, metricName: "CS Per Minute", benchmarkValue: 6.8, comparator: ">=" },
-    { benchmarkId: 11, roleId: 2, metricName: "Kill Participation", benchmarkValue: 67, comparator: ">=" },
-    { benchmarkId: 12, roleId: 2, metricName: "Vision Score Per Minute", benchmarkValue: 1.6, comparator: ">=" },
-    { benchmarkId: 13, roleId: 2, metricName: "CS Diff @15", benchmarkValue: 0, comparator: ">" },
-    { benchmarkId: 14, roleId: 2, metricName: "Dragon Kills", benchmarkValue: 2, comparator: ">=" },
-    { benchmarkId: 15, roleId: 2, metricName: "Team Baron Kills", benchmarkValue: 1, comparator: ">=" },
-    { benchmarkId: 16, roleId: 2, metricName: "Team Elder Dragon Kills", benchmarkValue: 1, comparator: ">=" },
-    { benchmarkId: 17, roleId: 2, metricName: "Enemy Jungle Control", benchmarkValue: 4, comparator: ">=" },
-
-    // Mid Lane (7 metrics)
-    { benchmarkId: 18, roleId: 3, metricName: "CS Per Minute", benchmarkValue: 8.6, comparator: ">=" },
-    { benchmarkId: 19, roleId: 3, metricName: "Gold Per Minute", benchmarkValue: 400, comparator: ">=" },
-    { benchmarkId: 20, roleId: 3, metricName: "Kill Participation", benchmarkValue: 62, comparator: ">=" },
-    { benchmarkId: 21, roleId: 3, metricName: "Kills", benchmarkValue: 4, comparator: ">=" },
-    { benchmarkId: 22, roleId: 3, metricName: "Deaths", benchmarkValue: 3.2, comparator: "<=" },
-    { benchmarkId: 23, roleId: 3, metricName: "Assists", benchmarkValue: 6.6, comparator: ">=" },
-    { benchmarkId: 24, roleId: 3, metricName: "Damage Share", benchmarkValue: 24.7, comparator: ">=" },
-
-    // ADC (8 metrics)
-    { benchmarkId: 25, roleId: 4, metricName: "KDA", benchmarkValue: 4.1, comparator: ">=" },
-    { benchmarkId: 26, roleId: 4, metricName: "Vision Score Per Minute", benchmarkValue: 1.0, comparator: ">=" },
-    { benchmarkId: 27, roleId: 4, metricName: "CS Per Minute", benchmarkValue: 8.9, comparator: ">=" },
-    { benchmarkId: 28, roleId: 4, metricName: "CS Diff @15", benchmarkValue: -0.25, comparator: ">=" },
-    { benchmarkId: 29, roleId: 4, metricName: "XP Diff @15", benchmarkValue: -6.75, comparator: ">=" },
-    { benchmarkId: 30, roleId: 4, metricName: "Gold Diff @15", benchmarkValue: 7.75, comparator: ">=" },
-    { benchmarkId: 31, roleId: 4, metricName: "Gold Per Minute", benchmarkValue: 460, comparator: ">=" },
-    { benchmarkId: 32, roleId: 4, metricName: "Damage Share", benchmarkValue: 25, comparator: ">=" },
-
-    // Support (8 metrics)
-    { benchmarkId: 33, roleId: 5, metricName: "Vision Score Share", benchmarkValue: 43.47, comparator: ">=" },
-    { benchmarkId: 34, roleId: 5, metricName: "Vision Score Per Minute", benchmarkValue: 3.6, comparator: ">=" },
-    { benchmarkId: 35, roleId: 5, metricName: "Deaths", benchmarkValue: 4, comparator: "<=" },
-    { benchmarkId: 36, roleId: 5, metricName: "Assists", benchmarkValue: 12.6, comparator: ">=" },
-    { benchmarkId: 37, roleId: 5, metricName: "Kill Participation", benchmarkValue: 76, comparator: ">=" },
-    { benchmarkId: 38, roleId: 5, metricName: "Total Wards Placed", benchmarkValue: 5, comparator: ">=" },
-    { benchmarkId: 39, roleId: 5, metricName: "Total Wards Destroyed", benchmarkValue: 5, comparator: ">=" },
-    { benchmarkId: 40, roleId: 5, metricName: "Proximity to ADC @15", benchmarkValue: 55, comparator: ">=" }
+async function insertDefaultMetrics() {
+  const metrics = [
+    { metricId: 1,  metricName: "averageAdcProximityAt15",      metricDescription: "Average Proximity Time to ADC by 15 minutes" },
+    { metricId: 2,  metricName: "averageAssists",              metricDescription: "Average Assists per game" },
+    { metricId: 3,  metricName: "averageCsDiffAt15",           metricDescription: "Average CS Difference at 15 minutes" },
+    { metricId: 4,  metricName: "averageCsPerMinute",          metricDescription: "Average Creep Score per Minute" },
+    { metricId: 5,  metricName: "averageDamageShare",          metricDescription: "Average Damage Share Percentage" },
+    { metricId: 6,  metricName: "averageDamageToBuildings",    metricDescription: "Average Damage dealt to buildings" },
+    { metricId: 7,  metricName: "averageDeaths",               metricDescription: "Average Deaths per game" },
+    { metricId: 8,  metricName: "averageDragonKills",          metricDescription: "Average Dragon Kills" },
+    { metricId: 9,  metricName: "averageEnemyJungleControl",   metricDescription: "Average Enemy Jungle Monster Kills" },
+    { metricId: 10, metricName: "averageGoldDiffAt15",         metricDescription: "Average Gold Difference at 15 minutes" },
+    { metricId: 11, metricName: "averageGoldPerMinute",        metricDescription: "Average Gold Per Minute" },
+    { metricId: 12, metricName: "averageKDA",                  metricDescription: "Average Kill/Death/Assist Ratio" },
+    { metricId: 13, metricName: "averageKillParticipation",    metricDescription: "Average Kill Participation Percentage" },
+    { metricId: 14, metricName: "averageKills",                metricDescription: "Average Kills per game" },
+    { metricId: 15, metricName: "averageSoloKills",            metricDescription: "Average Solo Kills per game" },
+    { metricId: 16, metricName: "averageTeamBaronKills",       metricDescription: "Average Team Baron Kills" },
+    { metricId: 17, metricName: "averageTeamElderDragonKills", metricDescription: "Average Team Elder Dragon Kills" },
+    { metricId: 18, metricName: "averageTeamRiftHeraldKills",  metricDescription: "Average Team Rift Herald Kills" },
+    { metricId: 19, metricName: "averageTotalDamageTaken",     metricDescription: "Average Total Damage Taken" },
+    { metricId: 20, metricName: "averageVisionScorePerMinute", metricDescription: "Average Vision Score Per Minute" },
+    { metricId: 21, metricName: "averageVisionScoreShare",     metricDescription: "Average Vision Score Share Percentage" },
+    { metricId: 22, metricName: "averageVoidMonsterKills",     metricDescription: "Average Void Monster Kills" },
+    { metricId: 23, metricName: "averageWardsDestroyed",       metricDescription: "Average Total Wards Destroyed" },
+    { metricId: 24, metricName: "averageWardsPlaced",          metricDescription: "Average Total Wards Placed" },
+    { metricId: 25, metricName: "averageXpDiffAt15",           metricDescription: "Average Experience Difference at 15 minutes" },
+    { metricId: 26, metricName: "averageWinrate",              metricDescription: "Average Winrate" },
   ];
 
   let insertedCount = 0;
 
-  console.log('[BENCHMARKS] insertDefaultBenchmarks: Starting to insert', benchmarks.length, 'benchmarks');
+  console.log("[METRICS] insertDefaultMetrics: Starting to insert", metrics.length, "metrics");
 
-  for (const benchmark of benchmarks) {
+  for (const metric of metrics) {
     try {
       const sql = `
-        INSERT INTO benchmarks (benchmarkId, roleId, metricName, benchmarkValue, comparator)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO metrics (metricId, metricName, metricDescription)
+        VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE
-          benchmarkValue = VALUES(benchmarkValue),
-          comparator = VALUES(comparator)
+          metricName = VALUES(metricName),
+          metricDescription = VALUES(metricDescription)
       `;
-      
+
       await db.query(sql, [
-        benchmark.benchmarkId,
-        benchmark.roleId,
-        benchmark.metricName,
-        benchmark.benchmarkValue,
-        benchmark.comparator
+        metric.metricId,
+        metric.metricName,
+        metric.metricDescription,
       ]);
-      
+
       insertedCount++;
-      console.log(`[BENCHMARKS] Inserted benchmark ${benchmark.benchmarkId}: ${benchmark.metricName}`);
+      console.log(`[METRICS] Upserted metric ${metric.metricId}: ${metric.metricName}`);
     } catch (err) {
-      console.error(`[BENCHMARKS] Error inserting benchmark ${benchmark.benchmarkId}:`, err);
+      console.error(`[METRICS] Error upserting metric ${metric.metricId}:`, err);
       throw err;
     }
   }
 
-  console.log('[BENCHMARKS] insertDefaultBenchmarks: Successfully inserted', insertedCount, 'benchmarks');
+  console.log("[METRICS] insertDefaultMetrics: Successfully processed", insertedCount, "metrics");
   return insertedCount;
 }
 
@@ -115,31 +90,18 @@ async function seedBenchmarks() {
     console.log("[BENCHMARKS] Starting seed process...");
     
     const isEmpty = await isBenchmarksTableEmpty();
-    console.log("[BENCHMARKS] Table is empty:", isEmpty);
     
     if (isEmpty) {
       console.log("[BENCHMARKS] Table is empty, inserting default benchmarks...");
       const insertedCount = await insertDefaultBenchmarks();
       console.log(`[BENCHMARKS] Successfully inserted ${insertedCount} benchmarks`);
-      
-      return {
-        success: true,
-        message: `Successfully seeded ${insertedCount} benchmark metrics`,
-        insertedCount,
-        wasPreviouslyEmpty: true
-      };
+      return insertedCount; // just a number
     } else {
       const [result] = await db.query("SELECT COUNT(*) as count FROM benchmarks");
       console.log(`[BENCHMARKS] Table already populated with ${result[0].count} benchmarks`);
-      
-      return {
-        success: true,
-        message: "Benchmarks table already populated",
-        insertedCount: 0,
-        wasPreviouslyEmpty: false,
-        existingCount: result[0].count
-      };
+      return 0; // nothing inserted
     }
+
   } catch (err) {
     console.error("[BENCHMARKS] Error in seedBenchmarks:", err);
     throw err;
