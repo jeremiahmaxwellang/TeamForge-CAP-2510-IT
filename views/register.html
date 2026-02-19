@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>TeamForge Registration</title>
     <link rel="stylesheet" href="/css/register.css">
+    <script src="/js/register.js"></script>
 </head>
 <body>
 
@@ -23,50 +24,50 @@
         <input type="number" placeholder="Enter your CGPA">
 
         <label>Current Rank</label>
-        <select>
+        <select id="currentRank">
             <option value="">Select current rank</option>
-            <option>Challenger</option>
-            <option>Grand Master</option>
-            <option>Master</option>
-            <option>Diamond I</option>
-            <option>Diamond II</option>
-            <option>Diamond III</option>
-            <option>Diamond IV</option>
+            <option value="Challenger">Challenger</option>
+            <option value="Grand Master">Grand Master</option>
+            <option value="Master">Master</option>
+            <option value="Diamond I">Diamond I</option>
+            <option value="Diamond II">Diamond II</option>
+            <option value="Diamond III">Diamond III</option>
+            <option value="Diamond IV">Diamond IV</option>
         </select>
 
         <label>Peak Rank</label>
-        <select>
+        <select id="peakRank">
             <option value="">Select peak rank</option>
-            <option>Challenger</option>
-            <option>Grand Master</option>
-            <option>Master</option>
-            <option>Diamond I</option>
-            <option>Diamond II</option>
-            <option>Diamond III</option>
-            <option>Diamond IV</option>
+            <option value="Challenger">Challenger</option>
+            <option value="Grand Master">Grand Master</option>
+            <option value="Master">Master</option>
+            <option value="Diamond I">Diamond I</option>
+            <option value="Diamond II">Diamond II</option>
+            <option value="Diamond III">Diamond III</option>
+            <option value="Diamond IV">Diamond IV</option>
         </select>
 
         <label>Primary Role</label>
-        <select>
+        <select id="primaryRole">
             <option value="">Select primary role</option>
-            <option>Top</option>
-            <option>Mid</option>
-            <option>Bot</option>
-            <option>Jungler</option>
-            <option>Support</option>
+            <option value="1">Top</option>
+            <option value="2">Jungle</option>
+            <option value="3">Mid</option>
+            <option value="4">AD Carry</option>
+            <option value="5">Support</option>
         </select>
 
         <label>Secondary Role</label>
-        <select>
+        <select id="secondaryRole">
             <option value="">Select secondary role</option>
-            <option>Top</option>
-            <option>Mid</option>
-            <option>Bot</option>
-            <option>Jungler</option>
-            <option>Support</option>
+            <option value="1">Top</option>
+            <option value="2">Jungle</option>
+            <option value="3">Mid</option>
+            <option value="4">AD Carry</option>
+            <option value="5">Support</option>
         </select>
 
-        <button>Continue</button>
+        <button onclick="submitRegistration()">Continue</button>
     </div>
 
 </body>

@@ -1,68 +1,95 @@
-<!-- overlay.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match History Overlay</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-    </head>
-<body>
-    <div class="overlay">
-        <!-- Overlay content here -->
-            <div class="overview-container">
-                <div class="match-history-header">
-                    <div class="header-text">Player Evaluation:</div>
-                    <!-- Dropdown button for "Ranked" -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn">Ranked</button>
-                        <div class="dropdown-content">
-                            <a href="#">Ranked</a>
-                            <a href="#">Casual</a>
-                            <a href="#">ARAM</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="player_average_info">
-                    <!-- Column 2 -->
-                    <div class="winrate">
-                        <div class="percentWin">27.4% WR</div>
-                        <div class="totalGames">Last 15 Games</div>
-                    </div>
-                    <!-- Column 3 -->
-                    <div class="KDA_info">
-                        <div class="KDA">1.14 KDA</div>
-                        <div class="Summarized_KDA">2.9 / 7.3 / 5.3</div>
-                    </div>
-                    <!-- Column 4 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 5 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 6 -->
-                    <div class="recently_played_champion">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">9.87 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0.95 KDA</div>
-                        </div>
-                    </div>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player Evaluation Component</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/evaluation.css">
 
-            </div>
-            
-    </div>
+</head>
+<body style="background-color: #333; padding: 20px;"> <div class="player-evaluation-card">
+    <h2>Player Evaluation</h2>
+
+    <form id="evalForm">
+      <div class="rating-grid">
+        <div></div> <div class="rating-header">1</div>
+        <div class="rating-header">2</div>
+        <div class="rating-header">3</div>
+        <div class="rating-header">4</div>
+        <div class="rating-header">5</div>
+
+        <div class="rating-label">Game Sense</div>
+        <div class="radio-group"><input type="radio" name="gameSense" value="1"></div>
+        <div class="radio-group"><input type="radio" name="gameSense" value="2"></div>
+        <div class="radio-group"><input type="radio" name="gameSense" value="3"></div>
+        <div class="radio-group"><input type="radio" name="gameSense" value="4"></div>
+        <div class="radio-group"><input type="radio" name="gameSense" value="5"></div>
+
+        <div class="rating-label">Communication</div>
+        <div class="radio-group"><input type="radio" name="communication" value="1"></div>
+        <div class="radio-group"><input type="radio" name="communication" value="2"></div>
+        <div class="radio-group"><input type="radio" name="communication" value="3"></div>
+        <div class="radio-group"><input type="radio" name="communication" value="4"></div>
+        <div class="radio-group"><input type="radio" name="communication" value="5"></div>
+
+        <div class="rating-label">Champion Pool</div>
+        <div class="radio-group"><input type="radio" name="champPool" value="1"></div>
+        <div class="radio-group"><input type="radio" name="champPool" value="2"></div>
+        <div class="radio-group"><input type="radio" name="champPool" value="3"></div>
+        <div class="radio-group"><input type="radio" name="champPool" value="4"></div>
+        <div class="radio-group"><input type="radio" name="champPool" value="5"></div>
+      </div>
+
+      <div class="comment-section">
+        <label for="coachComment">Comments from the Coach:</label>
+        <textarea id="coachComment" name="comment" class="comment-box" placeholder="Enter a comment here"></textarea>
+      </div>
+
+      <div class="confirm-btn-container">
+        <button type="submit" class="confirm-btn">Confirm</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    /* * ==========================================================================
+     * INSTRUCTION FOR JS:
+     * You can keep this script at the bottom of the HTML file, or move it to 
+     * your main '.js' file. If moving, make sure the DOM is loaded first.
+     * ==========================================================================
+     */
+    document.getElementById('evalForm').addEventListener('submit', function(e) {
+      // 1. Prevent the page from reloading
+      e.preventDefault();
+
+      // 2. Gather form data
+      const formData = new FormData(this);
+      
+      const data = {
+        gameSense: formData.get('gameSense'),
+        communication: formData.get('communication'),
+        champPool: formData.get('champPool'),
+        comment: formData.get('comment')
+      };
+
+      // 3. Simple Validation
+      if(!data.gameSense || !data.communication || !data.champPool) {
+        alert("Please rate all categories before confirming.");
+        return;
+      }
+
+      // ==================================================================
+      // TODO FOR BACKEND:
+      // Replace the console.log below with the actual API call.
+      // ==================================================================
+      
+      console.log("Submitting Evaluation Payload:", data);
+      alert("Evaluation saved! (See console for the JSON payload)");
+      
+      // Optional: Clear form after submit
+      // this.reset();
+    });
+  </script>
+
 </body>
 </html>

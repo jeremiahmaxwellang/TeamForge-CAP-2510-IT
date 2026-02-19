@@ -15,6 +15,7 @@ global.viewsPath = path.join(process.cwd(), 'views');
 
 // Routes 
 app.use("/", require("./routes/authRoutes")); // login routes
+app.use('/register', require("./routes/registerRoutes")); // registration routes
 app.use('/player_analysis', require('./routes/playerAnalysisRoutes'));
 app.use('/riot', require('./routes/riotApiRoutes'));
 

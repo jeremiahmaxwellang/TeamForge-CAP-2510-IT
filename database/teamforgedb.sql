@@ -7,6 +7,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema teamforgedb
 -- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `teamforgedb` ;
 
 -- -----------------------------------------------------
 -- Schema teamforgedb
@@ -61,11 +62,10 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `lastGPA` DECIMAL(6,2) NULL,
   `CGPA` DECIMAL(6,2) NULL,
   `applicationStatus` VARCHAR(45) NULL,
-  `winrate` DECIMAL(6,2) NULL,
-  `averageKDA` DECIMAL(6,2) NULL,
   `teamId` INT NULL,
   `yearLevel` VARCHAR(45) NULL,
   `profilePhoto` VARCHAR(260) NULL,
+  `isSub` ENUM('T', 'F') NULL,
   PRIMARY KEY (`userId`),
   INDEX `fk_players_leagueRoles1_idx` (`primaryRoleId` ASC) VISIBLE,
   INDEX `fk_players_leagueRoles2_idx` (`secondaryRoleId` ASC) VISIBLE,
@@ -91,7 +91,7 @@ ENGINE = InnoDB;
 -- Table `teamforgedb`.`announcements`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`announcements` (
-  `announcementId` INT NOT NULL,
+  `announcementId` INT NOT NULL AUTO_INCREMENT,
   `userId` INT UNSIGNED NOT NULL,
   `title` VARCHAR(254) NULL,
   `content` LONGTEXT NULL,
@@ -220,7 +220,6 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`evaluations` (
   `playerId` INT UNSIGNED NOT NULL,
   `comment` LONGTEXT NULL,
-  `evaluationscol` VARCHAR(45) NULL,
   `ratingGameSense` INT NULL,
   `ratingCommunication` INT NULL,
   `ratingChampionPool` INT NULL,
@@ -267,19 +266,36 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `teamforgedb`.`metrics`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`metrics` (
+  `metricId` INT NOT NULL,
+  `metricName` VARCHAR(100) NULL,
+  `metricDescription` VARCHAR(255) NULL,
+  PRIMARY KEY (`metricId`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `teamforgedb`.`benchmarks`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`benchmarks` (
-  `benchmarkId` INT NOT NULL,
+  `benchmarkId` INT NOT NULL AUTO_INCREMENT,
+  `metricId` INT NULL,
   `roleId` INT NULL,
-  `metricName` VARCHAR(45) NULL,
   `benchmarkValue` DECIMAL(6,2) NULL,
-  `comparator` VARCHAR(45) NULL,
+  `comparator` ENUM('>', '<', '>=', '<=') NULL,
   PRIMARY KEY (`benchmarkId`),
   INDEX `fk_benchmarks_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
+  INDEX `fk_benchmarks_metrics1_idx` (`metricId` ASC) VISIBLE,
   CONSTRAINT `fk_benchmarks_leagueRoles1`
     FOREIGN KEY (`roleId`)
     REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_benchmarks_metrics1`
+    FOREIGN KEY (`metricId`)
+    REFERENCES `teamforgedb`.`metrics` (`metricId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -315,6 +331,51 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`teamDetails` (
   `teamName` VARCHAR(45) NOT NULL,
   `teamIcon` VARCHAR(260) NULL,
   PRIMARY KEY (`teamName`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`metricRoles`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`metricRoles` (
+  `metricId` INT NOT NULL,
+  `roleId` INT NOT NULL,
+  PRIMARY KEY (`metricId`, `roleId`),
+  CONSTRAINT `fk_metricRoles_metrics1`
+    FOREIGN KEY (`metricId`)
+    REFERENCES `teamforgedb`.`metrics` (`metricId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`playerStatistics`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`playerStatistics` (
+  `userId` INT UNSIGNED NOT NULL,
+  `metricId` INT NOT NULL,
+  `roleId` INT NOT NULL,
+  `metricValue` DECIMAL(6,2) NULL,
+  `recordedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`userId`, `metricId`, `roleId`),
+  INDEX `fk_playerStatistics_metrics1_idx` (`metricId` ASC) VISIBLE,
+  INDEX `fk_playerStatistics_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
+  CONSTRAINT `fk_playerStatistics_metrics1`
+    FOREIGN KEY (`metricId`)
+    REFERENCES `teamforgedb`.`metrics` (`metricId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_playerStatistics_players1`
+    FOREIGN KEY (`userId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_playerStatistics_leagueRoles1`
+    FOREIGN KEY (`roleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
