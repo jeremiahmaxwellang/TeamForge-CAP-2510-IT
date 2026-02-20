@@ -9,7 +9,8 @@ const router = express.Router();
 
 // Controller
 const playerController = require('../controllers/playerController');
-const championPoolController = require('../controllers/championPoolController');
+const championPoolController = require('../controllers/player_analysis/championPoolController');
+const evaluationController = require('../controllers/player_analysis/evaluationController');
 
 // GET all players
 router.get('/players', playerController.getAllPlayers);
@@ -20,8 +21,16 @@ router.get('/players/:id', playerController.getPlayerById);
 // Update puuid
 router.put('/players/:id/puuid', playerController.updatePuuid);
 
-// NEW: route for controller
-router.get('/players/:id/champion_pool', championPoolController.getChampionPool); // <--- NEW
+// Champion Pool backend
+router.get('/players/:id/champion_pool', championPoolController.getChampionPool);
+
+
+// Get Evaluation
+router.get('/players/:id/evaluation', evaluationController.getEvaluation);
+
+// Create Evaluation
+router.post('/players/:id/evaluation', evaluationController.createEvaluation);
+
 
 // /player_analysis
 router.get('/', async function(req, res) {
