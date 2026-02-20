@@ -26,6 +26,11 @@ router.get('/register', (req, res) => {
     res.sendFile(path.join(viewsPath, 'register.html'));
 });
 
+// Applicant dashboard page
+router.get('/applicant_dashboard', (req, res) => {
+    res.sendFile(path.join(viewsPath, 'applicant_dashboard.html'));
+});
+
 // Dashboard pages
 router.get('/manager_dashboard.html', (req, res) => {
     res.sendFile(path.join(viewsPath, 'manager_dashboard.html'));
@@ -64,6 +69,8 @@ router.post('/login', async (req, res) => {
                     return res.json({ redirect: '/player_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Team Coach':
                     return res.json({ redirect: '/coach_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
+                case 'Applicant':
+                    return res.json({ redirect: '/applicant_dashboard', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 default:
                     return res.status(400).send('Role not recognized');
             }
