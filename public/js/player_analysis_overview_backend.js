@@ -334,17 +334,15 @@
 
               applyPlayerToDOM();
 
-              // Trigger fetches
-              fetchRecentMatches(puuid, PA.state.currentQueueId);
-              fetchWinrate(puuid, PA.state.currentQueueId);
+              // NOTE: Do NOT fetch here - DOM elements don't exist yet.
+              // The Overview tab will refetch when clicked.
             });
         }
 
         applyPlayerToDOM();
 
-        // Trigger fetches
-        fetchRecentMatches(puuid, PA.state.currentQueueId);
-        fetchWinrate(puuid, PA.state.currentQueueId);
+        // NOTE: Do NOT fetch here - DOM elements don't exist yet.
+        // The Overview tab will refetch when clicked.
 
         return player;
       })
@@ -361,6 +359,8 @@
     fetchRecentMatches,
     loadPlayer,
   };
+
+  console.log("[BACKEND] PlayerAnalysis API initialized. Available methods:", Object.keys(PA.api));
 
   // -----------------------------
   // MAIN PAGE: populate dropdown
