@@ -147,25 +147,15 @@
             if (closeButton) closeButton.addEventListener("click", closeOverlay);
 
             // If overview loaded, refetch immediately using shared queue
-            // Or use cached data if available
+            // This ensures display functions run after overlay HTML is rendered
             if (this.id === "overviewButton") {
               const btn = document.getElementById("player-dropdown-btn");
               const puuid = btn?.getAttribute("data-puuid");
               if (puuid) {
-                // Check if we have cached data for the current queue, if so use it to update display
-                if (PA.cache.winrateData) {
-                  api.updateWinrateDisplay(PA.cache.winrateData);
-                }
-                if (PA.cache.kdaStats) {
-                  api.updateKDADisplay(PA.cache.kdaStats);
-                }
-                if (PA.cache.topChampions) {
-                  api.updateChampionDisplay(PA.cache.topChampions);
-                } else {
-                  // If no cached data, fetch fresh
-                  api.fetchWinrate(puuid, state.currentQueueId);
-                  api.fetchRecentMatches(puuid, state.currentQueueId);
-                }
+                console.log("[OVERVIEW] Overlay rendered, updating display with latest data");
+                // Always refetch to ensure data is fresh and display updates properly
+                api.fetchWinrate(puuid, state.currentQueueId);
+                api.fetchRecentMatches(puuid, state.currentQueueId);
               }
             }
 
