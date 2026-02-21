@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+// NOTE: player_analysis.js no longer being called in player_analysis.html
 
 // ===================  OVERLAY BACKEND  ============================
     const overviewButton = document.getElementById('overviewButton');
@@ -81,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // NOTE: Tab Navigation moved to player_analysis_overview_overlay.js (Feb 21)
     // Attach click handlers to all tab buttons
     if (overlayContainer) {
         tabButtons.forEach(button => {
