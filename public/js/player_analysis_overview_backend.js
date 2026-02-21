@@ -116,11 +116,24 @@
 
   function updateWinrateDisplay(winrateData) {
     console.log(`[UPDATE WINRATE] Updating display with:`, winrateData);
+    
     const percentWinEl = document.querySelector(".percentWin");
     const totalGamesEl = document.querySelector(".totalGames");
+    const winrateContainer = document.querySelector(".winrate"); // Select the container
 
     if (percentWinEl) percentWinEl.textContent = `${winrateData.winrate}%`;
-    if (totalGamesEl) totalGamesEl.textContent = `${winrateData.wins}W ${winrateData.losses}L (${winrateData.total} games)`;
+    if (totalGamesEl) {
+        totalGamesEl.textContent = `${winrateData.wins}W ${winrateData.losses}L (${winrateData.total} games)`;
+    }
+
+    // Update the Circle Graph
+    if (winrateContainer) {
+        // Calculate degrees: (percentage / 100) * 360
+        const degrees = (winrateData.winrate / 100) * 360;
+        
+        // Set the CSS variable on the element so the ::before pseudo-element can use it
+        winrateContainer.style.setProperty('--winrate-angle', `${degrees}deg`);
+    }
   }
 
   function getTop3Champions(matchesData, puuid) {
@@ -340,13 +353,8 @@
 
         applyPlayerToDOM();
 
-        // Fetch winrate and recent matches immediately when player is loaded
-        console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
-        fetchWinrate(puuid, PA.state.currentQueueId)
-          .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
-        
-        fetchRecentMatches(puuid, PA.state.currentQueueId)
-          .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
+        // NOTE: Do NOT fetch here - DOM elements for overlay don't exist yet
+        // The Overview tab will fetch when the overlay is clicked and rendered
 
         return player;
       })
