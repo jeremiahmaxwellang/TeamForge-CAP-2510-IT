@@ -46,36 +46,36 @@
     console.log(`[FETCH WINRATE] Requesting winrate for PUUID: ${puuid}, Queue: ${queueId}`);
 
     return fetch(`/riot/winrate/${puuid}?queueId=${queueId}`)
-        .then((res) => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-        })
-        .then((data) => {
-            console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
 
-            // Calculate the winrate
-            const winrate = (data.wins / data.total) * 100; // Winrate calculation
+        // Calculate the winrate
+        const winrate = (data.wins / data.total) * 100; // Winrate calculation
 
-            // Update the winrate and games information
-            const winrateData = {
-                winrate: winrate.toFixed(2),
-                wins: data.wins,
-                losses: data.total - data.wins,
-                total: data.total,
-            };
+        // Update the winrate and games information
+        const winrateData = {
+          winrate: winrate.toFixed(2),
+          wins: data.wins,
+          losses: data.total - data.wins,
+          total: data.total,
+        };
 
-            // Cache the winrate data
-            PA.cache.winrateData = winrateData;
+        // Cache the winrate data
+        PA.cache.winrateData = winrateData;
 
-            // Update the display with winrate data (if elements exist)
-            updateWinrateDisplay(winrateData);
+        // Update the display with winrate data (if elements exist)
+        updateWinrateDisplay(winrateData);
 
-            return winrateData;
-        })
-        .catch((err) => {
-            console.error("[FETCH WINRATE] ✗ Error fetching winrate:", err);
-            throw err;
-        });
+        return winrateData;
+      })
+      .catch((err) => {
+        console.error("[FETCH WINRATE] ✗ Error fetching winrate:", err);
+        throw err;
+      });
   }
 
   function fetchMatchDetails(matchId) {
@@ -129,23 +129,23 @@
 
   function updateWinrateDisplay(winrateData) {
     console.log(`[UPDATE WINRATE] Updating display with:`, winrateData);
-    
+
     const percentWinEl = document.querySelector(".percentWin");
     const totalGamesEl = document.querySelector(".totalGames");
     const winrateContainer = document.querySelector(".winrate"); // Select the container
 
     if (percentWinEl) percentWinEl.textContent = `${winrateData.winrate}%`;
     if (totalGamesEl) {
-        totalGamesEl.textContent = `${winrateData.wins}W ${winrateData.losses}L (${winrateData.total} games)`;
+      totalGamesEl.textContent = `${winrateData.wins}W ${winrateData.losses}L (${winrateData.total} games)`;
     }
 
     // Update the Circle Graph
     if (winrateContainer) {
-        // Calculate degrees: (percentage / 100) * 360
-        const degrees = (winrateData.winrate / 100) * 360;
-        
-        // Set the CSS variable on the element so the ::before pseudo-element can use it
-        winrateContainer.style.setProperty('--winrate-angle', `${degrees}deg`);
+      // Calculate degrees: (percentage / 100) * 360
+      const degrees = (winrateData.winrate / 100) * 360;
+
+      // Set the CSS variable on the element so the ::before pseudo-element can use it
+      winrateContainer.style.setProperty('--winrate-angle', `${degrees}deg`);
     }
   }
 
@@ -273,50 +273,50 @@
   }
 
   function fetchRecentMatches(puuid, queueId) {
-  console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
+    console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
 
-  return fetch(`/riot/matches/${puuid}/${queueId}`)
-    .then((res) => {
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      return res.json();
-    })
-    .then((data) => {
-      if (!data.matches || !Array.isArray(data.matches)) throw new Error("Invalid response: matches array not found");
+    return fetch(`/riot/matches/${puuid}/${queueId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (!data.matches || !Array.isArray(data.matches)) throw new Error("Invalid response: matches array not found");
 
-      console.log(`[FETCH MATCHES] Received ${data.matches.length} match IDs from API (already filtered by queue ${queueId})`);
+        console.log(`[FETCH MATCHES] Received ${data.matches.length} match IDs from API (already filtered by queue ${queueId})`);
 
-      // Limit to the last 15 matches
-      // Note: Backend already filtered by queue, so we just take the IDs
-      const last15Matches = data.matches.slice(0, 15);
+        // Limit to the last 15 matches
+        // Note: Backend already filtered by queue, so we just take the IDs
+        const last15Matches = data.matches.slice(0, 15);
 
-      console.log(`[FETCH MATCHES] Processing ${last15Matches.length} matches for details fetch`);
+        console.log(`[FETCH MATCHES] Processing ${last15Matches.length} matches for details fetch`);
 
-      const detailPromises = last15Matches.map((matchId) => fetchMatchDetails(matchId));
-      return Promise.all(detailPromises);
-    })
-    .then((matchesData) => {
-      // Cache the matches
-      PA.cache.matches = matchesData;
+        const detailPromises = last15Matches.map((matchId) => fetchMatchDetails(matchId));
+        return Promise.all(detailPromises);
+      })
+      .then((matchesData) => {
+        // Cache the matches
+        PA.cache.matches = matchesData;
 
-      // Calculate and cache stats from matches
-      const kdaStats = calculateAverageKDA(matchesData, puuid);
-      PA.cache.kdaStats = kdaStats;
-      updateKDADisplay(kdaStats);
+        // Calculate and cache stats from matches
+        const kdaStats = calculateAverageKDA(matchesData, puuid);
+        PA.cache.kdaStats = kdaStats;
+        updateKDADisplay(kdaStats);
 
-      const topChampions = getTop3Champions(matchesData, puuid);
-      PA.cache.topChampions = topChampions;
-      updateChampionDisplay(topChampions);
+        const topChampions = getTop3Champions(matchesData, puuid);
+        PA.cache.topChampions = topChampions;
+        updateChampionDisplay(topChampions);
 
-      // Store to DB
-      const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
-      if (currentPlayerId && matchesData.length > 0) storeMatchesToDatabase(currentPlayerId, matchesData);
+        // Store to DB
+        const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+        if (currentPlayerId && matchesData.length > 0) storeMatchesToDatabase(currentPlayerId, matchesData);
 
-      return matchesData;
-    })
-    .catch((err) => {
-      console.error("[FETCH MATCHES] ✗ Error fetching recent matches:", err);
-      throw err;
-    });
+        return matchesData;
+      })
+      .catch((err) => {
+        console.error("[FETCH MATCHES] ✗ Error fetching recent matches:", err);
+        throw err;
+      });
   }
 
   // Load one player’s details into the main page + triggers data fetches
@@ -355,7 +355,7 @@
             .then((data) => {
               puuid = data.puuid;
               // update puuid in sql if null
-              return updatePuuid(player.userId, puuid).catch(() => {});
+              return updatePuuid(player.userId, puuid).catch(() => { });
             })
             .finally(() => {
               // Remove later
@@ -366,14 +366,14 @@
 
               // Fetch matches immediately after getting PUUID
               console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
-              
+
               // Cache the player and puuid for later reference
               PA.cache.currentPlayerId = player.userId;
               PA.cache.currentPuuid = puuid;
 
               fetchWinrate(puuid, PA.state.currentQueueId)
                 .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
-              
+
               fetchRecentMatches(puuid, PA.state.currentQueueId)
                 .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
             });
@@ -384,14 +384,14 @@
         // Always fetch matches immediately when player is selected
         // Data will be cached and displayed when overlay loads
         console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
-        
+
         // Cache the player and puuid for later reference
         PA.cache.currentPlayerId = player.userId;
         PA.cache.currentPuuid = puuid;
 
         fetchWinrate(puuid, PA.state.currentQueueId)
           .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
-        
+
         fetchRecentMatches(puuid, PA.state.currentQueueId)
           .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
 
