@@ -1,12 +1,9 @@
 /**
- * CHAMPION POOL TEMP FILE
- * - temporarily moved the code to this controller
- * 
- * - todo: allow the Champion Pool overlay backend to fetch the champion pool
- * - may need to move this to the main playerController.js
+ * CHAMPION POOL Controller
+ * - contains the SQL Query for fetching a player's champion statistics
  */
 
-const db = require("../config/database");
+const db = require("../../config/database");
 
 // Get a player's champion pool
 exports.getChampionPool = async (req, res) => {

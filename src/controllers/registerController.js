@@ -34,7 +34,7 @@ exports.createUser = async (req, res) => {
             password, // In production, hash the password using bcrypt
             firstname,
             lastname,
-            'Player' // Default position, can be modified based on requirements
+            'Applicant' // Users start as Applicant after registration
         ]);
 
         const userId = userResult.insertId;

@@ -243,10 +243,11 @@ exports.getBenchmarksByRole = async (req, res) => {
     }
 
     const [benchmarks] = await db.query(
-      `SELECT benchmarkId, roleId, metricName, benchmarkValue, comparator
-       FROM benchmarks 
-       WHERE roleId = ? 
-       ORDER BY benchmarkId ASC`,
+      `SELECT b.benchmarkId, b.roleId, m.metricName, b.benchmarkValue, b.comparator
+       FROM benchmarks b
+       LEFT JOIN metrics m ON b.metricId = m.metricId
+       WHERE b.roleId = ? 
+       ORDER BY b.benchmarkId ASC`,
       [roleId]
     );
 
@@ -274,9 +275,10 @@ exports.getBenchmarksByRole = async (req, res) => {
 exports.getAllBenchmarks = async (req, res) => {
   try {
     const [benchmarks] = await db.query(
-      `SELECT b.benchmarkId, b.roleId, lr.displayedRole, b.metricName, b.benchmarkValue, b.comparator
+      `SELECT b.benchmarkId, b.roleId, lr.displayedRole, m.metricName, b.benchmarkValue, b.comparator
        FROM benchmarks b
        LEFT JOIN leagueRoles lr ON b.roleId = lr.roleId
+       LEFT JOIN metrics m ON b.metricId = m.metricId
        ORDER BY b.roleId ASC, b.benchmarkId ASC`
     );
 
@@ -366,10 +368,11 @@ exports.comparePlayerToBenchmarks = async (req, res) => {
     }
 
     const [benchmarks] = await db.query(
-      `SELECT benchmarkId, metricName, benchmarkValue, comparator
-       FROM benchmarks 
-       WHERE roleId = ?
-       ORDER BY benchmarkId ASC`,
+      `SELECT b.benchmarkId, m.metricName, b.benchmarkValue, b.comparator
+       FROM benchmarks b
+       LEFT JOIN metrics m ON b.metricId = m.metricId
+       WHERE b.roleId = ?
+       ORDER BY b.benchmarkId ASC`,
       [roleId]
     );
 
@@ -453,10 +456,11 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
 
     // Fetch benchmarks for the role
     const [benchmarks] = await db.query(
-      `SELECT benchmarkId, metricName, benchmarkValue, comparator
-       FROM benchmarks 
-       WHERE roleId = ?
-       ORDER BY benchmarkId ASC`,
+      `SELECT b.benchmarkId, m.metricName, b.benchmarkValue, b.comparator
+       FROM benchmarks b
+       LEFT JOIN metrics m ON b.metricId = m.metricId
+       WHERE b.roleId = ?
+       ORDER BY b.benchmarkId ASC`,
       [roleId]
     );
 

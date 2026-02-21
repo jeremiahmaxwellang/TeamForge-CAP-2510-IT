@@ -76,6 +76,7 @@
 
     if (!overlayContainer) return;
 
+    // ============ TABS LOGIC ==================
     tabButtons.forEach((button) => {
       if (!button) return;
 
@@ -101,6 +102,30 @@
           })
           .then((html) => {
             overlayContainer.innerHTML = html;
+
+            // Champion Pool Tab
+            if (this.id === "championButton") {
+              const btn = document.getElementById("player-dropdown-btn");
+              const userId = btn.getAttribute("data-player-id");
+
+              if (userId && typeof window.initChampionTab === "function") {
+                window.initChampionTab(userId);
+              } else {
+                console.error("initChampionTab not found! Make sure champion overlay JS is loaded.");
+              }
+            }
+
+            // Evaluation tab
+            if (this.id === "evaluationButton") {
+              const btn = document.getElementById("player-dropdown-btn");
+              const userId = btn.getAttribute("data-player-id");
+
+              if (userId && typeof window.initEvaluationTab === "function") {
+                window.initEvaluationTab(userId);
+              } else {
+                console.error("initEvaluationTab not found! Make sure evaluation overlay JS is loaded.");
+              }
+            }
 
             // Comparison tab init hook
             if (this.id === "comparisonButton") {
@@ -130,7 +155,8 @@
                 api.fetchRecentMatches(puuid, state.currentQueueId);
               }
             }
-          })
+
+          }) // End of "then" statement
           .catch((err) => console.log("Error loading overlay:", err));
       });
     });
