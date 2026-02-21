@@ -10,6 +10,16 @@
     currentQueueId: 420, // default Ranked Solo/Duo
   };
 
+  // Cache for storing fetched data
+  PA.cache = PA.cache || {
+    currentPlayerId: null,
+    currentPuuid: null,
+    matches: null,
+    winrateData: null,
+    kdaStats: null,
+    topChampions: null,
+  };
+
   // -----------------------------
   // BACKEND / DATA-FETCH HELPERS
   // -----------------------------
@@ -54,7 +64,10 @@
                 total: data.total,
             };
 
-            // Update the display with winrate data
+            // Cache the winrate data
+            PA.cache.winrateData = winrateData;
+
+            // Update the display with winrate data (if elements exist)
             updateWinrateDisplay(winrateData);
 
             return winrateData;
@@ -282,11 +295,16 @@
       return Promise.all(detailPromises);
     })
     .then((matchesData) => {
-      // Update overview stats if overlay is open
+      // Cache the matches
+      PA.cache.matches = matchesData;
+
+      // Calculate and cache stats from matches
       const kdaStats = calculateAverageKDA(matchesData, puuid);
+      PA.cache.kdaStats = kdaStats;
       updateKDADisplay(kdaStats);
 
       const topChampions = getTop3Champions(matchesData, puuid);
+      PA.cache.topChampions = topChampions;
       updateChampionDisplay(topChampions);
 
       // Store to DB
@@ -346,15 +364,36 @@
 
               applyPlayerToDOM();
 
-              // NOTE: Do NOT fetch here - DOM elements don't exist yet.
-              // The Overview tab will refetch when clicked.
+              // Fetch matches immediately after getting PUUID
+              console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
+              
+              // Cache the player and puuid for later reference
+              PA.cache.currentPlayerId = player.userId;
+              PA.cache.currentPuuid = puuid;
+
+              fetchWinrate(puuid, PA.state.currentQueueId)
+                .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
+              
+              fetchRecentMatches(puuid, PA.state.currentQueueId)
+                .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
             });
         }
 
         applyPlayerToDOM();
 
-        // NOTE: Do NOT fetch here - DOM elements for overlay don't exist yet
-        // The Overview tab will fetch when the overlay is clicked and rendered
+        // Always fetch matches immediately when player is selected
+        // Data will be cached and displayed when overlay loads
+        console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
+        
+        // Cache the player and puuid for later reference
+        PA.cache.currentPlayerId = player.userId;
+        PA.cache.currentPuuid = puuid;
+
+        fetchWinrate(puuid, PA.state.currentQueueId)
+          .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
+        
+        fetchRecentMatches(puuid, PA.state.currentQueueId)
+          .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
 
         return player;
       })
@@ -370,6 +409,9 @@
     fetchWinrate,
     fetchRecentMatches,
     loadPlayer,
+    updateWinrateDisplay,
+    updateKDADisplay,
+    updateChampionDisplay,
   };
 
   console.log("[BACKEND] PlayerAnalysis API initialized. Available methods:", Object.keys(PA.api));

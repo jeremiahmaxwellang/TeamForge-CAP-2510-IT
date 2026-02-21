@@ -147,12 +147,25 @@
             if (closeButton) closeButton.addEventListener("click", closeOverlay);
 
             // If overview loaded, refetch immediately using shared queue
+            // Or use cached data if available
             if (this.id === "overviewButton") {
               const btn = document.getElementById("player-dropdown-btn");
               const puuid = btn?.getAttribute("data-puuid");
               if (puuid) {
-                api.fetchWinrate(puuid, state.currentQueueId);
-                api.fetchRecentMatches(puuid, state.currentQueueId);
+                // Check if we have cached data for the current queue, if so use it to update display
+                if (PA.cache.winrateData) {
+                  api.updateWinrateDisplay(PA.cache.winrateData);
+                }
+                if (PA.cache.kdaStats) {
+                  api.updateKDADisplay(PA.cache.kdaStats);
+                }
+                if (PA.cache.topChampions) {
+                  api.updateChampionDisplay(PA.cache.topChampions);
+                } else {
+                  // If no cached data, fetch fresh
+                  api.fetchWinrate(puuid, state.currentQueueId);
+                  api.fetchRecentMatches(puuid, state.currentQueueId);
+                }
               }
             }
 
