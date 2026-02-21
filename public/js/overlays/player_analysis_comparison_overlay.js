@@ -178,6 +178,58 @@ window.initComparisonTab = function () {
     RadarChart.draw("#chart-container", chartData);
   }
 
+  function updateStatsTable() {
+    const statsContainer = document.getElementById("stats-list");
+    if (!statsContainer || !player1Data?.stats || !player2Data?.stats) return;
+
+    // keys defined in backend formatter
+    const metrics = [
+      { key: "avgKills", label: "Average Kills" },
+      { key: "avgDeaths", label: "Average Deaths" },
+      { key: "avgAssists", label: "Average Assists" },
+      { key: "kdaRatio", label: "KDA Ratio" },
+      { key: "avgDamage", label: "Avg Damage Dealt" },
+      { key: "totalDamageMitigated", label: "Damage Taken" },
+      { key: "avgGold", label: "Gold Per Minute" }
+    ];
+
+    let html = `
+      <table class="comparison-table" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+          <tr style="border-bottom: 2px solid #ddd;">
+            <th style="padding: 10px;">${player1Data.summonerName || 'Player 1'}</th>
+            <th style="padding: 10px;">Metric</th>
+            <th style="padding: 10px;">${player2Data.summonerName || 'Player 2'}</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    metrics.forEach(m => {
+      // Grab the numbers, default to 0 if missing
+      const val1 = Number(player1Data.stats[m.key]) || 0;
+      const val2 = Number(player2Data.stats[m.key]) || 0;
+
+      // Highlight the bigger number in green
+      let p1Style = "padding: 8px;";
+      let p2Style = "padding: 8px;";
+      
+      if (val1 > val2) p1Style += " color: #4CAF50; font-weight: bold;";
+      else if (val2 > val1) p2Style += " color: #4CAF50; font-weight: bold;";
+
+      html += `
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="${p1Style}">${val1.toFixed(2)}</td>
+          <td style="padding: 8px; font-weight: bold; background-color: #f9f9f9;">${m.label}</td>
+          <td style="${p2Style}">${val2.toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    statsContainer.innerHTML = html;
+  }
+
   function updateComparison() {
     updateRadarChart();
     if (typeof updateStatsTable === "function") updateStatsTable();
