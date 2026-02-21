@@ -115,6 +115,17 @@
               }
             }
 
+            // Evaluation tab
+            if (this.id === "evaluationButton") {
+              const btn = document.getElementById("player-dropdown-btn");
+              const userId = btn.getAttribute("data-player-id");
+
+              if (userId && typeof window.initEvaluationTab === "function") {
+                window.initEvaluationTab(userId);
+              } else {
+                console.error("initEvaluationTab not found! Make sure evaluation overlay JS is loaded.");
+              }
+            }
 
             // Comparison tab init hook
             if (this.id === "comparisonButton") {
