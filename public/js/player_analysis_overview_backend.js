@@ -36,51 +36,33 @@
     console.log(`[FETCH WINRATE] Requesting winrate for PUUID: ${puuid}, Queue: ${queueId}`);
 
     return fetch(`/riot/winrate/${puuid}?queueId=${queueId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
+        .then((res) => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+        })
+        .then((data) => {
+            console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
 
-        // These elements exist in the overview overlay HTML (when loaded)
-        const percentWinEl = document.querySelector(".percentWin");
-        const totalGamesEl = document.querySelector(".totalGames");
+            // Calculate the winrate
+            const winrate = (data.wins / data.total) * 100; // Winrate calculation
 
-        if (percentWinEl) percentWinEl.textContent = `${data.winrate}% WR`;
-        if (totalGamesEl) totalGamesEl.textContent = `Last ${data.total} Games (${data.wins}W - ${data.losses}L)`;
+            // Update the winrate and games information
+            const winrateData = {
+                winrate: winrate.toFixed(2),
+                wins: data.wins,
+                losses: data.total - data.wins,
+                total: data.total,
+            };
 
-        const winrateContainer = document.querySelector(".winrate");
-        console.log(`[FRONTEND] Targeting winrate container:`, winrateContainer);
+            // Update the display with winrate data
+            updateWinrateDisplay(winrateData);
 
-        if (winrateContainer) {
-          const winrate = data.winrate;
-          const styleId = "winrate-gradient-style";
-
-          let styleElement = document.getElementById(styleId);
-          if (styleElement) styleElement.remove();
-
-          styleElement = document.createElement("style");
-          styleElement.id = styleId;
-          styleElement.textContent = `
-            .winrate::before {
-              background: conic-gradient(
-                #28b5ff 0deg,
-                #28b5ff ${(winrate / 100) * 360}deg,
-                #ff6b6b ${(winrate / 100) * 360}deg,
-                #ff6b6b 360deg
-              ) !important;
-            }
-          `;
-          document.head.appendChild(styleElement);
-        }
-
-        return data;
-      })
-      .catch((err) => {
-        console.error("[FETCH WINRATE] ✗ Error fetching winrate:", err);
-        throw err;
-      });
+            return winrateData;
+        })
+        .catch((err) => {
+            console.error("[FETCH WINRATE] ✗ Error fetching winrate:", err);
+            throw err;
+        });
   }
 
   function fetchMatchDetails(matchId) {
@@ -130,6 +112,15 @@
 
     if (averageKDAEl) averageKDAEl.textContent = `${kdaStats.kdaRatio} KDA`;
     if (summarizedKDAEl) summarizedKDAEl.textContent = `${kdaStats.avgKills} / ${kdaStats.avgDeaths} / ${kdaStats.avgAssists}`;
+  }
+
+  function updateWinrateDisplay(winrateData) {
+    console.log(`[UPDATE WINRATE] Updating display with:`, winrateData);
+    const percentWinEl = document.querySelector(".percentWin");
+    const totalGamesEl = document.querySelector(".totalGames");
+
+    if (percentWinEl) percentWinEl.textContent = `${winrateData.winrate}%`;
+    if (totalGamesEl) totalGamesEl.textContent = `${winrateData.wins}W ${winrateData.losses}L (${winrateData.total} games)`;
   }
 
   function getTop3Champions(matchesData, puuid) {
@@ -256,37 +247,45 @@
   }
 
   function fetchRecentMatches(puuid, queueId) {
-    console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
+  console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
 
-    return fetch(`/riot/matches/${puuid}/${queueId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (!data.matches || !Array.isArray(data.matches)) throw new Error("Invalid response: matches array not found");
+  return fetch(`/riot/matches/${puuid}/${queueId}`)
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      if (!data.matches || !Array.isArray(data.matches)) throw new Error("Invalid response: matches array not found");
 
-        const detailPromises = data.matches.map((matchId) => fetchMatchDetails(matchId));
-        return Promise.all(detailPromises);
-      })
-      .then((matchesData) => {
-        // Update overview stats if overlay is open
-        const kdaStats = calculateAverageKDA(matchesData, puuid);
-        updateKDADisplay(kdaStats);
+      console.log(`[FETCH MATCHES] Received ${data.matches.length} match IDs from API (already filtered by queue ${queueId})`);
 
-        const topChampions = getTop3Champions(matchesData, puuid);
-        updateChampionDisplay(topChampions);
+      // Limit to the last 15 matches
+      // Note: Backend already filtered by queue, so we just take the IDs
+      const last15Matches = data.matches.slice(0, 15);
 
-        // Store to DB
-        const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
-        if (currentPlayerId && matchesData.length > 0) storeMatchesToDatabase(currentPlayerId, matchesData);
+      console.log(`[FETCH MATCHES] Processing ${last15Matches.length} matches for details fetch`);
 
-        return matchesData;
-      })
-      .catch((err) => {
-        console.error("[FETCH MATCHES] ✗ Error fetching recent matches:", err);
-        throw err;
-      });
+      const detailPromises = last15Matches.map((matchId) => fetchMatchDetails(matchId));
+      return Promise.all(detailPromises);
+    })
+    .then((matchesData) => {
+      // Update overview stats if overlay is open
+      const kdaStats = calculateAverageKDA(matchesData, puuid);
+      updateKDADisplay(kdaStats);
+
+      const topChampions = getTop3Champions(matchesData, puuid);
+      updateChampionDisplay(topChampions);
+
+      // Store to DB
+      const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+      if (currentPlayerId && matchesData.length > 0) storeMatchesToDatabase(currentPlayerId, matchesData);
+
+      return matchesData;
+    })
+    .catch((err) => {
+      console.error("[FETCH MATCHES] ✗ Error fetching recent matches:", err);
+      throw err;
+    });
   }
 
   // Load one player’s details into the main page + triggers data fetches
@@ -341,8 +340,13 @@
 
         applyPlayerToDOM();
 
-        // NOTE: Do NOT fetch here - DOM elements don't exist yet.
-        // The Overview tab will refetch when clicked.
+        // Fetch winrate and recent matches immediately when player is loaded
+        console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
+        fetchWinrate(puuid, PA.state.currentQueueId)
+          .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
+        
+        fetchRecentMatches(puuid, PA.state.currentQueueId)
+          .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
 
         return player;
       })
