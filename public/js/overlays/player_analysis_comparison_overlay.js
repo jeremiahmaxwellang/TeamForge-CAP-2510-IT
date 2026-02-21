@@ -2,6 +2,8 @@
 // ONLY: DOM wiring + charts + calling backend module.
 // Requires PlayerComparisonBackend loaded first.
 
+// player_analysis_comparison_overlay.js
+
 window.initComparisonTab = function () {
   const Backend = window.PlayerComparisonBackend;
   if (!Backend) {
@@ -15,20 +17,19 @@ window.initComparisonTab = function () {
   let player1Data = null;
   let player2Data = null;
 
-  console.log("[COMPARISON] Tab logic initialized.");
-
   function populateSelects() {
     const select1 = document.getElementById("player1-select");
     const select2 = document.getElementById("player2-select");
+    
+    // Get the ID of the player currently selected in the Main Analysis Page
+    // We assume the dropdown button or a global variable holds the current userId
+    const mainPagePlayerId = window.currentPlayerId; 
 
-    if (!select1 || !select2) {
-      console.error("[COMPARISON] Required select elements not found in DOM.");
-      return;
-    }
+    if (!select1 || !select2) return;
 
     const playerOptions = players
       .map((p) => {
-        const id = p.id ?? p.userId;
+        const id = p.userId || p.id;
         const name = p.summonerName || `Player ${id}`;
         return `<option value="${id}">${name}</option>`;
       })
@@ -39,6 +40,13 @@ window.initComparisonTab = function () {
       '<option value="">Select a player...</option>' +
       playerOptions +
       '<option value="coach-benchmark">Coach Benchmark</option>';
+
+    // --- LOGIC FOR PLAYER 1 AUTO-SELECTION ---
+    if (mainPagePlayerId) {
+      select1.value = mainPagePlayerId;
+      selectedPlayer1 = parseInt(mainPagePlayerId, 10);
+      loadPlayerData(selectedPlayer1, 1);
+    }
 
     select1.addEventListener("change", (e) => {
       selectedPlayer1 = parseInt(e.target.value, 10);
