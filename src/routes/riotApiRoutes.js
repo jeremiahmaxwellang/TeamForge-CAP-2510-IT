@@ -14,7 +14,7 @@ router.get('/puuid/:gameName/:tagLine', riotApiController.getPuuid);
 router.get('/matches/:puuid/:queueId', riotApiController.getRecentMatches);
 
 // Route: GET /riot/winrate/:puuid
-router.get('/winrate/:puuid', riotApiController.getWinrate);
+router.get('/winrate/:puuid', analysisOverviewController.getWinrate);
 
 // Route: GET /riot/match/:matchId
 router.get('/match/:matchId', riotApiController.getMatchDetails);
