@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const riotApiController = require('../controllers/riotApiController'); // backend found in riotApiController
+const analysisOverviewController = require('../controllers/player_analysis/analysisOverviewController'); // backend for player analysis overview tab
 
 // Route: GET /riot/puuid/:gameName/:tagLine
 router.get('/puuid/:gameName/:tagLine', riotApiController.getPuuid);
