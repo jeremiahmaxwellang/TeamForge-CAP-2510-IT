@@ -10,6 +10,16 @@
     currentQueueId: 420, // default Ranked Solo/Duo
   };
 
+  // Cache for storing fetched data
+  PA.cache = PA.cache || {
+    currentPlayerId: null,
+    currentPuuid: null,
+    matches: null,
+    winrateData: null,
+    kdaStats: null,
+    topChampions: null,
+  };
+
   // -----------------------------
   // BACKEND / DATA-FETCH HELPERS
   // -----------------------------
@@ -43,39 +53,24 @@
       .then((data) => {
         console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
 
-        // These elements exist in the overview overlay HTML (when loaded)
-        const percentWinEl = document.querySelector(".percentWin");
-        const totalGamesEl = document.querySelector(".totalGames");
+        // Calculate the winrate
+        const winrate = (data.wins / data.total) * 100; // Winrate calculation
 
-        if (percentWinEl) percentWinEl.textContent = `${data.winrate}% WR`;
-        if (totalGamesEl) totalGamesEl.textContent = `Last ${data.total} Games (${data.wins}W - ${data.losses}L)`;
+        // Update the winrate and games information
+        const winrateData = {
+          winrate: winrate.toFixed(2),
+          wins: data.wins,
+          losses: data.total - data.wins,
+          total: data.total,
+        };
 
-        const winrateContainer = document.querySelector(".winrate");
-        console.log(`[FRONTEND] Targeting winrate container:`, winrateContainer);
+        // Cache the winrate data
+        PA.cache.winrateData = winrateData;
 
-        if (winrateContainer) {
-          const winrate = data.winrate;
-          const styleId = "winrate-gradient-style";
+        // Update the display with winrate data (if elements exist)
+        updateWinrateDisplay(winrateData);
 
-          let styleElement = document.getElementById(styleId);
-          if (styleElement) styleElement.remove();
-
-          styleElement = document.createElement("style");
-          styleElement.id = styleId;
-          styleElement.textContent = `
-            .winrate::before {
-              background: conic-gradient(
-                #28b5ff 0deg,
-                #28b5ff ${(winrate / 100) * 360}deg,
-                #ff6b6b ${(winrate / 100) * 360}deg,
-                #ff6b6b 360deg
-              ) !important;
-            }
-          `;
-          document.head.appendChild(styleElement);
-        }
-
-        return data;
+        return winrateData;
       })
       .catch((err) => {
         console.error("[FETCH WINRATE] ✗ Error fetching winrate:", err);
@@ -130,6 +125,28 @@
 
     if (averageKDAEl) averageKDAEl.textContent = `${kdaStats.kdaRatio} KDA`;
     if (summarizedKDAEl) summarizedKDAEl.textContent = `${kdaStats.avgKills} / ${kdaStats.avgDeaths} / ${kdaStats.avgAssists}`;
+  }
+
+  function updateWinrateDisplay(winrateData) {
+    console.log(`[UPDATE WINRATE] Updating display with:`, winrateData);
+
+    const percentWinEl = document.querySelector(".percentWin");
+    const totalGamesEl = document.querySelector(".totalGames");
+    const winrateContainer = document.querySelector(".winrate"); // Select the container
+
+    if (percentWinEl) percentWinEl.textContent = `${winrateData.winrate}%`;
+    if (totalGamesEl) {
+      totalGamesEl.textContent = `${winrateData.wins}W ${winrateData.losses}L (${winrateData.total} games)`;
+    }
+
+    // Update the Circle Graph
+    if (winrateContainer) {
+      // Calculate degrees: (percentage / 100) * 360
+      const degrees = (winrateData.winrate / 100) * 360;
+
+      // Set the CSS variable on the element so the ::before pseudo-element can use it
+      winrateContainer.style.setProperty('--winrate-angle', `${degrees}deg`);
+    }
   }
 
   function getTop3Champions(matchesData, puuid) {
@@ -266,15 +283,28 @@
       .then((data) => {
         if (!data.matches || !Array.isArray(data.matches)) throw new Error("Invalid response: matches array not found");
 
-        const detailPromises = data.matches.map((matchId) => fetchMatchDetails(matchId));
+        console.log(`[FETCH MATCHES] Received ${data.matches.length} match IDs from API (already filtered by queue ${queueId})`);
+
+        // Limit to the last 15 matches
+        // Note: Backend already filtered by queue, so we just take the IDs
+        const last15Matches = data.matches.slice(0, 15);
+
+        console.log(`[FETCH MATCHES] Processing ${last15Matches.length} matches for details fetch`);
+
+        const detailPromises = last15Matches.map((matchId) => fetchMatchDetails(matchId));
         return Promise.all(detailPromises);
       })
       .then((matchesData) => {
-        // Update overview stats if overlay is open
+        // Cache the matches
+        PA.cache.matches = matchesData;
+
+        // Calculate and cache stats from matches
         const kdaStats = calculateAverageKDA(matchesData, puuid);
+        PA.cache.kdaStats = kdaStats;
         updateKDADisplay(kdaStats);
 
         const topChampions = getTop3Champions(matchesData, puuid);
+        PA.cache.topChampions = topChampions;
         updateChampionDisplay(topChampions);
 
         // Store to DB
@@ -325,7 +355,7 @@
             .then((data) => {
               puuid = data.puuid;
               // update puuid in sql if null
-              return updatePuuid(player.userId, puuid).catch(() => {});
+              return updatePuuid(player.userId, puuid).catch(() => { });
             })
             .finally(() => {
               // Remove later
@@ -334,15 +364,36 @@
 
               applyPlayerToDOM();
 
-              // NOTE: Do NOT fetch here - DOM elements don't exist yet.
-              // The Overview tab will refetch when clicked.
+              // Fetch matches immediately after getting PUUID
+              console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
+
+              // Cache the player and puuid for later reference
+              PA.cache.currentPlayerId = player.userId;
+              PA.cache.currentPuuid = puuid;
+
+              fetchWinrate(puuid, PA.state.currentQueueId)
+                .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
+
+              fetchRecentMatches(puuid, PA.state.currentQueueId)
+                .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
             });
         }
 
         applyPlayerToDOM();
 
-        // NOTE: Do NOT fetch here - DOM elements don't exist yet.
-        // The Overview tab will refetch when clicked.
+        // Always fetch matches immediately when player is selected
+        // Data will be cached and displayed when overlay loads
+        console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
+
+        // Cache the player and puuid for later reference
+        PA.cache.currentPlayerId = player.userId;
+        PA.cache.currentPuuid = puuid;
+
+        fetchWinrate(puuid, PA.state.currentQueueId)
+          .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
+
+        fetchRecentMatches(puuid, PA.state.currentQueueId)
+          .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
 
         return player;
       })
@@ -358,6 +409,9 @@
     fetchWinrate,
     fetchRecentMatches,
     loadPlayer,
+    updateWinrateDisplay,
+    updateKDADisplay,
+    updateChampionDisplay,
   };
 
   console.log("[BACKEND] PlayerAnalysis API initialized. Available methods:", Object.keys(PA.api));
