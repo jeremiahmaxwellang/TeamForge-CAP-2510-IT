@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const riotApiController = require('../controllers/riotApiController'); // backend found in riotApiController
+const analysisOverviewController = require('../controllers/player_analysis/analysisOverviewController'); // backend for player analysis overview tab
 
 // Route: GET /riot/puuid/:gameName/:tagLine
 router.get('/puuid/:gameName/:tagLine', riotApiController.getPuuid);
@@ -14,7 +15,7 @@ router.get('/puuid/:gameName/:tagLine', riotApiController.getPuuid);
 router.get('/matches/:puuid/:queueId', riotApiController.getRecentMatches);
 
 // Route: GET /riot/winrate/:puuid
-router.get('/winrate/:puuid', riotApiController.getWinrate);
+router.get('/winrate/:puuid', analysisOverviewController.getWinrate);
 
 // Route: GET /riot/match/:matchId
 router.get('/match/:matchId', riotApiController.getMatchDetails);

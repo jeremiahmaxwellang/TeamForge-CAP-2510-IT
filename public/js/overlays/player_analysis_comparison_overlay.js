@@ -2,6 +2,8 @@
 // ONLY: DOM wiring + charts + calling backend module.
 // Requires PlayerComparisonBackend loaded first.
 
+// player_analysis_comparison_overlay.js
+
 window.initComparisonTab = function () {
   const Backend = window.PlayerComparisonBackend;
   if (!Backend) {
@@ -15,36 +17,55 @@ window.initComparisonTab = function () {
   let player1Data = null;
   let player2Data = null;
 
-  console.log("[COMPARISON] Tab logic initialized.");
-
   function populateSelects() {
-    const select1 = document.getElementById("player1-select");
     const select2 = document.getElementById("player2-select");
-
-    if (!select1 || !select2) {
-      console.error("[COMPARISON] Required select elements not found in DOM.");
-      return;
+    const player1Display = document.getElementById("player1-display");
+    
+    // Get the ID of the player currently selected in the Main Analysis Page
+    // Try multiple sources: window.currentPlayerId, PA.cache.currentPlayerId, or from the dropdown button
+    let mainPagePlayerId = window.currentPlayerId;
+    if (!mainPagePlayerId && window.PlayerAnalysis && window.PlayerAnalysis.cache) {
+      mainPagePlayerId = window.PlayerAnalysis.cache.currentPlayerId;
+    }
+    if (!mainPagePlayerId) {
+      const btn = document.getElementById("player-dropdown-btn");
+      mainPagePlayerId = btn ? btn.getAttribute("data-player-id") : null;
     }
 
+    console.log("[COMPARISON] mainPagePlayerId:", mainPagePlayerId);
+
+    if (!select2) return;
+
+    // Populate Player 2 dropdown with all players
     const playerOptions = players
       .map((p) => {
-        const id = p.id ?? p.userId;
-        const name = p.summonerName || `Player ${id}`;
+        const id = p.userId || p.id;
+        const name = p.gameName ? `${p.gameName}#${p.tagLine}` : (p.summonerName || `Player ${id}`);
         return `<option value="${id}">${name}</option>`;
       })
       .join("");
 
-    select1.innerHTML = '<option value="">Select a player...</option>' + playerOptions;
     select2.innerHTML =
       '<option value="">Select a player...</option>' +
       playerOptions +
       '<option value="coach-benchmark">Coach Benchmark</option>';
 
-    select1.addEventListener("change", (e) => {
-      selectedPlayer1 = parseInt(e.target.value, 10);
-      if (selectedPlayer1) loadPlayerData(selectedPlayer1, 1);
-    });
+    // --- LOGIC FOR PLAYER 1: Display selected player from main page ---
+    if (mainPagePlayerId) {
+      selectedPlayer1 = parseInt(mainPagePlayerId, 10);
+      const player1 = players.find(p => (p.userId || p.id) === selectedPlayer1);
+      if (player1 && player1Display) {
+        const player1Name = player1.gameName ? `${player1.gameName}#${player1.tagLine}` : (player1.summonerName || `Player ${selectedPlayer1}`);
+        player1Display.textContent = player1Name;
+        console.log("[COMPARISON] Player 1 loaded:", player1Name);
+      }
+      loadPlayerData(selectedPlayer1, 1);
+    } else if (player1Display) {
+      player1Display.textContent = 'No player selected';
+      console.log("[COMPARISON] No player ID found from any source");
+    }
 
+    // Player 2 selection handler
     select2.addEventListener("change", (e) => {
       selectedPlayer2 = e.target.value;
       if (selectedPlayer2 === "coach-benchmark") {
@@ -235,6 +256,56 @@ window.initComparisonTab = function () {
     if (typeof updateStatsTable === "function") updateStatsTable();
   }
 
+  function checkAndUpdatePlayer1() {
+    // Get the current player ID from the main page dropdown button
+    const btn = document.getElementById("player-dropdown-btn");
+    let currentPlayerId = null;
+
+    if (btn) {
+      currentPlayerId = btn.getAttribute("data-player-id");
+    }
+
+    // Check if it's different from the currently selected player 1
+    if (currentPlayerId && parseInt(currentPlayerId, 10) !== selectedPlayer1) {
+      console.log("[COMPARISON] Player selection changed, updating Player 1 to:", currentPlayerId);
+      selectedPlayer1 = parseInt(currentPlayerId, 10);
+      
+      // Find and display the player
+      const player1 = players.find(p => (p.userId || p.id) === selectedPlayer1);
+      const player1Display = document.getElementById("player1-display");
+      
+      if (player1 && player1Display) {
+        const player1Name = player1.gameName || `Player ${selectedPlayer1}`;
+        player1Display.textContent = player1Name;
+      }
+      
+      // Load the new player's data
+      loadPlayerData(selectedPlayer1, 1);
+    }
+  }
+
+  function setupPlayerChangeListener() {
+    const btn = document.getElementById("player-dropdown-btn");
+    if (!btn) {
+      console.log("[COMPARISON] Player dropdown button not found");
+      return;
+    }
+
+    // Use MutationObserver to watch for changes to data-player-id attribute
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "data-player-id") {
+          console.log("[COMPARISON] Detected player ID change");
+          checkAndUpdatePlayer1();
+        }
+      });
+    });
+
+    // Start observing the button for attribute changes
+    observer.observe(btn, { attributes: true, attributeFilter: ["data-player-id"] });
+    console.log("[COMPARISON] Player change listener setup complete");
+  }
+
   // Entry point (same flow as your original file: initialize then load players)
   Backend.initializeBenchmarks()
     .then(() => Backend.fetchPlayersList())
@@ -242,6 +313,8 @@ window.initComparisonTab = function () {
     .then((data) => {
       players = data || [];
       populateSelects();
+      // Set up listener for player changes on main page
+      setupPlayerChangeListener();
     })
     .catch((err) => console.error("[COMPARISON] Error loading players:", err));
 };
