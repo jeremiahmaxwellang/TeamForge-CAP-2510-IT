@@ -70,6 +70,8 @@
         // Update the display with winrate data (if elements exist)
         updateWinrateDisplay(winrateData);
 
+        console.log(`[FETCH WINRATE] ✓ Cached winrate data:`, PA.cache.winrateData);
+
         // Store winrate into playerStatistics table via backend
         try {
           const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
@@ -375,7 +377,82 @@
         throw err;
       });
   }
+  // Fetch recent matches from database (cached data)
+  function fetchRecentMatchesFromDatabase(puuid, queueId) {
+    console.log(`[FETCH MATCHES DB] Starting database fetch for PUUID: ${puuid}, Queue: ${queueId}`);
 
+    return fetch(`/riot/matches/database/${puuid}?queueId=${queueId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (!data.matches || !Array.isArray(data.matches)) {
+          console.log(`[FETCH MATCHES DB] No matches in database for PUUID: ${puuid}`);
+          return [];
+        }
+
+        console.log(`[FETCH MATCHES DB] ✓ Retrieved ${data.matches.length} matches from database for PUUID: ${puuid}`);
+
+        const matchesData = data.matches;
+
+        // Cache the matches
+        PA.cache.matches = matchesData;
+
+        // Calculate and cache stats from matches
+        const kdaStats = calculateAverageKDA(matchesData, puuid);
+        PA.cache.kdaStats = kdaStats;
+        updateKDADisplay(kdaStats);
+
+        // Store average KDA and K/D/A metrics into playerStatistics
+        try {
+          const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+          const primaryRoleId = document.getElementById("player-dropdown-btn")?.getAttribute("data-primary-role-id");
+          if (currentPlayerId) {
+            const statsToStore = [
+              { metricId: 12, metricValue: Number(kdaStats.kdaRatio) }, // averageKDA
+              { metricId: 14, metricValue: Number(kdaStats.avgKills) }, // averageKills
+              { metricId: 7,  metricValue: Number(kdaStats.avgDeaths) }, // averageDeaths
+              { metricId: 2,  metricValue: Number(kdaStats.avgAssists) } // averageAssists
+            ];
+
+            statsToStore.forEach(stat => {
+              fetch('/player_analysis/stats/store', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userId: Number(currentPlayerId),
+                  roleId: primaryRoleId ? Number(primaryRoleId) : null,
+                  metricId: stat.metricId,
+                  metricValue: Number(stat.metricValue.toFixed ? stat.metricValue.toFixed(2) : stat.metricValue)
+                })
+              })
+                .then(res => res.json())
+                .then(result => console.log('[STORE KDA] ✓ Stored metric', stat.metricId, result))
+                .catch(err => console.error('[STORE KDA] ✗ Error storing metric', stat.metricId, err));
+            });
+          }
+        } catch (err) {
+          console.error('[STORE KDA] ✗ Unexpected error preparing store request:', err);
+        }
+
+        const topChampions = getTop3Champions(matchesData, puuid);
+        PA.cache.topChampions = topChampions;
+        updateChampionDisplay(topChampions);
+
+        console.log(`[FETCH MATCHES DB] ✓ Data cached:`, {
+          matches: matchesData.length,
+          kdaStats: PA.cache.kdaStats,
+          topChampions: PA.cache.topChampions
+        });
+
+        return matchesData;
+      })
+      .catch((err) => {
+        console.error("[FETCH MATCHES DB] ✗ Error fetching recent matches from database:", err);
+        throw err;
+      });
+  }
   // Load one player’s details into the main page + triggers data fetches
   function loadPlayer(playerId) {
     console.log(`[LOAD PLAYER] Loading player: ${playerId}`);
@@ -423,36 +500,35 @@
 
               applyPlayerToDOM();
 
-              // Fetch matches immediately after getting PUUID
-              console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
-
               // Cache the player and puuid for later reference
               PA.cache.currentPlayerId = player.userId;
               PA.cache.currentPuuid = puuid;
 
+              // Fetch from database by default
+              console.log(`[LOAD PLAYER] Loading cached match statistics from database for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
+
               fetchWinrate(puuid, PA.state.currentQueueId)
                 .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
 
-              fetchRecentMatches(puuid, PA.state.currentQueueId)
-                .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
+              fetchRecentMatchesFromDatabase(puuid, PA.state.currentQueueId)
+                .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches from database:", err));
             });
         }
 
         applyPlayerToDOM();
 
-        // Always fetch matches immediately when player is selected
-        // Data will be cached and displayed when overlay loads
-        console.log(`[LOAD PLAYER] Fetching winrate and recent matches for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
-
         // Cache the player and puuid for later reference
         PA.cache.currentPlayerId = player.userId;
         PA.cache.currentPuuid = puuid;
 
+        // Fetch from database by default
+        console.log(`[LOAD PLAYER] Loading cached match statistics from database for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
+
         fetchWinrate(puuid, PA.state.currentQueueId)
           .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
 
-        fetchRecentMatches(puuid, PA.state.currentQueueId)
-          .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches:", err));
+        fetchRecentMatchesFromDatabase(puuid, PA.state.currentQueueId)
+          .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches from database:", err));
 
         return player;
       })
@@ -467,6 +543,7 @@
     updatePuuid,
     fetchWinrate,
     fetchRecentMatches,
+    fetchRecentMatchesFromDatabase,
     loadPlayer,
     updateWinrateDisplay,
     updateKDADisplay,

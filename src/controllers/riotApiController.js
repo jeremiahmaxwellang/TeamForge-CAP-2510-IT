@@ -87,18 +87,24 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
 exports.getRecentMatches = async (req, res) => {
     try {
         const { puuid, queueId } = req.params;
-        // console.log(`[GET RECENT MATCHES] Starting with PUUID: ${puuid}, Queue: ${queueId}`);
         
+        // Convert queueId to integer
+        const parsedQueueId = parseInt(queueId, 10);
+        
+        if (isNaN(parsedQueueId)) {
+            return res.status(400).json({ error: 'queueId must be a valid integer' });
+        }
+
         // Default start to 0 and count to 15 if not provided in the query
         const { start = 0, count = 15 } = req.query;
         
         // Ensure that count is parsed as an integer
         const matchCount = parseInt(count) || 15;  // Default to 15 if not a valid number
         
-        console.log(`[GET RECENT MATCHES] Parameters - start: ${start}, count: ${matchCount}`);
+        console.log(`[GET RECENT MATCHES] Parameters - PUUID: ${puuid}, Queue: ${parsedQueueId}, start: ${start}, count: ${matchCount}`);
         
         // Call fetchRecentMatches with the correct parameters
-        const matches = await fetchRecentMatches(puuid, queueId, parseInt(start), matchCount);
+        const matches = await fetchRecentMatches(puuid, parsedQueueId, parseInt(start), matchCount);
         console.log(`[GET RECENT MATCHES] ✓ Retrieved ${matches.length} matches`);
         res.json({ matches });
     } catch (err) {

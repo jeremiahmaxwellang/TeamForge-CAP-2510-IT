@@ -2,6 +2,127 @@
 // Only overlay/tab navigation and queue dropdown behavior lives here.
 
 (function () {
+  // Timer constants (3 minutes in milliseconds)
+  const FETCH_INTERVAL = 3 * 60 * 1000; // 3 minutes
+  let lastFetchTime = null;
+
+  function setupFetchMatchStatsButton(api, state) {
+    const fetchBtn = document.getElementById("fetchMatchStatsBtn");
+    const timerInfo = document.getElementById("timerInfo");
+
+    if (!fetchBtn) {
+      console.error("[FETCH BUTTON] Button not found in DOM");
+      return;
+    }
+
+    // Load last fetch time from localStorage
+    const storedTime = localStorage.getItem("lastMatchStatsFetchTime");
+    if (storedTime) {
+      lastFetchTime = parseInt(storedTime, 10);
+    }
+
+    function updateButtonState() {
+      const now = Date.now();
+      const timeSinceLastFetch = lastFetchTime ? now - lastFetchTime : null;
+      const timeRemaining = timeSinceLastFetch !== null ? FETCH_INTERVAL - timeSinceLastFetch : 0;
+
+      if (lastFetchTime && timeRemaining > 0) {
+        // Button is disabled
+        fetchBtn.disabled = true;
+        fetchBtn.style.opacity = "0.5";
+        fetchBtn.style.cursor = "not-allowed";
+
+        const seconds = Math.ceil(timeRemaining / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        timerInfo.textContent = `(Available in ${minutes}m ${secs}s)`;
+      } else {
+        // Button is enabled
+        fetchBtn.disabled = false;
+        fetchBtn.style.opacity = "1";
+        fetchBtn.style.cursor = "pointer";
+        timerInfo.textContent = "";
+      }
+    }
+
+    // Update button state immediately
+    updateButtonState();
+
+    // Update button state every second if it's disabled
+    const updateInterval = setInterval(() => {
+      updateButtonState();
+      const now = Date.now();
+      const timeSinceLastFetch = lastFetchTime ? now - lastFetchTime : null;
+      if (!lastFetchTime || (timeSinceLastFetch && timeSinceLastFetch >= FETCH_INTERVAL)) {
+        clearInterval(updateInterval);
+      }
+    }, 1000);
+
+    fetchBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      const now = Date.now();
+      const timeSinceLastFetch = lastFetchTime ? now - lastFetchTime : null;
+
+      // Check if 3 minutes have passed
+      if (lastFetchTime && timeSinceLastFetch < FETCH_INTERVAL) {
+        const timeRemaining = FETCH_INTERVAL - timeSinceLastFetch;
+        const seconds = Math.ceil(timeRemaining / 1000);
+        console.error("Error: You can only fetch the match statistics once every 3 minutes.");
+        timerInfo.textContent = `(Available in ${Math.ceil(seconds / 60)}m ${seconds % 60}s)`;
+        return;
+      }
+
+      // Proceed with fetch from Riot API
+      console.log("[FETCH BUTTON] Fetching fresh match statistics from Riot API...");
+      const btn = document.getElementById("player-dropdown-btn");
+      const puuid = btn?.getAttribute("data-puuid");
+
+      if (!puuid) {
+        console.error("[FETCH BUTTON] No player PUUID found");
+        return;
+      }
+
+      // Update last fetch time
+      lastFetchTime = Date.now();
+      localStorage.setItem("lastMatchStatsFetchTime", lastFetchTime.toString());
+
+      // Disable button and show timer
+      updateButtonState();
+      startButtonCooldown();
+
+      // Fetch fresh data from Riot API (not from database)
+      api.fetchWinrate(puuid, state.currentQueueId)
+        .catch((err) => console.error("[FETCH BUTTON] Error fetching winrate:", err));
+
+      api.fetchRecentMatches(puuid, state.currentQueueId)
+        .catch((err) => console.error("[FETCH BUTTON] Error fetching recent matches:", err));
+    });
+
+    function startButtonCooldown() {
+      let secondsLeft = Math.ceil(FETCH_INTERVAL / 1000);
+
+      const countdownInterval = setInterval(() => {
+        secondsLeft--;
+        const minutes = Math.floor(secondsLeft / 60);
+        const secs = secondsLeft % 60;
+
+        if (secondsLeft > 0) {
+          timerInfo.textContent = `(Available in ${minutes}m ${secs}s)`;
+          fetchBtn.disabled = true;
+          fetchBtn.style.opacity = "0.5";
+          fetchBtn.style.cursor = "not-allowed";
+        } else {
+          clearInterval(countdownInterval);
+          fetchBtn.disabled = false;
+          fetchBtn.style.opacity = "1";
+          fetchBtn.style.cursor = "pointer";
+          timerInfo.textContent = "";
+        }
+      }, 1000);
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     const PA = window.PlayerAnalysis;
     if (!PA || !PA.api || !PA.state) {
@@ -146,16 +267,21 @@
             const closeButton = overlayContainer.querySelector(".close-button");
             if (closeButton) closeButton.addEventListener("click", closeOverlay);
 
-            // If overview loaded, refetch immediately using shared queue
-            // This ensures display functions run after overlay HTML is rendered
+            // If overview loaded, set up the fetch button with timer and update displays with cached data
+            // This ensures the fetch is manually triggered by the user, and cached data is displayed
             if (this.id === "overviewButton") {
-              const btn = document.getElementById("player-dropdown-btn");
-              const puuid = btn?.getAttribute("data-puuid");
-              if (puuid) {
-                console.log("[OVERVIEW] Overlay rendered, updating display with latest data");
-                // Always refetch to ensure data is fresh and display updates properly
-                api.fetchWinrate(puuid, state.currentQueueId);
-                api.fetchRecentMatches(puuid, state.currentQueueId);
+              setupFetchMatchStatsButton(api, state);
+              
+              // Update display with cached data if available
+              console.log("[OVERVIEW] Updating display with cached data");
+              if (PA.cache.winrateData) {
+                api.updateWinrateDisplay(PA.cache.winrateData);
+              }
+              if (PA.cache.kdaStats) {
+                api.updateKDADisplay(PA.cache.kdaStats);
+              }
+              if (PA.cache.topChampions) {
+                api.updateChampionDisplay(PA.cache.topChampions);
               }
             }
 
