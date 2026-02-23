@@ -389,7 +389,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrimPlayers` (
   `playerId` INT UNSIGNED NOT NULL,
   `roleId` INT NULL,
   `teamId` ENUM('1', '2') NULL,
-  `win` ENUM('Y', 'N') NULL,
+  `win` ENUM('W', 'L') NULL,
   `enemyPlayerIGN` VARCHAR(100) NULL,
   PRIMARY KEY (`scrimId`, `playerId`),
   INDEX `fk_scrimPlayers_players1_idx` (`playerId` ASC) VISIBLE,

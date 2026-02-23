@@ -24,6 +24,8 @@ router.put('/players/:id/puuid', playerController.updatePuuid);
 // Champion Pool backend
 router.get('/players/:id/champion_pool', championPoolController.getChampionPool);
 
+// Get Scrims
+router.get('/players/:id/scrims', scrimsController.getScrims);
 
 // Get Evaluation
 router.get('/players/:id/evaluation', scrimsController.getEvaluation);

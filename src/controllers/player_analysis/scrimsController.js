@@ -5,6 +5,34 @@
 
 const db = require("../../config/database");
 
+// Get a player's Scrims
+exports.getScrims = async (req, res) => {
+
+    // TODO: make this fetch all the team players
+    try {
+        const playerId = req.params.id;
+        const sql = `
+            SELECT *
+            FROM scrims s 
+            JOIN scrimPlayers p ON s.scrimId = p.scrimId
+            WHERE p.playerId = ?
+        `;
+
+        const [rows] = await db.query(sql, [playerId]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Scrim not found' });
+        }
+
+        res.json(rows);
+        console.log(rows);
+
+    } catch (err) { 
+        console.error("Error fetching evaluation:", err); 
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 // Get a player's evaluation
 exports.getEvaluation = async (req, res) => {
 

@@ -236,13 +236,13 @@
               }
             }
 
-            // Evaluation tab
+            // Scrims tab
             if (this.id === "scrimsButton") {
               const btn = document.getElementById("player-dropdown-btn");
               const userId = btn.getAttribute("data-player-id");
 
               if (userId && typeof window.initScrimsTab === "function") {
-                window.initEvaluationTab(userId);
+                window.initScrimsTab(userId);
               } else {
                 console.error("initScrimsTab not found! Make sure evaluation overlay JS is loaded.");
               }
