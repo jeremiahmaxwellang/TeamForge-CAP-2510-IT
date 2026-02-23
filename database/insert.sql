@@ -457,3 +457,25 @@ INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
 (24, 5, 5.00, '>='),
 (23, 5, 5.00, '>='),
 (1, 5, 0.55, '>='); -- Proximity Time to ADC by 15 Minutes
+
+
+-- -----------------------------------------------------
+-- SCRIMS
+-- -----------------------------------------------------
+
+INSERT INTO scrims(scrimId, name, date, videoLink, length)
+VALUES 
+(1, 'Viridis Arcus vs. Annihilation Scrim', '2026-02-23', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:11');
+
+-- Insert scrim players for scrimId = 1
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win, enemyPlayerIGN)
+VALUES
+(1, 4, 1, '1', 'Y', 'Nimbus#doulc'),
+(1, 7, 2, '1', 'Y', 'Pr1m3put1n#3135'),
+(1, 3, 3, '1', 'Y', 'Sou Hiyori#YTTD'),
+(1, 5, 4, '1', 'Y', 'Cowwrean#moo'),
+(1, 6, 5, '1', 'Y', 'Aurras#LAZY');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(1, 4, 'Flexible with a variety of champions but barely communicates with team', 3, 2, 4, 2);
