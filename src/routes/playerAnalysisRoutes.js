@@ -10,7 +10,7 @@ const router = express.Router();
 // Controller
 const playerController = require('../controllers/playerController');
 const championPoolController = require('../controllers/player_analysis/championPoolController');
-const evaluationController = require('../controllers/player_analysis/evaluationController');
+const scrimsController = require('../controllers/player_analysis/scrimsController');
 
 // GET all players
 router.get('/players', playerController.getAllPlayers);
@@ -26,10 +26,10 @@ router.get('/players/:id/champion_pool', championPoolController.getChampionPool)
 
 
 // Get Evaluation
-router.get('/players/:id/evaluation', evaluationController.getEvaluation);
+router.get('/players/:id/evaluation', scrimsController.getEvaluation);
 
 // Create Evaluation
-router.post('/players/:id/evaluation', evaluationController.createEvaluation);
+router.post('/players/:id/evaluation', scrimsController.createEvaluation);
 
 
 // /player_analysis
@@ -48,9 +48,14 @@ router.get('/comparison', async function(req, res) {
 });
 
 // Serve overlay HTML for player VODs
-router.get('/vods', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_vod.html'));
+router.get('/scrims', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_scrims.html'));
 });
+
+// Serve overlay HTML for player VODs
+// router.get('/vods', async function(req, res) {
+//     res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_vod.html'));
+// });
 
 // Serve overlay HTML for player champion pool
 router.get('/champion', async function(req, res) {

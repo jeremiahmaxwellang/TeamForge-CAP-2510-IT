@@ -134,12 +134,12 @@
 
     const overviewButton = document.getElementById("overviewButton");
     const comparisonButton = document.getElementById("comparisonButton");
-    const vodsButton = document.getElementById("vodsButton");
+    const scrimsButton = document.getElementById("scrimsButton");
     const championButton = document.getElementById("championButton");
     const evaluationButton = document.getElementById("evaluationButton");
     const overlayContainer = document.getElementById("overlay-container");
 
-    const tabButtons = [overviewButton, comparisonButton, vodsButton, championButton, evaluationButton];
+    const tabButtons = [overviewButton, comparisonButton, scrimsButton, championButton, evaluationButton];
 
     function closeOverlay() {
       const overlay = overlayContainer?.querySelector(".overlay");
@@ -208,7 +208,7 @@
         const urlMap = {
           overviewButton: "/player_analysis/overview",
           comparisonButton: "/player_analysis/comparison",
-          vodsButton: "/player_analysis/vods",
+          scrimsButton: "/player_analysis/scrims",
           championButton: "/player_analysis/champion",
           evaluationButton: "/player_analysis/evaluation",
         };
@@ -237,14 +237,14 @@
             }
 
             // Evaluation tab
-            if (this.id === "evaluationButton") {
+            if (this.id === "scrimsButton") {
               const btn = document.getElementById("player-dropdown-btn");
               const userId = btn.getAttribute("data-player-id");
 
-              if (userId && typeof window.initEvaluationTab === "function") {
+              if (userId && typeof window.initScrimsTab === "function") {
                 window.initEvaluationTab(userId);
               } else {
-                console.error("initEvaluationTab not found! Make sure evaluation overlay JS is loaded.");
+                console.error("initScrimsTab not found! Make sure evaluation overlay JS is loaded.");
               }
             }
 

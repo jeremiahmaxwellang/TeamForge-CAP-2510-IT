@@ -1,6 +1,6 @@
 /**
- * Evaluation Controller
- * - contains the SQL Query for inserting/fetching a player's evaluation
+ * Scrims Controller
+ * - contains the SQL Query for inserting/fetching scrim info
  */
 
 const db = require("../../config/database");
@@ -34,23 +34,17 @@ exports.createEvaluation = async (req, res) => {
         const playerId = req.params.id;
         const { comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId } = req.body;
 
-        if(!playerId || !gameSense || !communication || !champPool) {
+        if(!playerId || !ratingGameSense || !ratingCommunication || !ratingChampionPool) {
             return res.status(400).json({error: "Missing required fields"});
         }
 
         const sql = `
-            INSERT INTO evaluations (playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId) 
-            VALUES (?, ?, ?, ?, ?, ?)
-            AS new
-            DUPLICATE KEY UPDATE
-                comment = new.comment,
-                ratingGameSense = new.ratingGameSense,
-                ratingCommunication = new.ratingCommunication,
-                ratingChampionPool = new.ratingChampionPool,
-                coachId = new.coachId
+            INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+            VALUES
+            (1, 4, 'Flexible with a variety of champions but barely communicates with team', 3, 2, 4, 2)
         `;
 
-        await db.query(sql, [playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId]);
+        await db.query(sql, [scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId]);
         
         // Fetch the updated eval
         const [rows] = await db.query("SELECT * FROM evaluations WHERE playerId = ?", [playerId]); 
