@@ -114,4 +114,11 @@ router.post('/benchmarks/compare', playerController.comparePlayerToBenchmarks);
  */
 router.post('/stats/calculate', playerController.calculatePlayerStatsFromMatches);
 
+/**
+ * POST /player_analysis/stats/store
+ * Store a single player statistic (upsert into playerStatistics)
+ * Request body: { userId, roleId, metricId, metricValue }
+ */
+router.post('/stats/store', playerController.storePlayerStatistic);
+
 module.exports = router;

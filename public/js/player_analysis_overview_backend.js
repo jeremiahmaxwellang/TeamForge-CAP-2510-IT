@@ -70,6 +70,31 @@
         // Update the display with winrate data (if elements exist)
         updateWinrateDisplay(winrateData);
 
+        // Store winrate into playerStatistics table via backend
+        try {
+          const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+          const primaryRoleId = document.getElementById("player-dropdown-btn")?.getAttribute("data-primary-role-id");
+          if (currentPlayerId) {
+            const payload = {
+              userId: Number(currentPlayerId),
+              roleId: primaryRoleId ? Number(primaryRoleId) : null,
+              metricId: 26, // metricId 26 corresponds to averageWinrate
+              metricValue: Number(winrate.toFixed(2))
+            };
+
+            fetch('/player_analysis/stats/store', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            })
+              .then(res => res.json())
+              .then(result => console.log('[STORE WINRATE] ✓ Stored winrate result:', result))
+              .catch(err => console.error('[STORE WINRATE] ✗ Error storing winrate:', err));
+          }
+        } catch (err) {
+          console.error('[STORE WINRATE] ✗ Unexpected error preparing store request:', err);
+        }
+
         return winrateData;
       })
       .catch((err) => {
@@ -303,6 +328,38 @@
         PA.cache.kdaStats = kdaStats;
         updateKDADisplay(kdaStats);
 
+        // Store average KDA and K/D/A metrics into playerStatistics
+        try {
+          const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+          const primaryRoleId = document.getElementById("player-dropdown-btn")?.getAttribute("data-primary-role-id");
+          if (currentPlayerId) {
+            const statsToStore = [
+              { metricId: 12, metricValue: Number(kdaStats.kdaRatio) }, // averageKDA
+              { metricId: 14, metricValue: Number(kdaStats.avgKills) }, // averageKills
+              { metricId: 7,  metricValue: Number(kdaStats.avgDeaths) }, // averageDeaths
+              { metricId: 2,  metricValue: Number(kdaStats.avgAssists) } // averageAssists
+            ];
+
+            statsToStore.forEach(stat => {
+              fetch('/player_analysis/stats/store', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userId: Number(currentPlayerId),
+                  roleId: primaryRoleId ? Number(primaryRoleId) : null,
+                  metricId: stat.metricId,
+                  metricValue: Number(stat.metricValue.toFixed ? stat.metricValue.toFixed(2) : stat.metricValue)
+                })
+              })
+                .then(res => res.json())
+                .then(result => console.log('[STORE KDA] ✓ Stored metric', stat.metricId, result))
+                .catch(err => console.error('[STORE KDA] ✗ Error storing metric', stat.metricId, err));
+            });
+          }
+        } catch (err) {
+          console.error('[STORE KDA] ✗ Unexpected error preparing store request:', err);
+        }
+
         const topChampions = getTop3Champions(matchesData, puuid);
         PA.cache.topChampions = topChampions;
         updateChampionDisplay(topChampions);
@@ -337,7 +394,9 @@
           if (btn) {
             btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
             btn.setAttribute("data-player-id", player.userId);
-            btn.setAttribute("data-puuid", puuid);
+              btn.setAttribute("data-puuid", puuid);
+              // store primary role id so frontend can send role context when storing metrics
+              if (player.primaryRoleId) btn.setAttribute("data-primary-role-id", player.primaryRoleId);
           }
 
           document.getElementById("primaryRole") && (document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`);
