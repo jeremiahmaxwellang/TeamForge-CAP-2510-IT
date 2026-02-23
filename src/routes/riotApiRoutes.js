@@ -11,7 +11,12 @@ const analysisOverviewController = require('../controllers/player_analysis/analy
 // Route: GET /riot/puuid/:gameName/:tagLine
 router.get('/puuid/:gameName/:tagLine', riotApiController.getPuuid);
 
-// Route: GET /riot/matches/:puuid/:queueId
+// MORE SPECIFIC ROUTES FIRST (to prevent matching by parameterized routes)
+// Route: GET /riot/matches/database/:puuid - Fetch from Database (stored data)
+router.get('/matches/database/:puuid', analysisOverviewController.getRecentMatchesFromDatabase);
+
+// THEN MORE GENERAL PARAMETERIZED ROUTES
+// Route: GET /riot/matches/:puuid/:queueId - Fetch from Riot API
 router.get('/matches/:puuid/:queueId', riotApiController.getRecentMatches);
 
 // Route: GET /riot/winrate/:puuid

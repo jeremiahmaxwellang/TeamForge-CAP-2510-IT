@@ -175,6 +175,35 @@ exports.updatePuuid = async (req, res) => {
   }
 };
 
+/**
+ * Store a player statistic into playerStatistics table.
+ * Expects body: { userId, roleId, metricId, metricValue }
+ */
+exports.storePlayerStatistic = async (req, res) => {
+  try {
+    const { userId, roleId, metricId, metricValue } = req.body;
+
+    if (!userId || !metricId || metricValue === undefined || metricValue === null) {
+      return res.status(400).json({ error: 'userId, metricId and metricValue are required' });
+    }
+
+    const sql = `
+      INSERT INTO playerStatistics (userId, metricId, roleId, metricValue, recordedAt)
+      VALUES (?, ?, ?, ?, NOW())
+      ON DUPLICATE KEY UPDATE
+        metricValue = VALUES(metricValue),
+        recordedAt = NOW()
+    `;
+
+    await db.query(sql, [userId, metricId, roleId || null, metricValue]);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[PLAYER STATS] Error storing player statistic:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // ============ BENCHMARKS FUNCTIONS ============
 
 /**
