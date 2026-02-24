@@ -6,9 +6,10 @@
 const db = require("../../config/database");
 
 const fetchEval = `
-            SELECT e.*, s.name, s.date AS scrimDate
+            SELECT e.*, s.name, p.gameName AS playerName, s.date AS scrimDate
             FROM evaluations e
             JOIN scrims s ON e.scrimId = s.scrimId
+            JOIN players p ON e.playerId = p.userId
             WHERE e.playerId = ? AND e.scrimId = ?
         `;
 

@@ -245,14 +245,14 @@
             // Scrims tab
             if (this.id === "scrimsButton") {
               const btn = document.getElementById("player-dropdown-btn");
-              const menu = document.getElementById("player-dropdown-menu");
+              // const menu = document.getElementById("player-dropdown-menu");
               const userId = btn.getAttribute("data-player-id");
 
-              menu.addEventListener("click", () => {
-                const dropdownBtn = document.getElementById("player-dropdown-btn");
-                const playerId = dropdownBtn?.getAttribute("data-player-id");
-                window.initScrimsTab(playerId);
-              })
+              // menu.addEventListener("click", () => {
+              //   const dropdownBtn = document.getElementById("player-dropdown-btn");
+              //   const playerId = dropdownBtn?.getAttribute("data-player-id");
+              //   window.initScrimsTab(playerId);
+              // })
 
               if (userId && typeof window.initScrimsTab === "function") {
                 window.initScrimsTab(userId);

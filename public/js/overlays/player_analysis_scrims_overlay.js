@@ -16,88 +16,123 @@ window.initScrimsTab = function (userId) {
     return;
   }
 
-   // Load existing scrims
-  Backend.fetchScrims(userId)
-    .then((scrims) => {
-      const tableBody = document.querySelector(".scrim-table tbody");
+  setupScrims(userId);
 
-      tableBody.innerHTML = "";
+  function setupScrims(userId) {
+      const dropdownBtn = document.getElementById("scrimsDropdownBtn");
+      const dropdownContent = document.getElementById("scrimsDropdownContent");
+      const scrimIdInput = document.getElementById("scrimIdInput");
 
-      scrims.forEach((scrim, index) => {
-        const row = document.createElement("tr");
+      // Load existing scrims
+      Backend.fetchScrims(userId)
+        .then((scrims) => {
+          const tableBody = document.querySelector(".scrim-table tbody");
 
-        if(scrim.win === "W") row.classList.add("scrim-win");
-        else if(scrim.win === "L") row.classList.add("scrim-loss");
+          tableBody.innerHTML = "";
 
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${scrim.name}</td>
-          <td>${scrim.date}</td>
-          <td>${scrim.length}</td>
-          <td>${scrim.playerId}</td>
-          <td>${scrim.win || ""}</td>
-          <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
-        `;
+          scrims.forEach((scrim, index) => {
+            // ======= SCRIMS DROPDOWN =======
+            const link = document.createElement("a");
+            link.href = "#";
+            link.textContent = scrim.name;
+            link.setAttribute("data-scrim-id", scrim.scrimId);
 
-        row.addEventListener("click", () => {
-          [...tableBody.rows].forEach(r => r.classList.remove("scrim-selected"));
-          row.classList.add("scrim-selected");
+            // Dropdown Item Listener
+            link.addEventListener("click", (e) => {
+              e.preventDefault();
+              const scrimId = link.getAttribute("data-scrim-id");
+              const scrimName = link.textContent;
 
-          row.setAttribute("data-scrim-id", scrim.scrimId);
-          updateEvaluation(scrim.scrimId);
-          
-        });
+              dropdownBtn.textContent = scrimName;
+              scrimIdInput.value = scrim.scrimId;
+              updateEvaluation(scrimIdInput.value);
+            });
 
-        tableBody.appendChild(row);
-      });
+            dropdownContent.appendChild(link);
 
-      console.log("[SCRIMS] ✓ Table populated with scrim data");
+            // ======= SCRIMS TABLE =======
+            const row = document.createElement("tr");
 
-      if (scrims.length > 0) { 
-        const firstScrimId = scrims[0].scrimId; 
+            if(scrim.win === "W") row.classList.add("scrim-win");
+            else if(scrim.win === "L") row.classList.add("scrim-loss");
 
-        updateEvaluation(firstScrimId);
-      }
-    })
-    .catch((err) => console.error("[SCRIMS] ✗ Error loading scrims:", err));
+            row.innerHTML = `
+              <td>${index + 1}</td>
+              <td>${scrim.name}</td>
+              <td>${scrim.date}</td>
+              <td>${scrim.length}</td>
+              <td>${scrim.playerId}</td>
+              <td>${scrim.win || ""}</td>
+              <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
+            `;
 
+            row.addEventListener("click", () => {
+              [...tableBody.rows].forEach(r => r.classList.remove("scrim-selected"));
+              row.classList.add("scrim-selected");
 
-    function updateEvaluation(scrimId) {
-       // Load existing evaluation
-      Backend.fetchEvaluation(userId, scrimId)
-        .then((evalData) => {
-          document.getElementById("player-evaluation-title").innerHTML = `Evaluation: ${evalData.name}`;
+              row.setAttribute("data-scrim-id", scrim.scrimId);
+              dropdownBtn.textContent = scrim.name;
+              updateEvaluation(scrim.scrimId);
+              
+            });
 
-          if (evalData.ratingGameSense) {
-            document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
+            tableBody.appendChild(row);
+          });
+
+          console.log("[SCRIMS] ✓ Table populated with scrim data");
+
+          if (scrims.length > 0) { 
+            const firstScrimId = scrims[0].scrimId; 
+            this.selectedScrimId = firstScrimId;
+            updateEvaluation(firstScrimId);
           }
-          if (evalData.ratingCommunication) {
-            document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
-          }
-          if (evalData.ratingChampionPool) {
-            document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
-          }
-          if (evalData.comment) {
-            document.getElementById("coachComment").value = evalData.comment;
-          }
-          console.log("[EVALUATION] ✓ Form pre-filled with evaluation data");
         })
-        .catch((err) => {
-          console.error("[EVALUATION] Error loading evaluation:", err);
+        .catch((err) => console.error("[SCRIMS] ✗ Error loading scrims:", err));
 
-          [...document.querySelectorAll('input[name="gameSense"], input[name="communication"], input[name="champPool"]')] 
-            .forEach(input => input.checked = false);
+        // Toggle dropdown visibility 
+        dropdownBtn.addEventListener("click", (e) => { 
+          e.preventDefault(); 
+          dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block"; 
+        });
+  }
 
-          document.getElementById("coachComment").value = "";
-      });
-    }
- 
+  function updateEvaluation(scrimId) {
+    // Load existing evaluation
+    Backend.fetchEvaluation(userId, scrimId)
+      .then((evalData) => {
+
+        document.getElementById("player-evaluation-title").innerHTML = `Evaluation: ${evalData.playerName}`;
+
+        if (evalData.ratingGameSense) {
+          document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
+        }
+        if (evalData.ratingCommunication) {
+          document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
+        }
+        if (evalData.ratingChampionPool) {
+          document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
+        }
+        if (evalData.comment) {
+          document.getElementById("coachComment").value = evalData.comment;
+        }
+        console.log("[EVALUATION] ✓ Form pre-filled with evaluation data");
+      })
+      .catch((err) => {
+        console.error("[EVALUATION] Error loading evaluation:", err);
+
+        [...document.querySelectorAll('input[name="gameSense"], input[name="communication"], input[name="champPool"]')] 
+          .forEach(input => input.checked = false);
+
+        document.getElementById("coachComment").value = "";
+    });
+  }
 
   // Handle form submission
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(this);
 
+    const scrimId = formData.get("scrimIdInput");
     const ratingGameSense = formData.get("gameSense");
     const ratingCommunication = formData.get("communication");
     const ratingChampionPool = formData.get("champPool");
