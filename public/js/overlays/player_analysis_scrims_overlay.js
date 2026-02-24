@@ -73,13 +73,16 @@ window.initScrimsTab = function (userId) {
     const ratingGameSense = formData.get("gameSense");
     const ratingCommunication = formData.get("communication");
     const ratingChampionPool = formData.get("champPool");
+    const scrimId = 1; // TODO: replace with selected scrim
 
+    // TODO: replace with logged-in coach
     const data = {
       comment: formData.get("comment"),
       ratingGameSense: parseInt(ratingGameSense, 10),
       ratingCommunication: parseInt(ratingCommunication, 10),
       ratingChampionPool: parseInt(ratingChampionPool, 10),
-      coachId: parseInt(2, 10) // TODO: replace with logged-in coach
+      coachId: parseInt(2, 10), 
+      scrimId: parseInt(scrimId, 10)
     };
 
     try {
