@@ -31,7 +31,7 @@ router.get('/players/:id/scrims', scrimsController.getScrims);
 router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluation);
 
 // Create Evaluation
-router.post('/players/:id/evaluation', scrimsController.createEvaluation);
+router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEvaluation);
 
 
 // /player_analysis

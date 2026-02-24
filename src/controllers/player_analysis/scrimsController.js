@@ -5,6 +5,13 @@
 
 const db = require("../../config/database");
 
+const fetchEval = `
+            SELECT e.*, s.name, s.date AS scrimDate
+            FROM evaluations e
+            JOIN scrims s ON e.scrimId = s.scrimId
+            WHERE e.playerId = ? AND e.scrimId = ?
+        `;
+
 // Get a player's Scrims
 exports.getScrims = async (req, res) => {
 
@@ -40,20 +47,14 @@ exports.getEvaluation = async (req, res) => {
     try {
         const playerId = req.params.playerId;
         const scrimId = req.params.scrimId;
-        const sql = `
-            SELECT e.*, s.name, s.date AS scrimDate
-            FROM evaluations e
-            JOIN scrims s ON e.scrimId = s.scrimId
-            WHERE e.playerId = ? AND e.scrimId = ?
-        `;
 
-        const [rows] = await db.query(sql, [playerId, scrimId]);
+        const [rows] = await db.query(fetchEval, [playerId, scrimId]);
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Eval not found' });
         }
 
         res.json(rows[0]);
-        console.log("Eval: " + rows[0]);
+        // console.log("Eval: " + rows[0]);
     } catch (err) { 
         console.error("Error fetching evaluation:", err); 
         res.status(500).json({ error: "Internal server error" });
@@ -64,8 +65,10 @@ exports.getEvaluation = async (req, res) => {
 exports.createEvaluation = async (req, res) => {
 
     try {
-        const playerId = req.params.id;
-        const { scrimId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId } = req.body;
+        const playerId = req.params.playerId;
+        const scrimId = req.params.scrimId;
+
+        const { comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId } = req.body;
 
         if(!playerId || !ratingGameSense || !ratingCommunication || !ratingChampionPool) {
             return res.status(400).json({error: "Missing required fields"});
@@ -78,9 +81,9 @@ exports.createEvaluation = async (req, res) => {
         `;
 
         await db.query(sql, [scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId]);
-        
+
         // Fetch the updated eval
-        const [rows] = await db.query("SELECT * FROM evaluations WHERE playerId = ?", [playerId]); 
+        const [rows] = await db.query(fetchEval, [playerId, scrimId]); 
         
         if (rows.length === 0) { 
             return res.status(404).json({ message: "Evaluation not found after insert/update" }); 
