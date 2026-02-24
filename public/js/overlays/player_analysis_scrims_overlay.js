@@ -39,31 +39,59 @@ window.initScrimsTab = function (userId) {
           <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
         `;
 
+        row.addEventListener("click", () => {
+          [...tableBody.rows].forEach(r => r.classList.remove("scrim-selected"));
+          row.classList.add("scrim-selected");
+
+          row.setAttribute("data-scrim-id", scrim.scrimId);
+          updateEvaluation(scrim.scrimId);
+          
+        });
+
         tableBody.appendChild(row);
       });
 
       console.log("[SCRIMS] ✓ Table populated with scrim data");
+
+      if (scrims.length > 0) { 
+        const firstScrimId = scrims[0].scrimId; 
+
+        updateEvaluation(firstScrimId);
+      }
     })
     .catch((err) => console.error("[SCRIMS] ✗ Error loading scrims:", err));
 
-  // Load existing evaluation
-  Backend.fetchEvaluation(userId)
-    .then((evalData) => {
-      if (evalData.ratingGameSense) {
-        document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
-      }
-      if (evalData.ratingCommunication) {
-        document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
-      }
-      if (evalData.ratingChampionPool) {
-        document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
-      }
-      if (evalData.comment) {
-        document.getElementById("coachComment").value = evalData.comment;
-      }
-      console.log("[EVALUATION] ✓ Form pre-filled with evaluation data");
-    })
-    .catch((err) => console.error("[EVALUATION] Error loading evaluation:", err));
+
+    function updateEvaluation(scrimId) {
+       // Load existing evaluation
+      Backend.fetchEvaluation(userId, scrimId)
+        .then((evalData) => {
+          document.getElementById("player-evaluation-title").innerHTML = `Evaluation: ${evalData.name}`;
+
+          if (evalData.ratingGameSense) {
+            document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
+          }
+          if (evalData.ratingCommunication) {
+            document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
+          }
+          if (evalData.ratingChampionPool) {
+            document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
+          }
+          if (evalData.comment) {
+            document.getElementById("coachComment").value = evalData.comment;
+          }
+          console.log("[EVALUATION] ✓ Form pre-filled with evaluation data");
+        })
+        .catch((err) => {
+          console.error("[EVALUATION] Error loading evaluation:", err);
+
+          [...document.querySelectorAll('input[name="gameSense"], input[name="communication"], input[name="champPool"]')] 
+            .forEach(input => input.checked = false);
+
+          document.getElementById("coachComment").value = "";
+      });
+    }
+ 
 
   // Handle form submission
   form.addEventListener("submit", async function (e) {
@@ -73,7 +101,6 @@ window.initScrimsTab = function (userId) {
     const ratingGameSense = formData.get("gameSense");
     const ratingCommunication = formData.get("communication");
     const ratingChampionPool = formData.get("champPool");
-    const scrimId = 1; // TODO: replace with selected scrim
 
     // TODO: replace with logged-in coach
     const data = {

@@ -28,7 +28,7 @@ router.get('/players/:id/champion_pool', championPoolController.getChampionPool)
 router.get('/players/:id/scrims', scrimsController.getScrims);
 
 // Get Evaluation
-router.get('/players/:id/evaluation', scrimsController.getEvaluation);
+router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluation);
 
 // Create Evaluation
 router.post('/players/:id/evaluation', scrimsController.createEvaluation);

@@ -479,3 +479,20 @@ VALUES
 INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
 (1, 4, 'Flexible with a variety of champions but barely communicates with team', 3, 2, 4, 2);
+
+INSERT INTO scrims(scrimId, name, date, videoLink, length)
+VALUES 
+(2, 'Viridis Arcus vs. Punk Rockers', '2026-02-24', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '29:55');
+
+-- Insert scrim players for scrimId = 2
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win, enemyPlayerIGN)
+VALUES
+(2, 4, 1, '1', 'L', 'Nimbus#doulc'),
+(2, 7, 2, '1', 'L', 'Pr1m3put1n#3135'),
+(2, 3, 3, '1', 'L', 'Sou Hiyori#YTTD'),
+(2, 5, 4, '1', 'L', 'Cowwrean#moo'),
+(2, 6, 5, '1', 'L', 'Aurras#LAZY');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(2, 4, 'Communication has improved since last scrim', 4, 5, 4, 2);

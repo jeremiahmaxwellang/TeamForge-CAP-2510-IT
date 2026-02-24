@@ -13,9 +13,9 @@
       });
   };
 
-  // Fetch existing evaluation
-  Backend.fetchEvaluation = async function (playerId) {
-    return fetch(`/player_analysis/players/${playerId}/evaluation`)
+  // Fetch existing evaluations
+  Backend.fetchEvaluation = async function (playerId, scrimId) {
+    return fetch(`/player_analysis/players/${playerId}/${scrimId}/evaluation`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         return res.json();

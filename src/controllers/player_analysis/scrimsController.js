@@ -16,6 +16,7 @@ exports.getScrims = async (req, res) => {
             FROM scrims s 
             JOIN scrimPlayers p ON s.scrimId = p.scrimId
             WHERE p.playerId = ?
+            ORDER BY s.date DESC
         `;
 
         const [rows] = await db.query(sql, [playerId]);
@@ -37,12 +38,16 @@ exports.getScrims = async (req, res) => {
 exports.getEvaluation = async (req, res) => {
 
     try {
-        const playerId = req.params.id;
+        const playerId = req.params.playerId;
+        const scrimId = req.params.scrimId;
         const sql = `
-            SELECT * FROM evaluations WHERE playerId = ?
+            SELECT e.*, s.name, s.date AS scrimDate
+            FROM evaluations e
+            JOIN scrims s ON e.scrimId = s.scrimId
+            WHERE e.playerId = ? AND e.scrimId = ?
         `;
 
-        const [rows] = await db.query(sql, [playerId]);
+        const [rows] = await db.query(sql, [playerId, scrimId]);
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Eval not found' });
         }

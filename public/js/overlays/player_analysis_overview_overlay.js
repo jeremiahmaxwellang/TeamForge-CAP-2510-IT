@@ -229,6 +229,12 @@
               const btn = document.getElementById("player-dropdown-btn");
               const userId = btn.getAttribute("data-player-id");
 
+              // const menu = document.getElementById("player-dropdown-menu");
+              // menu.addEventListener("click", () => {
+              //   const playerId = btn?.getAttribute("data-player-id");
+              //   window.initChampionTab(playerId);
+              // })
+
               if (userId && typeof window.initChampionTab === "function") {
                 window.initChampionTab(userId);
               } else {
@@ -239,12 +245,19 @@
             // Scrims tab
             if (this.id === "scrimsButton") {
               const btn = document.getElementById("player-dropdown-btn");
+              const menu = document.getElementById("player-dropdown-menu");
               const userId = btn.getAttribute("data-player-id");
+
+              menu.addEventListener("click", () => {
+                const dropdownBtn = document.getElementById("player-dropdown-btn");
+                const playerId = dropdownBtn?.getAttribute("data-player-id");
+                window.initScrimsTab(playerId);
+              })
 
               if (userId && typeof window.initScrimsTab === "function") {
                 window.initScrimsTab(userId);
               } else {
-                console.error("initScrimsTab not found! Make sure evaluation overlay JS is loaded.");
+                console.error("initScrimsTab not found! Make sure scrim overlay JS is loaded.");
               }
             }
 

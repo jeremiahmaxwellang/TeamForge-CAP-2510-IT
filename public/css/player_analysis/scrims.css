@@ -29,6 +29,10 @@
   background-color: #f8d7da; /* reddish */
 }
 
+.scrim-selected {
+  background-color: #36c9ff; /* blue */
+}
+
 .rating-group {
   margin-bottom: 15px;
 }
