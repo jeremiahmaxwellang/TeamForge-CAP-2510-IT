@@ -128,4 +128,7 @@ router.post('/stats/calculate', playerController.calculatePlayerStatsFromMatches
  */
 router.post('/stats/store', playerController.storePlayerStatistic);
 
+// Compare stored stats (from playerStatistics table) to benchmarks
+router.get('/stats/stored-comparison', playerController.getStoredStatsComparison);
+
 module.exports = router;
