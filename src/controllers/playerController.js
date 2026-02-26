@@ -522,6 +522,9 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
     const metGuidelines = comparison.filter(c => c.meetsStandard).length;
     const performancePercentage = (metGuidelines / comparison.length * 100).toFixed(1);
 
+    // Saving to playerstatistics table
+    await saveCalculatedStats(playerId, roleId, playerStats);
+
     res.json({
       success: true,
       playerId,
@@ -682,3 +685,140 @@ function evaluateComparison(playerValue, benchmarkValue, comparator) {
       return false;
   }
 }
+
+/**
+ * Helper: Smart-save calculated stats to the DB
+ */
+async function saveCalculatedStats(userId, roleId, stats) {
+  try {
+    // 1. Fetch the list of valid metrics from your DB so we know what IDs to use
+    const [dbMetrics] = await db.query("SELECT metricId, metricName FROM metrics");
+    
+    // 2. Create a lookup map (e.g., "averagekills" -> 14)
+    const metricLookup = {};
+    dbMetrics.forEach(m => {
+      if (m.metricName) {
+        // Normalize: "averageKills" becomes "averagekills" for easier matching
+        const key = m.metricName.toLowerCase().replace(/\s+/g, '');
+        metricLookup[key] = m.metricId;
+      }
+    });
+
+    // 3. Manual overrides for names that don't match perfectly
+    // (Your JS calculates "Total Wards Placed", but DB expects "averageWardsPlaced")
+    const manualOverrides = {
+      'Total Wards Placed': 'averagewardsplaced',
+      'Total Wards Destroyed': 'averagewardsdestroyed',
+      'Damage to Buildings': 'averagedamagetobuildings'
+    };
+
+    const queries = [];
+    const timestamp = new Date();
+
+    // 4. Loop through the calculated averages
+    for (const [key, value] of Object.entries(stats)) {
+      let lookupKey;
+
+      if (manualOverrides[key]) {
+        lookupKey = manualOverrides[key];
+      } else {
+        // Standard Rule: Add "average" to the front (e.g. "Kills" -> "averagekills")
+        lookupKey = "average" + key.toLowerCase().replace(/\s+/g, '');
+      }
+
+      const metricId = metricLookup[lookupKey];
+
+      // 5. If this stat exists in your "metrics" table, save it!
+      if (metricId && !isNaN(parseFloat(value))) {
+        queries.push(
+          db.query(
+            `INSERT INTO playerStatistics (userId, metricId, roleId, metricValue, recordedAt)
+             VALUES (?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+             metricValue = VALUES(metricValue), recordedAt = VALUES(recordedAt)`,
+             [userId, metricId, roleId, value, timestamp]
+          )
+        );
+      }
+    }
+
+    // 6. Execute all inserts
+    if (queries.length > 0) {
+      await Promise.all(queries);
+      console.log(`[PLAYER STATS] Successfully saved ${queries.length} average stats for User ${userId}`);
+    }
+
+  } catch (err) {
+    console.error("[PLAYER STATS] Error saving stats:", err);
+  }
+}
+
+/**
+ * Compare stored player statistics against benchmarks
+ * Directly queries playerStatistics & benchmarks tables
+ */
+exports.getStoredStatsComparison = async (req, res) => {
+  try {
+    const { userId, roleId } = req.query; // Or req.params, depending on your route
+
+    if (!userId || !roleId) {
+      return res.status(400).json({ error: 'userId and roleId are required' });
+    }
+
+    // 1. The Magic Query: Joins PlayerStats + Benchmarks + Metrics
+    const sql = `
+      SELECT 
+        m.metricName, 
+        m.metricDescription,
+        ps.metricValue AS playerValue, 
+        b.benchmarkValue, 
+        b.comparator,
+        ps.recordedAt
+      FROM playerStatistics ps
+      JOIN benchmarks b ON ps.metricId = b.metricId AND ps.roleId = b.roleId
+      JOIN metrics m ON ps.metricId = m.metricId
+      WHERE ps.userId = ? AND ps.roleId = ?
+    `;
+
+    const [rows] = await db.query(sql, [userId, roleId]);
+
+    if (rows.length === 0) {
+      return res.json({ 
+        success: true, 
+        message: 'No stored stats found. Please visit the analysis page to calculate and save stats first.',
+        comparison: [] 
+      });
+    }
+
+    // 2. Process the results using your existing helper
+    const comparison = rows.map(row => {
+      const meetsStandard = evaluateComparison(row.playerValue, row.benchmarkValue, row.comparator);
+      
+      return {
+        metricName: row.metricName,
+        playerValue: parseFloat(row.playerValue).toFixed(2),
+        benchmarkValue: parseFloat(row.benchmarkValue),
+        comparator: row.comparator,
+        meetsStandard: meetsStandard,
+        status: meetsStandard ? '✓' : '✗',
+        lastUpdated: row.recordedAt
+      };
+    });
+
+    // 3. Calculate Score
+    const metGuidelines = comparison.filter(c => c.meetsStandard).length;
+    const score = (metGuidelines / comparison.length * 100).toFixed(1);
+
+    res.json({
+      success: true,
+      userId,
+      roleId,
+      performanceScore: `${score}%`,
+      comparison
+    });
+
+  } catch (err) {
+    console.error('[COMPARISON] Error fetching stored comparison:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
