@@ -27,12 +27,14 @@ router.get('/players/:id/champion_pool', championPoolController.getChampionPool)
 // Get Scrims
 router.get('/players/:id/scrims', scrimsController.getScrims);
 
+// Get scrims played with other players
+router.get('/players/:id/timesPlayed', scrimsController.getTimesPlayed);
+
 // Get Evaluation
 router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluation);
 
 // Create Evaluation
 router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEvaluation);
-
 
 // /player_analysis
 router.get('/', async function(req, res) {
@@ -53,11 +55,6 @@ router.get('/comparison', async function(req, res) {
 router.get('/scrims', async function(req, res) {
     res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_scrims.html'));
 });
-
-// Serve overlay HTML for player VODs
-// router.get('/vods', async function(req, res) {
-//     res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_vod.html'));
-// });
 
 // Serve overlay HTML for player champion pool
 router.get('/champion', async function(req, res) {

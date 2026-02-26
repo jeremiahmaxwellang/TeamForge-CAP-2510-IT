@@ -7,8 +7,12 @@
   gap: 40px;
 }
 
-.scrim-list, .evaluation-form {
+.scrim-list, .times-played-list, .evaluation-form {
   flex: 1;
+}
+
+.times-played-list {
+  width: 250px;
 }
 
 .scrim-table {
@@ -31,6 +35,19 @@
 
 .scrim-selected {
   background-color: #36c9ff; /* blue */
+}
+
+.times-played-table {
+  width: 250px;
+}
+
+.times-played th, .times-played td {
+  border: 1px solid #202020;
+  padding: 8px;
+}
+
+.times-played-row {
+  background-color: #d6d6d6;
 }
 
 .rating-group {

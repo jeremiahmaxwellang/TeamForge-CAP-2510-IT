@@ -34,10 +34,43 @@ exports.getScrims = async (req, res) => {
         }
 
         res.json(rows);
-        console.log(rows);
+        // console.log(rows);
 
     } catch (err) { 
         console.error("Error fetching scrim:", err); 
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+const fetchTimesPlayed = `
+    SELECT sp2.playerId, p.gameName, COUNT(*) AS timesPlayed
+    FROM scrimPlayers sp1
+    JOIN scrimPlayers sp2 ON sp1.scrimId = sp2.scrimId
+    JOIN players p ON sp2.playerId = p.userId
+    AND sp1.playerId <> sp2.playerId
+    WHERE sp1.playerId = ?
+    GROUP BY sp2.playerId 
+    ORDER BY timesPlayed DESC
+`;
+
+// Get times played with other players
+exports.getTimesPlayed = async (req, res) => {
+
+    try {
+        const playerId = req.params.id;
+
+        const [rows] = await db.query(fetchTimesPlayed, [playerId]);
+
+        console.log(rows);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Scrim not found' });
+        }
+
+        res.json(rows);
+        
+    } catch (err) { 
+        console.error("Error fetching times played:", err); 
         res.status(500).json({ error: "Internal server error" });
     }
 }

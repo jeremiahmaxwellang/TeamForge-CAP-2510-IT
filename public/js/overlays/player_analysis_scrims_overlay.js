@@ -94,6 +94,30 @@ window.initScrimsTab = function (userId) {
           e.preventDefault(); 
           dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block"; 
         });
+
+        // ========= Times Played Table =========
+        Backend.fetchTimesPlayed(userId)
+        .then((timesPlayed) => {
+          const tableBody = document.querySelector(".times-played-table tbody");
+
+          tableBody.innerHTML = "";
+
+          timesPlayed.forEach((item) => {
+            const timesPlayedRow = document.createElement("tr");
+
+            timesPlayedRow.classList.add("times-played-row");
+
+            // TODO: Get average evaluated comms
+            timesPlayedRow.innerHTML = `
+              <td>${item.gameName}</td>
+              <td>${item.timesPlayed}</td>
+              <td>${item.timesPlayed}</td>
+            `;
+
+            tableBody.appendChild(timesPlayedRow);
+          });
+        })
+        .catch((err) => console.error("[SCRIMS] ✗ Error loading times played:", err));
   }
 
   function updateEvaluation(scrimId) {
