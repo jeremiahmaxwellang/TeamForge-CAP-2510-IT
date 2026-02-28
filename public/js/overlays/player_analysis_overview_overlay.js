@@ -6,6 +6,29 @@
   const FETCH_INTERVAL = 3 * 60 * 1000; // 3 minutes
   let lastFetchTime = null;
 
+  // Fetch stored stats when tab loads
+  async function loadStoredBenchmarks(userId, roleId) {
+    if (!userId || !roleId) return;
+
+    try {
+      console.log(`[OVERLAY] Fetching stored comparison for Player ${userId}...`);
+      const response = await fetch(`/player_analysis/stats/stored-comparison?userId=${userId}&roleId=${roleId}`);
+      const data = await response.json();
+
+      if (data.success) {
+        console.log("[OVERLAY] ✅ Performance Score:", data.performanceScore);
+        console.log("[OVERLAY] ✅ Stored Data:", data.comparison);
+        
+        // OPTIONAL: If you want to update the UI immediately, you can call a function here
+        // e.g., if (window.updateComparisonUI) window.updateComparisonUI(data);
+      } else {
+        console.warn("[OVERLAY] No stored stats found:", data.message);
+      }
+    } catch (err) {
+      console.error("[OVERLAY] Error loading stored stats:", err);
+    }
+  }
+
   function setupFetchMatchStatsButton(api, state) {
     const fetchBtn = document.getElementById("fetchMatchStatsBtn");
     const timerInfo = document.getElementById("timerInfo");
@@ -134,12 +157,12 @@
 
     const overviewButton = document.getElementById("overviewButton");
     const comparisonButton = document.getElementById("comparisonButton");
-    const vodsButton = document.getElementById("vodsButton");
+    const scrimsButton = document.getElementById("scrimsButton");
     const championButton = document.getElementById("championButton");
     const evaluationButton = document.getElementById("evaluationButton");
     const overlayContainer = document.getElementById("overlay-container");
 
-    const tabButtons = [overviewButton, comparisonButton, vodsButton, championButton, evaluationButton];
+    const tabButtons = [overviewButton, comparisonButton, scrimsButton, championButton, evaluationButton];
 
     function closeOverlay() {
       const overlay = overlayContainer?.querySelector(".overlay");
@@ -208,7 +231,7 @@
         const urlMap = {
           overviewButton: "/player_analysis/overview",
           comparisonButton: "/player_analysis/comparison",
-          vodsButton: "/player_analysis/vods",
+          scrimsButton: "/player_analysis/scrims",
           championButton: "/player_analysis/champion",
           evaluationButton: "/player_analysis/evaluation",
         };
@@ -229,6 +252,12 @@
               const btn = document.getElementById("player-dropdown-btn");
               const userId = btn.getAttribute("data-player-id");
 
+              // const menu = document.getElementById("player-dropdown-menu");
+              // menu.addEventListener("click", () => {
+              //   const playerId = btn?.getAttribute("data-player-id");
+              //   window.initChampionTab(playerId);
+              // })
+
               if (userId && typeof window.initChampionTab === "function") {
                 window.initChampionTab(userId);
               } else {
@@ -236,15 +265,22 @@
               }
             }
 
-            // Evaluation tab
-            if (this.id === "evaluationButton") {
+            // Scrims tab
+            if (this.id === "scrimsButton") {
               const btn = document.getElementById("player-dropdown-btn");
+              // const menu = document.getElementById("player-dropdown-menu");
               const userId = btn.getAttribute("data-player-id");
 
-              if (userId && typeof window.initEvaluationTab === "function") {
-                window.initEvaluationTab(userId);
+              // menu.addEventListener("click", () => {
+              //   const dropdownBtn = document.getElementById("player-dropdown-btn");
+              //   const playerId = dropdownBtn?.getAttribute("data-player-id");
+              //   window.initScrimsTab(playerId);
+              // })
+
+              if (userId && typeof window.initScrimsTab === "function") {
+                window.initScrimsTab(userId);
               } else {
-                console.error("initEvaluationTab not found! Make sure evaluation overlay JS is loaded.");
+                console.error("initScrimsTab not found! Make sure scrim overlay JS is loaded.");
               }
             }
 
@@ -252,6 +288,15 @@
             if (this.id === "comparisonButton") {
               if (typeof window.initComparisonTab === "function") window.initComparisonTab();
               else console.error("initComparisonTab not found! Make sure comparison.js is loaded in the main page.");
+
+              const btn = document.getElementById("player-dropdown-btn");
+              if (btn) {
+                  const userId = btn.getAttribute("data-player-id");
+                  // Default to Role 1 if missing, just for testing
+                  const roleId = btn.getAttribute("data-primary-role-id") || 1; 
+                  
+                  loadStoredBenchmarks(userId, roleId);
+              }
             }
 
             setupQueueDropdown();

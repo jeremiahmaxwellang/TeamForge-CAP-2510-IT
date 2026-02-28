@@ -195,22 +195,15 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforgedb`.`vods`
+-- Table `teamforgedb`.`scrims`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`vods` (
-  `userId` INT UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrims` (
+  `scrimId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NULL,
   `date` DATE NULL,
   `videoLink` LONGTEXT NULL,
   `length` VARCHAR(45) NULL,
-  `teams` VARCHAR(100) NULL,
-  `win` VARCHAR(45) NULL,
-  PRIMARY KEY (`userId`),
-  CONSTRAINT `fk_vods_players1`
-    FOREIGN KEY (`userId`)
-    REFERENCES `teamforgedb`.`players` (`userId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`scrimId`))
 ENGINE = InnoDB;
 
 
@@ -218,13 +211,21 @@ ENGINE = InnoDB;
 -- Table `teamforgedb`.`evaluations`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`evaluations` (
+  `scrimId` INT UNSIGNED NOT NULL,
   `playerId` INT UNSIGNED NOT NULL,
   `comment` LONGTEXT NULL,
   `ratingGameSense` INT NULL,
   `ratingCommunication` INT NULL,
   `ratingChampionPool` INT NULL,
   `coachId` INT NULL,
-  PRIMARY KEY (`playerId`),
+  `timestamp` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`scrimId`, `playerId`),
+  INDEX `fk_evaluations_players1_idx` (`playerId` ASC) VISIBLE,
+  CONSTRAINT `fk_evaluations_scrims1`
+    FOREIGN KEY (`scrimId`)
+    REFERENCES `teamforgedb`.`scrims` (`scrimId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_evaluations_players1`
     FOREIGN KEY (`playerId`)
     REFERENCES `teamforgedb`.`players` (`userId`)
@@ -330,6 +331,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`teamDetails` (
   `teamName` VARCHAR(45) NOT NULL,
   `teamIcon` VARCHAR(260) NULL,
+  `discordServer` VARCHAR(260) NULL,
   PRIMARY KEY (`teamName`))
 ENGINE = InnoDB;
 
@@ -372,6 +374,37 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`playerStatistics` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_playerStatistics_leagueRoles1`
+    FOREIGN KEY (`roleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`scrimPlayers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrimPlayers` (
+  `scrimId` INT UNSIGNED NOT NULL,
+  `playerId` INT UNSIGNED NOT NULL,
+  `roleId` INT NULL,
+  `teamId` ENUM('1', '2') NULL,
+  `win` ENUM('W', 'L') NULL,
+  `enemyPlayerIGN` VARCHAR(100) NULL,
+  PRIMARY KEY (`scrimId`, `playerId`),
+  INDEX `fk_scrimPlayers_players1_idx` (`playerId` ASC) VISIBLE,
+  INDEX `fk_scrimPlayers_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
+  CONSTRAINT `fk_scrimPlayers_players1`
+    FOREIGN KEY (`playerId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_scrimPlayers_scrims1`
+    FOREIGN KEY (`scrimId`)
+    REFERENCES `teamforgedb`.`scrims` (`scrimId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_scrimPlayers_leagueRoles1`
     FOREIGN KEY (`roleId`)
     REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
     ON DELETE NO ACTION
