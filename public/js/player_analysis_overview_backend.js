@@ -21,6 +21,71 @@
   };
 
   // -----------------------------
+  // NEW: RANK FETCHING LOGIC
+  // -----------------------------
+
+  /**
+   * Fetches current and peak rank from the backend proxy
+   * @param {string} puuid - The player's unique PUUID
+   */
+  async function fetchPlayerRanks(puuid) {
+    const currentRankEl = document.getElementById('currentRank');
+    const peakRankEl = document.getElementById('peakRank');
+    const currentRankIconEl = document.getElementById('currentRankIcon');
+    const peakRankIconEl = document.getElementById('peakRankIcon');
+
+    const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests';
+    const validRankTiers = new Set([
+      'iron',
+      'bronze',
+      'silver',
+      'gold',
+      'platinum',
+      'emerald',
+      'diamond',
+      'master',
+      'grandmaster',
+      'challenger',
+      'unranked'
+    ]);
+
+    function getRankTier(rankValue) {
+      if (!rankValue || typeof rankValue !== 'string') return 'unranked';
+
+      const firstWord = rankValue.trim().split(/\s+/)[0].toLowerCase();
+      return validRankTiers.has(firstWord) ? firstWord : 'unranked';
+    }
+
+    function getRankIconUrl(rankValue) {
+      const tier = getRankTier(rankValue);
+      const filename = tier === 'emerald' ? 'emerald_tft.svg' : `${tier}.png`;
+      return `${RANK_ICON_BASE_URL}/${filename}`;
+    }
+
+    try {
+        const response = await fetch(`/riot/rank/${puuid}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            // Display: "PLATINUM II (45 LP)"
+            currentRankEl.textContent = data.lp > 0 
+                ? `${data.currentRank} (${data.lp} LP)` 
+                : data.currentRank;
+            
+            peakRankEl.textContent = data.peakRank;
+            if (currentRankIconEl) currentRankIconEl.src = getRankIconUrl(data.currentRank);
+            if (peakRankIconEl) peakRankIconEl.src = getRankIconUrl(data.peakRank);
+            console.log(`[RANK] ✅ Updated: ${data.currentRank}`);
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        console.error("[RANK] ❌ UI Update Failed:", error);
+        currentRankEl.textContent = "Error";
+    }
+  }
+
+  // -----------------------------
   // BACKEND / DATA-FETCH HELPERS
   // -----------------------------
 
@@ -472,6 +537,7 @@
             btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
             btn.setAttribute("data-player-id", player.userId);
               btn.setAttribute("data-puuid", puuid);
+
               // store primary role id so frontend can send role context when storing metrics
               if (player.primaryRoleId) btn.setAttribute("data-primary-role-id", player.primaryRoleId);
           }
@@ -483,6 +549,25 @@
           document.getElementById("schoolId") && (document.getElementById("schoolId").textContent = `School ID: ${player.schoolId}`);
           document.getElementById("course") && (document.getElementById("course").textContent = `Course: ${player.course}`);
           document.getElementById("year") && (document.getElementById("year").textContent = `Year Level: ${player.yearLevel}`);
+        };
+
+        // Helper to trigger all data fetches once PUUID is known
+        const triggerDataFetches = (targetPuuid) => {
+          PA.cache.currentPlayerId = player.userId;
+          PA.cache.currentPuuid = targetPuuid;
+
+          console.log(`[LOAD PLAYER] Triggering data fetches for PUUID: ${targetPuuid}`);
+
+          // 1. FETCH RANKS (The missing call)
+          fetchPlayerRanks(targetPuuid);
+
+          // 2. FETCH WINRATE
+          fetchWinrate(targetPuuid, PA.state.currentQueueId)
+            .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
+
+          // 3. FETCH MATCHES
+          fetchRecentMatchesFromDatabase(targetPuuid, PA.state.currentQueueId)
+            .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches from database:", err));
         };
 
         if (!player.puuid) {
@@ -499,6 +584,7 @@
               if (puuidEl2) puuidEl2.textContent = `PUUID: ${puuid}`;
 
               applyPlayerToDOM();
+              triggerDataFetches(puuid);
 
               // Cache the player and puuid for later reference
               PA.cache.currentPlayerId = player.userId;
@@ -516,6 +602,7 @@
         }
 
         applyPlayerToDOM();
+        triggerDataFetches(puuid);
 
         // Cache the player and puuid for later reference
         PA.cache.currentPlayerId = player.userId;

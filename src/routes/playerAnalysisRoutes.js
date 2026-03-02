@@ -11,6 +11,7 @@ const router = express.Router();
 const playerController = require('../controllers/playerController');
 const championPoolController = require('../controllers/player_analysis/championPoolController');
 const scrimsController = require('../controllers/player_analysis/scrimsController');
+const riotApiController = require('../controllers/riotApiController'); // Adjust the path if necessary
 
 // GET all players
 router.get('/players', playerController.getAllPlayers);
@@ -40,6 +41,7 @@ router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEva
 router.get('/', async function(req, res) {
     res.sendFile(path.join(viewsPath, 'player_analysis.html')); 
 });
+
 
 // Serve overlay HTML for player overview
 router.get('/overview', async function(req, res) {
