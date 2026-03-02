@@ -3,6 +3,34 @@
  * Handles: Navigation, Stats, Comparison (Radar), and Evaluation
  */
 document.addEventListener("DOMContentLoaded", async function () {
+
+  const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests';
+  const validRankTiers = new Set([
+    'iron',
+    'bronze',
+    'silver',
+    'gold',
+    'platinum',
+    'emerald',
+    'diamond',
+    'master',
+    'grandmaster',
+    'challenger',
+    'unranked'
+  ]);
+
+  function getRankTier(rankValue) {
+    if (!rankValue || typeof rankValue !== 'string') return 'unranked';
+
+    const firstWord = rankValue.trim().split(/\s+/)[0].toLowerCase();
+    return validRankTiers.has(firstWord) ? firstWord : 'unranked';
+  }
+
+  function getRankIconUrl(rankValue) {
+    const tier = getRankTier(rankValue);
+    const filename = tier === 'emerald' ? 'emerald_tft.svg' : `${tier}.png`;
+    return `${RANK_ICON_BASE_URL}/${filename}`;
+  }
   
   // State Management
   const state = {
@@ -105,8 +133,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     UI.currentRankText.textContent = applicant.currentRank || 'Unranked';
     UI.peakRankText.textContent = applicant.peakRank || 'Unranked';
-    // Update Rank Images 
-    if(UI.currentRankImg) UI.currentRankImg.src = `/images/ranks/rank_${(applicant.currentRank || 'unranked').split(' ')[0].toLowerCase()}.png`;
+    if (UI.currentRankImg) UI.currentRankImg.src = getRankIconUrl(applicant.currentRank);
+    if (UI.peakRankImg) UI.peakRankImg.src = getRankIconUrl(applicant.peakRank);
 
     UI.studentYear.textContent = `Year Level: ${applicant.yearLevel || 'N/A'}`;
     UI.studentCourse.textContent = `Course: ${applicant.course || 'N/A'}`;
