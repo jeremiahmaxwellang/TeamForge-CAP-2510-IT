@@ -10,7 +10,7 @@ const router = express.Router();
 // Controller
 const playerController = require('../controllers/playerController');
 const championPoolController = require('../controllers/player_analysis/championPoolController');
-const evaluationController = require('../controllers/player_analysis/evaluationController');
+const scrimsController = require('../controllers/player_analysis/scrimsController');
 const riotApiController = require('../controllers/riotApiController'); // Adjust the path if necessary
 
 // GET all players
@@ -25,13 +25,17 @@ router.put('/players/:id/puuid', playerController.updatePuuid);
 // Champion Pool backend
 router.get('/players/:id/champion_pool', championPoolController.getChampionPool);
 
+// Get Scrims
+router.get('/players/:id/scrims', scrimsController.getScrims);
+
+// Get scrims played with other players
+router.get('/players/:id/timesPlayed', scrimsController.getTimesPlayed);
 
 // Get Evaluation
-router.get('/players/:id/evaluation', evaluationController.getEvaluation);
+router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluation);
 
 // Create Evaluation
-router.post('/players/:id/evaluation', evaluationController.createEvaluation);
-
+router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEvaluation);
 
 // /player_analysis
 router.get('/', async function(req, res) {
@@ -50,8 +54,8 @@ router.get('/comparison', async function(req, res) {
 });
 
 // Serve overlay HTML for player VODs
-router.get('/vods', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_vod.html'));
+router.get('/scrims', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_scrims.html'));
 });
 
 // Serve overlay HTML for player champion pool
@@ -122,5 +126,8 @@ router.post('/stats/calculate', playerController.calculatePlayerStatsFromMatches
  * Request body: { userId, roleId, metricId, metricValue }
  */
 router.post('/stats/store', playerController.storePlayerStatistic);
+
+// Compare stored stats (from playerStatistics table) to benchmarks
+router.get('/stats/stored-comparison', playerController.getStoredStatsComparison);
 
 module.exports = router;

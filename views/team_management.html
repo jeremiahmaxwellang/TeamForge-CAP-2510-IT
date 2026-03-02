@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/team_management.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="team-management-header">
+            <h1>Team Management</h1>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <div class="filter-group">
+                <button id="filterBtn" class="filter-btn">Filter: All</button>
+                <div id="filterDropdown" class="filter-dropdown" style="display: none;">
+                    <button class="filter-option" data-filter="all">All</button>
+                    <button class="filter-option" data-filter="active">Active</button>
+                    <button class="filter-option" data-filter="inactive">Inactive</button>
+                    <button class="filter-option" data-filter="deactivated">Deactivated</button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="editUserBtn" class="action-btn edit-btn">Edit User</button>
+                <button id="deactivateBtn" class="action-btn deactivate-btn">Deactivate Selected</button>
+                <button id="addUserBtn" class="action-btn add-btn">Add User</button>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-wrapper">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-col">
+                            <input type="checkbox" id="selectAllCheckbox">
+                        </th>
+                        <th>Full Name</th>
+                        <th>Riot ID</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th>Email Address</th>
+                        <th>Team Number</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Users will be populated here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No Users Message -->
+        <div id="noUsersMessage" class="no-users-message" style="display: none;">
+            <p>No users found.</p>
+        </div>
+    </div>
+
+    <script src="/js/team_management.js"></script>
+</body>
+</html>

@@ -18,11 +18,11 @@ window.initComparisonTab = function () {
   let player2Data = null;
 
   function populateSelects() {
-    const select2 = document.getElementById("player2-select");
-    const player1Display = document.getElementById("player1-display");
-    
-    // Get the ID of the player currently selected in the Main Analysis Page
-    // Try multiple sources: window.currentPlayerId, PA.cache.currentPlayerId, or from the dropdown button
+    const p1Select = document.getElementById("player1-select");
+    const p2Select = document.getElementById("player2-select");
+    const player1Display = document.getElementById("player1-display"); // Fallback if no dropdown
+
+    // 1. Get Current Player ID from Main Page (to auto-select Player 1)
     let mainPagePlayerId = window.currentPlayerId;
     if (!mainPagePlayerId && window.PlayerAnalysis && window.PlayerAnalysis.cache) {
       mainPagePlayerId = window.PlayerAnalysis.cache.currentPlayerId;
@@ -34,47 +34,93 @@ window.initComparisonTab = function () {
 
     console.log("[COMPARISON] mainPagePlayerId:", mainPagePlayerId);
 
-    if (!select2) return;
-
-    // Populate Player 2 dropdown with all players
-    const playerOptions = players
-      .map((p) => {
-        const id = p.userId || p.id;
-        const name = p.gameName ? `${p.gameName}#${p.tagLine}` : (p.summonerName || `Player ${id}`);
-        return `<option value="${id}">${name}</option>`;
-      })
-      .join("");
-
-    select2.innerHTML =
-      '<option value="">Select a player...</option>' +
-      playerOptions +
-      '<option value="coach-benchmark">Coach Benchmark</option>';
-
-    // --- LOGIC FOR PLAYER 1: Display selected player from main page ---
-    if (mainPagePlayerId) {
-      selectedPlayer1 = parseInt(mainPagePlayerId, 10);
-      const player1 = players.find(p => (p.userId || p.id) === selectedPlayer1);
-      if (player1 && player1Display) {
-        const player1Name = player1.gameName ? `${player1.gameName}#${player1.tagLine}` : (player1.summonerName || `Player ${selectedPlayer1}`);
-        player1Display.textContent = player1Name;
-        console.log("[COMPARISON] Player 1 loaded:", player1Name);
+    // 2. Group Players by Role
+    const playersByRole = {};
+    players.forEach((player) => {
+      // Use the displayedRole from your DB join, or fallback to 'Unassigned'
+      const role = player.primaryRole || "Unassigned";
+      if (!playersByRole[role]) {
+        playersByRole[role] = [];
       }
-      loadPlayerData(selectedPlayer1, 1);
-    } else if (player1Display) {
-      player1Display.textContent = 'No player selected';
-      console.log("[COMPARISON] No player ID found from any source");
+      playersByRole[role].push(player);
+    });
+
+    // Sort roles nicely: Top -> Jungle -> Mid -> Bot -> Support
+    const roleOrder = ["Top", "Jungle", "Mid", "Bot", "Support", "Unassigned"];
+    const sortedRoles = Object.keys(playersByRole).sort((a, b) => {
+      return roleOrder.indexOf(a) - roleOrder.indexOf(b);
+    });
+
+    // 3. Helper to build grouped options
+    function buildGroupedOptions(targetSelect, includeCoach) {
+      if (!targetSelect) return;
+      targetSelect.innerHTML = '<option value="">Select a player...</option>';
+
+      if (includeCoach) {
+        const coachOpt = document.createElement("option");
+        coachOpt.value = "coach-benchmark";
+        coachOpt.textContent = "🏆 Coach Benchmark (Target)";
+        targetSelect.appendChild(coachOpt);
+      }
+
+      sortedRoles.forEach((role) => {
+        const group = document.createElement("optgroup");
+        group.label = role.toUpperCase();
+
+        playersByRole[role].forEach((player) => {
+          const isSub = player.isSub === 'T'; // Check DB value for Sub
+          const statusText = isSub ? '[SUB]' : '(Main)';
+          const name = player.gameName ? `${player.gameName}#${player.tagLine}` : (player.summonerName || `Player ${player.userId}`);
+          
+          const option = document.createElement("option");
+          option.value = player.userId || player.id;
+          option.textContent = `${name} ${statusText}`;
+          if (isSub) option.textContent += " 🔄"; // Add icon for subs
+
+          group.appendChild(option);
+        });
+        targetSelect.appendChild(group);
+      });
     }
 
-    // Player 2 selection handler
-    select2.addEventListener("change", (e) => {
-      selectedPlayer2 = e.target.value;
-      if (selectedPlayer2 === "coach-benchmark") {
-        loadCoachBenchmark();
-      } else if (selectedPlayer2) {
-        selectedPlayer2 = parseInt(selectedPlayer2, 10);
-        loadPlayerData(selectedPlayer2, 2);
+    // 4. Populate Dropdowns
+    buildGroupedOptions(p1Select, false);
+    buildGroupedOptions(p2Select, true);
+
+    // 5. Auto-Select Player 1 based on context
+    if (mainPagePlayerId) {
+      selectedPlayer1 = parseInt(mainPagePlayerId, 10);
+      
+      // If Player 1 is a dropdown, select the value
+      if (p1Select) p1Select.value = selectedPlayer1;
+
+      // If Player 1 is just text, update the text
+      const player1 = players.find(p => (p.userId || p.id) === selectedPlayer1);
+      if (player1 && player1Display) {
+        const player1Name = player1.gameName ? `${player1.gameName}#${player1.tagLine}` : player1.summonerName;
+        player1Display.textContent = player1Name;
       }
-    });
+      
+      console.log("[COMPARISON] Player 1 auto-loaded:", selectedPlayer1);
+      loadPlayerData(selectedPlayer1, 1);
+    }
+
+    // 6. Attach Event Listeners
+    if (p1Select) {
+      p1Select.addEventListener("change", (e) => {
+        selectedPlayer1 = parseInt(e.target.value, 10);
+        if (selectedPlayer1) loadPlayerData(selectedPlayer1, 1);
+      });
+    }
+
+    if (p2Select) {
+      p2Select.addEventListener("change", (e) => {
+        const val = e.target.value;
+        selectedPlayer2 = val;
+        if (val === "coach-benchmark") loadCoachBenchmark();
+        else if (val) loadPlayerData(parseInt(val, 10), 2);
+      });
+    }
   }
 
   function updatePlayerCard(player, playerNumber) {

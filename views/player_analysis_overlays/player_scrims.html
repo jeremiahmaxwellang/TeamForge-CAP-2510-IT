@@ -1,0 +1,127 @@
+<!-- overlay.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Match History Overlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/player_analysis/scrims.css">
+</head>
+
+<body>
+  <div class="overlay">
+    <!-- Overlay content here -->
+    <div class="overlay-container">
+      <div class="overlay-content">
+
+        <div class="times-played-list">
+          <table class="times-played-table">
+              <thead>
+                <tr class="times-played-row">
+                  <th>Player</th>
+                  <th>Games</th>
+                  <th>Comms %</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="times-played-row">
+                  <th>Name</th>
+                  <th>3</th>
+                  <th>4.5</th>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+
+        <!-- Left side: Scrim Matches Table -->
+        <div class="scrim-list">
+          <h2>Scrim Matches</h2>
+          <table class="scrim-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Teams</th>
+                <th>W/L</th>
+                <th>VOD Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="scrim-loss">
+                <th>No scrims found.</th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Right side: Player Evaluation Form -->
+        <div class="player-evaluation-card">
+          <h2 id="player-evaluation-title">Player Evaluation</h2>
+
+          <form id="evalForm">
+            <div class="dropdown">
+              <button class="dropdown-btn" id="scrimsDropdownBtn">Select a Scrim</button>
+              <div class="dropdown-content" id="scrimsDropdownContent">
+
+              </div>
+            </div>
+
+            <input type="hidden" name="scrimId" id="scrimIdInput" />
+
+            <div class="rating-grid">
+              <div></div>
+              <div class="rating-header">1</div>
+              <div class="rating-header">2</div>
+              <div class="rating-header">3</div>
+              <div class="rating-header">4</div>
+              <div class="rating-header">5</div>
+
+              <div class="rating-label">Game Sense</div>
+              <div class="radio-group"><input type="radio" name="gameSense" value="1"></div>
+              <div class="radio-group"><input type="radio" name="gameSense" value="2"></div>
+              <div class="radio-group"><input type="radio" name="gameSense" value="3"></div>
+              <div class="radio-group"><input type="radio" name="gameSense" value="4"></div>
+              <div class="radio-group"><input type="radio" name="gameSense" value="5"></div>
+
+              <div class="rating-label">Communication</div>
+              <div class="radio-group"><input type="radio" name="communication" value="1"></div>
+              <div class="radio-group"><input type="radio" name="communication" value="2"></div>
+              <div class="radio-group"><input type="radio" name="communication" value="3"></div>
+              <div class="radio-group"><input type="radio" name="communication" value="4"></div>
+              <div class="radio-group"><input type="radio" name="communication" value="5"></div>
+
+              <div class="rating-label">Champion Pool</div>
+              <div class="radio-group"><input type="radio" name="champPool" value="1"></div>
+              <div class="radio-group"><input type="radio" name="champPool" value="2"></div>
+              <div class="radio-group"><input type="radio" name="champPool" value="3"></div>
+              <div class="radio-group"><input type="radio" name="champPool" value="4"></div>
+              <div class="radio-group"><input type="radio" name="champPool" value="5"></div>
+            </div>
+
+            <div class="comment-section">
+              <label for="coachComment">Comments from the Coach:</label>
+              <textarea id="coachComment" name="comment" class="comment-box"
+                placeholder="Enter a comment here"></textarea>
+            </div>
+
+            <div class="confirm-btn-container">
+              <button type="submit" class="confirm-btn">Confirm</button>
+            </div>
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  </div>
+</body>
+
+</html>

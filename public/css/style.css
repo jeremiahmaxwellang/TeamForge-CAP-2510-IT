@@ -385,3 +385,51 @@ header h1, header h2 {
 }
 
 /* Overview overlay styles moved to public/css/overview.css */
+
+/* Dropdown Button Styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    color: var(--carbon-black);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 21px;
+    cursor: pointer;
+    border: none;
+}
+
+/* Adding an upside-down triangle (caret) next to the button */
+.dropdown-btn::after {
+    content: "▼"; /* Unicode character for the downwards triangle */
+    margin-left: 5px; /* Space between text and triangle */
+    font-size: 12px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    z-index: 1;
+    border-radius: 5px;
+    box-shadow: 0px 8px 16px var(--carbon-black);
+    margin-top: 5px;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
