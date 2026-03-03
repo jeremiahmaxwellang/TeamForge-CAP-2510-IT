@@ -2,8 +2,8 @@
 // Only overlay/tab navigation and queue dropdown behavior lives here.
 
 (function () {
-  // Timer constants (1 minute in milliseconds)
-  const FETCH_INTERVAL = 1 * 60 * 1000; // 1 minute
+  // Timer constants (3 minutes in milliseconds)
+  const FETCH_INTERVAL = 3 * 60 * 1000; // 3 minutes
   let lastFetchTime = null;
 
   // Fetch stored stats when tab loads
@@ -87,11 +87,11 @@
       const now = Date.now();
       const timeSinceLastFetch = lastFetchTime ? now - lastFetchTime : null;
 
-      // Check if 1 minute has passed
+      // Check if 3 minutes have passed
       if (lastFetchTime && timeSinceLastFetch < FETCH_INTERVAL) {
         const timeRemaining = FETCH_INTERVAL - timeSinceLastFetch;
         const seconds = Math.ceil(timeRemaining / 1000);
-        console.error("Error: You can only fetch the match statistics once every 1 minute.");
+        console.error("Error: You can only fetch the match statistics once every 3 minutes.");
         timerInfo.textContent = `(Available in ${Math.ceil(seconds / 60)}m ${seconds % 60}s)`;
         return;
       }

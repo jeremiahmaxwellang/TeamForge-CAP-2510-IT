@@ -137,12 +137,33 @@
         }
         .real-name { color: #666; margin-bottom: 20px; font-size: 16px; }
         
-        .role-row {
+        /* --- Role Toggle Buttons --- */
+        .role-toggle-container {
             display: flex;
-            gap: 40px;
+            gap: 15px;
             margin-bottom: 25px;
-            font-size: 15px;
         }
+        .role-btn {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            color: #555;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            flex-grow: 1;
+            text-align: left;
+        }
+        .role-btn strong { color: #333; font-size: 15px; }
+        .role-btn:hover:not(:disabled) { background: #e4e4e4; }
+        
+        /* Active State (Green) */
+        .role-btn.active {
+            background: rgba(0, 242, 195, 0.1);
+            border-color: #00f2c3;
+        }
+        .role-btn.active strong { color: #00f2c3; }
         
         .contact-section h4, .student-section h4 {
             font-size: 14px;
@@ -363,9 +384,13 @@
                         
                         <div id="app-name" class="real-name">Loading Real Name...</div>
 
-                        <div class="role-row">
-                            <div>Primary Role: <strong id="app-role-primary">-</strong></div>
-                            <div>Secondary Role: <strong id="app-role-secondary">-</strong></div>
+                        <div class="role-toggle-container">
+                            <button id="btn-primary-role" class="role-btn active">
+                                Primary: <br><strong id="text-primary-role">-</strong>
+                            </button>
+                            <button id="btn-secondary-role" class="role-btn">
+                                Secondary: <br><strong id="text-secondary-role">-</strong>
+                            </button>
                         </div>
 
                         <div class="contact-section">
@@ -510,9 +535,8 @@
                             </select>
                         </div>
                         <div id="radar-chart" style="width: 100%; height: 280px; margin: 0 auto;"></div>
-                        <div class="summary-box">
-                            <b>Summary of Last 15 Games:</b><br>
-                            <span id="comparison-summary">Loading analysis...</span>
+                        <div id="stats-list" style="margin-top: 15px; overflow-y: auto; max-height: 350px;">
+                            <div style="text-align: center; color: #888; padding: 20px;">Select an applicant to load comparison stats...</div>
                         </div>
                     </div>
                 </div>

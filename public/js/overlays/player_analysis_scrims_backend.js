@@ -33,10 +33,10 @@
 
 //   TODO: Fix the save Evaluation feature (Feb 21 - jer)
   // Save or update evaluation
-  Backend.saveEvaluation = async function (playerId, scrimId, data) {
+  Backend.saveEvaluation = async function (playerId, data) {
     console.log(playerId);
     console.log(data);
-    return fetch(`/player_analysis/players/${playerId}/${scrimId}/evaluation`, {
+    return fetch(`/player_analysis/players/${playerId}/evaluation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
