@@ -5,6 +5,8 @@
 document.addEventListener("DOMContentLoaded", async function () {
 
   const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests';
+  
+  // function to extract rank tier from rank string (e.g. "Gold IV" -> "gold")
   const validRankTiers = new Set([
     'iron',
     'bronze',
@@ -19,6 +21,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     'unranked'
   ]);
 
+  // Extracts the rank tier (e.g. "Gold IV" -> "gold") for icon mapping
   function getRankTier(rankValue) {
     if (!rankValue || typeof rankValue !== 'string') return 'unranked';
 
@@ -26,6 +29,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     return validRankTiers.has(firstWord) ? firstWord : 'unranked';
   }
 
+  // Maps rank string to corresponding icon URL
   function getRankIconUrl(rankValue) {
     const tier = getRankTier(rankValue);
     const filename = tier === 'emerald' ? 'emerald_tft.svg' : `${tier}.png`;
