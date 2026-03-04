@@ -66,19 +66,310 @@ function setupEventListeners() {
         deactivateSelectedUsers();
     });
 
-    document.getElementById('addUserBtn').addEventListener('click', () => {
-        console.log('Add user clicked');
-        // Implementation coming soon
+    // Add user dropdown handling
+    const addUserBtn = document.getElementById('addUserBtn');
+    const addUserDropdown = document.getElementById('addUserDropdown');
+    const csvUploadInput = document.getElementById('csvUploadInput');
+
+    addUserBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        addUserDropdown.style.display = addUserDropdown.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Close dropdown when clicking outside
+    // Dropdown option clicks
+    document.querySelectorAll('.add-user-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            const action = e.target.dataset.action;
+            addUserDropdown.style.display = 'none';
+            if (action === 'upload') {
+                csvUploadInput.value = null;
+                csvUploadInput.click();
+            } else if (action === 'download') {
+                downloadCsvTemplate();
+            } else if (action === 'manual') {
+                // Navigate to registration page
+                window.location.href = '/register';
+            }
+        });
+    });
+
+    // CSV file selected
+    csvUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        handleCsvFile(file);
+    });
+
+    // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
         const filterDropdown = document.getElementById('filterDropdown');
         const filterBtn = document.getElementById('filterBtn');
+        const addUserDropdownEl = document.getElementById('addUserDropdown');
+        const addUserBtnEl = document.getElementById('addUserBtn');
         if (!filterBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
             filterDropdown.style.display = 'none';
         }
+        if (!addUserBtnEl.contains(e.target) && !addUserDropdownEl.contains(e.target)) {
+            addUserDropdownEl.style.display = 'none';
+        }
     });
+}
+
+// Trigger download of a CSV template with headers matching registration fields
+function downloadCsvTemplate() {
+    const headers = [
+        'Full Name',
+        'Riot ID',
+        'Position',
+        'Status',
+        'Email',
+        'Discord'
+    ];
+
+    const example = [
+        'John Doe',
+        'GameName#1234',
+        'Player',
+        'Active',
+        'player@example.com',
+        'John#1234'
+    ];
+
+    const csvContent = `${headers.join(',')}\n${example.join(',')}\n`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'teamforge_user_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Handle CSV file upload: parse and submit rows to registration endpoint
+function handleCsvFile(file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const text = e.target.result;
+        const { headers, rows } = parseCSV(text);
+        if (headers.length === 0 || rows.length === 0) {
+            alert('CSV file appears to be empty or invalid');
+            return;
+        }
+
+        // Normalize header names to lowercase for matching
+        const normalized = headers.map(h => h.toLowerCase());
+        const idx = (names) => {
+            for (let n of names) {
+                const i = normalized.indexOf(n);
+                if (i !== -1) return i;
+            }
+            return -1;
+        };
+
+        const fullNameIdx = idx(['full name', 'fullname', 'name']);
+        const riotIdIdx = idx(['riot id', 'riotid']);
+        const positionIdx = idx(['position']);
+        const statusIdx = idx(['status']);
+        const emailIdx = idx(['email']);
+        const discordIdx = idx(['discord']);
+
+        if (fullNameIdx === -1 || emailIdx === -1) {
+            alert('CSV must include at least "Full Name" and "Email" headers');
+            return;
+        }
+
+        // Build validated payloads
+        const payloads = [];
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const fullName = (row[fullNameIdx] || '').trim();
+            if (!fullName) continue;
+
+            const nameParts = fullName.split(' ').filter(Boolean);
+            const firstname = nameParts.shift();
+            const lastname = nameParts.join(' ') || '';
+
+            const payload = {
+                email: (row[emailIdx] || '').trim(),
+                firstname: firstname || '',
+                lastname: lastname || '',
+                riotId: riotIdIdx !== -1 ? (row[riotIdIdx] || '').trim() : '',
+                position: positionIdx !== -1 ? (row[positionIdx] || '').trim() : 'Player',
+                discord: discordIdx !== -1 ? (row[discordIdx] || '').trim() : '',
+                status: statusIdx !== -1 ? (row[statusIdx] || '').trim() : 'Active'
+            };
+
+            // Basic validation
+            if (payload.email && payload.firstname) {
+                payloads.push(payload);
+            }
+        }
+
+        if (payloads.length === 0) {
+            alert('No valid users found in CSV');
+            return;
+        }
+
+        // Show confirmation modal
+        showUploadConfirmation(payloads);
+    };
+
+    reader.readAsText(file);
+}
+
+// Show CSV upload confirmation modal
+function showUploadConfirmation(payloads) {
+    const modal = document.getElementById('csvConfirmModal');
+    const countEl = document.getElementById('uploadCount');
+    const tableEl = document.getElementById('previewTable');
+    const confirmBtn = document.getElementById('confirmUploadBtn');
+    const cancelBtn = document.getElementById('cancelUploadBtn');
+    const closeBtn = document.getElementById('modalCloseBtn');
+
+    // Update modal content
+    countEl.textContent = `Ready to upload ${payloads.length} user(s)`;
+
+    // Build preview table
+    tableEl.innerHTML = `
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Riot ID</th>
+                <th>Position</th>
+                <th>Status</th>
+                <th>Email</th>
+                <th>Discord</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${payloads.map(p => `
+                <tr>
+                    <td>${p.firstname} ${p.lastname}</td>
+                    <td>${p.riotId || '—'}</td>
+                    <td>${p.position}</td>
+                    <td>${p.status}</td>
+                    <td>${p.email}</td>
+                    <td>${p.discord || '—'}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    // Show modal
+    modal.style.display = 'flex';
+
+    // Handle confirm
+    const handleConfirm = async () => {
+        modal.style.display = 'none';
+        await uploadPayloads(payloads);
+        cleanup();
+    };
+
+    // Handle cancel
+    const handleCancel = () => {
+        modal.style.display = 'none';
+        cleanup();
+    };
+
+    // Handle close button
+    const handleClose = () => {
+        modal.style.display = 'none';
+        cleanup();
+    };
+
+    // Cleanup event listeners
+    const cleanup = () => {
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+        closeBtn.removeEventListener('click', handleClose);
+        modal.removeEventListener('click', handleBackdropClick);
+    };
+
+    // Close on backdrop click
+    const handleBackdropClick = (e) => {
+        if (e.target === modal) {
+            handleCancel();
+        }
+    };
+
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+    closeBtn.addEventListener('click', handleClose);
+    modal.addEventListener('click', handleBackdropClick);
+}
+
+// Upload payloads to the server
+async function uploadPayloads(payloads) {
+    const results = { success: 0, failed: 0, errors: [] };
+
+    for (let i = 0; i < payloads.length; i++) {
+        const payload = payloads[i];
+
+        try {
+            const res = await fetch('/api/v1/users/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.status === 201) {
+                results.success++;
+            } else {
+                results.failed++;
+                const json = await res.json().catch(() => ({}));
+                results.errors.push({ row: i + 1, message: json.message || `Status ${res.status}` });
+            }
+        } catch (err) {
+            results.failed++;
+            results.errors.push({ row: i + 1, message: err.message });
+        }
+    }
+
+    let msg = `Upload complete. Success: ${results.success}, Failed: ${results.failed}`;
+    if (results.errors.length) {
+        msg += '\nErrors:\n' + results.errors.map(e => `User ${e.row}: ${e.message}`).join('\n');
+    }
+    alert(msg);
+    loadUsers(currentFilter);
+}
+
+// Very small CSV parser: first line headers, remaining lines data. Handles simple commas and quotes.
+function parseCSV(text) {
+    // Remove UTF-8 BOM if present
+    text = text.replace(/^\uFEFF/, '');
+    const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+    if (lines.length === 0) return { headers: [], rows: [] };
+
+    // Parse headers (handles quoted and unquoted fields)
+    const headers = parseCSVLine(lines[0]);
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+        rows.push(parseCSVLine(lines[i]));
+    }
+
+    return { headers, rows };
+}
+
+// Parse a single CSV line, handling quoted and unquoted fields
+function parseCSVLine(line) {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    for (let ch of line) {
+        if (ch === '"') {
+            inQuotes = !inQuotes;
+        } else if (ch === ',' && !inQuotes) {
+            // Push trimmed value, without surrounding quotes
+            values.push(current.trim().replace(/^"|"$/g, ''));
+            current = '';
+        } else {
+            current += ch;
+        }
+    }
+    values.push(current.trim().replace(/^"|"$/g, ''));
+    return values;
 }
 
 // Load users from API
