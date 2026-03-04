@@ -61,9 +61,9 @@ router.get('/champion', async function(req, res) {
     res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_champion_pool.html'));
 });
 
-// Serve overlay HTML for player evaluation
-router.get('/evaluation', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_evaluation.html'));
+// Serve overlay HTML for player summary
+router.get('/summary', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_summary.html'));
 });
 
 // ============ BENCHMARKS ROUTES ============

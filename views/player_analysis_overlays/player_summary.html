@@ -1,0 +1,74 @@
+<!-- overlay.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary Overlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/overview.css">
+</head>
+
+<body>
+    <div class="overlay">
+        <!-- Overlay content here -->
+            <div class="overview-container">
+                <div class="match-history-header">
+                    <div class="header-text">Summary of Player: </div>
+                    <!-- Dropdown button for "Ranked" -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" id="queueDropdownBtn">Ranked</button>
+                        <div class="dropdown-content" id="queueDropdownContent">
+                            <a href="#" data-queue="420">Ranked</a>
+                            <a href="#" data-queue="440">Casual</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="fetch-button-container" style="margin-bottom: 15px;">
+                    <button id="fetchMatchStatsBtn" class="fetch-match-stats-btn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">Fetch Match Stats</button>
+                    <span id="timerInfo" style="margin-left: 15px; font-size: 12px; color: #666;"></span>
+                </div>
+                <div class="player_average_info">
+                    <!-- Column 2 -->
+                    <div class="winrate">
+                        <div class="percentWin">percentWin placeholder</div>
+                        <div class="totalGames">totalGames placeholder</div>
+                    </div>
+                    
+                    <!-- Column 3 -->
+                    <div class="KDA_info">
+                        <div class="KDA" id="averageKDA">KDA placeholder</div>
+                        <div class="Summarized_KDA" id="summarizedKDA">K/D/A placeholder</div>
+                    </div>
+                    <!-- Column 4 -->
+                    <div class="recently_played_champion" id="champion1">
+                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
+                        <div class="champion-stats">
+                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
+                            <div class="kda-2">0 KDA</div>
+                        </div>
+                    </div>
+                    <!-- Column 5 -->
+                    <div class="recently_played_champion" id="champion2">
+                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
+                        <div class="champion-stats">
+                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
+                            <div class="kda-2">0 KDA</div>
+                        </div>
+                    </div>
+                    <!-- Column 6 -->
+                    <div class="recently_played_champion" id="champion3">
+                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
+                        <div class="champion-stats">
+                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
+                            <div class="kda-2">0 KDA</div>
+                        </div>
+                    </div>
+
+            </div>
+            
+    </div>
+</body>
+</html>
