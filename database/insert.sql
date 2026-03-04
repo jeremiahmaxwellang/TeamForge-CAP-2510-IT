@@ -497,11 +497,11 @@ VALUES
 -- Insert scrim players for scrimId = 2
 INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win, enemyPlayerIGN)
 VALUES
-(2, 4, 1, '1', 'L', 'Nimbus#doulc'),
-(2, 7, 2, '1', 'L', 'Pr1m3put1n#3135'),
-(2, 3, 3, '1', 'L', 'Sou Hiyori#YTTD'),
-(2, 5, 4, '1', 'L', 'Cowwrean#moo'),
-(2, 6, 5, '1', 'L', 'Aurras#LAZY');
+(2, 4, 1, '2', 'L', 'Nimbus#doulc'),
+(2, 7, 2, '2', 'L', 'Pr1m3put1n#3135'),
+(2, 3, 3, '2', 'L', 'Sou Hiyori#YTTD'),
+(2, 5, 4, '2', 'L', 'Cowwrean#moo'),
+(2, 6, 5, '2', 'L', 'Aurras#LAZY');
 
 INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
