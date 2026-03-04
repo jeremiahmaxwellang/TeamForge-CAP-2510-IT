@@ -115,7 +115,7 @@ VALUES
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId)
 VALUES 
 (
     3,
@@ -130,7 +130,8 @@ VALUES
     '3.4',
     '3.3',
     '3rd Year',
-    'F'
+    'F',
+    1
 ),
 (
     4,
@@ -145,7 +146,8 @@ VALUES
     '3.5',
     '3.2',
     '2nd Year',
-    'F'
+    'F',
+    2
 ),
 (
     5,
@@ -160,7 +162,8 @@ VALUES
     '3.1',
     '2.9',
     '4th Year',
-    'F'
+    'F',
+    1
 ),
 (
     6,
@@ -175,7 +178,8 @@ VALUES
     '3.5',
     '3.2',
     '3rd Year',
-    'F'
+    'F',
+    2
 ),
 (
     7,
@@ -190,7 +194,8 @@ VALUES
     '2.9',
     '3.0',
     '4th Year',
-    'F'
+    'F',
+    1
 ),
 (
     8,
@@ -205,7 +210,8 @@ VALUES
     '3.5',
     '3.1',
     '2nd Year',
-    'T'
+    'T',
+    2
 ),
 (
     9,
@@ -220,7 +226,8 @@ VALUES
     '2.1',
     '1.9',
     '2nd Year',
-    'F'
+    'F',
+    1
 );
 
 -- Applicants
@@ -256,7 +263,7 @@ VALUES (
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, applicationStatus)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, applicationStatus, teamId)
 VALUES (
     10,
     'Kialos',
@@ -269,7 +276,8 @@ VALUES (
     'BSCS-NIS',
     3.25,
     3.30,
-    'Pending'
+    'Pending',
+    1
 ),
 (
     11,
@@ -283,7 +291,8 @@ VALUES (
     'BSCS-ST',
     3.10,
     3.20,
-    'Pending'
+    'Pending',
+    2
 ),
 (
     12,
@@ -297,7 +306,8 @@ VALUES (
     'BSIT',
     1.9,
     2.9,
-    'Pending'
+    'Pending',
+    1
 );
 
 -- -----------------------------------------------------
