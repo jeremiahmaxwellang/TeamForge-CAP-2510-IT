@@ -107,11 +107,10 @@ window.initScrimsTab = function (userId) {
 
             timesPlayedRow.classList.add("times-played-row");
 
-            // TODO: Get average evaluated comms
             timesPlayedRow.innerHTML = `
               <td>${item.gameName}</td>
               <td>${item.timesPlayed}</td>
-              <td>${item.timesPlayed}</td>
+              <td>${item.averageComms}</td>
             `;
 
             tableBody.appendChild(timesPlayedRow);

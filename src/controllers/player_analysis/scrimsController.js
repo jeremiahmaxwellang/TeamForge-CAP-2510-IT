@@ -34,7 +34,6 @@ exports.getScrims = async (req, res) => {
         }
 
         res.json(rows);
-        // console.log(rows);
 
     } catch (err) { 
         console.error("Error fetching scrim:", err); 
@@ -43,14 +42,25 @@ exports.getScrims = async (req, res) => {
 }
 
 const fetchTimesPlayed = `
-    SELECT sp2.playerId, p.gameName, COUNT(*) AS timesPlayed
-    FROM scrimPlayers sp1
-    JOIN scrimPlayers sp2 ON sp1.scrimId = sp2.scrimId
-    JOIN players p ON sp2.playerId = p.userId
-    AND sp1.playerId <> sp2.playerId
+    SELECT sp2.playerId, 
+    CONCAT(p.gameName , ' (', r.displayedRole, ')') AS gameName, 
+    COUNT(*) AS timesPlayed, 
+    ROUND(AVG(CAST(e.ratingCommunication AS DECIMAL(10,2))), 1) AS averageComms
+    FROM scrimPlayers sp1 -- Currently Selected Player
+	JOIN 
+		scrimPlayers sp2 ON sp1.scrimId = sp2.scrimId
+        AND sp1.playerId <> sp2.playerId
+	JOIN 
+		players p ON sp2.playerId = p.userId
+	JOIN 
+		leagueRoles r ON r.roleId = sp2.roleId
+	LEFT JOIN 
+		evaluations e ON sp1.scrimId = e.scrimId
+        AND e.playerId = sp1.playerId -- only ratings for player 4
+    
     WHERE sp1.playerId = ?
-    GROUP BY sp2.playerId 
-    ORDER BY timesPlayed DESC
+    GROUP BY sp2.playerId, CONCAT(p.gameName , ' (', r.displayedRole, ')') 
+    ORDER BY timesPlayed DESC;
 `;
 
 // Get times played with other players
