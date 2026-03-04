@@ -160,19 +160,21 @@ window.initScrimsTab = function (userId) {
     const ratingGameSense = formData.get("gameSense");
     const ratingCommunication = formData.get("communication");
     const ratingChampionPool = formData.get("champPool");
+    const comment = formData.get("comment");
+
+    console.log("[DEBUG] Form values:", { scrimId, ratingGameSense, ratingCommunication, ratingChampionPool, comment });
 
     // TODO: replace with logged-in coach
     const data = {
-      comment: formData.get("comment"),
+      comment: comment,
       ratingGameSense: parseInt(ratingGameSense, 10),
       ratingCommunication: parseInt(ratingCommunication, 10),
       ratingChampionPool: parseInt(ratingChampionPool, 10),
-      coachId: parseInt(2, 10), 
-      scrimId: parseInt(scrimId, 10)
+      coachId: parseInt(2, 10)
     };
 
     try {
-      const result = await Backend.saveEvaluation(userId, data);
+      const result = await Backend.saveEvaluation(userId, scrimId, data);
       
       if (result.success) {
         alert("Evaluation saved!");
