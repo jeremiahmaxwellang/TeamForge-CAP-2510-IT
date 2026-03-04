@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
     res.sendFile(path.join(global.viewsPath, 'applicant_list.html'));
 });
 
-// 2. Serve the Applicant Profile 
+// Serve the Applicant Profile 
 // URL: /applicant_list/profile?id=123
 router.get('/profile', (req, res) => {
     // Make sure 'applicant_profile.html' is in your views folder
@@ -28,8 +28,11 @@ router.get('/getall', applicant_listController.getAllApplicants);
 // Get applicant by email
 router.get('/getbyemail', applicant_listController.getApplicantByEmail);
 
-// NEW: Get specific Applicant Details by ID (Reuses Player Controller)
+// Get specific Applicant Details by ID (Reuses Player Controller)
 // URL: /applicant_list/details/4
 router.get('/details/:id', playerController.getPlayerById);
+
+// Save Coach Evaluation (Accept/Reject & Notes)
+router.post('/evaluate', applicant_listController.saveEvaluation);
 
 module.exports = router;
