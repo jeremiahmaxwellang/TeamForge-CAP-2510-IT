@@ -112,6 +112,13 @@ exports.createEvaluation = async (req, res) => {
             INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
             VALUES
             (?, ?, ?, ?, ?, ?, ?)
+            AS new
+            ON DUPLICATE KEY UPDATE
+                comment = new.comment,
+                ratingGameSense = new.ratingGameSense, 
+                ratingCommunication = new.ratingCommunication, 
+                ratingChampionPool = new.ratingChampionPool, 
+                coachId = new.coachId
         `;
 
         await db.query(sql, [scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId]);
