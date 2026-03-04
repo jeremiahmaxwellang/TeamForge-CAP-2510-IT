@@ -100,6 +100,49 @@ body {
     background-color: #f0f0f0;
 }
 
+/* Add User Dropdown */
+.add-user-dropdown {
+    position: relative;
+}
+
+.add-user-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 5px;
+    min-width: 200px;
+}
+
+.add-user-option {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
+    color: #333;
+}
+
+.add-user-option:first-child {
+    border-radius: 5px 5px 0 0;
+}
+
+.add-user-option:last-child {
+    border-radius: 0 0 5px 5px;
+}
+
+.add-user-option:hover {
+    background-color: #f0f0f0;
+}
+
 /* Action Buttons */
 .action-buttons {
     display: flex;
@@ -235,6 +278,140 @@ body {
     font-size: 1.1rem;
 }
 
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body p {
+    margin: 0 0 15px 0;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.preview-table thead {
+    background-color: #f8f9fa;
+}
+
+.preview-table th {
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    color: #333;
+}
+
+.preview-table td {
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6;
+    color: #555;
+}
+
+.preview-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid #dee2e6;
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.confirm-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .controls-section {
@@ -253,6 +430,16 @@ body {
 
     .action-btn {
         width: 100%;
+    }
+
+    .add-user-dropdown {
+        width: 100%;
+    }
+
+    .add-user-options {
+        left: 0;
+        right: 0;
+        min-width: unset;
     }
 
     .team-management-header h1 {

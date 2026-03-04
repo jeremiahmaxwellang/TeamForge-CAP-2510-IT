@@ -8,12 +8,16 @@ exports.getAllApplicants = async (req, res) => {
                 u.userId,
                 u.firstname,
                 u.lastname,
+                u.email,          
+                u.discord,        
                 p.gameName,
                 p.tagLine,
                 p.primaryRoleId,
                 p.secondaryRoleId,
                 p.peakRank,
                 p.currentRank,
+                p.course,         
+                p.yearLevel,      
                 p.lastGPA,
                 p.CGPA,
                 p.applicationStatus
@@ -91,5 +95,55 @@ exports.getApplicantByEmail = async (req, res) => {
             message: 'Error fetching applicant',
             error: error.message
         });
+    }
+};
+
+// Save Coach Evaluation (Ratings, Notes, and Status)
+exports.saveEvaluation = async (req, res) => {
+    // We use a transaction so if one query fails, it cancels both to prevent corrupted data
+    const connection = await mySqlPool.getConnection();
+    
+    try {
+        const { 
+            userId, 
+            coachId, 
+            notes, 
+            gameSense, 
+            communication, 
+            champPool, 
+            status 
+        } = req.body;
+
+        if (!userId || !coachId) {
+            return res.status(400).json({ success: false, message: 'Applicant ID and Coach ID are required.' });
+        }
+
+        await connection.beginTransaction();
+
+        // 1. Insert the ratings and notes into our new table
+        const insertEvalQuery = `
+            INSERT INTO applicantEvaluations 
+            (userId, coachId, comment, ratingGameSense, ratingCommunication, ratingChampionPool) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        await connection.query(insertEvalQuery, [userId, coachId, notes, gameSense, communication, champPool]);
+
+        // 2. Update their final Accept/Reject status in the players table
+        const updateStatusQuery = `
+            UPDATE players 
+            SET applicationStatus = ? 
+            WHERE userId = ?
+        `;
+        await connection.query(updateStatusQuery, [status, userId]);
+
+        await connection.commit();
+        
+        res.status(200).json({ success: true, message: 'Evaluation securely saved!' });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error saving applicant evaluation:', error);
+        res.status(500).json({ success: false, message: 'Database error while saving evaluation.' });
+    } finally {
+        connection.release();
     }
 };

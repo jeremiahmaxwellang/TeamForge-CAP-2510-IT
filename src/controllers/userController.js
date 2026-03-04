@@ -62,25 +62,75 @@ const getUserById = async (req, res) => {
 // CREATE USERS
 const createUser = async (req, res) => {
     try {
-        const { userId, email, passwordHash, firstname, lastname, position, discord, status } = req.body
-        if(!userId || !email || !passwordHash || !firstname || !lastname || !position || !discord || !status ){
-            return res.status(500).send({
-                success:false,
-                message:'Please provide all fields'
+        let { userId, email, passwordHash, firstname, lastname, position, discord, status, riotId } = req.body
+
+        // Basic required fields
+        if (!email || !firstname || !lastname || !position || !discord || !status) {
+            return res.status(400).send({
+                success: false,
+                message: 'Please provide required fields: email, firstname, lastname, position, discord, status'
             })
         }
 
-        const data = await db.query(`INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [userId, email, passwordHash, firstname, lastname, position, discord, status])
-        if(!data) {
-            return res.status(404).send({
-                success:false,
-                message:'Error creating account'
-            })
+        // Provide default passwordHash if not supplied (development only)
+        if (!passwordHash) passwordHash = 'changeme';
+
+        let insertResult;
+        if (userId) {
+            insertResult = await db.query(`INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [userId, email, passwordHash, firstname, lastname, position, discord, status])
+        } else {
+            insertResult = await db.query(`INSERT INTO users(email, passwordHash, firstname, lastname, position, discord, status) VALUES (?, ?, ?, ?, ?, ?, ?)`, [email, passwordHash, firstname, lastname, position, discord, status])
         }
-        res.status(201).send({
-            success:true,
-            message:'New user created'
-        })
+
+        if (!insertResult) {
+            return res.status(500).send({ success: false, message: 'Error creating account' });
+        }
+
+        // Determine newly created userId
+        let newUserId = userId;
+        try {
+            // insertResult is [result, fields] from mysql2
+            if (!newUserId && insertResult[0] && insertResult[0].insertId) {
+                newUserId = insertResult[0].insertId;
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        // If riotId provided, attempt to create a players row (store gameName and tagLine)
+        if (riotId) {
+            const parts = riotId.split('#');
+            if (parts.length === 2) {
+                const gameName = parts[0].trim();
+                const tagLine = parts[1].trim();
+
+                // Map textual position to primaryRoleId when possible
+                const roleMap = {
+                    'top': 1,
+                    'jungle': 2,
+                    'mid': 3,
+                    'middle': 3,
+                    'adc': 4,
+                    'ad carry': 4,
+                    'adcarry': 4,
+                    'support': 5
+                };
+
+                let primaryRoleId = 1; // default
+                if (position) {
+                    const key = position.toString().toLowerCase();
+                    if (roleMap[key]) primaryRoleId = roleMap[key];
+                }
+
+                try {
+                    await db.query(`INSERT INTO players (userId, gameName, tagLine, primaryRoleId) VALUES (?, ?, ?, ?)`, [newUserId, gameName, tagLine, primaryRoleId]);
+                } catch (err) {
+                    console.error('Error inserting into players for riotId:', err.message);
+                }
+            }
+        }
+
+        res.status(201).send({ success: true, message: 'New user created' });
 
     } catch(error) {
         console.log(error)
