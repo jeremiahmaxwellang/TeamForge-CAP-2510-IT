@@ -25,9 +25,6 @@ router.get('/winrate/:puuid', analysisOverviewController.getWinrate);
 // Route: GET /riot/match/:matchId
 router.get('/match/:matchId', riotApiController.getMatchDetails);
 
-// Route: GET /riot/rank/:puuid - Get player's current and peak rank
-router.get('/rank/:puuid', riotApiController.getPlayerRank);
-
 // Route: POST /riot/match/:userId/store - Store a single match
 router.post('/match/:userId/store', riotApiController.saveMatchDetails);
 
