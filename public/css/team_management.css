@@ -348,6 +348,23 @@ body {
     color: #666;
 }
 
+/* manual form field styling */
+.modal-body .form-group {
+    margin-bottom: 15px;
+}
+.modal-body .form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.modal-body .form-group input,
+.modal-body .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 .preview-table {
     width: 100%;
     border-collapse: collapse;

@@ -12,6 +12,18 @@ exports.createUser = async (req, res) => {
             });
         }
 
+        // Check if email already exists
+        try {
+            const [existingUsers] = await mySqlPool.query('SELECT userId FROM users WHERE email = ?', [email])
+            if (existingUsers && existingUsers.length > 0) {
+                return res.status(400).json({
+                    message: 'An account with this email already exists'
+                });
+            }
+        } catch (checkErr) {
+            console.error('Error checking duplicate email:', checkErr);
+        }
+
         // Parse Riot ID (format: gameName#tagLine)
         const riotIdParts = riotId.split('#');
         if (riotIdParts.length !== 2) {
