@@ -384,13 +384,17 @@
 
         console.log(`[FETCH MATCHES] Received ${data.matches.length} match IDs from API (already filtered by queue ${queueId})`);
 
-        // Limit to the last 15 matches
-        // Note: Backend already filtered by queue, so we just take the IDs
-        const last15Matches = data.matches.slice(0, 15);
+        if (data.roleBuckets) {
+          console.log(
+            `[FETCH MATCHES] Role buckets from backend: ${data.roleBuckets.primary}/${data.roleBuckets.targetPerRole} primary, ${data.roleBuckets.secondary}/${data.roleBuckets.targetPerRole} secondary`
+          );
+        }
 
-        console.log(`[FETCH MATCHES] Processing ${last15Matches.length} matches for details fetch`);
+        const matchIds = data.matches;
 
-        const detailPromises = last15Matches.map((matchId) => fetchMatchDetails(matchId));
+        console.log(`[FETCH MATCHES] Processing ${matchIds.length} matches for details fetch`);
+
+        const detailPromises = matchIds.map((matchId) => fetchMatchDetails(matchId));
         return Promise.all(detailPromises);
       })
       .then((matchesData) => {
