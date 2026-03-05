@@ -30,6 +30,9 @@ router.get('/players/:id/scrims', scrimsController.getScrims);
 // Get scrims played with other players
 router.get('/players/:id/timesPlayed', scrimsController.getTimesPlayed);
 
+// Get scrim summary
+router.get('/players/:id/scrims_summary', scrimsController.getScrimSummary);
+
 // Get Evaluation
 router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluation);
 

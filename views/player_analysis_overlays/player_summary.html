@@ -1,6 +1,7 @@
 <!-- overlay.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,41 +9,46 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/overview.css">
+    <link rel="stylesheet" href="/css/player_analysis/summary.css">
 </head>
 
 <body>
     <div class="overlay">
         <!-- Overlay content here -->
-            <div class="overview-container">
-                <div class="match-history-header">
-                    <div class="header-text">Summary of Player: </div>
-                    <!-- Dropdown button for "Ranked" -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" id="queueDropdownBtn">Ranked</button>
-                        <div class="dropdown-content" id="queueDropdownContent">
-                            <a href="#" data-queue="420">Ranked</a>
-                            <a href="#" data-queue="440">Casual</a>
-                        </div>
-                    </div>
+        <div class="overview-container">
+            <div class="match-history-header">
+                <div class="header-text">Summary of Player: </div>
+            </div>
+
+            <div class="summary-container">
+                <h2>Player Summary</h2>
+
+                <!-- Recommendation -->
+                <div class="card">
+                    <h3>Recommendation</h3>
+                    <p>Based on the data, this player might be better at focusing on ADC role given champion pool and
+                        scrim synergy.</p>
                 </div>
-                
-                <div class="fetch-button-container" style="margin-bottom: 15px;">
-                    <button id="fetchMatchStatsBtn" class="fetch-match-stats-btn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">Fetch Match Stats</button>
-                    <span id="timerInfo" style="margin-left: 15px; font-size: 12px; color: #666;"></span>
-                </div>
-                <div class="player_average_info">
-                    <!-- Column 2 -->
+
+                <!-- Ranked Games -->
+                <div class="card">
+                    <h3>Ranked Games</h3>
+
+                    <!-- Winrate -->
                     <div class="winrate">
                         <div class="percentWin">percentWin placeholder</div>
                         <div class="totalGames">totalGames placeholder</div>
                     </div>
-                    
-                    <!-- Column 3 -->
-                    <div class="KDA_info">
-                        <div class="KDA" id="averageKDA">KDA placeholder</div>
-                        <div class="Summarized_KDA" id="summarizedKDA">K/D/A placeholder</div>
+                    <div class="metrics">
+                        <p><strong>Winrate:</strong> 27% (Last 15 Games)</p>
+                        <p><strong>Preferred Role:</strong> Top 62.5%, Jungle 25%, Support 12.5%</p>
+                        <p><strong>Most Played Champion:</strong> Jinx</p>
                     </div>
-                    <!-- Column 4 -->
+                </div>
+
+                <!-- Champion Pool -->
+                <div class="card">
+                    <h3>Champion Pool</h3>
                     <div class="recently_played_champion" id="champion1">
                         <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
                         <div class="champion-stats">
@@ -50,25 +56,40 @@
                             <div class="kda-2">0 KDA</div>
                         </div>
                     </div>
-                    <!-- Column 5 -->
-                    <div class="recently_played_champion" id="champion2">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0 KDA</div>
-                        </div>
+                    <div class="metrics">
+                        <p>Jinx - 40%</p>
+                        <p>Ezreal - 25%</p>
+                        <p>Aphelios - 20%</p>
+                        <p>Other - 15%</p>
                     </div>
-                    <!-- Column 6 -->
-                    <div class="recently_played_champion" id="champion3">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0 KDA</div>
-                        </div>
-                    </div>
+                </div>
 
+                <!-- Scrims -->
+                <div class="card">
+                    <h3>Scrims</h3>
+                    <table class="scrims-table">
+                        <thead>
+                            <tr>
+                                <th>Total Played</th>
+                                <th>Total Avg Game Sense</th>
+                                <th>Total Avg Comms</th>
+                                <th>Total Avg Champ</th>
+                                <th>Most Played With</th>
+                                <th>Scrims Together</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>No games found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            
+
+        </div>
+
     </div>
 </body>
+
 </html>
