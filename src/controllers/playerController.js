@@ -466,15 +466,52 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
       return res.status(400).json({ error: 'roleId is required' });
     }
 
-    // Fetch the 15 most recent match participants for this player
-    const [matchParticipants] = await db.query(
-      `SELECT mp.* FROM matchParticipants mp
-       JOIN matches m ON mp.matchId = m.matchId
-       WHERE m.userId = ?
-       ORDER BY m.gameCreation DESC
-       LIMIT 15`,
+    const [roleRows] = await db.query(
+      `SELECT p.puuid, p.primaryRoleId, p.secondaryRoleId,
+              r1.teamPosition AS primaryTeamPosition,
+              r2.teamPosition AS secondaryTeamPosition
+       FROM players p
+       JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
+       LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+       WHERE p.userId = ?
+       LIMIT 1`,
       [playerId]
     );
+
+    const roleInfo = roleRows[0];
+    if (!roleInfo || !roleInfo.puuid) {
+      return res.status(404).json({ error: 'Player role or PUUID not found' });
+    }
+
+    const [primaryMatches] = await db.query(
+      `SELECT mp.* FROM matchParticipants mp
+       JOIN matches m ON mp.matchId = m.matchId
+       WHERE mp.puuid = ? AND mp.teamPosition = ?
+       ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
+       LIMIT 15`,
+      [roleInfo.puuid, roleInfo.primaryTeamPosition]
+    );
+
+    const [secondaryMatches] =
+      roleInfo.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
+        ? await db.query(
+            `SELECT mp.* FROM matchParticipants mp
+             JOIN matches m ON mp.matchId = m.matchId
+             WHERE mp.puuid = ? AND mp.teamPosition = ?
+             ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
+             LIMIT 15`,
+            [roleInfo.puuid, roleInfo.secondaryTeamPosition]
+          )
+        : [[]];
+
+    const deduped = new Map();
+    [...primaryMatches, ...secondaryMatches].forEach((participantRow) => {
+      if (!deduped.has(participantRow.matchId)) {
+        deduped.set(participantRow.matchId, participantRow);
+      }
+    });
+
+    const matchParticipants = Array.from(deduped.values());
 
     if (matchParticipants.length === 0) {
       return res.json({
