@@ -22,11 +22,11 @@ router.get('/matches/:puuid/:queueId', riotApiController.getRecentMatches);
 // Route: GET /riot/winrate/:puuid
 router.get('/winrate/:puuid', analysisOverviewController.getWinrate);
 
+// Route: GET /riot/rank/:puuid
+router.get('/rank/:puuid', riotApiController.getPlayerRank);
+
 // Route: GET /riot/match/:matchId
 router.get('/match/:matchId', riotApiController.getMatchDetails);
-
-// Route: GET /riot/rank/:puuid - Get player's current and peak rank
-router.get('/rank/:puuid', riotApiController.getPlayerRank);
 
 // Route: POST /riot/match/:userId/store - Store a single match
 router.post('/match/:userId/store', riotApiController.saveMatchDetails);

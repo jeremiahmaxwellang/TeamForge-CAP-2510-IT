@@ -411,6 +411,23 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrimPlayers` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`applicantEvaluations`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantEvaluations` (
+  `evaluationId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `userId` INT UNSIGNED NOT NULL, 
+  `coachId` INT UNSIGNED NOT NULL, 
+  `comment` LONGTEXT NULL,
+  `ratingGameSense` INT NULL,
+  `ratingCommunication` INT NULL,
+  `ratingChampionPool` INT NULL,
+  `evaluatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`evaluationId`),
+  CONSTRAINT `fk_appEval_applicant` FOREIGN KEY (`userId`) REFERENCES `teamforgedb`.`users` (`userId`),
+  CONSTRAINT `fk_appEval_coach` FOREIGN KEY (`coachId`) REFERENCES `teamforgedb`.`users` (`userId`)
+) ENGINE = InnoDB;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

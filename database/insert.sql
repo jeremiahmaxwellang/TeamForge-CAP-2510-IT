@@ -115,7 +115,7 @@ VALUES
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId)
 VALUES 
 (
     3,
@@ -130,7 +130,8 @@ VALUES
     '3.4',
     '3.3',
     '3rd Year',
-    'F'
+    'F',
+    1
 ),
 (
     4,
@@ -145,7 +146,8 @@ VALUES
     '3.5',
     '3.2',
     '2nd Year',
-    'F'
+    'F',
+    2
 ),
 (
     5,
@@ -160,7 +162,8 @@ VALUES
     '3.1',
     '2.9',
     '4th Year',
-    'F'
+    'F',
+    1
 ),
 (
     6,
@@ -175,7 +178,8 @@ VALUES
     '3.5',
     '3.2',
     '3rd Year',
-    'F'
+    'F',
+    2
 ),
 (
     7,
@@ -190,7 +194,8 @@ VALUES
     '2.9',
     '3.0',
     '4th Year',
-    'F'
+    'F',
+    1
 ),
 (
     8,
@@ -205,7 +210,8 @@ VALUES
     '3.5',
     '3.1',
     '2nd Year',
-    'T'
+    'T',
+    2
 ),
 (
     9,
@@ -220,7 +226,8 @@ VALUES
     '2.1',
     '1.9',
     '2nd Year',
-    'F'
+    'F',
+    1
 );
 
 -- Applicants
@@ -256,7 +263,7 @@ VALUES (
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, applicationStatus)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, applicationStatus, teamId)
 VALUES (
     10,
     'Kialos',
@@ -269,7 +276,8 @@ VALUES (
     'BSCS-NIS',
     3.25,
     3.30,
-    'Pending'
+    'Pending',
+    1
 ),
 (
     11,
@@ -283,7 +291,8 @@ VALUES (
     'BSCS-ST',
     3.10,
     3.20,
-    'Pending'
+    'Pending',
+    2
 ),
 (
     12,
@@ -297,7 +306,8 @@ VALUES (
     'BSIT',
     1.9,
     2.9,
-    'Pending'
+    'Pending',
+    1
 );
 
 -- -----------------------------------------------------
@@ -468,13 +478,13 @@ VALUES
 (1, 'Viridis Arcus vs. Annihilation Scrim', '2026-02-23', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:11');
 
 -- Insert scrim players for scrimId = 1
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win, enemyPlayerIGN)
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
 VALUES
-(1, 4, 1, '1', 'W', 'Nimbus#doulc'),
-(1, 7, 2, '1', 'W', 'Pr1m3put1n#3135'),
-(1, 3, 3, '1', 'W', 'Sou Hiyori#YTTD'),
-(1, 5, 4, '1', 'W', 'Cowwrean#moo'),
-(1, 6, 5, '1', 'W', 'Aurras#LAZY');
+(1, 4, 1, 'W'),
+(1, 7, 2, 'W'),
+(1, 3, 3, 'W'),
+(1, 5, 4, 'W'),
+(1, 6, 5, 'W');
 
 INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
@@ -485,14 +495,28 @@ VALUES
 (2, 'Viridis Arcus vs. Punk Rockers', '2026-02-24', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '29:55');
 
 -- Insert scrim players for scrimId = 2
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win, enemyPlayerIGN)
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
 VALUES
-(2, 4, 1, '2', 'L', 'Nimbus#doulc'),
-(2, 7, 2, '2', 'L', 'Pr1m3put1n#3135'),
-(2, 3, 3, '2', 'L', 'Sou Hiyori#YTTD'),
-(2, 5, 4, '2', 'L', 'Cowwrean#moo'),
-(2, 6, 5, '2', 'L', 'Aurras#LAZY');
+(2, 4, 1, 'L'),
+(2, 7, 2, 'L'),
+(2, 3, 3, 'L'),
+(2, 5, 4, 'L'),
+(2, 6, 5, 'L');
 
 INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
 (2, 4, 'Communication has improved since last scrim', 4, 5, 4, 2);
+
+-- SCRIM 3 
+INSERT INTO scrims(scrimId, name, date, videoLink, length)
+VALUES 
+(3, 'Viridis Arcus vs. Sesame Street', '2026-03-04', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:02');
+
+-- Insert scrim players for scrimId = 3
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win)
+VALUES
+(3, 4, 1, '1', 'L'),
+(3, 8, 2, '1', 'L'),
+(3, 3, 3, '1', 'L'),
+(3, 5, 4, '1', 'L'),
+(3, 6, 5, '1', 'L');

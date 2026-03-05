@@ -29,7 +29,15 @@
             <div class="action-buttons">
                 <button id="editUserBtn" class="action-btn edit-btn">Edit User</button>
                 <button id="deactivateBtn" class="action-btn deactivate-btn">Deactivate Selected</button>
-                <button id="addUserBtn" class="action-btn add-btn">Add User</button>
+                <div class="add-user-dropdown">
+                    <button id="addUserBtn" class="action-btn add-btn">Add User ▾</button>
+                    <div id="addUserDropdown" class="add-user-options" style="display: none;">
+                        <button class="add-user-option" data-action="upload">Upload CSV File</button>
+                        <button class="add-user-option" data-action="download">Download CSV Template</button>
+                        <button class="add-user-option" data-action="manual">Manually Register User</button>
+                    </div>
+                    <input type="file" id="csvUploadInput" accept=".csv" style="display:none">
+                </div>
             </div>
         </div>
 
@@ -58,6 +66,26 @@
         <!-- No Users Message -->
         <div id="noUsersMessage" class="no-users-message" style="display: none;">
             <p>No users found.</p>
+        </div>
+
+        <!-- CSV Upload Confirmation Modal -->
+        <div id="csvConfirmModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirm CSV Upload</h2>
+                    <button class="modal-close" id="modalCloseBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="uploadCount"></p>
+                    <div id="previewTableContainer" style="overflow-x: auto; margin: 20px 0;">
+                        <table id="previewTable" class="preview-table"></table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirmUploadBtn" class="modal-btn confirm-btn">Confirm Upload</button>
+                    <button id="cancelUploadBtn" class="modal-btn cancel-btn">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
 

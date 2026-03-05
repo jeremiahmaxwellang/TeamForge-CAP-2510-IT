@@ -159,10 +159,10 @@
     const comparisonButton = document.getElementById("comparisonButton");
     const scrimsButton = document.getElementById("scrimsButton");
     const championButton = document.getElementById("championButton");
-    const evaluationButton = document.getElementById("evaluationButton");
+    const summaryButton = document.getElementById("summaryButton");
     const overlayContainer = document.getElementById("overlay-container");
 
-    const tabButtons = [overviewButton, comparisonButton, scrimsButton, championButton, evaluationButton];
+    const tabButtons = [overviewButton, comparisonButton, scrimsButton, championButton, summaryButton];
 
     function closeOverlay() {
       const overlay = overlayContainer?.querySelector(".overlay");
@@ -233,7 +233,7 @@
           comparisonButton: "/player_analysis/comparison",
           scrimsButton: "/player_analysis/scrims",
           championButton: "/player_analysis/champion",
-          evaluationButton: "/player_analysis/evaluation",
+          summaryButton: "/player_analysis/summary",
         };
 
         const url = urlMap[this.id];
@@ -251,12 +251,6 @@
             if (this.id === "championButton") {
               const btn = document.getElementById("player-dropdown-btn");
               const userId = btn.getAttribute("data-player-id");
-
-              // const menu = document.getElementById("player-dropdown-menu");
-              // menu.addEventListener("click", () => {
-              //   const playerId = btn?.getAttribute("data-player-id");
-              //   window.initChampionTab(playerId);
-              // })
 
               if (userId && typeof window.initChampionTab === "function") {
                 window.initChampionTab(userId);
@@ -281,6 +275,18 @@
                 window.initScrimsTab(userId);
               } else {
                 console.error("initScrimsTab not found! Make sure scrim overlay JS is loaded.");
+              }
+            }
+
+            // Summary Tab
+            if (this.id === "summaryButton") {
+              const btn = document.getElementById("player-dropdown-btn");
+              const userId = btn.getAttribute("data-player-id");
+
+              if (userId && typeof window.initSummaryTab === "function") {
+                window.initSummaryTab(userId);
+              } else {
+                console.error("initSummaryTab not found! Make sure Summary overlay JS is loaded.");
               }
             }
 

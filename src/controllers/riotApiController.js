@@ -41,6 +41,35 @@ exports.getPuuid = async (req, res) => {
     }
 };
 
+// Fetch current and peak rank from database by PUUID
+exports.getPlayerRank = async (req, res) => {
+    const { puuid } = req.params;
+
+    try {
+        const sql = `
+            SELECT currentRank, peakRank
+            FROM players
+            WHERE puuid = ?
+            LIMIT 1;
+        `;
+
+        const [results] = await db.query(sql, [puuid]);
+
+        if (!results || results.length === 0) {
+            return res.status(404).json({ error: "Player rank not found" });
+        }
+
+        const currentRank = results[0].currentRank || "No Rank Found";
+        const peakRank = results[0].peakRank || "Unknown";
+
+        // Keep response contract used by frontend (`lp` is optional display data)
+        res.json({ currentRank, peakRank, lp: 0 });
+    } catch (err) {
+        console.error(`[RANK DB] ❌ Error fetching rank from database:`, err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 // Used for Player Analysis Overview Overlay to fetch winrate and recent matches after overlay is loaded
 
 // FETCH recent matches for a player by PUUID and queue ID
@@ -612,31 +641,3 @@ exports.saveMultipleMatchParticipants = async (req, res) => {
     }
 };
 
-// Fetch current and peak rank from database by PUUID
-exports.getPlayerRank = async (req, res) => {
-    const { puuid } = req.params;
-
-    try {
-        const sql = `
-            SELECT currentRank, peakRank
-            FROM players
-            WHERE puuid = ?
-            LIMIT 1;
-        `;
-
-        const [results] = await db.query(sql, [puuid]);
-
-        if (!results || results.length === 0) {
-            return res.status(404).json({ error: "Player rank not found" });
-        }
-
-        const currentRank = results[0].currentRank || "No Rank Found";
-        const peakRank = results[0].peakRank || "Unknown";
-
-        // Keep response contract used by frontend (`lp` is optional display data)
-        res.json({ currentRank, peakRank, lp: 0 });
-    } catch (err) {
-        console.error(`[RANK DB] ❌ Error fetching rank from database:`, err.message);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-};
