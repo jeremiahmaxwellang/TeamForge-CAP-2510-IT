@@ -119,14 +119,16 @@
         console.log(`[FETCH WINRATE] ✓ Winrate Data Received:`, data);
 
         // Calculate the winrate
-        const winrate = (data.wins / data.total) * 100; // Winrate calculation
+        const wins = Number(data.wins) || 0;
+        const total = Number(data.total) || 0;
+        const winrate = total > 0 ? (wins / total) * 100 : 0; // Winrate calculation
 
         // Update the winrate and games information
         const winrateData = {
-          winrate: winrate.toFixed(2),
-          wins: data.wins,
-          losses: data.total - data.wins,
-          total: data.total,
+          winrate: Number(winrate.toFixed(2)),
+          wins,
+          losses: Math.max(total - wins, 0),
+          total,
         };
 
         // Cache the winrate data
@@ -134,6 +136,9 @@
 
         // Update the display with winrate data (if elements exist)
         updateWinrateDisplay(winrateData);
+
+        // Notify overlays/listeners that winrate data changed
+        document.dispatchEvent(new CustomEvent("playeranalysis:winrate-updated", { detail: winrateData }));
 
         console.log(`[FETCH WINRATE] ✓ Cached winrate data:`, PA.cache.winrateData);
 
@@ -226,7 +231,9 @@
     const totalGamesEl = document.querySelector(".totalGames");
     const winrateContainer = document.querySelector(".winrate"); // Select the container
 
-    if (percentWinEl) percentWinEl.textContent = `${winrateData.winrate}%`;
+    const normalizedWinrate = Math.min(100, Math.max(0, Number(winrateData?.winrate) || 0));
+
+    if (percentWinEl) percentWinEl.textContent = `${normalizedWinrate.toFixed(2)}%`;
     if (totalGamesEl) {
       totalGamesEl.textContent = `${winrateData.wins}W ${winrateData.losses}L (${winrateData.total} games)`;
     }
@@ -234,7 +241,7 @@
     // Update the Circle Graph
     if (winrateContainer) {
       // Calculate degrees: (percentage / 100) * 360
-      const degrees = (winrateData.winrate / 100) * 360;
+      const degrees = (normalizedWinrate / 100) * 360;
 
       // Set the CSS variable on the element so the ::before pseudo-element can use it
       winrateContainer.style.setProperty('--winrate-angle', `${degrees}deg`);

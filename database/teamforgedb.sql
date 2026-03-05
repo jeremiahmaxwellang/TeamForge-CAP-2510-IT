@@ -358,7 +358,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`playerStatistics` (
   `userId` INT UNSIGNED NOT NULL,
   `metricId` INT NOT NULL,
   `roleId` INT NOT NULL,
-  `metricValue` DECIMAL(6,2) NULL,
+  `metricValue` BIGINT NULL,
   `recordedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`userId`, `metricId`, `roleId`),
   INDEX `fk_playerStatistics_metrics1_idx` (`metricId` ASC) VISIBLE,

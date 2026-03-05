@@ -164,6 +164,14 @@
 
     const tabButtons = [overviewButton, comparisonButton, scrimsButton, championButton, summaryButton];
 
+    // Auto-refresh overview winrate graph whenever backend computes new winrate data
+    document.addEventListener("playeranalysis:winrate-updated", (event) => {
+      const winrateEl = overlayContainer?.querySelector(".winrate");
+      if (winrateEl && event?.detail) {
+        api.updateWinrateDisplay(event.detail);
+      }
+    });
+
     function closeOverlay() {
       const overlay = overlayContainer?.querySelector(".overlay");
       if (overlay) overlay.style.display = "none";
@@ -322,6 +330,13 @@
             // This ensures the fetch is manually triggered by the user, and cached data is displayed
             if (this.id === "overviewButton") {
               setupFetchMatchStatsButton(api, state);
+
+              const selectedPlayerBtn = document.getElementById("player-dropdown-btn");
+              const puuid = selectedPlayerBtn?.getAttribute("data-puuid");
+              if (puuid) {
+                api.fetchWinrate(puuid, state.currentQueueId)
+                  .catch((err) => console.error("[OVERVIEW] Error refreshing winrate for graph:", err));
+              }
               
               // Update display with cached data if available
               console.log("[OVERVIEW] Updating display with cached data");
