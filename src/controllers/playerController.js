@@ -182,9 +182,14 @@ exports.updatePuuid = async (req, res) => {
 exports.storePlayerStatistic = async (req, res) => {
   try {
     const { userId, roleId, metricId, metricValue } = req.body;
+    const parsedMetricValue = Number(metricValue);
 
     if (!userId || !metricId || metricValue === undefined || metricValue === null) {
       return res.status(400).json({ error: 'userId, metricId and metricValue are required' });
+    }
+
+    if (!Number.isFinite(parsedMetricValue)) {
+      return res.status(400).json({ error: 'metricValue must be a valid number' });
     }
 
     const sql = `
@@ -195,7 +200,7 @@ exports.storePlayerStatistic = async (req, res) => {
         recordedAt = NOW()
     `;
 
-    await db.query(sql, [userId, metricId, roleId || null, metricValue]);
+    await db.query(sql, [userId, metricId, roleId || null, Math.round(parsedMetricValue)]);
 
     res.json({ success: true });
   } catch (err) {
@@ -601,8 +606,8 @@ function calculateAggregateStats(matchParticipants) {
     'CS Per Minute': (totals.creepScore / count / gameDuration).toFixed(2),
     'Gold Per Minute': (totals.goldEarned / count / gameDuration).toFixed(2),
     'Vision Score Per Minute': (totals.visionScore / count / gameDuration).toFixed(3),
-    'Total Damage Dealt': totals.totalDamageDealt,
-    'Total Damage Taken': totals.totalDamageTaken,
+    'Total Damage Dealt': (totals.totalDamageDealt / count).toFixed(2),
+    'Total Damage Taken': (totals.totalDamageTaken / count).toFixed(2),
     'Solo Kills': (totals.soloKills / count).toFixed(2),
     'Total Wards Placed': (totals.wardsPlaced / count).toFixed(2),
     'Total Wards Destroyed': (totals.wardsKilled / count).toFixed(2),
@@ -727,16 +732,17 @@ async function saveCalculatedStats(userId, roleId, stats) {
       }
 
       const metricId = metricLookup[lookupKey];
+      const numericValue = parseFloat(value);
 
       // 5. If this stat exists in your "metrics" table, save it!
-      if (metricId && !isNaN(parseFloat(value))) {
+      if (metricId && Number.isFinite(numericValue)) {
         queries.push(
           db.query(
             `INSERT INTO playerStatistics (userId, metricId, roleId, metricValue, recordedAt)
              VALUES (?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
              metricValue = VALUES(metricValue), recordedAt = VALUES(recordedAt)`,
-             [userId, metricId, roleId, value, timestamp]
+             [userId, metricId, roleId, Math.round(numericValue), timestamp]
           )
         );
       }
