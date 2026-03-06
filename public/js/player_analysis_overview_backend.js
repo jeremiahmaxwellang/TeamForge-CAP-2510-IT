@@ -491,10 +491,15 @@
         // Store to DB (both primary+secondary role buckets), then trim to latest 15 per role
         const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
         if (currentPlayerId && matchesData.length > 0) {
-          storeMatchesToDatabase(currentPlayerId, matchesData, {
+          return storeMatchesToDatabase(currentPlayerId, matchesData, {
             puuid,
             queueId,
-          });
+          })
+            .then(() => displayMatches)
+            .catch((storeErr) => {
+              console.error("[STORE] ✗ Error while storing matches before resolving fetchRecentMatches:", storeErr);
+              return displayMatches;
+            });
         }
 
         return displayMatches;

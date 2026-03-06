@@ -31,12 +31,40 @@
 
   function setupFetchMatchStatsButton(api, state) {
     const fetchBtn = document.getElementById("fetchMatchStatsBtn");
-    const timerInfo = document.getElementById("timerInfo");
+    const statusText = document.getElementById("timerInfo");
+    const defaultTooltip = "Fetch Match Stats";
 
     if (!fetchBtn) {
       console.error("[FETCH BUTTON] Button not found in DOM");
       return;
     }
+
+    if (statusText) {
+      statusText.setAttribute("aria-live", "polite");
+    }
+
+    function setFetchStatus(message, color = "#666") {
+      if (!statusText) return;
+      statusText.textContent = message;
+      statusText.style.color = color;
+    }
+
+    function formatCooldownLabel(timeRemainingMs) {
+      const seconds = Math.ceil(timeRemainingMs / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${minutes}m ${secs}s`;
+    }
+
+    function updateCooldownTooltip(timeRemainingMs) {
+      if (timeRemainingMs > 0) {
+        fetchBtn.title = `Available in ${formatCooldownLabel(timeRemainingMs)}`;
+      } else {
+        fetchBtn.title = defaultTooltip;
+      }
+    }
+
+    fetchBtn.title = defaultTooltip;
 
     // Load last fetch time from localStorage
     const storedTime = localStorage.getItem("lastMatchStatsFetchTime");
@@ -50,21 +78,18 @@
       const timeRemaining = timeSinceLastFetch !== null ? FETCH_INTERVAL - timeSinceLastFetch : 0;
 
       if (lastFetchTime && timeRemaining > 0) {
-        // Button is disabled
-        fetchBtn.disabled = true;
+        // Button is on cooldown
+        fetchBtn.disabled = false;
         fetchBtn.style.opacity = "0.5";
         fetchBtn.style.cursor = "not-allowed";
 
-        const seconds = Math.ceil(timeRemaining / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        timerInfo.textContent = `(Available in ${minutes}m ${secs}s)`;
+        updateCooldownTooltip(timeRemaining);
       } else {
         // Button is enabled
         fetchBtn.disabled = false;
         fetchBtn.style.opacity = "1";
         fetchBtn.style.cursor = "pointer";
-        timerInfo.textContent = "";
+        updateCooldownTooltip(0);
       }
     }
 
@@ -90,9 +115,9 @@
       // Check if 1 minute has passed
       if (lastFetchTime && timeSinceLastFetch < FETCH_INTERVAL) {
         const timeRemaining = FETCH_INTERVAL - timeSinceLastFetch;
-        const seconds = Math.ceil(timeRemaining / 1000);
         console.error("Error: You can only fetch the match statistics once every 1 minute.");
-        timerInfo.textContent = `(Available in ${Math.ceil(seconds / 60)}m ${seconds % 60}s)`;
+        updateCooldownTooltip(timeRemaining);
+        setFetchStatus(`Available in ${formatCooldownLabel(timeRemaining)}`, "#666");
         return;
       }
 
@@ -103,6 +128,7 @@
 
       if (!puuid) {
         console.error("[FETCH BUTTON] No player PUUID found");
+        setFetchStatus("Unable to fetch stats: missing player data.", "#dc3545");
         return;
       }
 
@@ -113,6 +139,7 @@
       // Disable button and show timer
       updateButtonState();
       startButtonCooldown();
+      setFetchStatus("Fetching match stats from Riot API...", "#007bff");
 
       // Fetch fresh data from Riot API (not from database)
       const primaryTeamPosition = btn?.getAttribute("data-primary-team-position");
@@ -121,11 +148,20 @@
         ? (secondaryTeamPosition || primaryTeamPosition || null)
         : (primaryTeamPosition || null);
 
-      api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition)
-        .catch((err) => console.error("[FETCH BUTTON] Error fetching winrate:", err));
-
       api.fetchRecentMatches(puuid, state.currentQueueId, selectedTeamPosition)
-        .catch((err) => console.error("[FETCH BUTTON] Error fetching recent matches:", err));
+        .then(() => {
+          return api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition);
+        })
+        .then(() => {
+          if (document.querySelector("#overlay-container .winrate") && window.PlayerAnalysis?.cache?.winrateData) {
+            requestAnimationFrame(() => api.updateWinrateDisplay(window.PlayerAnalysis.cache.winrateData));
+          }
+          setFetchStatus("Match stats updated.", "#28a745");
+        })
+        .catch((err) => {
+          console.error("[FETCH BUTTON] Error fetching recent matches:", err);
+          setFetchStatus("Failed to fetch match stats. Try again later.", "#dc3545");
+        });
     });
 
     function startButtonCooldown() {
@@ -137,16 +173,17 @@
         const secs = secondsLeft % 60;
 
         if (secondsLeft > 0) {
-          timerInfo.textContent = `(Available in ${minutes}m ${secs}s)`;
-          fetchBtn.disabled = true;
+          const timeLabel = `${minutes}m ${secs}s`;
+          fetchBtn.disabled = false;
           fetchBtn.style.opacity = "0.5";
           fetchBtn.style.cursor = "not-allowed";
+          fetchBtn.title = `Available in ${timeLabel}`;
         } else {
           clearInterval(countdownInterval);
           fetchBtn.disabled = false;
           fetchBtn.style.opacity = "1";
           fetchBtn.style.cursor = "pointer";
-          timerInfo.textContent = "";
+          fetchBtn.title = defaultTooltip;
         }
       }, 1000);
     }
@@ -174,7 +211,7 @@
     document.addEventListener("playeranalysis:winrate-updated", (event) => {
       const winrateEl = overlayContainer?.querySelector(".winrate");
       if (winrateEl && event?.detail) {
-        api.updateWinrateDisplay(event.detail);
+        requestAnimationFrame(() => api.updateWinrateDisplay(event.detail));
       }
     });
 
@@ -202,6 +239,11 @@
       return primaryTeamPosition || null;
     }
 
+    function redrawWinrateFromCache() {
+      if (!overlayContainer?.querySelector(".winrate") || !PA.cache.winrateData) return;
+      requestAnimationFrame(() => api.updateWinrateDisplay(PA.cache.winrateData));
+    }
+
     function refreshOverviewStats(useRiotApi = false) {
       const btn = document.getElementById("player-dropdown-btn");
       const puuid = btn?.getAttribute("data-puuid");
@@ -209,11 +251,10 @@
 
       const selectedTeamPosition = getSelectedTeamPosition();
 
-      api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition)
-        .catch((err) => console.error("[OVERVIEW] Error refreshing winrate:", err));
-
       const matchFetch = useRiotApi ? api.fetchRecentMatches : api.fetchRecentMatchesFromDatabase;
       matchFetch(puuid, state.currentQueueId, selectedTeamPosition)
+        .then(() => api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition))
+        .then(() => redrawWinrateFromCache())
         .catch((err) => console.error("[OVERVIEW] Error refreshing recent matches:", err));
     }
 
@@ -438,7 +479,7 @@
               // Update display with cached data if available
               console.log("[OVERVIEW] Updating display with cached data");
               if (PA.cache.winrateData) {
-                api.updateWinrateDisplay(PA.cache.winrateData);
+                requestAnimationFrame(() => api.updateWinrateDisplay(PA.cache.winrateData));
               }
               if (PA.cache.kdaStats) {
                 api.updateKDADisplay(PA.cache.kdaStats);
