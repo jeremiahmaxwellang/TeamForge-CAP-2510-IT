@@ -31,11 +31,22 @@
 
   function setupFetchMatchStatsButton(api, state) {
     const fetchBtn = document.getElementById("fetchMatchStatsBtn");
+    const statusText = document.getElementById("timerInfo");
     const defaultTooltip = "Fetch Match Stats";
 
     if (!fetchBtn) {
       console.error("[FETCH BUTTON] Button not found in DOM");
       return;
+    }
+
+    if (statusText) {
+      statusText.setAttribute("aria-live", "polite");
+    }
+
+    function setFetchStatus(message, color = "#666") {
+      if (!statusText) return;
+      statusText.textContent = message;
+      statusText.style.color = color;
     }
 
     function formatCooldownLabel(timeRemainingMs) {
@@ -106,6 +117,7 @@
         const timeRemaining = FETCH_INTERVAL - timeSinceLastFetch;
         console.error("Error: You can only fetch the match statistics once every 1 minute.");
         updateCooldownTooltip(timeRemaining);
+        setFetchStatus(`Available in ${formatCooldownLabel(timeRemaining)}`, "#666");
         return;
       }
 
@@ -116,6 +128,7 @@
 
       if (!puuid) {
         console.error("[FETCH BUTTON] No player PUUID found");
+        setFetchStatus("Unable to fetch stats: missing player data.", "#dc3545");
         return;
       }
 
@@ -126,6 +139,7 @@
       // Disable button and show timer
       updateButtonState();
       startButtonCooldown();
+      setFetchStatus("Fetching match stats from Riot API...", "#007bff");
 
       // Fetch fresh data from Riot API (not from database)
       const primaryTeamPosition = btn?.getAttribute("data-primary-team-position");
@@ -142,8 +156,12 @@
           if (document.querySelector("#overlay-container .winrate") && window.PlayerAnalysis?.cache?.winrateData) {
             requestAnimationFrame(() => api.updateWinrateDisplay(window.PlayerAnalysis.cache.winrateData));
           }
+          setFetchStatus("Match stats updated.", "#28a745");
         })
-        .catch((err) => console.error("[FETCH BUTTON] Error fetching recent matches:", err));
+        .catch((err) => {
+          console.error("[FETCH BUTTON] Error fetching recent matches:", err);
+          setFetchStatus("Failed to fetch match stats. Try again later.", "#dc3545");
+        });
     });
 
     function startButtonCooldown() {
