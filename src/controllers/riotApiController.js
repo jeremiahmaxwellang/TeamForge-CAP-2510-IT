@@ -200,6 +200,96 @@ async function fetchRolePositionsByPuuid(puuid) {
     return rows[0] || null;
 }
 
+async function fetchRoleContextByUserId(userId) {
+    const [rows] = await db.query(
+        `SELECT p.puuid,
+                r1.teamPosition AS primaryTeamPosition,
+                r2.teamPosition AS secondaryTeamPosition
+         FROM players p
+         JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
+         LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+         WHERE p.userId = ?
+         LIMIT 1`,
+        [userId]
+    );
+
+    return rows[0] || null;
+}
+
+async function fetchStoredRoleMatchIds(userId, puuid, teamPosition, queueId = null) {
+    if (!teamPosition) return [];
+
+    let sql = `
+        SELECT m.matchId
+        FROM matches m
+        JOIN matchParticipants mp ON mp.matchId = m.matchId
+        WHERE m.userId = ?
+          AND mp.puuid = ?
+          AND mp.teamPosition = ?
+    `;
+    const params = [userId, puuid, teamPosition];
+
+    if (queueId !== null && queueId !== undefined) {
+        sql += ` AND mp.queueId = ?`;
+        params.push(queueId);
+    }
+
+    sql += ` ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC`;
+
+    const [rows] = await db.query(sql, params);
+    return rows.map((row) => row.matchId);
+}
+
+async function trimStoredRoleMatchStatistics({ userId, puuid, queueId = null, primaryTeamPosition, secondaryTeamPosition }) {
+    const normalizedPrimary = normalizeTeamPosition(primaryTeamPosition);
+    const normalizedSecondary = normalizeTeamPosition(secondaryTeamPosition);
+    const rolePositions = [normalizedPrimary];
+
+    if (normalizedSecondary && normalizedSecondary !== normalizedPrimary) {
+        rolePositions.push(normalizedSecondary);
+    }
+
+    const staleMatchIdsSet = new Set();
+    const roleCounts = {};
+
+    for (const rolePosition of rolePositions) {
+        const roleMatchIds = await fetchStoredRoleMatchIds(userId, puuid, rolePosition, queueId);
+        roleCounts[rolePosition] = roleMatchIds.length;
+
+        if (roleMatchIds.length > ROLE_MATCH_LIMIT) {
+            roleMatchIds.slice(ROLE_MATCH_LIMIT).forEach((matchId) => staleMatchIdsSet.add(matchId));
+        }
+    }
+
+    const staleMatchIds = Array.from(staleMatchIdsSet);
+    if (staleMatchIds.length === 0) {
+        return {
+            removedMatchCount: 0,
+            removedParticipantRows: 0,
+            roleCounts,
+            trimmedMatchIds: []
+        };
+    }
+
+    const placeholders = staleMatchIds.map(() => '?').join(', ');
+    const [participantDeleteResult] = await db.query(
+        `DELETE FROM matchParticipants WHERE matchId IN (${placeholders})`,
+        staleMatchIds
+    );
+
+    const [matchDeleteResult] = await db.query(
+        `DELETE FROM matches WHERE userId = ? AND matchId IN (${placeholders})`,
+        [userId, ...staleMatchIds]
+    );
+
+    return {
+        removedMatchCount: matchDeleteResult.affectedRows || 0,
+        removedParticipantRows: participantDeleteResult.affectedRows || 0,
+        roleCounts,
+        trimmedMatchIds: staleMatchIds
+    };
+}
+
 function normalizeTeamPosition(position) {
     return String(position || '').trim().toUpperCase();
 }
@@ -494,6 +584,50 @@ exports.saveMultipleMatches = async (req, res) => {
             errors: errors.length > 0 ? errors : undefined
         });
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.syncRecentRoleMatchWindow = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { puuid: payloadPuuid, queueId } = req.body || {};
+
+        const parsedUserId = parseInt(userId, 10);
+        if (isNaN(parsedUserId)) {
+            return res.status(400).json({ error: 'userId must be a valid integer' });
+        }
+
+        const parsedQueueId = queueId === null || queueId === undefined || queueId === ''
+            ? null
+            : parseInt(queueId, 10);
+
+        if (queueId !== null && queueId !== undefined && queueId !== '' && isNaN(parsedQueueId)) {
+            return res.status(400).json({ error: 'queueId must be a valid integer when provided' });
+        }
+
+        const roleContext = await fetchRoleContextByUserId(parsedUserId);
+        if (!roleContext?.primaryTeamPosition || !roleContext?.puuid) {
+            return res.status(404).json({ error: 'Player role context not found for userId' });
+        }
+
+        const puuid = payloadPuuid || roleContext.puuid;
+        const trimResult = await trimStoredRoleMatchStatistics({
+            userId: parsedUserId,
+            puuid,
+            queueId: parsedQueueId,
+            primaryTeamPosition: roleContext.primaryTeamPosition,
+            secondaryTeamPosition: roleContext.secondaryTeamPosition
+        });
+
+        res.json({
+            success: true,
+            targetPerRole: ROLE_MATCH_LIMIT,
+            queueId: parsedQueueId,
+            ...trimResult
+        });
+    } catch (err) {
+        console.error('[SYNC ROLE WINDOW] ✗ Error syncing role match window:', err.message);
         res.status(500).json({ error: err.message });
     }
 };

@@ -22,6 +22,10 @@
   };
   const OVERVIEW_MATCH_LIMIT = 15;
 
+  function normalizeTeamPosition(position) {
+    return String(position || "").trim().toUpperCase();
+  }
+
   // -----------------------------
   // NEW: RANK FETCHING LOGIC
   // -----------------------------
@@ -337,7 +341,7 @@
       });
   }
 
-  function storeMatchesToDatabase(userId, matchesData) {
+  function storeMatchesToDatabase(userId, matchesData, syncOptions = null) {
     const validMatches = matchesData.filter((m) => m && m.metadata && m.info);
     if (validMatches.length === 0) {
       console.log("[STORE] No valid matches to store");
@@ -373,17 +377,40 @@
       });
     });
 
-    return Promise.all(batchPromises);
+    return Promise.all(batchPromises)
+      .then(async (storeResults) => {
+        if (!syncOptions || !syncOptions.puuid) {
+          return { storeResults };
+        }
+
+        try {
+          const syncResponse = await fetch(`/riot/matches/${userId}/sync-role-window`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              puuid: syncOptions.puuid,
+              queueId: syncOptions.queueId,
+            }),
+          });
+
+          const syncResult = await syncResponse.json();
+          if (!syncResponse.ok) {
+            throw new Error(syncResult?.error || `HTTP ${syncResponse.status}`);
+          }
+
+          console.log("[STORE] ✓ Synced role match window:", syncResult);
+          return { storeResults, syncResult };
+        } catch (syncErr) {
+          console.error("[STORE] ✗ Error syncing role match window:", syncErr);
+          return { storeResults, syncError: syncErr.message };
+        }
+      });
   }
 
   function fetchRecentMatches(puuid, queueId, teamPosition = null) {
-    console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}, TeamPosition: ${teamPosition || "all"}`);
+    console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}, SelectedTeamPosition: ${teamPosition || "all"}`);
 
-    const params = new URLSearchParams();
-    if (teamPosition) params.append("teamPosition", teamPosition);
-    const query = params.toString();
-
-    return fetch(`/riot/matches/${puuid}/${queueId}${query ? `?${query}` : ""}`)
+    return fetch(`/riot/matches/${puuid}/${queueId}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -391,7 +418,7 @@
       .then((data) => {
         if (!data.matches || !Array.isArray(data.matches)) throw new Error("Invalid response: matches array not found");
 
-        console.log(`[FETCH MATCHES] Received ${data.matches.length} match IDs from API (already filtered by queue ${queueId})`);
+        console.log(`[FETCH MATCHES] Received ${data.matches.length} match IDs from API for queue ${queueId}`);
 
         if (data.roleBuckets) {
           console.log(
@@ -399,7 +426,7 @@
           );
         }
 
-        const matchIds = data.matches.slice(0, OVERVIEW_MATCH_LIMIT);
+        const matchIds = data.matches;
 
         console.log(`[FETCH MATCHES] Processing ${matchIds.length} matches for details fetch`);
 
@@ -407,11 +434,21 @@
         return Promise.all(detailPromises);
       })
       .then((matchesData) => {
+        const normalizedSelectedRole = normalizeTeamPosition(teamPosition);
+        const displayMatches = normalizedSelectedRole
+          ? matchesData
+              .filter((match) => {
+                const participant = match?.info?.participants?.find((p) => p.puuid === puuid);
+                return normalizeTeamPosition(participant?.teamPosition) === normalizedSelectedRole;
+              })
+              .slice(0, OVERVIEW_MATCH_LIMIT)
+          : matchesData.slice(0, OVERVIEW_MATCH_LIMIT);
+
         // Cache the matches
-        PA.cache.matches = matchesData;
+        PA.cache.matches = displayMatches;
 
         // Calculate and cache stats from matches
-        const kdaStats = calculateAverageKDA(matchesData, puuid);
+        const kdaStats = calculateAverageKDA(displayMatches, puuid);
         PA.cache.kdaStats = kdaStats;
         updateKDADisplay(kdaStats);
 
@@ -447,15 +484,20 @@
           console.error('[STORE KDA] ✗ Unexpected error preparing store request:', err);
         }
 
-        const topChampions = getTop3Champions(matchesData, puuid);
+        const topChampions = getTop3Champions(displayMatches, puuid);
         PA.cache.topChampions = topChampions;
         updateChampionDisplay(topChampions);
 
-        // Store to DB
+        // Store to DB (both primary+secondary role buckets), then trim to latest 15 per role
         const currentPlayerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
-        if (currentPlayerId && matchesData.length > 0) storeMatchesToDatabase(currentPlayerId, matchesData);
+        if (currentPlayerId && matchesData.length > 0) {
+          storeMatchesToDatabase(currentPlayerId, matchesData, {
+            puuid,
+            queueId,
+          });
+        }
 
-        return matchesData;
+        return displayMatches;
       })
       .catch((err) => {
         console.error("[FETCH MATCHES] ✗ Error fetching recent matches:", err);
