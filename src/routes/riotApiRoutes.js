@@ -34,6 +34,9 @@ router.post('/match/:userId/store', riotApiController.saveMatchDetails);
 // Route: POST /riot/matches/:userId/store-multiple - Store multiple matches
 router.post('/matches/:userId/store-multiple', riotApiController.saveMultipleMatches);
 
+// Route: POST /riot/matches/:userId/sync-role-window - Keep latest 15 per role and trim older matches
+router.post('/matches/:userId/sync-role-window', riotApiController.syncRecentRoleMatchWindow);
+
 // Route: POST /riot/match/:matchId/participants - Store participants from a single match
 router.post('/match/:matchId/participants', riotApiController.saveMatchParticipants);
 

@@ -4,12 +4,76 @@
  */
 
 const db = require('../../config/database');
+const OVERVIEW_MATCH_LIMIT = 15;
+
+async function fetchRolePositionsByPuuid(puuid) {
+    const [rows] = await db.query(
+        `SELECT p.primaryRoleId, p.secondaryRoleId,
+                r1.teamPosition AS primaryTeamPosition,
+                r2.teamPosition AS secondaryTeamPosition
+         FROM players p
+         JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
+         LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+         WHERE p.puuid = ?
+         LIMIT 1`,
+        [puuid]
+    );
+
+    return rows[0] || null;
+}
+
+async function fetchRecentRoleBucketRows(puuid, queueId, teamPosition, limit = 15) {
+    if (!teamPosition) return [];
+
+    let sql = `
+        SELECT mp.win, m.gameStartTimestamp, m.gameCreation, mp.queueId
+        FROM matchParticipants mp
+        JOIN matches m ON mp.matchId = m.matchId
+        WHERE mp.puuid = ? AND mp.teamPosition = ?
+    `;
+    const params = [puuid, teamPosition];
+
+    if (queueId) {
+        sql += ` AND mp.queueId = ?`;
+        params.push(queueId);
+    }
+
+    sql += ` ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC LIMIT ?`;
+    params.push(limit);
+
+    const [rows] = await db.query(sql, params);
+    return rows;
+}
+
+async function fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, limit = 15) {
+    if (!teamPosition) return [];
+
+    let sql = `
+        SELECT m.*, mp.puuid, mp.kills, mp.deaths, mp.assists, mp.win,
+               mp.championName, mp.queueId, mp.champLevel, mp.goldEarned
+        FROM matches m
+        JOIN matchParticipants mp ON m.matchId = mp.matchId
+        WHERE mp.puuid = ? AND mp.teamPosition = ?
+    `;
+    const params = [puuid, teamPosition];
+
+    if (queueId) {
+        sql += ` AND mp.queueId = ?`;
+        params.push(queueId);
+    }
+
+    sql += ` ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC LIMIT ?`;
+    params.push(limit);
+
+    const [rows] = await db.query(sql, params);
+    return rows;
+}
 
 // Get winrate for last 15 games for a player by puuid
 exports.getWinrate = async (req, res) => {
     try {
         const { puuid } = req.params;
-        const { queueId } = req.query;
+        const { queueId, teamPosition } = req.query;
 
         if (!puuid) {
             return res.status(400).json({ error: 'puuid is required' });
@@ -17,25 +81,28 @@ exports.getWinrate = async (req, res) => {
 
         console.log(`[Win Rate] Getting winrate for PUUID: ${puuid}, Queue: ${queueId || 'all'}`);
 
-        // Select the player's most recent 15 participant records joined with match timestamps
-        let sql = `
-            SELECT mp.win, m.gameStartTimestamp, m.gameCreation, mp.queueId
-            FROM matchParticipants mp
-            JOIN matches m ON mp.matchId = m.matchId
-            WHERE mp.puuid = ?
-        `;
-        const params = [puuid];
+        let rows = [];
 
-        // Add queue filter if provided
-        if (queueId) {
-            sql += ` AND mp.queueId = ?`;
-            params.push(queueId);
+        if (teamPosition) {
+            rows = await fetchRecentRoleBucketRows(puuid, queueId, teamPosition, OVERVIEW_MATCH_LIMIT);
+        } else {
+            const roleInfo = await fetchRolePositionsByPuuid(puuid);
+            if (!roleInfo) {
+                return res.json({ total: 0, wins: 0, losses: 0, winrate: 0 });
+            }
+
+            const primaryRows = await fetchRecentRoleBucketRows(puuid, queueId, roleInfo.primaryTeamPosition, OVERVIEW_MATCH_LIMIT);
+            const secondaryRows =
+                roleInfo.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
+                    ? await fetchRecentRoleBucketRows(puuid, queueId, roleInfo.secondaryTeamPosition, OVERVIEW_MATCH_LIMIT)
+                    : [];
+
+            rows = [...primaryRows, ...secondaryRows].sort((a, b) => {
+                const aTs = Number(a.gameStartTimestamp || a.gameCreation || 0);
+                const bTs = Number(b.gameStartTimestamp || b.gameCreation || 0);
+                return bTs - aTs;
+            }).slice(0, OVERVIEW_MATCH_LIMIT);
         }
-
-        sql += ` ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
-            LIMIT 15`;
-
-        const [rows] = await db.query(sql, params);
 
         const total = rows.length;
         if (total === 0) {
@@ -52,7 +119,7 @@ exports.getWinrate = async (req, res) => {
 
         res.json({ total, wins, losses, winrate });
 
-        console.log(`[Win Rate] ✓ Calculated winrate for PUUID: ${winrate}% (${wins}W/${losses}L) - Queue: ${queueId || 'all'}`);
+        console.log(`[Win Rate] ✓ Calculated winrate for PUUID: ${winrate}% (${wins}W/${losses}L) - Queue: ${queueId || 'all'} [Primary+Secondary buckets]`);
     } catch (err) {
         console.error(`[Win Rate] ✗ ERROR in getWinrate:`, err.message);
         res.status(500).json({ error: err.message });
@@ -63,7 +130,7 @@ exports.getWinrate = async (req, res) => {
 exports.getRecentMatchesFromDatabase = async (req, res) => {
     try {
         const { puuid } = req.params;
-        const { queueId } = req.query;
+        const { queueId, teamPosition } = req.query;
 
         if (!puuid) {
             return res.status(400).json({ error: 'puuid is required' });
@@ -87,26 +154,35 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
         // Log with gameName and tagLine instead of puuid
         console.log(`[DB MATCHES] Getting recent matches from database for Player: ${gameName}#${tagLine}, Queue: ${queueId || 'all'}`);
 
-        // Fetch the 15 most recent matches from database
-        sql = `
-            SELECT m.*, mp.puuid, mp.kills, mp.deaths, mp.assists, mp.win, 
-                   mp.championName, mp.queueId, mp.champLevel, mp.goldEarned
-            FROM matches m
-            JOIN matchParticipants mp ON m.matchId = mp.matchId
-            WHERE mp.puuid = ?
-        `;
-        const params = [puuid];
+        let matches = [];
 
-        // Add queue filter if provided
-        if (queueId) {
-            sql += ` AND mp.queueId = ?`;
-            params.push(queueId);
+        if (teamPosition) {
+            matches = await fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, OVERVIEW_MATCH_LIMIT);
+        } else {
+            const roleInfo = await fetchRolePositionsByPuuid(puuid);
+
+            const primaryMatches = roleInfo?.primaryTeamPosition
+                ? await fetchRecentRoleBucketMatches(puuid, queueId, roleInfo.primaryTeamPosition, OVERVIEW_MATCH_LIMIT)
+                : [];
+
+            const secondaryMatches =
+                roleInfo?.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
+                    ? await fetchRecentRoleBucketMatches(puuid, queueId, roleInfo.secondaryTeamPosition, OVERVIEW_MATCH_LIMIT)
+                    : [];
+
+            const deduped = new Map();
+            [...primaryMatches, ...secondaryMatches].forEach((row) => {
+                if (!deduped.has(row.matchId)) {
+                    deduped.set(row.matchId, row);
+                }
+            });
+
+            matches = Array.from(deduped.values()).sort((a, b) => {
+                const aTs = Number(a.gameStartTimestamp || a.gameCreation || 0);
+                const bTs = Number(b.gameStartTimestamp || b.gameCreation || 0);
+                return bTs - aTs;
+            }).slice(0, OVERVIEW_MATCH_LIMIT);
         }
-
-        sql += ` ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
-            LIMIT 15`;
-
-        const [matches] = await db.query(sql, params);
 
         if (matches.length === 0) {
             console.log(`[DB MATCHES] No matches found in database for Player: ${gameName}#${tagLine}`);
@@ -143,7 +219,7 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
             }
         }));
 
-        console.log(`[DB MATCHES] ✓ Retrieved ${matches.length} matches from database for Player: ${gameName}#${tagLine}`);
+        console.log(`[DB MATCHES] ✓ Retrieved ${matches.length} matches from database for Player: ${gameName}#${tagLine} (15 primary + 15 secondary)`);
         res.json({ matches: formattedMatches });
     } catch (err) {
         console.error(`[DB MATCHES] ✗ ERROR:`, err.message);

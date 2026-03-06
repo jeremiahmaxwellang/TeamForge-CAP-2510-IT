@@ -8,6 +8,78 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 
 const apiKey = process.env.API_KEY;
 const db = require('../config/database');
+const ROLE_MATCH_LIMIT = 15;
+const ROLE_MATCH_SCAN_LIMIT = 120;
+const ROLE_MATCH_BATCH_SIZE = 20;
+const RIOT_LIMIT_SHORT = { max: 20, windowMs: 1000 };
+const RIOT_LIMIT_LONG = { max: 100, windowMs: 120000 };
+const riotRequestTimestamps = [];
+let riotRateLimiterQueue = Promise.resolve();
+
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function reserveRiotRequestSlot(now = Date.now()) {
+    const longWindowStart = now - RIOT_LIMIT_LONG.windowMs;
+
+    while (riotRequestTimestamps.length > 0 && riotRequestTimestamps[0] <= longWindowStart) {
+        riotRequestTimestamps.shift();
+    }
+
+    const shortWindowStart = now - RIOT_LIMIT_SHORT.windowMs;
+    let shortWindowCount = 0;
+
+    for (let index = riotRequestTimestamps.length - 1; index >= 0; index -= 1) {
+        if (riotRequestTimestamps[index] > shortWindowStart) {
+            shortWindowCount += 1;
+        } else {
+            break;
+        }
+    }
+
+    if (shortWindowCount < RIOT_LIMIT_SHORT.max && riotRequestTimestamps.length < RIOT_LIMIT_LONG.max) {
+        riotRequestTimestamps.push(now);
+        return 0;
+    }
+
+    const waitForShortWindow = shortWindowCount >= RIOT_LIMIT_SHORT.max
+        ? Math.max(1, RIOT_LIMIT_SHORT.windowMs - (now - riotRequestTimestamps[riotRequestTimestamps.length - RIOT_LIMIT_SHORT.max]))
+        : 0;
+
+    const waitForLongWindow = riotRequestTimestamps.length >= RIOT_LIMIT_LONG.max
+        ? Math.max(1, RIOT_LIMIT_LONG.windowMs - (now - riotRequestTimestamps[0]))
+        : 0;
+
+    return Math.max(waitForShortWindow, waitForLongWindow);
+}
+
+async function waitForRiotRateLimitSlot() {
+    while (true) {
+        const now = Date.now();
+        const waitMs = reserveRiotRequestSlot(now);
+
+        if (waitMs === 0) {
+            return;
+        }
+
+        await sleep(waitMs);
+    }
+}
+
+async function riotApiFetch(url, options) {
+    const previous = riotRateLimiterQueue;
+    let releaseQueue;
+    riotRateLimiterQueue = new Promise((resolve) => {
+        releaseQueue = resolve;
+    });
+
+    await previous;
+    await waitForRiotRateLimitSlot();
+    releaseQueue();
+
+    return fetch(url, options);
+}
 // console.log(apiKey);
 
 // FETCH PUUID of a player
@@ -15,7 +87,7 @@ async function fetchPuuidByName(gameName, tagLine){
     const cluster = 'asia';
     const url = `https://${cluster}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
 
-    const response = await fetch(url, {
+    const response = await riotApiFetch(url, {
         headers: {
             'X-Riot-Token': apiKey,
             'User-Agent': 'NodeJS-Server'
@@ -91,7 +163,7 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     // console.log(`[FETCH RECENT MATCHES] URL: ${url}?${params.toString()}`);
 
     // Make the API request to fetch recent matches
-    const response = await fetch(`${url}?${params.toString()}`, {
+    const response = await riotApiFetch(`${url}?${params.toString()}`, {
         headers: {
             'X-Riot-Token': apiKey,
             'User-Agent': 'NodeJS-Server'
@@ -112,10 +184,190 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     return data;
 }
 
+async function fetchRolePositionsByPuuid(puuid) {
+    const [rows] = await db.query(
+        `SELECT p.primaryRoleId, p.secondaryRoleId,
+                r1.teamPosition AS primaryTeamPosition,
+                r2.teamPosition AS secondaryTeamPosition
+         FROM players p
+         JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
+         LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+         WHERE p.puuid = ?
+         LIMIT 1`,
+        [puuid]
+    );
+
+    return rows[0] || null;
+}
+
+async function fetchRoleContextByUserId(userId) {
+    const [rows] = await db.query(
+        `SELECT p.puuid,
+                r1.teamPosition AS primaryTeamPosition,
+                r2.teamPosition AS secondaryTeamPosition
+         FROM players p
+         JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
+         LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+         WHERE p.userId = ?
+         LIMIT 1`,
+        [userId]
+    );
+
+    return rows[0] || null;
+}
+
+async function fetchStoredRoleMatchIds(userId, puuid, teamPosition, queueId = null) {
+    if (!teamPosition) return [];
+
+    let sql = `
+        SELECT m.matchId
+        FROM matches m
+        JOIN matchParticipants mp ON mp.matchId = m.matchId
+        WHERE m.userId = ?
+          AND mp.puuid = ?
+          AND mp.teamPosition = ?
+    `;
+    const params = [userId, puuid, teamPosition];
+
+    if (queueId !== null && queueId !== undefined) {
+        sql += ` AND mp.queueId = ?`;
+        params.push(queueId);
+    }
+
+    sql += ` ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC`;
+
+    const [rows] = await db.query(sql, params);
+    return rows.map((row) => row.matchId);
+}
+
+async function trimStoredRoleMatchStatistics({ userId, puuid, queueId = null, primaryTeamPosition, secondaryTeamPosition }) {
+    const normalizedPrimary = normalizeTeamPosition(primaryTeamPosition);
+    const normalizedSecondary = normalizeTeamPosition(secondaryTeamPosition);
+    const rolePositions = [normalizedPrimary];
+
+    if (normalizedSecondary && normalizedSecondary !== normalizedPrimary) {
+        rolePositions.push(normalizedSecondary);
+    }
+
+    const staleMatchIdsSet = new Set();
+    const roleCounts = {};
+
+    for (const rolePosition of rolePositions) {
+        const roleMatchIds = await fetchStoredRoleMatchIds(userId, puuid, rolePosition, queueId);
+        roleCounts[rolePosition] = roleMatchIds.length;
+
+        if (roleMatchIds.length > ROLE_MATCH_LIMIT) {
+            roleMatchIds.slice(ROLE_MATCH_LIMIT).forEach((matchId) => staleMatchIdsSet.add(matchId));
+        }
+    }
+
+    const staleMatchIds = Array.from(staleMatchIdsSet);
+    if (staleMatchIds.length === 0) {
+        return {
+            removedMatchCount: 0,
+            removedParticipantRows: 0,
+            roleCounts,
+            trimmedMatchIds: []
+        };
+    }
+
+    const placeholders = staleMatchIds.map(() => '?').join(', ');
+    const [participantDeleteResult] = await db.query(
+        `DELETE FROM matchParticipants WHERE matchId IN (${placeholders})`,
+        staleMatchIds
+    );
+
+    const [matchDeleteResult] = await db.query(
+        `DELETE FROM matches WHERE userId = ? AND matchId IN (${placeholders})`,
+        [userId, ...staleMatchIds]
+    );
+
+    return {
+        removedMatchCount: matchDeleteResult.affectedRows || 0,
+        removedParticipantRows: participantDeleteResult.affectedRows || 0,
+        roleCounts,
+        trimmedMatchIds: staleMatchIds
+    };
+}
+
+function normalizeTeamPosition(position) {
+    return String(position || '').trim().toUpperCase();
+}
+
+async function fetchRoleBucketedMatchIds(puuid, queueId, primaryTeamPosition, secondaryTeamPosition) {
+    const normalizedPrimary = normalizeTeamPosition(primaryTeamPosition);
+    const normalizedSecondary = normalizeTeamPosition(secondaryTeamPosition);
+    const shouldCollectSecondary = normalizedSecondary && normalizedSecondary !== normalizedPrimary;
+
+    const primaryMatches = [];
+    const secondaryMatches = [];
+    const seenMatchIds = new Set();
+    let scanned = 0;
+    let start = 0;
+
+    while (
+        scanned < ROLE_MATCH_SCAN_LIMIT &&
+        (primaryMatches.length < ROLE_MATCH_LIMIT || (shouldCollectSecondary && secondaryMatches.length < ROLE_MATCH_LIMIT))
+    ) {
+        const remaining = ROLE_MATCH_SCAN_LIMIT - scanned;
+        const count = Math.min(ROLE_MATCH_BATCH_SIZE, remaining);
+
+        const idBatch = await fetchRecentMatches(puuid, queueId, start, count);
+        if (!Array.isArray(idBatch) || idBatch.length === 0) {
+            break;
+        }
+
+        for (const matchId of idBatch) {
+            if (seenMatchIds.has(matchId)) continue;
+            seenMatchIds.add(matchId);
+
+            try {
+                const match = await fetchMatchDetails(matchId);
+                const participant = match?.info?.participants?.find((p) => p.puuid === puuid);
+                const participantPosition = normalizeTeamPosition(participant?.teamPosition);
+
+                if (participantPosition === normalizedPrimary && primaryMatches.length < ROLE_MATCH_LIMIT) {
+                    primaryMatches.push(matchId);
+                } else if (
+                    shouldCollectSecondary &&
+                    participantPosition === normalizedSecondary &&
+                    secondaryMatches.length < ROLE_MATCH_LIMIT
+                ) {
+                    secondaryMatches.push(matchId);
+                }
+
+                if (
+                    primaryMatches.length >= ROLE_MATCH_LIMIT &&
+                    (!shouldCollectSecondary || secondaryMatches.length >= ROLE_MATCH_LIMIT)
+                ) {
+                    break;
+                }
+            } catch (err) {
+                console.warn(`[GET RECENT MATCHES] Skipping match ${matchId}: ${err.message}`);
+            }
+        }
+
+        scanned += idBatch.length;
+        start += idBatch.length;
+
+        if (idBatch.length < count) {
+            break;
+        }
+    }
+
+    return {
+        matches: [...primaryMatches, ...secondaryMatches],
+        primaryCount: primaryMatches.length,
+        secondaryCount: secondaryMatches.length,
+        scanned
+    };
+}
+
 // getRecentMatches is called in riotApiRoutes to fetch player's recent matches by queue ID
 exports.getRecentMatches = async (req, res) => {
     try {
         const { puuid, queueId } = req.params;
+        const { teamPosition } = req.query;
         
         // Convert queueId to integer
         const parsedQueueId = parseInt(queueId, 10);
@@ -131,11 +383,48 @@ exports.getRecentMatches = async (req, res) => {
         const matchCount = parseInt(count) || 15;  // Default to 15 if not a valid number
         
         console.log(`[GET RECENT MATCHES] Parameters - PUUID: ${puuid}, Queue: ${parsedQueueId}, start: ${start}, count: ${matchCount}`);
-        
-        // Call fetchRecentMatches with the correct parameters
-        const matches = await fetchRecentMatches(puuid, parsedQueueId, parseInt(start), matchCount);
-        console.log(`[GET RECENT MATCHES] ✓ Retrieved ${matches.length} matches`);
-        res.json({ matches });
+
+        if (teamPosition) {
+            const oneRoleBucket = await fetchRoleBucketedMatchIds(puuid, parsedQueueId, teamPosition, null);
+            return res.json({
+                matches: oneRoleBucket.matches,
+                roleBuckets: {
+                    primary: oneRoleBucket.primaryCount,
+                    secondary: 0,
+                    targetPerRole: ROLE_MATCH_LIMIT,
+                    scanned: oneRoleBucket.scanned
+                }
+            });
+        }
+
+        const roleInfo = await fetchRolePositionsByPuuid(puuid);
+
+        if (!roleInfo?.primaryTeamPosition) {
+            const matches = await fetchRecentMatches(puuid, parsedQueueId, parseInt(start), matchCount);
+            console.log(`[GET RECENT MATCHES] ✓ Role info not found. Fallback fetched ${matches.length} matches`);
+            return res.json({ matches });
+        }
+
+        const roleBucketed = await fetchRoleBucketedMatchIds(
+            puuid,
+            parsedQueueId,
+            roleInfo.primaryTeamPosition,
+            roleInfo.secondaryTeamPosition
+        );
+
+        console.log(
+            `[GET RECENT MATCHES] ✓ Role-bucketed fetch: ${roleBucketed.primaryCount} primary, ${roleBucketed.secondaryCount} secondary, scanned ${roleBucketed.scanned}`
+        );
+
+        res.json({
+            matches: roleBucketed.matches,
+            roleBuckets: {
+                primary: roleBucketed.primaryCount,
+                secondary: roleBucketed.secondaryCount,
+                targetPerRole: ROLE_MATCH_LIMIT,
+                scanned: roleBucketed.scanned
+            }
+        });
     } catch (err) {
         console.error(`[GET RECENT MATCHES] ✗ Error:`, err.message);
         res.status(500).json({ error: err.message });
@@ -154,7 +443,7 @@ async function fetchMatchDetails(matchId) {
     // console.log(`Fetching match details URL: ${url}`);
 
     // Make the API request to fetch match details
-    const response = await fetch(url, {
+    const response = await riotApiFetch(url, {
         headers: {
             'X-Riot-Token': apiKey,
             'User-Agent': 'NodeJS-Server'
@@ -295,6 +584,50 @@ exports.saveMultipleMatches = async (req, res) => {
             errors: errors.length > 0 ? errors : undefined
         });
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.syncRecentRoleMatchWindow = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { puuid: payloadPuuid, queueId } = req.body || {};
+
+        const parsedUserId = parseInt(userId, 10);
+        if (isNaN(parsedUserId)) {
+            return res.status(400).json({ error: 'userId must be a valid integer' });
+        }
+
+        const parsedQueueId = queueId === null || queueId === undefined || queueId === ''
+            ? null
+            : parseInt(queueId, 10);
+
+        if (queueId !== null && queueId !== undefined && queueId !== '' && isNaN(parsedQueueId)) {
+            return res.status(400).json({ error: 'queueId must be a valid integer when provided' });
+        }
+
+        const roleContext = await fetchRoleContextByUserId(parsedUserId);
+        if (!roleContext?.primaryTeamPosition || !roleContext?.puuid) {
+            return res.status(404).json({ error: 'Player role context not found for userId' });
+        }
+
+        const puuid = payloadPuuid || roleContext.puuid;
+        const trimResult = await trimStoredRoleMatchStatistics({
+            userId: parsedUserId,
+            puuid,
+            queueId: parsedQueueId,
+            primaryTeamPosition: roleContext.primaryTeamPosition,
+            secondaryTeamPosition: roleContext.secondaryTeamPosition
+        });
+
+        res.json({
+            success: true,
+            targetPerRole: ROLE_MATCH_LIMIT,
+            queueId: parsedQueueId,
+            ...trimResult
+        });
+    } catch (err) {
+        console.error('[SYNC ROLE WINDOW] ✗ Error syncing role match window:', err.message);
         res.status(500).json({ error: err.message });
     }
 };

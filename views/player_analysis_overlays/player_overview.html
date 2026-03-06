@@ -16,12 +16,21 @@
             <div class="overview-container">
                 <div class="match-history-header">
                     <div class="header-text">Match History:</div>
-                    <!-- Dropdown button for "Ranked" -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" id="queueDropdownBtn">Ranked</button>
-                        <div class="dropdown-content" id="queueDropdownContent">
-                            <a href="#" data-queue="420">Ranked</a>
-                            <a href="#" data-queue="440">Casual</a>
+                    <div class="header-controls">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" id="overviewRoleDropdownBtn">Primary Role</button>
+                            <div class="dropdown-content" id="overviewRoleDropdownContent">
+                                <a href="#" data-role-view="primary">Primary Role</a>
+                                <a href="#" data-role-view="secondary">Secondary Role</a>
+                            </div>
+                        </div>
+                        <!-- Dropdown button for "Ranked" -->
+                        <div class="dropdown">
+                            <button class="dropdown-btn" id="queueDropdownBtn">Ranked</button>
+                            <div class="dropdown-content" id="queueDropdownContent">
+                                <a href="#" data-queue="420">Ranked</a>
+                                <a href="#" data-queue="440">Casual</a>
+                            </div>
                         </div>
                     </div>
                 </div>
