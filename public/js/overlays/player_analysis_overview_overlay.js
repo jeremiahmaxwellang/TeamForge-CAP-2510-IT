@@ -221,9 +221,25 @@
       const roleDropdownBtn = overlayContainer.querySelector("#overviewRoleDropdownBtn");
       const roleDropdownContent = overlayContainer.querySelector("#overviewRoleDropdownContent");
       const roleOptions = overlayContainer.querySelectorAll("#overviewRoleDropdownContent a");
+      const playerBtn = document.getElementById("player-dropdown-btn");
+      const hasSecondaryRole = !!playerBtn?.getAttribute("data-secondary-role-id");
+      const roleDropdownWrapper = roleDropdownBtn?.closest(".dropdown");
 
       if (!roleDropdownBtn || !roleDropdownContent || roleOptions.length === 0) {
         return;
+      }
+
+      if (!hasSecondaryRole) {
+        state.currentRoleView = "primary";
+        roleDropdownContent.style.display = "none";
+        if (roleDropdownWrapper) {
+          roleDropdownWrapper.style.display = "none";
+        }
+        return;
+      }
+
+      if (roleDropdownWrapper) {
+        roleDropdownWrapper.style.display = "";
       }
 
       roleDropdownBtn.textContent = state.currentRoleView === "secondary" ? "Secondary Role" : "Primary Role";
