@@ -11,6 +11,75 @@ const db = require('../config/database');
 const ROLE_MATCH_LIMIT = 15;
 const ROLE_MATCH_SCAN_LIMIT = 120;
 const ROLE_MATCH_BATCH_SIZE = 20;
+const RIOT_LIMIT_SHORT = { max: 20, windowMs: 1000 };
+const RIOT_LIMIT_LONG = { max: 100, windowMs: 120000 };
+const riotRequestTimestamps = [];
+let riotRateLimiterQueue = Promise.resolve();
+
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function reserveRiotRequestSlot(now = Date.now()) {
+    const longWindowStart = now - RIOT_LIMIT_LONG.windowMs;
+
+    while (riotRequestTimestamps.length > 0 && riotRequestTimestamps[0] <= longWindowStart) {
+        riotRequestTimestamps.shift();
+    }
+
+    const shortWindowStart = now - RIOT_LIMIT_SHORT.windowMs;
+    let shortWindowCount = 0;
+
+    for (let index = riotRequestTimestamps.length - 1; index >= 0; index -= 1) {
+        if (riotRequestTimestamps[index] > shortWindowStart) {
+            shortWindowCount += 1;
+        } else {
+            break;
+        }
+    }
+
+    if (shortWindowCount < RIOT_LIMIT_SHORT.max && riotRequestTimestamps.length < RIOT_LIMIT_LONG.max) {
+        riotRequestTimestamps.push(now);
+        return 0;
+    }
+
+    const waitForShortWindow = shortWindowCount >= RIOT_LIMIT_SHORT.max
+        ? Math.max(1, RIOT_LIMIT_SHORT.windowMs - (now - riotRequestTimestamps[riotRequestTimestamps.length - RIOT_LIMIT_SHORT.max]))
+        : 0;
+
+    const waitForLongWindow = riotRequestTimestamps.length >= RIOT_LIMIT_LONG.max
+        ? Math.max(1, RIOT_LIMIT_LONG.windowMs - (now - riotRequestTimestamps[0]))
+        : 0;
+
+    return Math.max(waitForShortWindow, waitForLongWindow);
+}
+
+async function waitForRiotRateLimitSlot() {
+    while (true) {
+        const now = Date.now();
+        const waitMs = reserveRiotRequestSlot(now);
+
+        if (waitMs === 0) {
+            return;
+        }
+
+        await sleep(waitMs);
+    }
+}
+
+async function riotApiFetch(url, options) {
+    const previous = riotRateLimiterQueue;
+    let releaseQueue;
+    riotRateLimiterQueue = new Promise((resolve) => {
+        releaseQueue = resolve;
+    });
+
+    await previous;
+    await waitForRiotRateLimitSlot();
+    releaseQueue();
+
+    return fetch(url, options);
+}
 // console.log(apiKey);
 
 // FETCH PUUID of a player
@@ -18,7 +87,7 @@ async function fetchPuuidByName(gameName, tagLine){
     const cluster = 'asia';
     const url = `https://${cluster}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
 
-    const response = await fetch(url, {
+    const response = await riotApiFetch(url, {
         headers: {
             'X-Riot-Token': apiKey,
             'User-Agent': 'NodeJS-Server'
@@ -94,7 +163,7 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     // console.log(`[FETCH RECENT MATCHES] URL: ${url}?${params.toString()}`);
 
     // Make the API request to fetch recent matches
-    const response = await fetch(`${url}?${params.toString()}`, {
+    const response = await riotApiFetch(`${url}?${params.toString()}`, {
         headers: {
             'X-Riot-Token': apiKey,
             'User-Agent': 'NodeJS-Server'
@@ -208,6 +277,7 @@ async function fetchRoleBucketedMatchIds(puuid, queueId, primaryTeamPosition, se
 exports.getRecentMatches = async (req, res) => {
     try {
         const { puuid, queueId } = req.params;
+        const { teamPosition } = req.query;
         
         // Convert queueId to integer
         const parsedQueueId = parseInt(queueId, 10);
@@ -223,6 +293,19 @@ exports.getRecentMatches = async (req, res) => {
         const matchCount = parseInt(count) || 15;  // Default to 15 if not a valid number
         
         console.log(`[GET RECENT MATCHES] Parameters - PUUID: ${puuid}, Queue: ${parsedQueueId}, start: ${start}, count: ${matchCount}`);
+
+        if (teamPosition) {
+            const oneRoleBucket = await fetchRoleBucketedMatchIds(puuid, parsedQueueId, teamPosition, null);
+            return res.json({
+                matches: oneRoleBucket.matches,
+                roleBuckets: {
+                    primary: oneRoleBucket.primaryCount,
+                    secondary: 0,
+                    targetPerRole: ROLE_MATCH_LIMIT,
+                    scanned: oneRoleBucket.scanned
+                }
+            });
+        }
 
         const roleInfo = await fetchRolePositionsByPuuid(puuid);
 
@@ -270,7 +353,7 @@ async function fetchMatchDetails(matchId) {
     // console.log(`Fetching match details URL: ${url}`);
 
     // Make the API request to fetch match details
-    const response = await fetch(url, {
+    const response = await riotApiFetch(url, {
         headers: {
             'X-Riot-Token': apiKey,
             'User-Agent': 'NodeJS-Server'

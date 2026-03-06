@@ -115,10 +115,16 @@
       startButtonCooldown();
 
       // Fetch fresh data from Riot API (not from database)
-      api.fetchWinrate(puuid, state.currentQueueId)
+      const primaryTeamPosition = btn?.getAttribute("data-primary-team-position");
+      const secondaryTeamPosition = btn?.getAttribute("data-secondary-team-position");
+      const selectedTeamPosition = state.currentRoleView === "secondary"
+        ? (secondaryTeamPosition || primaryTeamPosition || null)
+        : (primaryTeamPosition || null);
+
+      api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition)
         .catch((err) => console.error("[FETCH BUTTON] Error fetching winrate:", err));
 
-      api.fetchRecentMatches(puuid, state.currentQueueId)
+      api.fetchRecentMatches(puuid, state.currentQueueId, selectedTeamPosition)
         .catch((err) => console.error("[FETCH BUTTON] Error fetching recent matches:", err));
     });
 
@@ -182,6 +188,73 @@
       activeButton.classList.add("active");
     }
 
+    function getSelectedTeamPosition() {
+      const btn = document.getElementById("player-dropdown-btn");
+      if (!btn) return null;
+
+      const primaryTeamPosition = btn.getAttribute("data-primary-team-position");
+      const secondaryTeamPosition = btn.getAttribute("data-secondary-team-position");
+
+      if (state.currentRoleView === "secondary") {
+        return secondaryTeamPosition || primaryTeamPosition || null;
+      }
+
+      return primaryTeamPosition || null;
+    }
+
+    function refreshOverviewStats(useRiotApi = false) {
+      const btn = document.getElementById("player-dropdown-btn");
+      const puuid = btn?.getAttribute("data-puuid");
+      if (!puuid) return;
+
+      const selectedTeamPosition = getSelectedTeamPosition();
+
+      api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition)
+        .catch((err) => console.error("[OVERVIEW] Error refreshing winrate:", err));
+
+      const matchFetch = useRiotApi ? api.fetchRecentMatches : api.fetchRecentMatchesFromDatabase;
+      matchFetch(puuid, state.currentQueueId, selectedTeamPosition)
+        .catch((err) => console.error("[OVERVIEW] Error refreshing recent matches:", err));
+    }
+
+    function setupOverviewRoleDropdown() {
+      const roleDropdownBtn = overlayContainer.querySelector("#overviewRoleDropdownBtn");
+      const roleDropdownContent = overlayContainer.querySelector("#overviewRoleDropdownContent");
+      const roleOptions = overlayContainer.querySelectorAll("#overviewRoleDropdownContent a");
+
+      if (!roleDropdownBtn || !roleDropdownContent || roleOptions.length === 0) {
+        return;
+      }
+
+      roleDropdownBtn.textContent = state.currentRoleView === "secondary" ? "Secondary Role" : "Primary Role";
+
+      roleDropdownBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        roleDropdownContent.style.display = roleDropdownContent.style.display === "block" ? "none" : "block";
+      });
+
+      roleOptions.forEach((option) => {
+        option.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const selectedRoleView = this.getAttribute("data-role-view");
+          if (selectedRoleView !== "primary" && selectedRoleView !== "secondary") return;
+
+          state.currentRoleView = selectedRoleView;
+          roleDropdownBtn.textContent = selectedRoleView === "secondary" ? "Secondary Role" : "Primary Role";
+          roleDropdownContent.style.display = "none";
+
+          refreshOverviewStats(false);
+        });
+      });
+
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".dropdown")) {
+          roleDropdownContent.style.display = "none";
+        }
+      });
+    }
+
     function setupQueueDropdown() {
       const queueDropdownBtn = overlayContainer.querySelector("#queueDropdownBtn");
       const queueDropdownContent = overlayContainer.querySelector("#queueDropdownContent");
@@ -209,13 +282,7 @@
           // Update shared state
           state.currentQueueId = queueId;
 
-          // Refetch for current selected player
-          const btn = document.getElementById("player-dropdown-btn");
-          const puuid = btn?.getAttribute("data-puuid");
-          if (puuid) {
-            api.fetchWinrate(puuid, state.currentQueueId);
-            api.fetchRecentMatches(puuid, state.currentQueueId);
-          }
+          refreshOverviewStats(true);
         });
       });
 
@@ -330,13 +397,9 @@
             // This ensures the fetch is manually triggered by the user, and cached data is displayed
             if (this.id === "overviewButton") {
               setupFetchMatchStatsButton(api, state);
+              setupOverviewRoleDropdown();
 
-              const selectedPlayerBtn = document.getElementById("player-dropdown-btn");
-              const puuid = selectedPlayerBtn?.getAttribute("data-puuid");
-              if (puuid) {
-                api.fetchWinrate(puuid, state.currentQueueId)
-                  .catch((err) => console.error("[OVERVIEW] Error refreshing winrate for graph:", err));
-              }
+              refreshOverviewStats(false);
               
               // Update display with cached data if available
               console.log("[OVERVIEW] Updating display with cached data");

@@ -8,6 +8,7 @@
 
   PA.state = PA.state || {
     currentQueueId: 420, // default Ranked Solo/Duo
+    currentRoleView: "primary", // primary | secondary
   };
 
   // Cache for storing fetched data
@@ -19,6 +20,7 @@
     kdaStats: null,
     topChampions: null,
   };
+  const OVERVIEW_MATCH_LIMIT = 15;
 
   // -----------------------------
   // NEW: RANK FETCHING LOGIC
@@ -107,10 +109,13 @@
       });
   }
 
-  function fetchWinrate(puuid, queueId = 420) {
-    console.log(`[FETCH WINRATE] Requesting winrate for PUUID: ${puuid}, Queue: ${queueId}`);
+  function fetchWinrate(puuid, queueId = 420, teamPosition = null) {
+    console.log(`[FETCH WINRATE] Requesting winrate for PUUID: ${puuid}, Queue: ${queueId}, TeamPosition: ${teamPosition || "all"}`);
 
-    return fetch(`/riot/winrate/${puuid}?queueId=${queueId}`)
+    const params = new URLSearchParams({ queueId: String(queueId) });
+    if (teamPosition) params.append("teamPosition", teamPosition);
+
+    return fetch(`/riot/winrate/${puuid}?${params.toString()}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -371,10 +376,14 @@
     return Promise.all(batchPromises);
   }
 
-  function fetchRecentMatches(puuid, queueId) {
-    console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}`);
+  function fetchRecentMatches(puuid, queueId, teamPosition = null) {
+    console.log(`[FETCH MATCHES] Starting fetch for PUUID: ${puuid}, Queue: ${queueId}, TeamPosition: ${teamPosition || "all"}`);
 
-    return fetch(`/riot/matches/${puuid}/${queueId}`)
+    const params = new URLSearchParams();
+    if (teamPosition) params.append("teamPosition", teamPosition);
+    const query = params.toString();
+
+    return fetch(`/riot/matches/${puuid}/${queueId}${query ? `?${query}` : ""}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -390,7 +399,7 @@
           );
         }
 
-        const matchIds = data.matches;
+        const matchIds = data.matches.slice(0, OVERVIEW_MATCH_LIMIT);
 
         console.log(`[FETCH MATCHES] Processing ${matchIds.length} matches for details fetch`);
 
@@ -454,10 +463,13 @@
       });
   }
   // Fetch recent matches from database (cached data)
-  function fetchRecentMatchesFromDatabase(puuid, queueId) {
-    console.log(`[FETCH MATCHES DB] Starting database fetch for PUUID: ${puuid}, Queue: ${queueId}`);
+  function fetchRecentMatchesFromDatabase(puuid, queueId, teamPosition = null) {
+    console.log(`[FETCH MATCHES DB] Starting database fetch for PUUID: ${puuid}, Queue: ${queueId}, TeamPosition: ${teamPosition || "all"}`);
 
-    return fetch(`/riot/matches/database/${puuid}?queueId=${queueId}`)
+    const params = new URLSearchParams({ queueId: String(queueId) });
+    if (teamPosition) params.append("teamPosition", teamPosition);
+
+    return fetch(`/riot/matches/database/${puuid}?${params.toString()}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -470,7 +482,7 @@
 
         console.log(`[FETCH MATCHES DB] ✓ Retrieved ${data.matches.length} matches from database for PUUID: ${puuid}`);
 
-        const matchesData = data.matches;
+        const matchesData = data.matches.slice(0, OVERVIEW_MATCH_LIMIT);
 
         // Cache the matches
         PA.cache.matches = matchesData;
@@ -551,6 +563,11 @@
 
               // store primary role id so frontend can send role context when storing metrics
               if (player.primaryRoleId) btn.setAttribute("data-primary-role-id", player.primaryRoleId);
+              if (player.secondaryRoleId) btn.setAttribute("data-secondary-role-id", player.secondaryRoleId);
+              if (player.riotTeamPosition1) btn.setAttribute("data-primary-team-position", player.riotTeamPosition1);
+              if (player.riotTeamPosition2) btn.setAttribute("data-secondary-team-position", player.riotTeamPosition2);
+              if (player.primaryRole) btn.setAttribute("data-primary-role-name", player.primaryRole);
+              if (player.secondaryRole) btn.setAttribute("data-secondary-role-name", player.secondaryRole);
           }
 
           document.getElementById("primaryRole") && (document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`);
@@ -573,11 +590,17 @@
           fetchPlayerRanks(targetPuuid);
 
           // 2. FETCH WINRATE
-          fetchWinrate(targetPuuid, PA.state.currentQueueId)
+          const currentRoleView = PA.state.currentRoleView || "primary";
+          const selectedTeamPosition =
+            currentRoleView === "secondary"
+              ? (player.riotTeamPosition2 || player.riotTeamPosition1 || null)
+              : (player.riotTeamPosition1 || null);
+
+          fetchWinrate(targetPuuid, PA.state.currentQueueId, selectedTeamPosition)
             .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
 
           // 3. FETCH MATCHES
-          fetchRecentMatchesFromDatabase(targetPuuid, PA.state.currentQueueId)
+          fetchRecentMatchesFromDatabase(targetPuuid, PA.state.currentQueueId, selectedTeamPosition)
             .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches from database:", err));
         };
 
@@ -604,10 +627,16 @@
               // Fetch from database by default
               console.log(`[LOAD PLAYER] Loading cached match statistics from database for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
 
-              fetchWinrate(puuid, PA.state.currentQueueId)
+              const currentRoleView = PA.state.currentRoleView || "primary";
+              const selectedTeamPosition =
+                currentRoleView === "secondary"
+                  ? (player.riotTeamPosition2 || player.riotTeamPosition1 || null)
+                  : (player.riotTeamPosition1 || null);
+
+              fetchWinrate(puuid, PA.state.currentQueueId, selectedTeamPosition)
                 .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
 
-              fetchRecentMatchesFromDatabase(puuid, PA.state.currentQueueId)
+              fetchRecentMatchesFromDatabase(puuid, PA.state.currentQueueId, selectedTeamPosition)
                 .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches from database:", err));
             });
         }
@@ -622,10 +651,16 @@
         // Fetch from database by default
         console.log(`[LOAD PLAYER] Loading cached match statistics from database for PUUID: ${puuid}, Queue: ${PA.state.currentQueueId}`);
 
-        fetchWinrate(puuid, PA.state.currentQueueId)
+        const currentRoleView = PA.state.currentRoleView || "primary";
+        const selectedTeamPosition =
+          currentRoleView === "secondary"
+            ? (player.riotTeamPosition2 || player.riotTeamPosition1 || null)
+            : (player.riotTeamPosition1 || null);
+
+        fetchWinrate(puuid, PA.state.currentQueueId, selectedTeamPosition)
           .catch((err) => console.error("[LOAD PLAYER] Error fetching winrate:", err));
 
-        fetchRecentMatchesFromDatabase(puuid, PA.state.currentQueueId)
+        fetchRecentMatchesFromDatabase(puuid, PA.state.currentQueueId, selectedTeamPosition)
           .catch((err) => console.error("[LOAD PLAYER] Error fetching recent matches from database:", err));
 
         return player;

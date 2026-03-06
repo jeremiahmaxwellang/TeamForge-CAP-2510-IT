@@ -4,6 +4,7 @@
  */
 
 const db = require('../../config/database');
+const OVERVIEW_MATCH_LIMIT = 15;
 
 async function fetchRolePositionsByPuuid(puuid) {
     const [rows] = await db.query(
@@ -72,7 +73,7 @@ async function fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, limit 
 exports.getWinrate = async (req, res) => {
     try {
         const { puuid } = req.params;
-        const { queueId } = req.query;
+        const { queueId, teamPosition } = req.query;
 
         if (!puuid) {
             return res.status(400).json({ error: 'puuid is required' });
@@ -80,22 +81,28 @@ exports.getWinrate = async (req, res) => {
 
         console.log(`[Win Rate] Getting winrate for PUUID: ${puuid}, Queue: ${queueId || 'all'}`);
 
-        const roleInfo = await fetchRolePositionsByPuuid(puuid);
-        if (!roleInfo) {
-            return res.json({ total: 0, wins: 0, losses: 0, winrate: 0 });
+        let rows = [];
+
+        if (teamPosition) {
+            rows = await fetchRecentRoleBucketRows(puuid, queueId, teamPosition, OVERVIEW_MATCH_LIMIT);
+        } else {
+            const roleInfo = await fetchRolePositionsByPuuid(puuid);
+            if (!roleInfo) {
+                return res.json({ total: 0, wins: 0, losses: 0, winrate: 0 });
+            }
+
+            const primaryRows = await fetchRecentRoleBucketRows(puuid, queueId, roleInfo.primaryTeamPosition, OVERVIEW_MATCH_LIMIT);
+            const secondaryRows =
+                roleInfo.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
+                    ? await fetchRecentRoleBucketRows(puuid, queueId, roleInfo.secondaryTeamPosition, OVERVIEW_MATCH_LIMIT)
+                    : [];
+
+            rows = [...primaryRows, ...secondaryRows].sort((a, b) => {
+                const aTs = Number(a.gameStartTimestamp || a.gameCreation || 0);
+                const bTs = Number(b.gameStartTimestamp || b.gameCreation || 0);
+                return bTs - aTs;
+            }).slice(0, OVERVIEW_MATCH_LIMIT);
         }
-
-        const primaryRows = await fetchRecentRoleBucketRows(puuid, queueId, roleInfo.primaryTeamPosition, 15);
-        const secondaryRows =
-            roleInfo.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
-                ? await fetchRecentRoleBucketRows(puuid, queueId, roleInfo.secondaryTeamPosition, 15)
-                : [];
-
-        const rows = [...primaryRows, ...secondaryRows].sort((a, b) => {
-            const aTs = Number(a.gameStartTimestamp || a.gameCreation || 0);
-            const bTs = Number(b.gameStartTimestamp || b.gameCreation || 0);
-            return bTs - aTs;
-        });
 
         const total = rows.length;
         if (total === 0) {
@@ -123,7 +130,7 @@ exports.getWinrate = async (req, res) => {
 exports.getRecentMatchesFromDatabase = async (req, res) => {
     try {
         const { puuid } = req.params;
-        const { queueId } = req.query;
+        const { queueId, teamPosition } = req.query;
 
         if (!puuid) {
             return res.status(400).json({ error: 'puuid is required' });
@@ -147,29 +154,35 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
         // Log with gameName and tagLine instead of puuid
         console.log(`[DB MATCHES] Getting recent matches from database for Player: ${gameName}#${tagLine}, Queue: ${queueId || 'all'}`);
 
-        const roleInfo = await fetchRolePositionsByPuuid(puuid);
+        let matches = [];
 
-        const primaryMatches = roleInfo?.primaryTeamPosition
-            ? await fetchRecentRoleBucketMatches(puuid, queueId, roleInfo.primaryTeamPosition, 15)
-            : [];
+        if (teamPosition) {
+            matches = await fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, OVERVIEW_MATCH_LIMIT);
+        } else {
+            const roleInfo = await fetchRolePositionsByPuuid(puuid);
 
-        const secondaryMatches =
-            roleInfo?.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
-                ? await fetchRecentRoleBucketMatches(puuid, queueId, roleInfo.secondaryTeamPosition, 15)
+            const primaryMatches = roleInfo?.primaryTeamPosition
+                ? await fetchRecentRoleBucketMatches(puuid, queueId, roleInfo.primaryTeamPosition, OVERVIEW_MATCH_LIMIT)
                 : [];
 
-        const deduped = new Map();
-        [...primaryMatches, ...secondaryMatches].forEach((row) => {
-            if (!deduped.has(row.matchId)) {
-                deduped.set(row.matchId, row);
-            }
-        });
+            const secondaryMatches =
+                roleInfo?.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
+                    ? await fetchRecentRoleBucketMatches(puuid, queueId, roleInfo.secondaryTeamPosition, OVERVIEW_MATCH_LIMIT)
+                    : [];
 
-        const matches = Array.from(deduped.values()).sort((a, b) => {
-            const aTs = Number(a.gameStartTimestamp || a.gameCreation || 0);
-            const bTs = Number(b.gameStartTimestamp || b.gameCreation || 0);
-            return bTs - aTs;
-        });
+            const deduped = new Map();
+            [...primaryMatches, ...secondaryMatches].forEach((row) => {
+                if (!deduped.has(row.matchId)) {
+                    deduped.set(row.matchId, row);
+                }
+            });
+
+            matches = Array.from(deduped.values()).sort((a, b) => {
+                const aTs = Number(a.gameStartTimestamp || a.gameCreation || 0);
+                const bTs = Number(b.gameStartTimestamp || b.gameCreation || 0);
+                return bTs - aTs;
+            }).slice(0, OVERVIEW_MATCH_LIMIT);
+        }
 
         if (matches.length === 0) {
             console.log(`[DB MATCHES] No matches found in database for Player: ${gameName}#${tagLine}`);
