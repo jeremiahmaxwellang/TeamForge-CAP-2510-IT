@@ -158,7 +158,7 @@ window.initComparisonTab = function () {
 
     if (nameEl) {
         // Add the active role text in green next to the player's name
-        nameEl.innerHTML = `${nameStr} <span style="color:#00f2c3; font-size: 0.85em; margin-left: 5px;">(${activeRoleStr})</span>`;
+        nameEl.innerHTML = `${nameStr} <span style="color:#1f77b4; font-size: 0.85em; margin-left: 5px;">(${activeRoleStr})</span>`;
 
         // INJECT ROLE TOGGLES FOR PLAYER 1 IN THE OVERLAY
         if (playerNumber === 1) {
@@ -480,9 +480,9 @@ window.initComparisonTab = function () {
       <table class="comparison-table" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 20px;">
         <thead>
           <tr style="border-bottom: 2px solid #ddd;">
-            <th style="padding: 10px; width: 33%; font-size: 16px;">${p1Name} <span style="color: #00f2c3; font-size: 14px;">(${p1Role})</span></th>
+            <th style="padding: 10px; width: 33%; font-size: 16px;">${p1Name} <span style="color: #1f77b4; font-size: 14px;">(${p1Role})</span></th>
             <th style="padding: 10px; width: 34%;">Metric</th>
-            <th style="padding: 10px; width: 33%; font-size: 16px;">${p2Name} <span style="color: #00f2c3; font-size: 14px;">(${p2Role})</span></th>
+            <th style="padding: 10px; width: 33%; font-size: 16px;">${p2Name} <span style="color: #1f77b4; font-size: 14px;">(${p2Role})</span></th>
           </tr>
         </thead>
         <tbody>
