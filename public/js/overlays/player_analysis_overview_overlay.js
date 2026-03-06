@@ -121,10 +121,15 @@
         ? (secondaryTeamPosition || primaryTeamPosition || null)
         : (primaryTeamPosition || null);
 
-      api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition)
-        .catch((err) => console.error("[FETCH BUTTON] Error fetching winrate:", err));
-
       api.fetchRecentMatches(puuid, state.currentQueueId, selectedTeamPosition)
+        .then(() => {
+          return api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition);
+        })
+        .then(() => {
+          if (document.querySelector("#overlay-container .winrate") && window.PlayerAnalysis?.cache?.winrateData) {
+            requestAnimationFrame(() => api.updateWinrateDisplay(window.PlayerAnalysis.cache.winrateData));
+          }
+        })
         .catch((err) => console.error("[FETCH BUTTON] Error fetching recent matches:", err));
     });
 
@@ -174,7 +179,7 @@
     document.addEventListener("playeranalysis:winrate-updated", (event) => {
       const winrateEl = overlayContainer?.querySelector(".winrate");
       if (winrateEl && event?.detail) {
-        api.updateWinrateDisplay(event.detail);
+        requestAnimationFrame(() => api.updateWinrateDisplay(event.detail));
       }
     });
 
@@ -202,6 +207,11 @@
       return primaryTeamPosition || null;
     }
 
+    function redrawWinrateFromCache() {
+      if (!overlayContainer?.querySelector(".winrate") || !PA.cache.winrateData) return;
+      requestAnimationFrame(() => api.updateWinrateDisplay(PA.cache.winrateData));
+    }
+
     function refreshOverviewStats(useRiotApi = false) {
       const btn = document.getElementById("player-dropdown-btn");
       const puuid = btn?.getAttribute("data-puuid");
@@ -209,11 +219,10 @@
 
       const selectedTeamPosition = getSelectedTeamPosition();
 
-      api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition)
-        .catch((err) => console.error("[OVERVIEW] Error refreshing winrate:", err));
-
       const matchFetch = useRiotApi ? api.fetchRecentMatches : api.fetchRecentMatchesFromDatabase;
       matchFetch(puuid, state.currentQueueId, selectedTeamPosition)
+        .then(() => api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition))
+        .then(() => redrawWinrateFromCache())
         .catch((err) => console.error("[OVERVIEW] Error refreshing recent matches:", err));
     }
 
@@ -438,7 +447,7 @@
               // Update display with cached data if available
               console.log("[OVERVIEW] Updating display with cached data");
               if (PA.cache.winrateData) {
-                api.updateWinrateDisplay(PA.cache.winrateData);
+                requestAnimationFrame(() => api.updateWinrateDisplay(PA.cache.winrateData));
               }
               if (PA.cache.kdaStats) {
                 api.updateKDADisplay(PA.cache.kdaStats);
