@@ -217,23 +217,41 @@
         .catch((err) => console.error("[OVERVIEW] Error refreshing recent matches:", err));
     }
 
+    function hasDistinctSecondaryRole() {
+      const btn = document.getElementById("player-dropdown-btn");
+      if (!btn) return false;
+
+      const primaryRoleId = btn.getAttribute("data-primary-role-id");
+      const secondaryRoleId = btn.getAttribute("data-secondary-role-id");
+      const primaryRoleName = (btn.getAttribute("data-primary-role-name") || "").trim().toLowerCase();
+      const secondaryRoleName = (btn.getAttribute("data-secondary-role-name") || "").trim().toLowerCase();
+
+      if (!secondaryRoleId && !secondaryRoleName) return false;
+
+      if (secondaryRoleId && primaryRoleId && secondaryRoleId === primaryRoleId) return false;
+
+      if (secondaryRoleName && primaryRoleName && secondaryRoleName === primaryRoleName) return false;
+
+      return true;
+    }
+
     function setupOverviewRoleDropdown() {
       const roleDropdownBtn = overlayContainer.querySelector("#overviewRoleDropdownBtn");
       const roleDropdownContent = overlayContainer.querySelector("#overviewRoleDropdownContent");
       const roleOptions = overlayContainer.querySelectorAll("#overviewRoleDropdownContent a");
-      const playerBtn = document.getElementById("player-dropdown-btn");
-      const hasSecondaryRole = !!playerBtn?.getAttribute("data-secondary-role-id");
       const roleDropdownWrapper = roleDropdownBtn?.closest(".dropdown");
 
       if (!roleDropdownBtn || !roleDropdownContent || roleOptions.length === 0) {
         return;
       }
 
-      if (!hasSecondaryRole) {
+      if (!hasDistinctSecondaryRole()) {
         state.currentRoleView = "primary";
         roleDropdownContent.style.display = "none";
         if (roleDropdownWrapper) {
           roleDropdownWrapper.style.display = "none";
+        } else {
+          roleDropdownBtn.style.display = "none";
         }
         return;
       }
