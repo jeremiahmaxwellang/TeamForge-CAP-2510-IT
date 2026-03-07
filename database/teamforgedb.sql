@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
   `position` ENUM('Team Manager', 'Team Coach', 'Player', 'Sub', 'Applicant') NOT NULL,
   `discord` VARCHAR(45) NULL,
   `status` ENUM('Active', 'Inactive', 'Deactivated') NOT NULL,
+  `firstLogin` BOOLEAN DEFAULT 1,
   `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`userId`))
 ENGINE = InnoDB;

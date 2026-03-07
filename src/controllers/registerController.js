@@ -37,8 +37,8 @@ exports.createUser = async (req, res) => {
 
         // Insert into users table
         const insertUserQuery = `
-            INSERT INTO users (email, passwordHash, firstname, lastname, position, status)
-            VALUES (?, ?, ?, ?, ?, 'Active')
+            INSERT INTO users (email, passwordHash, firstname, lastname, position, status, firstLogin)
+            VALUES (?, ?, ?, ?, 'Applicant', 'Active', 0)
         `;
 
         const [userResult] = await mySqlPool.query(insertUserQuery, [

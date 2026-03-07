@@ -92,9 +92,9 @@ const createUser = async (req, res) => {
 
         let insertResult;
         if (userId) {
-            insertResult = await db.query(`INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [userId, email, passwordHash, firstname, lastname, position, discord, status])
+            insertResult = await db.query(`INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status, firstLogin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`, [userId, email, passwordHash, firstname, lastname, position, discord, status])
         } else {
-            insertResult = await db.query(`INSERT INTO users(email, passwordHash, firstname, lastname, position, discord, status) VALUES (?, ?, ?, ?, ?, ?, ?)`, [email, passwordHash, firstname, lastname, position, discord, status])
+            insertResult = await db.query(`INSERT INTO users(email, passwordHash, firstname, lastname, position, discord, status, firstLogin) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`, [email, passwordHash, firstname, lastname, position, discord, status])
         }
 
         if (!insertResult) {
@@ -138,7 +138,8 @@ const createUser = async (req, res) => {
                 }
 
                 try {
-                    await db.query(`INSERT INTO players (userId, gameName, tagLine, primaryRoleId) VALUES (?, ?, ?, ?)`, [newUserId, gameName, tagLine, primaryRoleId]);
+                    const applicationStatus = position === 'Player' ? 'Accepted' : null;
+                    await db.query(`INSERT INTO players (userId, gameName, tagLine, primaryRoleId, applicationStatus) VALUES (?, ?, ?, ?, ?)`, [newUserId, gameName, tagLine, primaryRoleId, applicationStatus]);
                 } catch (err) {
                     console.error('Error inserting into players for riotId:', err.message);
                 }
