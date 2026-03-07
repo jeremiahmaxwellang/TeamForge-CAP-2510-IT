@@ -1,10 +1,23 @@
 /* Player Comparison Styles */
+
+.overlay {
+    box-sizing: border-box;
+    width: auto;
+    max-width: calc(100% - 30px);
+    margin: 15px;
+    background-color: var(--porcelain);
+    padding: 15px;
+    border-radius: 10px;
+    overflow: visible;
+    word-break: break-word;
+}
+
 .comparison-container {
+    max-width: 100%;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--porcelain);
-    border-radius: 8px;
 }
 
 .comparison-header {
