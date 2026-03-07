@@ -35,6 +35,11 @@
     overflow: hidden;
 }
 
+.champion-pool-container {
+    max-width: 100%;
+    overflow: hidden;
+}
+
 /* Constrain images inside overlays */
 .overview-container img,
 .match-history img {
