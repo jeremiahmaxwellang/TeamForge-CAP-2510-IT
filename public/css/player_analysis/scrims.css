@@ -1,5 +1,6 @@
 .overlay-container {
   padding: 20px;
+  background-color: var(--porcelain);
 }
 
 .overlay-content {
@@ -34,7 +35,12 @@
 }
 
 .scrim-selected {
-  background-color: #36c9ff; /* blue */
+  background-color: #1f77b4; /* selected row blue */
+}
+
+.scrim-selected th,
+.scrim-selected td {
+  border-color: #1f77b4;
 }
 
 .times-played-table {
