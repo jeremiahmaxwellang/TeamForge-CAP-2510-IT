@@ -72,7 +72,7 @@ body {
 .main-content {
     flex-grow: 1; /* Allows the main content to take the remaining space */
     background-color: var(--gunmetal); /* Main content background color */
-    height: 100vh; /* Ensure the main content fills the height */
+    height: 100%; /* Ensure the main content fills the height */
 }
 
 /* Adjust layout of sidebar and main content */

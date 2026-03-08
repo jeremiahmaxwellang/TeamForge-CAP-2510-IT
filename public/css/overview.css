@@ -35,6 +35,11 @@
     overflow: hidden;
 }
 
+.champion-pool-container {
+    max-width: 100%;
+    overflow: hidden;
+}
+
 /* Constrain images inside overlays */
 .overview-container img,
 .match-history img {
@@ -288,3 +293,136 @@
 
 .header-text{ font-weight: 700; }
 .match-history{ margin-top: 12px; }
+
+/* Champion Pool table styles */
+.champion-pool-container .table-container {
+    margin-top: 16px;
+    border: 1px solid #e6e8ec;
+    border-radius: 10px;
+    background-color: #ffffff;
+    overflow-x: auto;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.champion-pool-container .table-container h2 {
+    margin: 0;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    border-bottom: 1px solid #eceff3;
+    background: linear-gradient(180deg, #fafbfc 0%, #f3f5f8 100%);
+}
+
+.champion-pool-container .table-container table {
+    width: 100%;
+    min-width: 860px;
+    border-collapse: collapse;
+}
+
+.champion-pool-container .table-container thead th {
+    padding: 12px 10px;
+    font-size: 21px;
+    font-weight: 700;
+    font-family: 'Roboto', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #4b5563;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.champion-pool-container .table-container td {
+    padding: 11px 10px;
+    border-bottom: 1px solid #eef1f4;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    color: #1f2937;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.champion-pool-container .table-container tbody tr:nth-child(even) {
+    background-color: #fbfdff;
+}
+
+.champion-pool-container .table-container tbody tr:hover {
+    background-color: #eef7ff;
+}
+
+.champion-pool-container .table-container th:nth-child(2),
+.champion-pool-container .table-container td:nth-child(2),
+.champion-pool-container .table-container th:nth-child(3),
+.champion-pool-container .table-container td:nth-child(3),
+.champion-pool-container .table-container th:nth-child(6),
+.champion-pool-container .table-container td:nth-child(6) {
+    text-align: left;
+}
+
+.champion-pool-container .table-container td:first-child {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.champion-pool-container .champion-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.champion-pool-container .champion-pool-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #d6dbe3;
+    background-color: #f1f5f9;
+}
+
+.champion-pool-container .champion-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.champion-pool-container .role-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.champion-pool-container .lane-role-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.champion-pool-container .role-name {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+@media (max-width: 768px) {
+    .champion-pool-container .table-container h2 {
+        font-size: 16px;
+        padding: 12px 14px;
+    }
+
+    .champion-pool-container .table-container td {
+        font-size: 16px;
+        padding: 10px 8px;
+    }
+
+    .champion-pool-container .champion-pool-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .champion-pool-container .lane-role-icon {
+        width: 18px;
+        height: 18px;
+    }
+}
