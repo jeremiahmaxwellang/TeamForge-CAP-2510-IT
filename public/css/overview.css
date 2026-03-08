@@ -322,7 +322,7 @@
 
 .champion-pool-container .table-container thead th {
     padding: 12px 10px;
-    font-size: 12px;
+    font-size: 21px;
     font-weight: 700;
     font-family: 'Roboto', sans-serif;
     text-transform: uppercase;
@@ -337,7 +337,7 @@
 .champion-pool-container .table-container td {
     padding: 11px 10px;
     border-bottom: 1px solid #eef1f4;
-    font-size: 14px;
+    font-size: 16px;
     font-family: 'Roboto', sans-serif;
     color: #1f2937;
     text-align: center;
@@ -411,9 +411,8 @@
         padding: 12px 14px;
     }
 
-    .champion-pool-container .table-container thead th,
     .champion-pool-container .table-container td {
-        font-size: 13px;
+        font-size: 16px;
         padding: 10px 8px;
     }
 
