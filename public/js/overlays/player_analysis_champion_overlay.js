@@ -50,6 +50,22 @@ window.initChampionTab = function (userId) {
     return `https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${champKey}.png`;
   };
 
+  const normalizeRoleKey = (role) => String(role || "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+
+  const getLaneIconPath = (role) => {
+    const roleKey = normalizeRoleKey(role);
+
+    if (roleKey.includes("top")) return "/images/top_lane.png";
+    if (roleKey.includes("jungle")) return "/images/jungle.png";
+    if (roleKey.includes("mid") || roleKey.includes("middle")) return "/images/mid_lane.png";
+    if (roleKey.includes("bottom") || roleKey.includes("bot") || roleKey.includes("adc")) return "/images/bottom_lane.png";
+    if (roleKey.includes("support") || roleKey.includes("supp")) return "/images/support.png";
+
+    return "/images/support.png";
+  };
+
   console.log("[CHAMPION] Tab logic initialized for user:", userId);
 
   const tableBody = document.querySelector("table tbody");
@@ -65,7 +81,9 @@ window.initChampionTab = function (userId) {
       tableBody.innerHTML = "";
       formatted.forEach((champ, index) => {
         const championNameSafe = escapeHtml(champ.championName);
+        const roleSafe = escapeHtml(champ.role);
         const iconUrl = getChampionIconUrl(champ.championName);
+        const laneIconPath = getLaneIconPath(champ.role);
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${index + 1}</td>
@@ -81,7 +99,18 @@ window.initChampionTab = function (userId) {
               <span class="champion-name">${championNameSafe}</span>
             </div>
           </td>
-          <td>${champ.role}</td>
+          <td>
+            <div class="role-cell">
+              <img
+                class="lane-role-icon"
+                src="${laneIconPath}"
+                alt="${roleSafe}"
+                loading="lazy"
+                onerror="this.style.display='none';"
+              >
+              <span class="role-name">${roleSafe}</span>
+            </div>
+          </td>
           <td>${champ.games}</td>
           <td>${champ.winrate}</td>
           <td>${champ.avgKills} / ${champ.avgDeaths} / ${champ.avgAssists}</td>

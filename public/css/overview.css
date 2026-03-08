@@ -387,6 +387,24 @@
     color: #111827;
 }
 
+.champion-pool-container .role-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.champion-pool-container .lane-role-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.champion-pool-container .role-name {
+    font-weight: 500;
+    color: #1f2937;
+}
+
 @media (max-width: 768px) {
     .champion-pool-container .table-container h2 {
         font-size: 16px;
@@ -402,5 +420,10 @@
     .champion-pool-container .champion-pool-icon {
         width: 26px;
         height: 26px;
+    }
+
+    .champion-pool-container .lane-role-icon {
+        width: 18px;
+        height: 18px;
     }
 }
