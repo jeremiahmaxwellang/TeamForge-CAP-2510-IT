@@ -366,6 +366,27 @@
     color: #0f172a;
 }
 
+.champion-pool-container .champion-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.champion-pool-container .champion-pool-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #d6dbe3;
+    background-color: #f1f5f9;
+}
+
+.champion-pool-container .champion-name {
+    font-weight: 600;
+    color: #111827;
+}
+
 @media (max-width: 768px) {
     .champion-pool-container .table-container h2 {
         font-size: 16px;
@@ -376,5 +397,10 @@
     .champion-pool-container .table-container td {
         font-size: 13px;
         padding: 10px 8px;
+    }
+
+    .champion-pool-container .champion-pool-icon {
+        width: 26px;
+        height: 26px;
     }
 }
