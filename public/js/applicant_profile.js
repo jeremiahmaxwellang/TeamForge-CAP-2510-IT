@@ -39,10 +39,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   // State Management
   const state = {
     allApplicants: [],
+    rosterPlayers: [], // ADDED: Holds current team members
     currentIndex: 0,
     currentApplicant: null,
     benchmarkData: null,
-    selectedRoleId: null
+    selectedRoleId: null,
+    comparisonTarget: 'benchmark' // ADDED
   };
 
   // DOM Elements Map (Fixed IDs to match HTML)
@@ -72,6 +74,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     chartContainer: document.getElementById('radar-chart'),
     statsContainer: document.getElementById('stats-list'), // New Table Container
+    comparisonSelect: document.getElementById('comparison-select'), // ADDED
     
     btnConfirmEval: document.getElementById('btn-confirm-eval'),
     commentBox: document.getElementById('eval-comment')
@@ -81,23 +84,50 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function init() {
     console.log("[APPLICANT] Initializing Profile...");
+    
+    // 1. Fetch Applicants
     try {
-      const resp = await fetch('/applicant_list/getall');
-      const data = await resp.json();
-      if(data.success) {
-        state.allApplicants = data.applicants;
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlId = urlParams.get('id');
-        
-        if (urlId) {
-          state.currentIndex = state.allApplicants.findIndex(a => a.userId == urlId);
-          if (state.currentIndex === -1) state.currentIndex = 0;
-        }
-        loadProfile(state.currentIndex);
+      const appResp = await fetch('/applicant_list/getall');
+      if (appResp.ok) {
+          const appData = await appResp.json();
+          if (appData.success) state.allApplicants = appData.applicants || [];
       }
     } catch (e) {
-      console.error("Failed to load applicant list", e);
+      console.error("[APPLICANT] Failed to load applicants:", e);
     }
+
+    // 2. Fetch Roster (Using the verified URL!)
+    try {
+      const rosterResp = await fetch('/player_analysis/players'); 
+      if (rosterResp.ok) {
+          const rosterData = await rosterResp.json();
+          state.rosterPlayers = Array.isArray(rosterData) ? rosterData : (rosterData.players || rosterData.data || []);
+      } else {
+          console.warn(`[APPLICANT] Roster fetch returned status ${rosterResp.status}.`);
+      }
+    } catch (e) {
+      console.warn("[APPLICANT] Failed to load roster:", e);
+    }
+
+    // 3. Load UI safely
+    try {
+        if (state.allApplicants.length > 0) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlId = urlParams.get('id');
+            
+            if (urlId) {
+              state.currentIndex = state.allApplicants.findIndex(a => a.userId == urlId);
+              if (state.currentIndex === -1) state.currentIndex = 0;
+            }
+            loadProfile(state.currentIndex);
+        } else {
+            console.warn("[APPLICANT] No applicants found in database.");
+            if(UI.name) UI.name.textContent = "No applicants found";
+        }
+    } catch (e) {
+        console.error("[APPLICANT] Error loading profile UI:", e);
+    }
+    
     setupEventListeners();
   }
 
@@ -176,8 +206,56 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    populateComparisonDropdown(); // ADDED: Refresh dropdown to exclude the current applicant
     // Fetch Stats
     fetchStats(applicant.userId, state.selectedRoleId);
+  }
+
+function populateComparisonDropdown() {
+    if (!UI.comparisonSelect) return;
+    
+    const currentSelection = UI.comparisonSelect.value || 'benchmark';
+    UI.comparisonSelect.innerHTML = '<option value="benchmark">🏆 Coach Benchmark (Target)</option>';
+    
+    // --- 1. CURRENT TEAM ROSTER ---
+    if (state.rosterPlayers && state.rosterPlayers.length > 0) {
+        const rosterGroup = document.createElement('optgroup');
+        rosterGroup.label = "Current Team Roster";
+        
+        state.rosterPlayers.forEach(player => {
+            const opt = document.createElement('option');
+            opt.value = player.userId || player.id; // Handles different DB column names
+            // Fallback for names in case they use summonerName instead of gameName
+            const nameStr = player.gameName ? `${player.gameName}#${player.tagLine}` : (player.summonerName || `Player`);
+            opt.textContent = `${nameStr} (${getRoleName(player.primaryRoleId)})`;
+            rosterGroup.appendChild(opt);
+        });
+        UI.comparisonSelect.appendChild(rosterGroup);
+    }
+
+    // --- 2. OTHER APPLICANTS ---
+    if (state.allApplicants && state.allApplicants.length > 0) {
+        const appGroup = document.createElement('optgroup');
+        appGroup.label = "Other Applicants";
+        
+        state.allApplicants.forEach(app => {
+          if (app.userId == state.currentApplicant.userId) return; 
+          const opt = document.createElement('option');
+          opt.value = app.userId;
+          opt.textContent = `${app.gameName}#${app.tagLine} (${getRoleName(app.primaryRoleId)})`;
+          appGroup.appendChild(opt);
+        });
+        UI.comparisonSelect.appendChild(appGroup);
+    }
+    
+    // Restore selection safely
+    if (Array.from(UI.comparisonSelect.options).some(o => o.value == currentSelection)) {
+        UI.comparisonSelect.value = currentSelection;
+        state.comparisonTarget = currentSelection;
+    } else {
+        UI.comparisonSelect.value = 'benchmark';
+        state.comparisonTarget = 'benchmark';
+    }
   }
 
   // ==========================================
@@ -206,37 +284,74 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (UI.topChamps) UI.topChamps.innerHTML = "<span>Loading...</span>";
 
     try {
-      // Fetch both Player Stats and Benchmarks concurrently
-      const [statsResp, benchResp] = await Promise.all([
+      const target = state.comparisonTarget || 'benchmark';
+      
+      const fetches = [
          fetch('/player_analysis/calculate-stats', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ playerId: userId, roleId: roleId || 1 })
          }).catch(() => null),
          fetch(`/player_analysis/api/benchmarks/${roleId || 1}`).catch(() => null)
-      ]);
+      ];
 
-      const data = statsResp ? await statsResp.json() : null;
-      const benchData = benchResp ? await benchResp.json() : null;
+      // If comparing to another player, FORCE them to be evaluated on the currently toggled role
+      if (target !== 'benchmark') {
+         fetches.push(
+             fetch('/player_analysis/calculate-stats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: target, roleId: roleId || 1 }) 
+             }).catch(() => null)
+         );
+      }
+
+      const responses = await Promise.all(fetches);
+      const data = responses[0] ? await responses[0].json() : null;
+      const benchData = responses[1] ? await responses[1].json() : null;
+      const targetData = responses[2] ? await responses[2].json() : null;
       
       const pStats = data && data.playerStats ? data.playerStats : null;
       const benchmarks = Array.isArray(benchData) ? benchData : (benchData && benchData.benchmarks ? benchData.benchmarks : []);
 
       if (data && data.success && pStats) {
-        // Core Stats
         UI.winrate.textContent = `${pStats.winrate || 50}% WR`;
         UI.kda.textContent = `${pStats.KDA || pStats.kda || '0.00'} KDA`;
 
-        // Top Champs
         if(pStats.topChampions && pStats.topChampions.length > 0) {
             UI.topChamps.innerHTML = pStats.topChampions.map(c => `<span style="background:#444; padding:3px 10px; border-radius:6px;">${c}</span>`).join('');
         } else {
             UI.topChamps.innerHTML = "<span>No Champ Data</span>";
         }
 
-        // Draw Visuals
-        drawComparisonChart(pStats, benchmarks);
-        drawStatsTable(pStats, benchmarks, roleId);
+        let p2Stats = null;
+        let p2Name = "Expected Stats";
+        let p2Role = "Coach";
+        let isBenchmark = true;
+
+        if (target !== 'benchmark') {
+            p2Stats = targetData && targetData.playerStats ? targetData.playerStats : null;
+            isBenchmark = false;
+            
+            // Search both lists combined to find the target player
+            const allPlayers = [...state.allApplicants, ...state.rosterPlayers];
+            const targetApp = allPlayers.find(a => (a.userId || a.id) == target);
+            
+            if (targetApp) {
+                const nameStr = targetApp.gameName ? `${targetApp.gameName}#${targetApp.tagLine}` : (targetApp.summonerName || "Player");
+                p2Name = nameStr;
+                p2Role = `Compared as ${getRoleName(roleId || 1)}`; 
+            } else {
+                p2Name = "Other Player";
+                p2Role = getRoleName(roleId || 1);
+            }
+        } else {
+            p2Stats = benchmarks;
+            p2Role = `Expected ${getRoleName(roleId || 1)}`; 
+        }
+
+        drawComparisonChart(pStats, p2Stats, benchmarks, isBenchmark);
+        drawStatsTable(pStats, p2Stats, benchmarks, roleId, isBenchmark, p2Name, p2Role);
       } else {
         throw new Error("No match data returned.");
       }
@@ -245,7 +360,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       UI.winrate.textContent = "--% WR";
       UI.kda.textContent = "-- KDA";
       if(UI.topChamps) UI.topChamps.innerHTML = "<span>No Data</span>";
-      
       UI.chartContainer.innerHTML = "<div style='text-align:center; padding: 40px; color:#888; font-weight:bold;'>No recent match data available for this role.</div>";
       if(UI.statsContainer) UI.statsContainer.innerHTML = "";
     }
@@ -258,20 +372,25 @@ document.addEventListener("DOMContentLoaded", async function () {
     return Math.min((Number(playerValue) / maxScale) * 10, 10);
   }
 
-  function drawComparisonChart(playerStats, benchmarks) {
+function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     const roleId = state.selectedRoleId || 1;
     const config = ROLE_CONFIGS[roleId] || ROLE_CONFIGS.default;
 
     const p1Axes = config.axes.map(a => {
-      const val = Number(playerStats[a.id]) || Number(playerStats[a.id.replace(/\s/g, '')]) || 0;
+      const val = Number(p1Stats[a.id]) || Number(p1Stats[a.id.replace(/\s/g, '')]) || 0;
       return { axis: a.label, value: calculateRadarScore(val, a.id, benchmarks) };
     });
 
     const p2Axes = config.axes.map(a => {
-      const normalizedId = a.id.toLowerCase().replace(/\s/g, '');
-      const dbMatch = benchmarks.find(b => b.metricName && b.metricName.toLowerCase().replace(/\s/g, '') === normalizedId);
-      const expectedVal = dbMatch ? Number(dbMatch.benchmarkValue) : (FALLBACK_SCALES[a.id] * 0.8);
-      return { axis: a.label, value: calculateRadarScore(expectedVal, a.id, benchmarks) };
+      let val;
+      if (isBenchmark) {
+          const normalizedId = a.id.toLowerCase().replace(/\s/g, '');
+          const dbMatch = benchmarks.find(b => b.metricName && b.metricName.toLowerCase().replace(/\s/g, '') === normalizedId);
+          val = dbMatch ? Number(dbMatch.benchmarkValue) : (FALLBACK_SCALES[a.id] * 0.8);
+      } else {
+          val = p2Stats ? (Number(p2Stats[a.id]) || Number(p2Stats[a.id.replace(/\s/g, '')]) || 0) : 0;
+      }
+      return { axis: a.label, value: calculateRadarScore(val, a.id, benchmarks) };
     });
 
     UI.chartContainer.innerHTML = ""; 
@@ -284,11 +403,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     ]);
   }
 
-  function drawStatsTable(playerStats, benchmarks, roleId) {
+  function drawStatsTable(p1Stats, p2Stats, benchmarks, roleId, isBenchmark, p2Name, p2Role) {
     if (!UI.statsContainer) return;
 
     const config = ROLE_CONFIGS[roleId] || ROLE_CONFIGS.default;
     const p1Name = state.currentApplicant.gameName ? `${state.currentApplicant.gameName}#${state.currentApplicant.tagLine}` : 'Applicant';
+    
+    // Ensure Player 1's table column also clearly shows the currently toggled role
+    const p1RoleStr = getRoleName(roleId || state.selectedRoleId);
     
     const coreGood = [
         { id: "Kills", label: "Kills" }, { id: "Assists", label: "Assists" },
@@ -308,9 +430,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         return 0;
     };
 
-    const getBench = (benchmarks, id) => {
+    const getBench = (benchmarksList, id) => {
         const cleanId = id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-        const found = benchmarks.find(b => b.metricName && b.metricName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '') === cleanId);
+        const found = benchmarksList.find(b => b.metricName && b.metricName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '') === cleanId);
         return found ? Number(found.benchmarkValue) : (FALLBACK_SCALES[id] * 0.8 || 0);
     };
 
@@ -320,9 +442,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       <table class="comparison-table" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 15px;">
         <thead>
           <tr style="border-bottom: 2px solid #ddd;">
-            <th style="padding: 10px; width: 33%; font-size: 14px; color:#333;">${p1Name}</th>
+            <th style="padding: 10px; width: 33%; font-size: 14px; color:#333;">${p1Name} <br><span style="font-size:11px; color:#00f2c3;">(${p1RoleStr})</span></th>
             <th style="padding: 10px; width: 34%; color:#333;">Metric</th>
-            <th style="padding: 10px; width: 33%; font-size: 14px; color:#00f2c3;">Expected</th>
+            <th style="padding: 10px; width: 33%; font-size: 14px; color:#00f2c3;">${p2Name} <br><span style="font-size:11px; color:#888;">(${p2Role})</span></th>
           </tr>
         </thead>
         <tbody>
@@ -330,8 +452,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     html += `<tr><td colspan="3" style="padding: 6px; background: rgba(76, 175, 80, 0.1); color: #4CAF50; font-weight: bold; font-size: 12px; text-transform: uppercase;">Positive Indicators (Higher is Better)</td></tr>`;
     coreGood.forEach(m => {
-      const val1 = getStat(playerStats, m.id);
-      const val2 = getBench(benchmarks, m.id);
+      const val1 = getStat(p1Stats, m.id);
+      const val2 = isBenchmark ? getBench(benchmarks, m.id) : getStat(p2Stats, m.id);
+      
       let p1Style = "padding: 8px;", p2Style = "padding: 8px;";
       if (val1 > val2) { p1Style += " color: #4CAF50; font-weight: bold;"; p2Style += " color: #f44336; font-weight: bold;"; }
       else if (val2 > val1) { p2Style += " color: #4CAF50; font-weight: bold;"; p1Style += " color: #f44336; font-weight: bold;"; }
@@ -345,16 +468,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     html += `<tr><td colspan="3" style="padding: 6px; background: rgba(244, 67, 54, 0.1); color: #f44336; font-weight: bold; font-size: 12px; text-transform: uppercase; border-top: 2px solid #ddd;">Negative Indicators (Lower is Better)</td></tr>`;
     coreBad.forEach(m => {
-      const val1 = getStat(playerStats, m.id);
-      const safeVal2 = getBench(benchmarks, m.id) > 0 ? getBench(benchmarks, m.id) : 5; // Default expected deaths to 5
+      const val1 = getStat(p1Stats, m.id);
+      const val2 = isBenchmark ? (getBench(benchmarks, m.id) > 0 ? getBench(benchmarks, m.id) : 5) : getStat(p2Stats, m.id);
+      
       let p1Style = "padding: 8px;", p2Style = "padding: 8px;";
-      if (val1 < safeVal2) { p1Style += " color: #4CAF50; font-weight: bold;"; p2Style += " color: #f44336; font-weight: bold;"; }
-      else if (safeVal2 < val1) { p2Style += " color: #4CAF50; font-weight: bold;"; p1Style += " color: #f44336; font-weight: bold;"; }
+      if (val1 < val2) { p1Style += " color: #4CAF50; font-weight: bold;"; p2Style += " color: #f44336; font-weight: bold;"; }
+      else if (val2 < val1) { p2Style += " color: #4CAF50; font-weight: bold;"; p1Style += " color: #f44336; font-weight: bold;"; }
 
       html += `<tr style="border-bottom: 1px solid #eee;">
         <td style="${p1Style}">${formatNum(val1)}</td>
         <td style="padding: 8px; font-weight: bold; background-color: #f9f9f9; color: #333;">${m.label}</td>
-        <td style="${p2Style}">${formatNum(safeVal2)}</td>
+        <td style="${p2Style}">${formatNum(val2)}</td>
       </tr>`;
     });
 
@@ -368,6 +492,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   function setupEventListeners() {
     const btnPrimary = document.getElementById('btn-primary-role');
     const btnSecondary = document.getElementById('btn-secondary-role');
+
+    if (UI.comparisonSelect) {
+        UI.comparisonSelect.addEventListener('change', (e) => {
+            state.comparisonTarget = e.target.value;
+            fetchStats(state.currentApplicant.userId, state.selectedRoleId);
+        });
+    }
 
     if (btnPrimary) {
         btnPrimary.addEventListener('click', () => {
