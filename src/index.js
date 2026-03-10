@@ -20,6 +20,7 @@ app.use('/applicant_list', require('./routes/applicant_listRoutes')); // applica
 app.use('/player_analysis', require('./routes/playerAnalysisRoutes'));
 app.use('/riot', require('./routes/riotApiRoutes'));
 app.use('/team_management', require('./routes/team_managementRoutes')); // team management routes
+app.use('/announcements', require('./routes/announcementRoutes')); // announcement routes
 
 app.use('/api/v1/users', require("./routes/userRoutes"));
 
