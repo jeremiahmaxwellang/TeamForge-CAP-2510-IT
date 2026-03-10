@@ -9,6 +9,7 @@ const router = express.Router();
 
 // Controller
 const playerController = require('../controllers/playerController');
+const matchController = require('../controllers/player_analysis/analysisOverviewController');
 const championPoolController = require('../controllers/player_analysis/championPoolController');
 const scrimsController = require('../controllers/player_analysis/scrimsController');
 
@@ -24,14 +25,13 @@ router.put('/players/:id/puuid', playerController.updatePuuid);
 // Champion Pool backend
 router.get('/players/:id/champion_pool', championPoolController.getChampionPool);
 
+// ============= SCRIM ROUTES =============
+
 // Get Scrims
 router.get('/players/:id/scrims', scrimsController.getScrims);
 
 // Get scrims played with other players
 router.get('/players/:id/timesPlayed', scrimsController.getTimesPlayed);
-
-// Get scrim summary
-router.get('/players/:id/scrims_summary', scrimsController.getScrimSummary);
 
 // Get Evaluation
 router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluation);
@@ -39,35 +39,14 @@ router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluat
 // Create Evaluation
 router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEvaluation);
 
-// /player_analysis
-router.get('/', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis.html')); 
-});
+// ============= SUMMARY ROUTES =============
 
-// Serve overlay HTML for player overview
-router.get('/overview', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_overview.html'));
-});
+// Get role summary
+router.get('/players/:id/role_summary', matchController.getRoleSummary);
 
-// Serve overlay HTML for player comparison
-router.get('/comparison', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_comparison.html'));
-});
+// Get scrim summary
+router.get('/players/:id/scrims_summary', scrimsController.getScrimSummary);
 
-// Serve overlay HTML for player VODs
-router.get('/scrims', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_scrims.html'));
-});
-
-// Serve overlay HTML for player champion pool
-router.get('/champion', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_champion_pool.html'));
-});
-
-// Serve overlay HTML for player summary
-router.get('/summary', async function(req, res) {
-    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_summary.html'));
-});
 
 // ============ BENCHMARKS ROUTES ============
 
@@ -130,5 +109,38 @@ router.post('/stats/store', playerController.storePlayerStatistic);
 
 // Compare stored stats (from playerStatistics table) to benchmarks
 router.get('/stats/stored-comparison', playerController.getStoredStatsComparison);
+
+
+// ============ HTML ROUTES ============
+
+// /player_analysis
+router.get('/', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis.html')); 
+});
+
+// Serve overlay HTML for player overview
+router.get('/overview', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_overview.html'));
+});
+
+// Serve overlay HTML for player comparison
+router.get('/comparison', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_comparison.html'));
+});
+
+// Serve overlay HTML for player VODs
+router.get('/scrims', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_scrims.html'));
+});
+
+// Serve overlay HTML for player champion pool
+router.get('/champion', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_champion_pool.html'));
+});
+
+// Serve overlay HTML for player summary
+router.get('/summary', async function(req, res) {
+    res.sendFile(path.join(viewsPath, 'player_analysis_overlays/player_summary.html'));
+});
 
 module.exports = router;
