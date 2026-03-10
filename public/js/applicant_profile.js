@@ -166,15 +166,21 @@ document.addEventListener("DOMContentLoaded", async function () {
     UI.currentRankText.textContent = applicant.currentRank || 'Unranked';
     UI.peakRankText.textContent = applicant.peakRank || 'Unranked';
     
-    if(UI.currentRankImg) {
-        const rankStr = (applicant.currentRank || 'unranked').split(' ')[0].toLowerCase();
-        UI.currentRankImg.src = `/images/rank_${rankStr}.png`;
-        UI.currentRankImg.onerror = function() { this.src = '/images/sample_current_rank.png'; };
+    // Use the Community Dragon helper functions to load the images
+    if (UI.currentRankImg) {
+        UI.currentRankImg.src = getRankIconUrl(applicant.currentRank);
+        UI.currentRankImg.onerror = function() {
+            this.onerror = null; // Prevent loop
+            this.src = getRankIconUrl('unranked'); // Fallback to Community Dragon unranked icon
+        };
     }
-    if(UI.peakRankImg) {
-        const peakStr = (applicant.peakRank || 'unranked').split(' ')[0].toLowerCase();
-        UI.peakRankImg.src = `/images/rank_${peakStr}.png`;
-        UI.peakRankImg.onerror = function() { this.src = '/images/sample_peak_rank.png'; };
+    
+    if (UI.peakRankImg) {
+        UI.peakRankImg.src = getRankIconUrl(applicant.peakRank);
+        UI.peakRankImg.onerror = function() {
+            this.onerror = null; // Prevent loop
+            this.src = getRankIconUrl('unranked'); // Fallback to Community Dragon unranked icon
+        };
     }
 
     // Student Info (Removed repetitive text labels)

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamForge - Announcements</title>
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- GLOBAL LAYOUT (Reused from Profile) --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #36393f;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .content-wrapper {
+            display: flex;
+            min-height: calc(100vh - 80px); /* Assuming header is ~80px */
+            width: 100%;
+        }
+
+        /* --- SIDEBAR (Reused from Profile) --- */
+        .sidebar {
+            width: 110px;
+            background-color: #202225;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            z-index: 10;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .sidebar li {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #b9bbbe;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            padding: 10px 5px;
+            transition: all 0.2s;
+            white-space: normal; 
+            line-height: 1.3;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            color: white;
+            background-color: rgba(79, 84, 92, 0.32);
+        }
+
+        .sidebar img {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 8px;
+            object-fit: contain;
+        }
+
+        /* --- MAIN CONTENT (New for Announcements) --- */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            background-color: #4f545c; /* Slightly lighter grey for the background gap */
+            width: calc(100% - 110px);
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+        }
+
+        .announcement-card {
+            background-color: white;
+            color: #111;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 50px 60px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            /* ADDED THESE 3 LINES: */
+            max-height: 85vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .announcement-header h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .btn-add-new {
+            background-color: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-add-new:hover {
+            background-color: #333;
+            transform: scale(1.02);
+        }
+
+        /* --- ANNOUNCEMENT LIST --- */
+        .announcement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            overflow-y: auto; 
+            padding-right: 15px; 
+        }
+
+        /* --- CUSTOM SCROLLBAR FOR THE LIST --- */
+        .announcement-list::-webkit-scrollbar { width: 8px; }
+        .announcement-list::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 10px; }
+        .announcement-list::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+        .announcement-list::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        .announcement-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .announcement-title {
+            font-size: 22px;
+            font-weight: 500;
+            margin: 0;
+            color: #111;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .announcement-title:hover {
+            color: #007bff; /* Adds a nice clickable affordance */
+        }
+
+        .announcement-body {
+            font-size: 15px;
+            color: #333;
+            margin: 0;
+            line-height: 1.5;
+            
+            /* Magic Truncation Properties */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limits text to exactly 2 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none; /* Hidden by default */
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white; color: #333; padding: 40px; border-radius: 15px;
+            
+            width: 95%; 
+            max-width: 1250px;
+            
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-height: 85vh; 
+            overflow-y: auto; 
+        }
+
+        .modal-content h3 { margin-top: 0; margin-bottom: 20px; font-size: 24px; }
+        .modal-content label { display: block; font-weight: bold; margin-bottom: 8px; }
+        .modal-content input, .modal-content textarea {
+            width: 100%; padding: 12px; margin-bottom: 20px;
+            border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;
+            font-family: inherit; font-size: 14px;
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 15px; }
+        .btn-cancel { background: #e0e0e0; color: #333; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-submit { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-submit:hover { background: #218838; }
+
+        /* --- TEXT WRAPPING FIX --- */
+        /* Forces unbroken strings (like long links or "MMMMM") to wrap to the next line */
+        .announcement-title, 
+        .announcement-body, 
+        #view-ann-title, 
+        #view-ann-content {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="header_container">
+            <div class="logo">
+                <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+                <span class="header_title">TeamForge</span>
+            </div>
+            <div class="team-name">Viridis Arcus (Team Name)</div>
+            <div><img src="/images/sample_profile.png" alt="Profile Picture" class="profile-icon"></div>
+        </div>
+
+        <div class="content-wrapper">
+            
+            <div class="sidebar">
+                <ul>
+                    <li>
+                        <a href="/announcements" class="active"> 
+                            <img src="/images/announcement_logo.png" alt="Announcement Icon"> 
+                            Announcement
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/scheduling_logo.png" alt="Scheduling Icon"> 
+                            Scheduling
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/attendance_logo.png" alt="Attendance Icon"> 
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/applicant_list">
+                            <img src="/images/recruitment_evaluation_logo.png" alt="Recruitment Evaluation Icon"> 
+                            Recruitment Evaluation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/player_analysis/overview">
+                            <img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon"> 
+                            Player Performance Analysis
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/settings_logo.png" alt="Settings Icon"> 
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="main-content">
+                <div class="announcement-card">
+                    
+                    <div class="announcement-header">
+                        <h2>Announcements</h2>
+                        <button class="btn-add-new">+ Add New Announcement</button>
+                    </div>
+
+                    <div class="announcement-list" id="announcement-list">
+                        <div class="announcement-item">
+                            <h3 class="announcement-title">1. Announcement #1</h3>
+                            <p class="announcement-body">This is the announcement board, it would be wise to click on me!</p>
+                        </div>
+
+                        <div class="announcement-item">
+                            <h3 class="announcement-title">2. Lorem Ipsum Sample Announcement Title</h3>
+                            <p class="announcement-body">There is no justified alignment for Figma.</p>
+                        </div>
+
+                        <div class="announcement-item">
+                            <h3 class="announcement-title">3. This is the Third Announcement</h3>
+                            <p class="announcement-body">This is the third sample of the announcement tab, which should have justified alignment.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div> 
+            
+        </div>
+    </div>
+
+    <div id="announcement-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Create New Announcement</h3>
+            <label>Title:</label>
+            <input type="text" id="new-ann-title" placeholder="Enter announcement title..." required>
+            
+            <label>Message:</label>
+            <textarea id="new-ann-content" placeholder="Type your announcement here..." rows="6" required></textarea>
+            
+            <div class="modal-actions">
+                <button id="btn-cancel-ann" class="btn-cancel">Cancel</button>
+                <button id="btn-submit-ann" class="btn-submit">Post Announcement</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-announcement-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="view-ann-title" style="margin-bottom: 5px; color: #111;"></h3>
+            <small id="view-ann-meta" style="color: #666; display: block; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></small>
+            
+            <p id="view-ann-content" style="white-space: pre-wrap; line-height: 1.6; color: #333; font-size: 15px; margin-bottom: 20px;"></p>
+            
+            <div class="modal-actions" style="margin-top: 15px;">
+                <button id="btn-close-view" class="btn-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const listContainer = document.getElementById('announcement-list');
+
+            async function fetchAnnouncements() {
+                try {
+                    listContainer.innerHTML = '<div>Loading announcements...</div>';
+                    
+                    const response = await fetch('/announcements/api/getall');
+                    const data = await response.json();
+
+                    if (data.success && data.announcements.length > 0) {
+                        listContainer.innerHTML = ''; // Clear loading text
+                        
+                        data.announcements.forEach((ann, index) => {
+                            // Format the date nicely
+                            const dateObj = new Date(ann.dateCreated);
+                            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                            const div = document.createElement('div');
+                            div.className = 'announcement-item';
+                            // Replaced innerHTML block
+                            div.innerHTML = `
+                                <h3 class="announcement-title" 
+                                    data-title="${ann.title.replace(/"/g, '&quot;')}" 
+                                    data-meta="Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}" 
+                                    data-content="${ann.content.replace(/"/g, '&quot;')}">${ann.title}</h3>
+                                <small style="color: #666;">Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}</small>
+                                <p class="announcement-body" style="margin-top: 5px;">${ann.content}</p>
+                            `;
+                            listContainer.appendChild(div);
+                        });
+                        document.querySelectorAll('.announcement-title').forEach(titleEl => {
+                            titleEl.addEventListener('click', (e) => {
+                                document.getElementById('view-ann-title').textContent = e.target.getAttribute('data-title');
+                                document.getElementById('view-ann-meta').textContent = e.target.getAttribute('data-meta');
+                                document.getElementById('view-ann-content').textContent = e.target.getAttribute('data-content');
+                                document.getElementById('view-announcement-modal').style.display = 'flex';
+                            });
+                        });
+                    } else {
+                        listContainer.innerHTML = '<div>No announcements posted yet.</div>';
+                    }
+                } catch (error) {
+                    console.error("Error loading announcements:", error);
+                    listContainer.innerHTML = '<div style="color: red;">Failed to load announcements.</div>';
+                }
+            }
+
+            fetchAnnouncements();
+
+            // --- MODAL & SUBMISSION LOGIC ---
+            const modal = document.getElementById('announcement-modal');
+            const btnAddNew = document.querySelector('.btn-add-new');
+            const btnCancel = document.getElementById('btn-cancel-ann');
+            const btnSubmit = document.getElementById('btn-submit-ann');
+
+            // Open Modal
+            btnAddNew.addEventListener('click', () => {
+                modal.style.display = 'flex';
+            });
+
+            // Close Modal & Clear Inputs
+            btnCancel.addEventListener('click', () => {
+                modal.style.display = 'none';
+                document.getElementById('new-ann-title').value = '';
+                document.getElementById('new-ann-content').value = '';
+            });
+
+            // Submit Data
+            btnSubmit.addEventListener('click', async () => {
+                const title = document.getElementById('new-ann-title').value.trim();
+                const content = document.getElementById('new-ann-content').value.trim();
+
+                if (!title || !content) {
+                    alert("Please fill in both the title and the message.");
+                    return;
+                }
+
+                try {
+                    // Temporarily hardcoding userId to 1 (Team Manager). 
+                    // Change this to your active session user ID later!
+                    const payload = { userId: 1, title: title, content: content };
+                    
+                    const response = await fetch('/announcements/api/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Hide modal and clear fields
+                        modal.style.display = 'none';
+                        document.getElementById('new-ann-title').value = '';
+                        document.getElementById('new-ann-content').value = '';
+                        
+                        // Refresh the list immediately
+                        fetchAnnouncements(); 
+                    } else {
+                        alert("Failed to post announcement: " + data.message);
+                    }
+                } catch (error) {
+                    console.error("Error saving announcement:", error);
+                    alert("Database connection error. Check your console.");
+                }
+            });
+
+            // View Announcement Modal Close Logic
+            document.getElementById('btn-close-view').addEventListener('click', () => {
+                document.getElementById('view-announcement-modal').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
