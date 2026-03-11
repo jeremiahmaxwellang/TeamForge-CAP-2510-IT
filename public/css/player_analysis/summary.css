@@ -1,55 +1,289 @@
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 20px;
-    }
+ *,
+ *::before,
+ *::after {
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+ }
 
-    .summary-container {
-      max-width: 900px;
-      margin: auto;
-    }
+ :root {
+   --bg: #e8e8e8;
+   --card-bg: #ffffff;
+   --border: #d1d5db;
+   --text: #111827;
+   --text-muted: #6b7280;
+   --text-light: #9ca3af;
+   --accent-red: #e53e3e;
+   --accent-gold: #d97706;
+   --accent-blue: #2563eb;
+   --accent-green: #16a34a;
+   --radius: 10px;
+ }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
+ body {
+   font-family: 'Inter', sans-serif;
+   background: var(--bg);
+   min-height: 100vh;
+   display: flex;
+   align-items: flex-start;
+   justify-content: center;
+   padding: 40px 16px;
+ }
 
-    .card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+ .panel {
+   background: var(--bg);
+   border: 1px solid var(--border);
+   border-radius: 14px;
+   padding: 24px;
+   width: 100%;
+   max-width: 680px;
+   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+ }
 
-    .card h3 {
-      margin-top: 0;
-      font-size: 1.2em;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
-      color: #444;
-    }
+ .panel-title {
+   font-family: 'Sora', sans-serif;
+   font-size: 24px;
+   font-weight: 700;
+   color: var(--text);
+   margin-bottom: 18px;
+ }
 
-    .metrics p {
-      margin: 6px 0;
-      font-size: 0.95em;
-    }
+ /* ── CARDS ── */
+ .card {
+   background: var(--card-bg);
+   border: 1px solid var(--border);
+   border-radius: var(--radius);
+   padding: 16px 18px;
+ }
 
-    .scrims-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
+ .card-title {
+   font-family: 'Sora', sans-serif;
+   font-size: 14px;
+   font-weight: 700;
+   color: var(--text);
+   margin-bottom: 6px;
+ }
 
-    .scrims-table th, .scrims-table td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
+ /* ── RECOMMENDATION ── */
+ .recommendation {
+   margin-bottom: 14px;
+ }
 
-    .scrims-table th {
-      background: #f0f0f0;
-      font-weight: bold;
-    }
+ .recommendation p {
+   font-size: 13px;
+   color: var(--text-muted);
+   margin-top: 4px;
+ }
+
+ /* ── GRID ── */
+ .grid-2 {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 14px;
+   margin-bottom: 14px;
+ }
+
+ .grid-col {
+   display: flex;
+   flex-direction: column;
+   gap: 14px;
+ }
+
+ /* ── RANKED GAMES ── */
+ .ranked-inner {
+   display: flex;
+   align-items: center;
+   gap: 18px;
+   padding-top: 6px;
+ }
+
+ /* Donut chart via SVG */
+ .donut-wrap {
+   position: relative;
+   width: 80px;
+   height: 80px;
+   flex-shrink: 0;
+ }
+
+ .donut-wrap svg {
+   transform: rotate(-90deg);
+ }
+
+ .donut-bg {
+   fill: none;
+   stroke: #f3f4f6;
+   stroke-width: 10;
+ }
+
+ .donut-win {
+   fill: none;
+   stroke: #e53e3e;
+   stroke-width: 10;
+   stroke-linecap: round;
+   transition: stroke-dashoffset 1s ease;
+ }
+
+ .donut-loss {
+   fill: none;
+   stroke: #d1d5db;
+   stroke-width: 10;
+   stroke-linecap: round;
+ }
+
+ .wr-label {
+   font-family: 'Sora', sans-serif;
+   font-size: 22px;
+   font-weight: 700;
+   color: var(--text);
+ }
+
+ .wr-sub {
+   font-size: 12px;
+   color: var(--text-muted);
+   margin-top: 2px;
+ }
+
+ /* ── PREFERRED ROLE ── */
+ .role-inner {
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   padding-top: 6px;
+ }
+
+ .pie-wrap {
+   width: 80px;
+   height: 80px;
+   flex-shrink: 0;
+ }
+
+ .role-legend {
+   border-collapse: collapse;
+ }
+
+ .role-legend td {
+   padding: 3px 5px;
+   font-size: 12px;
+   color: var(--text);
+   vertical-align: middle;
+ }
+
+ .role-legend td:nth-child(2) {
+   font-weight: 600;
+   min-width: 44px;
+ }
+
+ .legend-dot {
+   width: 10px;
+   height: 10px;
+   border-radius: 2px;
+   flex-shrink: 0;
+ }
+
+ .legend-icon {
+   font-size: 13px;
+ }
+
+ /* ── MOST PLAYED CHAMPIONS ── */
+ .champ-table {
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 8px;
+ }
+
+ .champ-table th {
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--text-muted);
+   text-align: left;
+   padding: 0 0 8px;
+   border-bottom: 1px solid var(--border);
+ }
+
+ .champ-table th:not(:first-child) {
+   text-align: center;
+ }
+
+ .champ-table td {
+   font-size: 13px;
+   padding: 10px 0;
+   border-bottom: 1px solid #f3f4f6;
+   color: var(--text);
+ }
+
+ .champ-table td:not(:first-child) {
+   text-align: center;
+ }
+
+ .champ-table tr:last-child td {
+   border-bottom: none;
+ }
+
+ .kda-text {
+   color: var(--text-muted);
+   font-size: 12px;
+ }
+
+ /* ── SCRIMS ── */
+ .scrims-table {
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 10px;
+ }
+
+ .scrims-table th {
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--text-muted);
+   text-align: left;
+   padding: 0 0 8px;
+   border-bottom: 1px solid var(--border);
+ }
+
+ .scrims-table td {
+   font-size: 14px;
+   font-weight: 500;
+   padding: 10px 0 2px;
+   color: var(--text);
+ }
+
+ .scrims-table td.bad {
+   color: var(--accent-red);
+ }
+
+ /* ── SCRIM HIGHLIGHTS ── */
+ .highlight-row {
+   display: flex;
+   justify-content: space-between;
+   align-items: baseline;
+   padding: 6px 0;
+   border-bottom: 1px solid #f3f4f6;
+   font-size: 13px;
+ }
+
+ .highlight-row:last-child {
+   border-bottom: none;
+ }
+
+ .highlight-label {
+   font-weight: 600;
+   color: var(--text);
+   min-width: 120px;
+ }
+
+ .highlight-val {
+   color: var(--text-muted);
+   flex: 1;
+ }
+
+ .highlight-right {
+   font-weight: 500;
+   color: var(--text);
+   text-align: right;
+ }
+
+ @media (max-width: 520px) {
+   .grid-2 {
+     grid-template-columns: 1fr;
+   }
+ }

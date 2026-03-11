@@ -45,9 +45,51 @@ exports.getChampionPool = async (req, res) => {
 // ============== SUMMARY TAB ==============
 // Winrate: 27% (Last 15 Games)
 
-// Preferred Role: Top 62.5%, Jungle 25%, Support 12.5%
-
 // Most Played Champion: Jinx
+
+/*
+    Jinx - 40%
+    Ezreal - 25%
+    Aphelios - 20%
+    Other - 15%
+*/
+const fetchChampionSummary = `
+    SELECT
+	r.displayedRole,
+    COUNT(*) AS gamesPlayed,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 1) AS percentage
+    FROM matchParticipants mp
+    JOIN matches m ON mp.matchId = m.matchId
+    JOIN leagueRoles r ON mp.teamPosition = r.teamPosition
+    JOIN players p ON p.puuid = mp.puuid
+    WHERE p.userId = ?
+    GROUP BY r.displayedRole
+    ORDER BY gamesPlayed DESC
+`;
+
+// Champ Summary
+exports.getChampionSummary = async (req, res) => {
+
+    try {
+        const playerId = req.params.id;
+
+        const [rows] = await db.query(fetchChampionSummary, [playerId]);
+
+        console.log(rows);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Role summary not found' });
+        }
+
+        res.json(rows);
+        
+    } catch (err) { 
+        console.error("Error fetching times played:", err); 
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+// Preferred Role: Top 62.5%, Jungle 25%, Support 12.5%
 const fetchRoleSummary = `
     SELECT
 	r.displayedRole,

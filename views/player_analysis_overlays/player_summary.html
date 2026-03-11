@@ -15,79 +15,179 @@
 <body>
     <div class="overlay">
         <!-- Overlay content here -->
-        <div class="overview-container">
-            <div class="match-history-header">
-                <div class="header-text">Summary of Player: </div>
-            </div>
 
-            <div class="summary-container">
-                <h2>Player Summary</h2>
+        <!-- <div class="panel"> -->
+        <div class="panel-title">Player Summary</div>
 
-                <!-- Recommendation -->
-                <div class="card">
-                    <h3>Recommendation</h3>
-                    <p>Based on the data, this player might be better at focusing on ADC role given champion pool and
-                        scrim synergy.</p>
-                </div>
+        <!-- Recommendation -->
+        <div class="card recommendation">
+            <div class="card-title">Recommendation</div>
+            <p>John has the most games played with Haimehen</p>
+        </div>
+
+        <!-- Grid: Left col (Ranked + Role) | Right col (Champions) -->
+        <div class="grid-2">
+
+            <!-- LEFT -->
+            <div class="grid-col">
 
                 <!-- Ranked Games -->
                 <div class="card">
-                    <h3>Ranked Games</h3>
-
-                    <!-- Winrate -->
-                    <div class="winrate">
-                        <div class="percentWin">percentWin placeholder</div>
-                        <div class="totalGames">totalGames placeholder</div>
-                    </div>
-                    <div class="metrics">
-                        <p><strong>Winrate:</strong> 27% (Last 15 Games)</p>
-                        <p><strong>Preferred Role:</strong> Top 62.5%, Jungle 25%, Support 12.5%</p>
-                        <p><strong>Most Played Champion:</strong> Jinx</p>
-                    </div>
-                </div>
-
-                <!-- Champion Pool -->
-                <div class="card">
-                    <h3>Champion Pool</h3>
-                    <div class="recently_played_champion" id="champion1">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0 KDA</div>
+                    <div class="card-title">Ranked Games</div>
+                    <div class="ranked-inner">
+                        <div class="donut-wrap">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <!-- background ring -->
+                                <circle class="donut-bg" cx="40" cy="40" r="32" />
+                                <!-- loss arc (full - win portion) -->
+                                <circle class="donut-loss" cx="40" cy="40" r="32" stroke-dasharray="201.06 201.06"
+                                    stroke-dashoffset="0" />
+                                <!-- win arc (27%) -->
+                                <circle class="donut-win" cx="40" cy="40" r="32" stroke-dasharray="54.3 201.06"
+                                    stroke-dashoffset="0" id="win-arc" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="wr-label">27% WR</div>
+                            <div class="wr-sub">Last 15 Games</div>
                         </div>
                     </div>
-                    <div class="metrics">
-                        <p>Jinx - 40%</p>
-                        <p>Ezreal - 25%</p>
-                        <p>Aphelios - 20%</p>
-                        <p>Other - 15%</p>
+                </div>
+
+                <!-- Preferred Role -->
+                <div class="card">
+                    <div class="card-title">Preferred Role</div>
+                    <div class="role-inner">
+                        <div class="pie-wrap">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <!-- Top 62.5% - blue -->
+                                <circle cx="40" cy="40" r="28" fill="none" stroke="#3b82f6" stroke-width="56"
+                                    stroke-dasharray="109.96 175.93" stroke-dashoffset="44"
+                                    transform="rotate(-90 40 40)" />
+                                <!-- Jungle 25% - gold -->
+                                <circle cx="40" cy="40" r="14" fill="none" stroke="#d97706" stroke-width="28"
+                                    stroke-dasharray="21.99 87.96" stroke-dashoffset="-65.97"
+                                    transform="rotate(-90 40 40)" />
+                                <!-- Support 12.5% - yellow-green -->
+                                <circle cx="40" cy="40" r="14" fill="none" stroke="#84cc16" stroke-width="28"
+                                    stroke-dasharray="10.99 87.96" stroke-dashoffset="-43.98"
+                                    transform="rotate(-90 40 40)" />
+                                <!-- Pie chart (simpler conic approach via SVG path) -->
+                            </svg>
+                        </div>
+                        <!-- Simpler visual pie -->
+                        <table class="role-legend">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="legend-dot" style="background:#3b82f6;"></div>
+                                    </td>
+                                    <td><strong>62.5%</strong></td>
+                                    <td>🛡️</td>
+                                    <td>Top</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="legend-dot" style="background:#d97706;"></div>
+                                    </td>
+                                    <td><strong>25%</strong></td>
+                                    <td>🌿</td>
+                                    <td>Jungle</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="legend-dot" style="background:#84cc16;"></div>
+                                    </td>
+                                    <td><strong>12.5%</strong></td>
+                                    <td>✨</td>
+                                    <td>Support</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- Scrims -->
-                <div class="card">
-                    <h3>Scrims</h3>
-                    <table class="scrims-table">
-                        <thead>
-                            <tr>
-                                <th>Total Played</th>
-                                <th>Total Avg Game Sense</th>
-                                <th>Total Avg Comms</th>
-                                <th>Total Avg Champ</th>
-                                <th>Most Played With</th>
-                                <th>Scrims Together</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>No games found</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            </div><!-- /LEFT -->
+
+            <!-- RIGHT: Most Played Champions -->
+            <div class="card" style="align-self:start;">
+                <div class="card-title">Most Played Champions</div>
+                <table class="champ-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Games Played</th>
+                            <th>KDA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Aphelios</td>
+                            <td>5</td>
+                            <td class="kda-text">7.6 / 3.6 / 11.2</td>
+                        </tr>
+                        <tr>
+                            <td>Kayn</td>
+                            <td>4</td>
+                            <td class="kda-text">7.6 / 3.6 / 11.2</td>
+                        </tr>
+                        <tr>
+                            <td>Ammummu</td>
+                            <td>3</td>
+                            <td class="kda-text">7.6 / 3.6 / 11.2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div><!-- /grid-2 -->
+
+        <!-- Bottom Grid: Scrims + Highlights -->
+        <div class="grid-2">
+
+            <!-- Scrims -->
+            <div class="card">
+                <div class="card-title">Scrims <span id="total-games" style="font-weight:400;color:var(--text-muted)">(0
+                        games
+                        total)</span></div>
+                <table class="scrims-table">
+                    <thead>
+                        <tr>
+                            <th>Avg Game Sense</th>
+                            <th>Avg Comms</th>
+                            <th>Avg Champ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>-</td>
+                            <td class="bad">-</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Scrim Highlights -->
+            <div class="card">
+                <div class="card-title">Scrim Highlights</div>
+                <div style="margin-top:8px;">
+                    <div class="highlight-row">
+                        <span class="highlight-label">Best Comms with:</span>
+                        <span id="best-comms" class="highlight-val">Kialos (Top)</span>
+                        <span id="avg-comms" class="highlight-right">Avg Comms: <strong>3.1</strong></span>
+                    </div>
+                    <div class="highlight-row">
+                        <span class="highlight-label">Most Played with:</span>
+                        <span id="most-played-with" class="highlight-val">Haimehen (Top)</span>
+                        <span id="scrims-together" class="highlight-right">Games: <strong>2</strong></span>
+                    </div>
                 </div>
             </div>
 
-        </div>
+        </div><!-- /bottom grid -->
+
+        <!-- </div>/panel -->
 
     </div>
 </body>
