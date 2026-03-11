@@ -1,5 +1,5 @@
-const mySqlPool = require('../config/database'); // Adjust path to your DB connection file
-const { Resend } = require('resend'); // Import Resend
+const mySqlPool = require('../config/database');
+const nodemailer = require('nodemailer');
 
 // 1. Serve the HTML page
 exports.getAnnouncementsPage = (req, res) => {
@@ -31,7 +31,7 @@ exports.getAllAnnouncements = async (req, res) => {
     }
 };
 
-// 3. Create a new announcement (with Discord & Resend Email integration!)
+// 3. Create a new announcement (with Discord & Nodemailer Gmail integration!)
 exports.createAnnouncement = async (req, res) => {
     try {
         const { userId, title, content } = req.body;
@@ -75,13 +75,19 @@ exports.createAnnouncement = async (req, res) => {
             }).catch(err => console.error("Discord Webhook Error:", err));
         }
 
-        // 4. FIRE RESEND EMAIL BLAST (Runs in background)
-        if (process.env.RESEND_API_KEY && emailList.length > 0) {
-            const resend = new Resend(process.env.RESEND_API_KEY);
-            
-            resend.emails.send({
-                from: 'TeamForge Announcements <onboarding@resend.dev>', // Resend's free testing domain
-                bcc: emailList, // Hides emails from each other
+        // 4. FIRE NODEMAILER EMAIL BLAST (Runs in background)
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS && emailList.length > 0) {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+
+            const mailOptions = {
+                from: `"TeamForge Announcements" <${process.env.EMAIL_USER}>`,
+                bcc: emailList, // BCC hides emails from each other
                 subject: `TeamForge: ${title}`,
                 html: `
                     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
@@ -97,7 +103,9 @@ exports.createAnnouncement = async (req, res) => {
                         </div>
                     </div>
                 `
-            }).catch(err => console.error("Resend Email Error:", err));
+            };
+
+            transporter.sendMail(mailOptions).catch(err => console.error("Nodemailer Email Error:", err));
         }
 
         res.status(200).json({ success: true, message: 'Announcement posted and notifications sent!' });

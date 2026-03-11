@@ -28,7 +28,7 @@ npm init -y
 
 * Use [npm] to install the required Node libraries
 ```
-npm install express dotenv hbs path express-fileupload express-session cookie-parser resend
+npm install express dotenv hbs path express-fileupload express-session cookie-parser nodemailer
 ```
 
 ### Executing program
