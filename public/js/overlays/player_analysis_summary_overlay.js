@@ -65,4 +65,24 @@ window.initSummaryTab = function (userId) {
     })
     .catch((err) => console.error("[roles] ✗ Error loading scrim summary:", err));
 
+  const champTableBody = document.querySelector(".champ-table tbody");
+
+  Backend.fetchChampionPool(userId)
+    .then((championPool) => {
+      champTableBody.innerHTML = "";
+      championPool.forEach((champ) => {
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${champ.championName}</td>
+          <td>${champ.games}</td>
+          <td class="kda-text">${champ.avg_kills} / ${champ.avg_deaths} / ${champ.avg_assists}</td>
+        `;
+        champTableBody.appendChild(row);
+      });
+
+      console.log("[SUMMARY] ✓ Champion pool rendered successfully");
+    })
+    .catch((err) => console.error("[SUMMARY] Error loading champion pool:", err));
+
 };

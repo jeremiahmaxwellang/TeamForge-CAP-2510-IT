@@ -41,6 +41,9 @@ router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEva
 
 // ============= SUMMARY ROUTES =============
 
+// Get champ pool summary
+router.get('/players/:id/champion_summary', championPoolController.getChampionSummary);
+
 // Get role summary
 router.get('/players/:id/role_summary', championPoolController.getRoleSummary);
 
