@@ -21,7 +21,7 @@ exports.getChampionPool = async (req, res) => {
         ROUND(AVG(CAST(mp.deaths AS DECIMAL(10,2))), 1) AS avg_deaths,
         ROUND(AVG(CAST(mp.assists AS DECIMAL(10,2))), 1) AS avg_assists,
         ROUND(AVG(CAST(mp.creepScorePerMinute AS DECIMAL(10,2))), 1) AS avg_csm,
-        ROUND(AVG(CAST(mp.goldDiffAt15 AS DECIMAL(10,2))), 1) AS avg_golddiff,
+        ROUND(AVG(CAST(mp.goldPerMinute AS DECIMAL(10,2))), 1) AS avg_gpm,
         ROUND(AVG(CAST(mp.damageShare AS DECIMAL(10,2))), 1) AS avg_damageshare,
 
         CONCAT(ROUND(AVG(CAST(mp.killParticipation AS DECIMAL(10,2))), 1), '%') AS avg_kp
@@ -60,7 +60,7 @@ exports.getChampionSummary = async (req, res) => {
         ROUND(AVG(CAST(mp.deaths AS DECIMAL(10,2))), 1) AS avg_deaths,
         ROUND(AVG(CAST(mp.assists AS DECIMAL(10,2))), 1) AS avg_assists,
         ROUND(AVG(CAST(mp.creepScorePerMinute AS DECIMAL(10,2))), 1) AS avg_csm,
-        ROUND(AVG(CAST(mp.goldDiffAt15 AS DECIMAL(10,2))), 1) AS avg_golddiff,
+        ROUND(AVG(CAST(mp.goldPerMinute AS DECIMAL(10,2))), 1) AS avg_gpm,
         ROUND(AVG(CAST(mp.damageShare AS DECIMAL(10,2))), 1) AS avg_damageshare,
 
         CONCAT(ROUND(AVG(CAST(mp.killParticipation AS DECIMAL(10,2))), 1), '%') AS avg_kp

@@ -115,7 +115,7 @@ window.initChampionTab = function (userId) {
           <td>${champ.winrate}</td>
           <td>${champ.avgKills} / ${champ.avgDeaths} / ${champ.avgAssists}</td>
           <td>${champ.avgCsm}</td>
-          <td>${champ.avgGoldDiff}</td>
+          <td>${champ.avgGpm}</td>
           <td>${champ.avgDamageShare}</td>
           <td>${champ.avgKp}</td>
         `;
