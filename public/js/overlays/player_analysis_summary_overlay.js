@@ -10,7 +10,7 @@ window.initSummaryTab = function (userId) {
 
   Backend.fetchScrimSummary(userId)
     .then((scrims) => {
-      const scrimTb = document.querySelector(".scrims-table tbody");
+      const scrimTb = document.querySelector("#scrims-table tbody");
       const totalGames = document.querySelector("#total-games");
 
       scrimTb.innerHTML = "";
@@ -30,52 +30,27 @@ window.initSummaryTab = function (userId) {
         const mostPlayedWith = document.querySelector("#most-played-with");
         const scrimsTogether = document.querySelector("#scrims-together");
 
-        mostPlayedWith.textContent = item.mostPlayedWith;
-        scrimsTogether.innerHTML = `Games: <strong>${item.scrimsTogether}</strong>`;
+        if (mostPlayedWith) mostPlayedWith.textContent = item.mostPlayedWith;
+        if (scrimsTogether) scrimsTogether.textContent = item.scrimsTogether;
       });
     })
     .catch((err) => console.error("[SCRIMS] ✗ Error loading scrim summary:", err));
 
 
-    Backend.fetchCommsSummary(userId)
+  Backend.fetchCommsSummary(userId)
     .then((comms) => {
-        const bestComms = document.querySelector("#best-comms");
-        const avgComms = document.querySelector("#avg-comms");
-        const teammateAvgComms = document.querySelector("#teammate-avg-comms");
+      const bestComms = document.querySelector("#best-comms");
+      const avgComms = document.querySelector("#avg-comms");
+      const teammateAvgComms = document.querySelector("#teammate-avg-comms");
 
-        bestComms.textContent = comms.teammate;
-        avgComms.innerHTML = `Avg Comms: <strong>${comms.avg_comms}</strong></span>`;
-        teammateAvgComms.innerHTML = `Teammate Avg Comms: <strong>${comms.teammate_avg_comms}</strong></span>`;
+      bestComms.textContent = comms.teammate;
+      avgComms.textContent = comms.avg_comms;
+      teammateAvgComms.textContent = comms.teammate_avg_comms;
     })
     .catch((err) => console.error("[SUMMARY] ✗ Error loading comms summary:", err));
 
 
-  Backend.fetchRoleSummary(userId)
-    .then((roles) => {
-      const tableBody = document.querySelector(".role-legend tbody");
-
-      tableBody.innerHTML = "";
-
-      roles.forEach((item) => {
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-              <td>
-                <div class="legend-dot" style="background:#3b82f6;"></div>
-              </td>
-              <td><strong>${item.percentage}</strong></td>
-              <td>🛡️</td>
-              <td>${item.displayedRole}</td>
-              <td>(Games: <strong>${item.gamesPlayed}</strong>)</td>
-
-            `;
-
-        tableBody.appendChild(row);
-      });
-    })
-    .catch((err) => console.error("[roles] ✗ Error loading scrim summary:", err));
-
-  const champTableBody = document.querySelector(".champ-table tbody");
+  const champTableBody = document.querySelector("#champ-table tbody");
 
   Backend.fetchChampionPool(userId)
     .then((championPool) => {
