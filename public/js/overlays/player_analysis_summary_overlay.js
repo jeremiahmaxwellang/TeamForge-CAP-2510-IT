@@ -27,8 +27,6 @@ window.initSummaryTab = function (userId) {
 
         scrimTb.appendChild(row);
 
-        const bestComms = document.querySelector("#best-comms");
-        const avgComms = document.querySelector("#avg-comms");
         const mostPlayedWith = document.querySelector("#most-played-with");
         const scrimsTogether = document.querySelector("#scrims-together");
 
@@ -38,6 +36,18 @@ window.initSummaryTab = function (userId) {
     })
     .catch((err) => console.error("[SCRIMS] ✗ Error loading scrim summary:", err));
 
+
+    Backend.fetchCommsSummary(userId)
+    .then((comms) => {
+        const bestComms = document.querySelector("#best-comms");
+        const avgComms = document.querySelector("#avg-comms");
+        const teammateAvgComms = document.querySelector("#teammate-avg-comms");
+
+        bestComms.textContent = comms.teammate;
+        avgComms.innerHTML = `Avg Comms: <strong>${comms.avg_comms}</strong></span>`;
+        teammateAvgComms.innerHTML = `Teammate Avg Comms: <strong>${comms.teammate_avg_comms}</strong></span>`;
+    })
+    .catch((err) => console.error("[SUMMARY] ✗ Error loading comms summary:", err));
 
 
   Backend.fetchRoleSummary(userId)

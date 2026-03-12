@@ -159,7 +159,7 @@ const fetchScrimSummary = `
         ROUND(AVG(CAST(e.ratingChampionPool AS DECIMAL(10,2))), 1) AS averageChampionPool
     FROM scrimPlayers sp
     JOIN evaluations e ON e.playerId = sp.playerId
-    WHERE sp.playerId = 4
+    WHERE sp.playerId = ?
     )
     SELECT 
         ts.totalScrims, 
@@ -177,7 +177,7 @@ const fetchScrimSummary = `
     ON r.roleId = p.primaryRoleId
 
     CROSS JOIN total_scrims ts
-    WHERE sp1.playerId = 4
+    WHERE sp1.playerId = ?
     GROUP BY 
         sp2.playerId, 
         CONCAT(p.gameName , ' (', r.displayedRole, ')'), 
@@ -204,6 +204,49 @@ exports.getScrimSummary = async (req, res) => {
         
     } catch (err) { 
         console.error("Error fetching times played:", err); 
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+const commsSummary = `
+SELECT 
+	sp2.playerId AS teammateId,
+    CONCAT(p.gameName , ' (', r.displayedRole, ')') AS teammate,
+    ROUND(AVG(DISTINCT e1.ratingCommunication), 1) AS avg_comms,
+    ROUND(AVG(DISTINCT e2.ratingCommunication), 1) AS teammate_avg_comms
+FROM scrimPlayers sp1
+JOIN scrimPlayers sp2 
+  ON sp1.scrimId = sp2.scrimId
+  AND sp1.playerId <> sp2.playerId
+JOIN players p 
+  ON sp2.playerId = p.userId
+JOIN leagueRoles r 
+  ON r.roleId = p.primaryRoleId
+JOIN evaluations e1 
+	ON e1.playerId = sp1.playerId
+JOIN evaluations e2
+	ON e2.playerId = sp2.playerId
+
+WHERE sp1.playerId = ?
+GROUP BY 
+	sp2.playerId, 
+	CONCAT(p.gameName , ' (', r.displayedRole, ')')
+ORDER BY avg_comms, teammate_avg_comms DESC
+LIMIT 1;
+`
+exports.getCommsSummary = async (req, res) => {
+
+    try {
+        const playerId = req.params.id;
+
+        const [rows] = await db.query(commsSummary, playerId);
+
+        console.log(rows);
+
+        res.json(rows[0]);
+        
+    } catch (err) { 
+        console.error("Error fetching comms summary:", err); 
         res.status(500).json({ error: "Internal server error" });
     }
 }
