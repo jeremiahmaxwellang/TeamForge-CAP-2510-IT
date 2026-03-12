@@ -8,10 +8,10 @@ const path = require('path');
 const router = express.Router();
 
 // Controller
-const playerController = require('../controllers/playerController');
-const matchController = require('../controllers/player_analysis/analysisOverviewController');
-const championPoolController = require('../controllers/player_analysis/championPoolController');
-const scrimsController = require('../controllers/player_analysis/scrimsController');
+const playerController          = require('../controllers/playerController');
+const overviewController        = require('../controllers/player_analysis/analysisOverviewController');
+const championPoolController    = require('../controllers/player_analysis/championPoolController');
+const scrimsController          = require('../controllers/player_analysis/scrimsController');
 
 // GET all players
 router.get('/players', playerController.getAllPlayers);
@@ -40,6 +40,10 @@ router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluat
 router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEvaluation);
 
 // ============= SUMMARY ROUTES =============
+
+// Get overview summary
+
+router.get('/players/:id/overview_summary', overviewController.getOverviewSummary);
 
 // Get champ pool summary
 router.get('/players/:id/champion_summary', championPoolController.getChampionSummary);

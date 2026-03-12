@@ -227,3 +227,40 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
     }
 
 };
+
+// SUMMARY TAB
+const overviewSummary = 
+`
+SELECT
+	CASE 
+		WHEN mp.role = 'CARRY' AND mp.teamPosition = 'BOT' THEN 'ADC'
+		WHEN mp.role = 'SUPPORT' AND mp.teamPosition = 'UTILITY' THEN 'SUPPORT'
+		ELSE mp.teamPosition
+	END AS champ_role,
+    COUNT(*) AS games,
+    COUNT(CASE WHEN mp.win = 'W' THEN 1 END) AS wins,
+    COUNT(CASE WHEN mp.win = 'L' THEN 1 END) AS losses,
+	ROUND(AVG(mp.kills), 1) AS avgKills,
+	ROUND(AVG(mp.deaths), 1) AS avgDeaths,
+	ROUND(AVG(mp.assists), 1) AS avgAssists
+FROM matchParticipants mp
+JOIN players p ON mp.puuid = p.puuid
+WHERE p.userId = ?
+GROUP BY champ_role
+`;
+
+exports.getOverviewSummary = async (req, res) => {
+    try {
+        const playerId = req.params.id;
+
+        const [results] = await db.query(overviewSummary, [playerId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'Player not found' });
+        }
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
