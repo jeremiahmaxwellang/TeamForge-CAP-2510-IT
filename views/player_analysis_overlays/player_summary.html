@@ -1,6 +1,7 @@
 <!-- overlay.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,67 +9,192 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/overview.css">
+    <link rel="stylesheet" href="/css/player_analysis/summary.css">
 </head>
 
 <body>
     <div class="overlay">
         <!-- Overlay content here -->
-            <div class="overview-container">
-                <div class="match-history-header">
-                    <div class="header-text">Summary of Player: </div>
-                    <!-- Dropdown button for "Ranked" -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" id="queueDropdownBtn">Ranked</button>
-                        <div class="dropdown-content" id="queueDropdownContent">
-                            <a href="#" data-queue="420">Ranked</a>
-                            <a href="#" data-queue="440">Casual</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="fetch-button-container" style="margin-bottom: 15px;">
-                    <button id="fetchMatchStatsBtn" class="fetch-match-stats-btn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">Fetch Match Stats</button>
-                    <span id="timerInfo" style="margin-left: 15px; font-size: 12px; color: #666;"></span>
-                </div>
-                <div class="player_average_info">
-                    <!-- Column 2 -->
-                    <div class="winrate">
-                        <div class="percentWin">percentWin placeholder</div>
-                        <div class="totalGames">totalGames placeholder</div>
-                    </div>
-                    
-                    <!-- Column 3 -->
-                    <div class="KDA_info">
-                        <div class="KDA" id="averageKDA">KDA placeholder</div>
-                        <div class="Summarized_KDA" id="summarizedKDA">K/D/A placeholder</div>
-                    </div>
-                    <!-- Column 4 -->
-                    <div class="recently_played_champion" id="champion1">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 5 -->
-                    <div class="recently_played_champion" id="champion2">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0 KDA</div>
-                        </div>
-                    </div>
-                    <!-- Column 6 -->
-                    <div class="recently_played_champion" id="champion3">
-                        <img src="/images/sample_hero.png" alt="Most played champion" class="champion-icon">
-                        <div class="champion-stats">
-                            <div class="kda-1">0 KDA <span class="note">(2W 5L)</span></div>
-                            <div class="kda-2">0 KDA</div>
-                        </div>
-                    </div>
 
+        <div class="panel-title">Player Summary</div>
+
+        <!-- Recommendation -->
+        <div class="recommendation">
+            <div class="rec-title">Recommendation</div>
+            <div class="rec-text">No data found.</div>
+        </div>
+
+        <!-- Grid -->
+        <div class="grid">
+
+            <!-- Ranked Games -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Ranked Games</span>
+                </div>
+                <table id="overview-table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Games</th>
+                            <th>Winrate</th>
+                            <th>Average KDA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="role-wrap">
+                                    <!-- Top role icon: sword/shield styled with CSS -->
+                                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                                        <rect width="28" height="28" rx="3" fill="#e8ecf2" />
+                                        <rect x="6" y="6" width="10" height="13" rx="1" fill="#4a6fa5" opacity="0.9" />
+                                        <rect x="9" y="5" width="4" height="15" rx="1" fill="#2d4d80" />
+                                        <polygon points="11,19 14,24 17,19" fill="#2d4d80" />
+                                        <rect x="7" y="10" width="8" height="1.5" rx="0.75" fill="#7aa0d4" />
+                                    </svg>
+                                    <span class="role-name">Top</span>
+                                </div>
+                            </td>
+                            <td><span class="games-num">15</span></td>
+                            <td>
+                                <div class="donut-cell">
+                                    <svg class="donut" viewBox="0 0 42 42">
+                                        <circle cx="21" cy="21" r="15.9" fill="none" stroke="#e85050"
+                                            stroke-width="5.5" />
+                                        <circle cx="21" cy="21" r="15.9" fill="none" stroke="#4d8ef0" stroke-width="5.5"
+                                            stroke-dasharray="27 73" transform="rotate(-90 21 21)"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    <span class="wr-text">27% WR</span>
+                                </div>
+                            </td>
+                            <td><span class="kda-text">10.1 / 10.2 / 10.3</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="role-wrap">
+                                    <!-- Support icon -->
+                                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                                        <rect width="28" height="28" rx="3" fill="#e8ecf2" />
+                                        <path d="M14 6 L10 10 L10 16 L14 22 L18 16 L18 10 Z" fill="#c8a84b"
+                                            opacity="0.85" />
+                                        <path d="M14 8 L11.5 11 L11.5 15.5 L14 19 L16.5 15.5 L16.5 11 Z"
+                                            fill="#e8c55a" />
+                                        <path d="M14 10 L12.5 12 L12.5 15 L14 17 L15.5 15 L15.5 12 Z" fill="#c8a84b" />
+                                    </svg>
+                                    <span class="role-name">Support</span>
+                                </div>
+                            </td>
+                            <td><span class="games-num">15</span></td>
+                            <td>
+                                <div class="donut-cell">
+                                    <svg class="donut" viewBox="0 0 42 42">
+                                        <circle cx="21" cy="21" r="15.9" fill="none" stroke="#e85050"
+                                            stroke-width="5.5" />
+                                        <circle cx="21" cy="21" r="15.9" fill="none" stroke="#4d8ef0" stroke-width="5.5"
+                                            stroke-dasharray="27 73" transform="rotate(-90 21 21)"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    <span class="wr-text">27% WR</span>
+                                </div>
+                            </td>
+                            <td><span class="kda-text">10.1 / 10.2 / 10.3</span></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            
+
+            <!-- Most Played Champions -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Most Played Champions</span>
+                    <span id="total-champs" class="section-sub">(0 champions total)</span>
+                    
+                </div>
+                <table id="champ-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Games Played</th>
+                            <th>KDA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Aphelios</td>
+                            <td>5</td>
+                            <td>7.6 / 3.6 / 11.2</td>
+                        </tr>
+                        <tr>
+                            <td>Kayn</td>
+                            <td>4</td>
+                            <td>7.6 / 3.6 / 11.2</td>
+                        </tr>
+                        <tr>
+                            <td>Ammummu</td>
+                            <td>3</td>
+                            <td>7.6 / 3.6 / 11.2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Scrims -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">
+                        Scrims <span id="total-games" class="section-sub">(0 games total)</span>
+                    </span>
+                </div>
+                <table id="scrims-table">
+                    <thead>
+                        <tr>
+                            <th>Avg Game Sense</th>
+                            <th>Avg Comms</th>
+                            <th>Avg Champ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>5.1</td>
+                            <td><span class="score-red">1.1</span></td>
+                            <td>2.5</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Scrim Highlights -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Scrim Highlights</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Best Comms With</th>
+                            <th>Avg Comms</th>
+                            <th>Teammate Avg Comms</th>
+                            <th>Most Played With</th>
+                            <th>Games</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="best-comms">Kialos (Top)</td>
+                            <td id="avg-comms">3.1</td>
+                            <td id="teammate-avg-comms">3.1</td>
+                            <td id="most-played-with">Haimehen (Top)</td>
+                            <td id="scrims-together">2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
     </div>
 </body>
+
 </html>

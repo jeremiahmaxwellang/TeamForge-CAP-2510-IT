@@ -63,23 +63,38 @@ const getUserById = async (req, res) => {
 const createUser = async (req, res) => {
     try {
         let { userId, email, passwordHash, firstname, lastname, position, discord, status, riotId } = req.body
+        // make sure discord is always string
+        discord = discord || '';
 
-        // Basic required fields
-        if (!email || !firstname || !lastname || !position || !discord || !status) {
+        // Basic required fields (discord is optional)
+        if (!email || !firstname || !lastname || !position || !status) {
             return res.status(400).send({
                 success: false,
-                message: 'Please provide required fields: email, firstname, lastname, position, discord, status'
+                message: 'Please provide required fields: email, firstname, lastname, position, status'
             })
         }
 
+        // Check if email already exists
+        try {
+            const existingUser = await db.query('SELECT userId FROM users WHERE email = ?', [email])
+            if (existingUser && existingUser[0] && existingUser[0].length > 0) {
+                return res.status(400).send({
+                    success: false,
+                    message: 'An account with this email already exists'
+                })
+            }
+        } catch (checkErr) {
+            console.error('Error checking duplicate email:', checkErr);
+        }
+
         // Provide default passwordHash if not supplied (development only)
-        if (!passwordHash) passwordHash = 'changeme';
+        if (!passwordHash) passwordHash = '1234';
 
         let insertResult;
         if (userId) {
-            insertResult = await db.query(`INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [userId, email, passwordHash, firstname, lastname, position, discord, status])
+            insertResult = await db.query(`INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status, firstLogin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`, [userId, email, passwordHash, firstname, lastname, position, discord, status])
         } else {
-            insertResult = await db.query(`INSERT INTO users(email, passwordHash, firstname, lastname, position, discord, status) VALUES (?, ?, ?, ?, ?, ?, ?)`, [email, passwordHash, firstname, lastname, position, discord, status])
+            insertResult = await db.query(`INSERT INTO users(email, passwordHash, firstname, lastname, position, discord, status, firstLogin) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`, [email, passwordHash, firstname, lastname, position, discord, status])
         }
 
         if (!insertResult) {
@@ -123,7 +138,8 @@ const createUser = async (req, res) => {
                 }
 
                 try {
-                    await db.query(`INSERT INTO players (userId, gameName, tagLine, primaryRoleId) VALUES (?, ?, ?, ?)`, [newUserId, gameName, tagLine, primaryRoleId]);
+                    const applicationStatus = position === 'Player' ? 'Accepted' : null;
+                    await db.query(`INSERT INTO players (userId, gameName, tagLine, primaryRoleId, applicationStatus) VALUES (?, ?, ?, ?, ?)`, [newUserId, gameName, tagLine, primaryRoleId, applicationStatus]);
                 } catch (err) {
                     console.error('Error inserting into players for riotId:', err.message);
                 }

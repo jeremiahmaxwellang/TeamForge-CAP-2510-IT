@@ -1,0 +1,205 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #b0b5be;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.panel {
+  background: #f0f2f5;
+  border-radius: 10px;
+  padding: 24px 20px 20px;
+  width: 100%;
+  max-width: 1060px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+}
+
+/* Title */
+.panel-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+/* Recommendation */
+.recommendation {
+  background: #ffffff;
+  border: 1px solid #dde1e7;
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.rec-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 5px;
+}
+
+.rec-text {
+  font-size: 13px;
+  color: #444;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 680px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Section card */
+.section {
+  background: #ffffff;
+  border: 1px solid #dde1e7;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid #dde1e7;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.section-sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: #555;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-align: left;
+  padding: 8px 14px;
+  background: #f7f8fa;
+  border-bottom: 1px solid #dde1e7;
+}
+
+td {
+  font-size: 13px;
+  color: #333;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eef0f3;
+  vertical-align: middle;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Role cell */
+.role-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.role-name {
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+}
+
+.games-num {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Donut */
+.donut-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.donut {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.wr-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* KDA */
+.kda-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Red score */
+.score-red {
+  color: #d93025;
+  font-weight: 600;
+}
+
+/* Scrim highlights */
+.highlights {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.hl-row {
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.hl-row:last-child {
+  border-bottom: none;
+}
+
+.hl-key {
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.hl-val {
+  color: #333;
+}

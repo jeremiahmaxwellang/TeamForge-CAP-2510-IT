@@ -23,7 +23,7 @@
       avgDeaths: champ.avg_deaths,
       avgAssists: champ.avg_assists,
       avgCsm: champ.avg_csm,
-      avgGoldDiff: champ.avg_golddiff || "N/A",
+      avgGpm: champ.avg_gpm || "N/A",
       avgDamageShare: champ.avg_damageshare,
       avgKp: champ.avg_kp,
     }));

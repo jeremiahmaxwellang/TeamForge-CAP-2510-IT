@@ -87,17 +87,10 @@ function setupEventListeners() {
             } else if (action === 'download') {
                 downloadCsvTemplate();
             } else if (action === 'manual') {
-                // Navigate to registration page
-                window.location.href = '/register';
+                // show manual registration modal instead of leaving page
+                showManualRegisterModal();
             }
         });
-    });
-
-    // CSV file selected
-    csvUploadInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        handleCsvFile(file);
     });
 
     // Close dropdowns when clicking outside
@@ -113,6 +106,24 @@ function setupEventListeners() {
             addUserDropdownEl.style.display = 'none';
         }
     });
+
+    // manual registration modal buttons
+    const manualModal = document.getElementById('manualRegisterModal');
+    const manualSubmit = document.getElementById('manualSubmitBtn');
+    const manualCancel = document.getElementById('manualCancelBtn');
+    const manualClose = document.getElementById('manualCloseBtn');
+
+    const closeManual = () => { manualModal.style.display = 'none'; };
+    manualCancel.addEventListener('click', (e) => { e.preventDefault(); closeManual(); });
+    manualClose.addEventListener('click', (e) => { e.preventDefault(); closeManual(); });
+    manualModal.addEventListener('click', (e) => {
+        if (e.target === manualModal) closeManual();
+    });
+
+    manualSubmit.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await registerManualUser();
+    });
 }
 
 // Trigger download of a CSV template with headers matching registration fields
@@ -120,8 +131,8 @@ function downloadCsvTemplate() {
     const headers = [
         'Full Name',
         'Riot ID',
-        'Position',
-        'Status',
+        'Position (Team Manager, Team Coach, Player, Sub, Applicant)',
+        'Status (Active, Inactive, Deactivated)',
         'Email',
         'Discord'
     ];
@@ -145,6 +156,59 @@ function downloadCsvTemplate() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+// show modal for manual registration
+function showManualRegisterModal() {
+    const modal = document.getElementById('manualRegisterModal');
+    // clear existing inputs
+    document.getElementById('manualFullName').value = '';
+    document.getElementById('manualRiotId').value = '';
+    document.getElementById('manualPosition').value = 'Player';
+    document.getElementById('manualStatus').value = 'Active';
+    document.getElementById('manualEmail').value = '';
+    document.getElementById('manualDiscord').value = '';
+    modal.style.display = 'flex';
+}
+
+// gather manual form values, validate and call server
+async function registerManualUser() {
+    const fullName = document.getElementById('manualFullName').value.trim();
+    const email = document.getElementById('manualEmail').value.trim();
+    if (!fullName || !email) {
+        alert('Full Name and Email are required');
+        return;
+    }
+    const discord = document.getElementById('manualDiscord').value.trim();
+    const nameParts = fullName.split(' ').filter(Boolean);
+    const firstname = nameParts.shift();
+    const lastname = nameParts.join(' ') || '';
+    const payload = {
+        email,
+        firstname,
+        lastname,
+        riotId: document.getElementById('manualRiotId').value.trim(),
+        position: document.getElementById('manualPosition').value,
+        discord: document.getElementById('manualDiscord').value.trim(),
+        status: document.getElementById('manualStatus').value
+    };
+    try {
+        const res = await fetch('/api/v1/users/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (res.status === 201) {
+            alert('User registered successfully');
+            document.getElementById('manualRegisterModal').style.display = 'none';
+            loadUsers(currentFilter);
+        } else {
+            const json = await res.json().catch(() => ({}));
+            alert('Registration failed: ' + (json.message || `Status ${res.status}`));
+        }
+    } catch (err) {
+        alert('Error registering user: ' + err.message);
+    }
 }
 
 // Handle CSV file upload: parse and submit rows to registration endpoint

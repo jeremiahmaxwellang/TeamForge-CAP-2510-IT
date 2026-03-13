@@ -12,6 +12,18 @@ exports.createUser = async (req, res) => {
             });
         }
 
+        // Check if email already exists
+        try {
+            const [existingUsers] = await mySqlPool.query('SELECT userId FROM users WHERE email = ?', [email])
+            if (existingUsers && existingUsers.length > 0) {
+                return res.status(400).json({
+                    message: 'An account with this email already exists'
+                });
+            }
+        } catch (checkErr) {
+            console.error('Error checking duplicate email:', checkErr);
+        }
+
         // Parse Riot ID (format: gameName#tagLine)
         const riotIdParts = riotId.split('#');
         if (riotIdParts.length !== 2) {
@@ -25,8 +37,8 @@ exports.createUser = async (req, res) => {
 
         // Insert into users table
         const insertUserQuery = `
-            INSERT INTO users (email, passwordHash, firstname, lastname, position, status)
-            VALUES (?, ?, ?, ?, ?, 'Active')
+            INSERT INTO users (email, passwordHash, firstname, lastname, position, status, firstLogin)
+            VALUES (?, ?, ?, ?, 'Applicant', 'Active', 0)
         `;
 
         const [userResult] = await mySqlPool.query(insertUserQuery, [
