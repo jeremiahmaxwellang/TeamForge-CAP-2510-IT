@@ -23,6 +23,12 @@ app.use('/player_analysis', require('./routes/playerAnalysisRoutes'));
 app.use('/riot', require('./routes/riotApiRoutes'));
 app.use('/team_management', require('./routes/team_managementRoutes')); // team management routes
 app.use('/announcements', require('./routes/announcementRoutes')); // announcement routes
+app.use('/tournament', require('./routes/tournamentRoutes')); // tournament routes
+
+// Backward-compatible URL for pages linking to /tournament.html
+app.get('/tournament.html', (req, res) => {
+    res.redirect('/tournament');
+});
 
 app.use('/api/v1/users', require("./routes/userRoutes"));
 

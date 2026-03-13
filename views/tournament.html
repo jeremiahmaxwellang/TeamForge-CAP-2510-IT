@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tournament Management</title>
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/tournament.css">
+</head>
+<body>
+	<main class="tournament-page">
+		<section class="tournament-panel">
+			<header class="tournament-header">
+				<h1>Tournament Management</h1>
+				<div class="tournament-actions">
+					<button id="createTournamentBtn" class="btn btn-primary" type="button">Create Tournament</button>
+					<span class="edit-team-label">Edit Team</span>
+				</div>
+			</header>
+
+			<section id="tournamentList" class="tournament-list"></section>
+		</section>
+	</main>
+
+	<div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+		<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+			<div class="modal-header">
+				<h2 id="modalTitle">Create Tournament</h2>
+				<button id="closeModalBtn" class="icon-btn" type="button" aria-label="Close">&times;</button>
+			</div>
+
+			<div class="meta-form">
+				<label>
+					<span>Name</span>
+					<input id="tournamentNameInput" type="text" placeholder="Tournament name" maxlength="100" />
+				</label>
+				<label>
+					<span>Tournament Date</span>
+					<input id="tournamentDateInput" type="date" />
+				</label>
+				<label>
+					<span>Result</span>
+					<select id="tournamentResultSelect">
+						<option value="N/A">N/A</option>
+						<option value="W">W</option>
+						<option value="L">L</option>
+					</select>
+				</label>
+			</div>
+
+			<div class="teams-layout">
+				<article class="team-column" data-team="Team 1">
+					<h3>Team 1</h3>
+					<div id="team1Roster" class="roles-grid"></div>
+				</article>
+
+				<article class="team-column" data-team="Sub">
+					<h3>Sub</h3>
+					<div id="subRoster" class="roles-grid"></div>
+				</article>
+			</div>
+
+			<section class="pool-section">
+				<div class="pool-header">
+					<h4>Players</h4>
+					<div class="role-filter" id="roleFilterGroup"></div>
+				</div>
+				<div id="playersGrid" class="players-grid"></div>
+			</section>
+
+			<div class="modal-footer">
+				<button id="cancelModalBtn" class="btn" type="button">Cancel</button>
+				<button id="confirmTournamentBtn" class="btn btn-primary" type="button">Confirm</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="/js/tournament.js"></script>
+</body>
+</html>
