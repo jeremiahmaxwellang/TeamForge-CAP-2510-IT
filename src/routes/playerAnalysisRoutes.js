@@ -48,6 +48,9 @@ router.get('/players/:id/overview_summary', overviewController.getOverviewSummar
 // Get champ pool summary
 router.get('/players/:id/champion_summary', championPoolController.getChampionSummary);
 
+// Get total unique champs
+router.get('/players/:id/total_champions', championPoolController.getTotalChampions);
+
 // Get scrim summary
 router.get('/players/:id/scrims_summary', scrimsController.getScrimSummary);
 

@@ -8,6 +8,14 @@ window.initSummaryTab = function (userId) {
     return;
   }
 
+  Backend.fetchTotalChampions(userId)
+    .then((item) => {
+      const totalChamps = document.querySelector("#total-champs");
+
+      if(item.totalChamps)
+        totalChamps.textContent = `(${item.totalChamps} champions total)`;
+    })
+
   Backend.fetchOverviewSummary(userId)
     .then((items) => {
       const overviewTb = document.querySelector("#overview-table tbody");
