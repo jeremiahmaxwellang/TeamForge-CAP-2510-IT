@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Management · with date & subs</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body {
+            background: linear-gradient(145deg, #f6f9fc 0%, #e6f0f5 100%);
+            min-height: 100vh; margin: 0; padding: 2rem 1.5rem;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .app-container { max-width: 1300px; width: 100%; }
+        h1 {
+            font-size: 2.5rem; font-weight: 600; color: #1e2f4d;
+            margin-top: 0; margin-bottom: 1.5rem; border-left: 8px solid #3b7fbd;
+            padding-left: 1.5rem; letter-spacing: -0.5px;
+        }
+        .toolbar {
+            display: flex; align-items: center; gap: 2rem;
+            background: rgba(255,255,255,0.75); backdrop-filter: blur(4px);
+            padding: 1rem 2rem; border-radius: 60px;
+            box-shadow: 0 8px 20px rgba(0,20,40,0.1); margin-bottom: 2.5rem; flex-wrap: wrap;
+        }
+        .btn {
+            border: none; background: white; padding: 0.9rem 2rem; border-radius: 40px;
+            font-weight: 600; font-size: 1.1rem; color: #1e3b5c;
+            box-shadow: 0 4px 8px rgba(0,30,60,0.08); cursor: pointer;
+            transition: all 0.15s; border: 1px solid rgba(60,130,200,0.2);
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-primary {
+            background: #1e3b5c; color: white; border: 1px solid #2b4e77;
+            box-shadow: 0 8px 14px rgba(20,70,120,0.3);
+        }
+        .btn-primary:hover { background: #244c73; transform: scale(1.02); }
+        .btn:hover { background: #f0f7ff; border-color: #3b7fbd; }
+        .edit-badge {
+            background: #eaf2fb; border-radius: 40px; padding: 0.5rem 1.5rem;
+            font-size: 1rem; display: flex; align-items: center; gap: 10px;
+        }
+        .tag {
+            background: #3b7fbd; color: white; border-radius: 20px;
+            padding: 0.25rem 1rem; font-size: 0.9rem;
+        }
+        /* modal */
+        .modal-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,10,25,0.5); backdrop-filter: blur(3px);
+            display: flex; align-items: center; justify-content: center; z-index:1000;
+        }
+        .modal-card {
+            background: white; width: 90%; max-width: 1200px; max-height: 85vh;
+            border-radius: 40px; box-shadow: 0 30px 60px rgba(10,40,70,0.5);
+            padding: 2rem 2rem 1.8rem; overflow-y: auto; animation: float 0.25s ease;
+        }
+        @keyframes float { from { opacity:0.5; transform:scale(0.96); } to { opacity:1; transform:scale(1); } }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+        }
+        .modal-header h2 { font-size: 2rem; font-weight: 500; margin:0; color:#0b2a44; }
+        .close-btn {
+            background: none; border: none; font-size: 2rem; cursor: pointer;
+            color: #446688; padding: 0 0.8rem;
+        }
+        /* tournament metadata */
+        .tourney-meta {
+            display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;
+            background: #e9f0f7; padding: 1.5rem 2rem; border-radius: 50px;
+        }
+        .meta-field {
+            display: flex; align-items: center; gap: 0.8rem;
+        }
+        .meta-field label {
+            font-weight: 600; color: #1e3b5c; min-width: 60px;
+        }
+        .meta-field input, .meta-field select {
+            padding: 0.7rem 1.2rem; border-radius: 40px; border: 2px solid #bdd3e8;
+            background: white; font-size: 1rem; min-width: 180px;
+        }
+        .meta-field select { cursor: pointer; }
+        .teams-row {
+            display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem;
+        }
+        .team-column {
+            flex: 1 1 300px; background: #edf4fa; border-radius: 32px;
+            padding: 1.5rem 1.2rem; box-shadow: inset 0 2px 6px rgba(0,0,0,0.02), 0 8px 18px rgba(40,80,120,0.1);
+        }
+        .team-column h3 {
+            display: flex; gap: 8px; align-items: center; font-size: 1.8rem;
+            font-weight: 500; margin: 0 0 1.2rem 0; color: #113355;
+            border-bottom: 3px dotted #8fb1d1; padding-bottom: 0.4rem;
+        }
+        .sub-note {
+            font-size: 0.85rem; background: #d4e0eb; border-radius: 30px;
+            padding: 0.2rem 1rem; margin-left: 1rem; font-weight: normal;
+        }
+        .role-slot {
+            background: white; border-radius: 28px; margin-bottom: 1rem;
+            padding: 0.7rem 1.2rem; display: flex; align-items: center;
+            justify-content: space-between; border: 2px dashed #b3cde0;
+            transition: 0.1s; min-height: 70px;
+        }
+        .role-slot.filled { border: 2px solid #2e7d5e; background: #e0ffec; }
+        .role-label {
+            font-weight: 700; background: #1e3b5c; color: white; border-radius: 40px;
+            padding: 0.3rem 1rem; font-size: 0.9rem; min-width: 80px; text-align: center;
+        }
+        .slot-player {
+            display: flex; align-items: center; gap: 8px;
+            background: #1e3b5c10; padding: 0.2rem 0.8rem 0.2rem 1rem; border-radius: 40px;
+        }
+        .remove-from-slot {
+            background: none; border: none; font-size: 1.5rem; cursor: pointer;
+            color: #9b2e2e; line-height: 1; padding: 0 6px;
+        }
+        .empty-slot-text { color: #6d8fae; font-style: italic; }
+        /* player pool */
+        .player-pool-section {
+            background: #dae6f2; border-radius: 40px; padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+        }
+        .filter-bar {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center;
+        }
+        .filter-btn {
+            background: white; border: 1px solid #9bb7d4; border-radius: 40px;
+            padding: 0.5rem 1.3rem; font-weight: 500; cursor: pointer; transition: all 0.1s;
+        }
+        .filter-btn.active { background: #1e3b5c; color: white; border-color: #1e3b5c; }
+        .players-grid {
+            display: flex; flex-wrap: wrap; gap: 0.8rem; min-height: 140px;
+            background: #eef4fa; padding: 1.5rem; border-radius: 40px;
+        }
+        .player-card {
+            background: white; border-radius: 60px; padding: 0.5rem 1.2rem 0.5rem 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: flex; align-items: center;
+            gap: 12px; font-size: 1rem; border: 2px solid transparent; transition: 0.1s;
+            cursor: grab; user-select: none; width: auto;
+        }
+        .player-card.dragging { opacity: 0.5; border-color: #1e3b5c; }
+        .player-role-badge {
+            background: #ced9e8; border-radius: 30px; padding: 0.25rem 1rem;
+            font-size: 0.75rem; font-weight: 600; color: #102a40;
+        }
+        .player-card.assigned {
+            opacity: 0.4; background: #cfdbe8; cursor: not-allowed;
+            border: 2px dashed #7f9cbb;
+        }
+        .modal-actions {
+            margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1.5rem;
+        }
+        /* tournament cards */
+        .tournament-list { margin-top: 3rem; display: flex; flex-direction: column; gap: 1rem; }
+        .tournament-card {
+            background: white; border-radius: 28px; box-shadow: 0 8px 16px rgba(0,20,40,0.1);
+            overflow: hidden;
+        }
+        .tournament-header {
+            padding: 1.2rem 2rem; background: #ffffff; display: flex; align-items: center;
+            gap: 2rem; flex-wrap: wrap; cursor: pointer; font-weight: 600;
+            font-size: 1.4rem; border-bottom: 2px solid #cdddec;
+        }
+        .tournament-header .toggle-icon { font-size: 1.8rem; color: #2b5680; }
+        .tournament-details {
+            padding: 1.5rem 2rem; background: #f2f8ff;
+        }
+        .meta-summary {
+            background: white; border-radius: 30px; padding: 1rem 2rem;
+            margin-bottom: 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap;
+        }
+        .meta-item { font-weight: 500; color: #1e3f60; }
+        .teams-detail-grid {
+            display: flex; gap: 2.5rem; flex-wrap: wrap;
+        }
+        .detail-team {
+            background: white; border-radius: 24px; padding: 1.2rem; flex: 1 1 280px;
+        }
+        .detail-team h4 { margin-top: 0; color: #10334d; display: flex; align-items: center; gap: 6px;}
+        .role-detail-item {
+            display: flex; justify-content: space-between; border-bottom: 1px solid #b6cde0;
+            padding: 0.3rem 0;
+        }
+        .subdued { color: #5d768b; font-style: italic; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <h1>🏆 Tournament Management</h1>
+
+    <div class="toolbar">
+        <button class="btn btn-primary" id="createTourneyBtn">+ Create Tournament</button>
+        <div class="edit-badge">
+            <span>✏️ Edit Team</span>
+            <span class="tag">drag & drop</span>
+        </div>
+    </div>
+
+    <div id="tournamentList" class="tournament-list"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modalOverlay" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>⚡ create tournament</h2>
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+        </div>
+
+        <!-- name, date, time, result -->
+        <div class="tourney-meta">
+            <div class="meta-field">
+                <label>Name</label>
+                <input type="text" id="tournamentNameInput" placeholder="e.g. Summer Clash" autocomplete="off">
+            </div>
+            <div class="meta-field">
+                <label>Date</label>
+                <input type="date" id="tournamentDateInput">
+            </div>
+            <div class="meta-field">
+                <label>Time</label>
+                <input type="time" id="tournamentTimeInput">
+            </div>
+            <div class="meta-field">
+                <label>Result</label>
+                <select id="tournamentResultSelect">
+                    <option value="na" selected>NA (not played)</option>
+                    <option value="W">Win</option>
+                    <option value="L">Loss</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="teams-row">
+            <!-- Team 1 (required) -->
+            <div class="team-column" data-team="team1">
+                <h3>🔵 TEAM 1 <span class="sub-note">5 roles required</span></h3>
+                <div id="team1-roster" class="roles-container"></div>
+            </div>
+            <!-- Sub team (optional) -->
+            <div class="team-column" data-team="sub">
+                <h3>🔄 SUB <span class="sub-note">optional · subs only</span></h3>
+                <div id="sub-roster" class="roles-container"></div>
+            </div>
+        </div>
+
+        <!-- Player pool -->
+        <div class="player-pool-section">
+            <div class="filter-bar">
+                <span style="font-weight:500;">Filter by role:</span>
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="Top">Top</button>
+                <button class="filter-btn" data-filter="Jungle">Jungle</button>
+                <button class="filter-btn" data-filter="Mid">Mid</button>
+                <button class="filter-btn" data-filter="ADC">ADC</button>
+                <button class="filter-btn" data-filter="Support">Support</button>
+            </div>
+            <div id="playersGrid" class="players-grid"></div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn" id="cancelModalBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmTournamentBtn">✓ Confirm tournament</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Players data
+        const playersData = [
+            { id: 'p1', name: 'BlazeKing', primaryRoleId: 'Top', secondaryRoleId: 'Jungle' },
+            { id: 'p2', name: 'JungleJim', primaryRoleId: 'Jungle', secondaryRoleId: 'Support' },
+            { id: 'p3', name: 'MidWit', primaryRoleId: 'Mid', secondaryRoleId: 'Top' },
+            { id: 'p4', name: 'ArrowMaster', primaryRoleId: 'ADC', secondaryRoleId: 'Mid' },
+            { id: 'p5', name: 'HealBot', primaryRoleId: 'Support', secondaryRoleId: 'ADC' },
+            { id: 'p6', name: 'RiftWalker', primaryRoleId: 'Jungle', secondaryRoleId: 'Top' },
+            { id: 'p7', name: 'Teleport', primaryRoleId: 'Top', secondaryRoleId: 'Mid' },
+            { id: 'p8', name: 'CritMan', primaryRoleId: 'ADC', secondaryRoleId: 'Support' },
+            { id: 'p9', name: 'WardEnemy', primaryRoleId: 'Support', secondaryRoleId: 'Mid' },
+            { id: 'p10', name: 'FlashHunter', primaryRoleId: 'Mid', secondaryRoleId: 'ADC' },
+            { id: 'p11', name: 'DariusPro', primaryRoleId: 'Top', secondaryRoleId: 'Jungle' },
+            { id: 'p12', name: 'LeeSinGod', primaryRoleId: 'Jungle', secondaryRoleId: 'Top' },
+        ];
+
+        // State
+        let tournaments = []; // each: { name, date, time, result, team1: {}, sub: {} }
+        let currentFilter = 'All';
+
+        // Modal rosters
+        let modalTeam1 = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
+        let modalSub   = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
+
+        // Helper: all assigned IDs (both teams)
+        function getAllAssignedIds() {
+            const t1 = Object.values(modalTeam1).filter(p => p).map(p => p.id);
+            const sub = Object.values(modalSub).filter(p => p).map(p => p.id);
+            return [...t1, ...sub];
+        }
+
+        // DOM elements
+        const modalOverlay = document.getElementById('modalOverlay');
+        const createBtn = document.getElementById('createTourneyBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const confirmBtn = document.getElementById('confirmTournamentBtn');
+        const nameInput = document.getElementById('tournamentNameInput');
+        const dateInput = document.getElementById('tournamentDateInput');
+        const timeInput = document.getElementById('tournamentTimeInput');
+        const resultSelect = document.getElementById('tournamentResultSelect');
+        const team1RosterDiv = document.getElementById('team1-roster');
+        const subRosterDiv = document.getElementById('sub-roster');
+        const playersGrid = document.getElementById('playersGrid');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const tournamentListDiv = document.getElementById('tournamentList');
+
+        // ---------- render both rosters ----------
+        function renderModalRosters() {
+            // Team1
+            team1RosterDiv.innerHTML = '';
+            const roles = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
+            roles.forEach(role => {
+                const player = modalTeam1[role];
+                const slotDiv = document.createElement('div');
+                slotDiv.className = `role-slot ${player ? 'filled' : ''}`;
+                slotDiv.dataset.team = 'team1';
+                slotDiv.dataset.role = role;
+                slotDiv.innerHTML = `
+                    <span class="role-label">${role}</span>
+                    <div class="slot-player">
+                        ${player ? `<span>${player.name}</span>` : '<span class="empty-slot-text">———</span>'}
+                        ${player ? `<button class="remove-from-slot" data-team="team1" data-role="${role}">✕</button>` : ''}
+                    </div>
+                `;
+                team1RosterDiv.appendChild(slotDiv);
+            });
+
+            // Sub team
+            subRosterDiv.innerHTML = '';
+            roles.forEach(role => {
+                const player = modalSub[role];
+                const slotDiv = document.createElement('div');
+                slotDiv.className = `role-slot ${player ? 'filled' : ''}`;
+                slotDiv.dataset.team = 'sub';
+                slotDiv.dataset.role = role;
+                slotDiv.innerHTML = `
+                    <span class="role-label">${role}</span>
+                    <div class="slot-player">
+                        ${player ? `<span>${player.name}</span>` : '<span class="empty-slot-text">———</span>'}
+                        ${player ? `<button class="remove-from-slot" data-team="sub" data-role="${role}">✕</button>` : ''}
+                    </div>
+                `;
+                subRosterDiv.appendChild(slotDiv);
+            });
+
+            // Attach remove listeners
+            document.querySelectorAll('.remove-from-slot').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const team = btn.dataset.team;
+                    const role = btn.dataset.role;
+                    if (team === 'team1') modalTeam1[role] = null;
+                    else if (team === 'sub') modalSub[role] = null;
+                    renderModalRosters();
+                    renderPlayersGrid();
+                    attachDropListeners();
+                });
+            });
+        }
+
+        // ---------- render player pool with filter ----------
+        function renderPlayersGrid() {
+            const assignedIds = getAllAssignedIds();
+            let filtered = playersData;
+            if (currentFilter !== 'All') {
+                filtered = playersData.filter(p => p.primaryRoleId === currentFilter || p.secondaryRoleId === currentFilter);
+            }
+
+            playersGrid.innerHTML = '';
+            filtered.forEach(player => {
+                const isAssigned = assignedIds.includes(player.id);
+                const card = document.createElement('div');
+                card.className = `player-card ${isAssigned ? 'assigned' : ''}`;
+                card.draggable = !isAssigned;
+                card.dataset.id = player.id;
+                card.dataset.name = player.name;
+                card.dataset.primary = player.primaryRoleId;
+                card.dataset.secondary = player.secondaryRoleId;
+
+                card.innerHTML = `
+                    <span>👤 ${player.name}</span>
+                    <span class="player-role-badge" title="primary: ${player.primaryRoleId} / secondary: ${player.secondaryRoleId}">
+                        ${player.primaryRoleId} / ${player.secondaryRoleId}
+                    </span>
+                `;
+
+                card.addEventListener('dragstart', (e) => {
+                    if (isAssigned) { e.preventDefault(); return; }
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        id: player.id, name: player.name,
+                        primary: player.primaryRoleId, secondary: player.secondaryRoleId
+                    }));
+                    card.classList.add('dragging');
+                });
+                card.addEventListener('dragend', () => card.classList.remove('dragging'));
+
+                playersGrid.appendChild(card);
+            });
+        }
+
+        // ---------- drop zones ----------
+        function attachDropListeners() {
+            document.querySelectorAll('.role-slot').forEach(slot => {
+                slot.addEventListener('dragover', (e) => e.preventDefault());
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const team = slot.dataset.team; // 'team1' or 'sub'
+                    const role = slot.dataset.role;
+                    if (!team || !role) return;
+
+                    const rawData = e.dataTransfer.getData('text/plain');
+                    if (!rawData) return;
+                    const player = JSON.parse(rawData);
+
+                    const assignedIds = getAllAssignedIds();
+                    if (assignedIds.includes(player.id)) {
+                        alert('⛔ Player already assigned to a role');
+                        return;
+                    }
+
+                    // role compatibility
+                    if (player.primary !== role && player.secondary !== role) {
+                        alert(`❌ ${player.name} cannot play ${role} (primary: ${player.primary}, secondary: ${player.secondary})`);
+                        return;
+                    }
+
+                    // assign to correct team
+                    if (team === 'team1') {
+                        if (modalTeam1[role] !== null) {
+                            alert(`Team 1 ${role} slot already filled`);
+                            return;
+                        }
+                        modalTeam1[role] = { id: player.id, name: player.name };
+                    } else if (team === 'sub') {
+                        if (modalSub[role] !== null) {
+                            alert(`Sub team ${role} slot already filled`);
+                            return;
+                        }
+                        modalSub[role] = { id: player.id, name: player.name };
+                    }
+
+                    renderModalRosters();
+                    renderPlayersGrid();
+                    attachDropListeners();
+                });
+            });
+        }
+
+        // ---------- reset modal ----------
+        function resetModal() {
+            nameInput.value = '';
+            dateInput.value = '';
+            timeInput.value = '';
+            resultSelect.value = 'na';
+            modalTeam1 = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
+            modalSub   = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
+            currentFilter = 'All';
+            filterBtns.forEach(btn => {
+                if (btn.dataset.filter === 'All') btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            renderModalRosters();
+            renderPlayersGrid();
+            attachDropListeners();
+        }
+
+        function openModal() { resetModal(); modalOverlay.style.display = 'flex'; }
+        function closeModal() { modalOverlay.style.display = 'none'; }
+
+        // ---------- confirm tournament ----------
+        function confirmTournament() {
+            const name = nameInput.value.trim();
+            if (!name) { alert('Please enter a tournament name'); return; }
+            // Team1 must be fully filled
+            const team1Filled = Object.values(modalTeam1).every(p => p !== null);
+            if (!team1Filled) {
+                alert('Team 1 must have all 5 roles filled (Top, Jungle, Mid, ADC, Support)');
+                return;
+            }
+            // Sub team can be partially filled, no requirement.
+
+            const newTourney = {
+                name: name,
+                date: dateInput.value || 'TBD',
+                time: timeInput.value || 'TBD',
+                result: resultSelect.value, // 'W','L','na'
+                team1: { ...modalTeam1 },
+                sub: { ...modalSub }
+            };
+            tournaments.push(newTourney);
+            renderTournamentList();
+            closeModal();
+        }
+
+        // ---------- render saved tournaments ----------
+        function renderTournamentList() {
+            tournamentListDiv.innerHTML = '';
+            tournaments.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'tournament-card';
+
+                const header = document.createElement('div');
+                header.className = 'tournament-header';
+                header.innerHTML = `<span class="toggle-icon">▼</span> <span>🏆 ${t.name}</span> <span style="margin-left:auto; font-size:0.9rem;">📅 ${t.date} ⌚ ${t.time}</span>`;
+
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'tournament-details';
+                detailsDiv.style.display = 'none';
+
+                // meta row
+                const resultText = t.result === 'W' ? 'Win' : (t.result === 'L' ? 'Loss' : 'Not played');
+                const metaHtml = `<div class="meta-summary"><span class="meta-item">Date: ${t.date}</span><span class="meta-item">Time: ${t.time}</span><span class="meta-item">Result: ${resultText}</span></div>`;
+
+                // team rows
+                const roles = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
+                const team1Html = roles.map(r => `<div class="role-detail-item"><b>${r}</b> <span>${t.team1[r]?.name || '??'}</span></div>`).join('');
+                const subPresent = Object.values(t.sub).some(p => p !== null);
+                let subHtml = '';
+                if (subPresent) {
+                    subHtml = roles.map(r => {
+                        const player = t.sub[r];
+                        return `<div class="role-detail-item"><b>${r}</b> <span>${player ? player.name : '—'}</span></div>`;
+                    }).join('');
+                } else {
+                    subHtml = `<div class="subdued">No substitutes registered</div>`;
+                }
+
+                detailsDiv.innerHTML = metaHtml + `
+                    <div class="teams-detail-grid">
+                        <div class="detail-team"><h4>🔵 TEAM 1</h4>${team1Html}</div>
+                        <div class="detail-team"><h4>🔄 SUB</h4>${subHtml}</div>
+                    </div>
+                `;
+
+                header.addEventListener('click', () => {
+                    if (detailsDiv.style.display === 'none') {
+                        detailsDiv.style.display = 'block';
+                        header.querySelector('.toggle-icon').textContent = '▲';
+                    } else {
+                        detailsDiv.style.display = 'none';
+                        header.querySelector('.toggle-icon').textContent = '▼';
+                    }
+                });
+
+                card.appendChild(header);
+                card.appendChild(detailsDiv);
+                tournamentListDiv.appendChild(card);
+            });
+        }
+
+        // Filter buttons
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderPlayersGrid();
+            });
+        });
+
+        // Event listeners
+        createBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+        confirmBtn.addEventListener('click', confirmTournament);
+        document.body.addEventListener('dragover', (e) => e.preventDefault());
+
+        // initial render
+        renderTournamentList();
+    })();
+</script>
+</body>
+</html>
