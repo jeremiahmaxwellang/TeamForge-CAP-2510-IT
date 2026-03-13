@@ -429,6 +429,47 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantEvaluations` (
   CONSTRAINT `fk_appEval_coach` FOREIGN KEY (`coachId`) REFERENCES `teamforgedb`.`users` (`userId`)
 ) ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`tournaments`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournaments` (
+  `tournamentId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NULL,
+  `startDate` DATE NULL,
+  `endDate` DATE NULL,
+  `win` ENUM('W', 'L', 'N/A') NULL,
+  PRIMARY KEY (`tournamentId`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`tournament_players`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournament_players` (
+  `tournamentId` INT UNSIGNED NOT NULL,
+  `playerId` INT UNSIGNED NOT NULL,
+  `roleId` INT NULL,
+  `isSub` ENUM('Y', 'N') NULL,
+  PRIMARY KEY (`tournamentId`, `playerId`),
+  INDEX `fk_tournament_players_players1_idx` (`playerId` ASC) VISIBLE,
+  INDEX `fk_tournament_players_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
+  CONSTRAINT `fk_tournament_players_tournaments1`
+    FOREIGN KEY (`tournamentId`)
+    REFERENCES `teamforgedb`.`tournaments` (`tournamentId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_tournament_players_players1`
+    FOREIGN KEY (`playerId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_tournament_players_leagueRoles1`
+    FOREIGN KEY (`roleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
