@@ -10,6 +10,15 @@ function getCheckedUserCheckboxes() {
     return Array.from(document.querySelectorAll('.user-checkbox:checked'));
 }
 
+function getSelectedUserIds() {
+    const ids = getCheckedUserCheckboxes()
+        .map((checkbox) => checkbox.dataset.userId || checkbox.getAttribute('data-user-id'))
+        .map((value) => Number.parseInt(value, 10))
+        .filter((value) => Number.isInteger(value) && value > 0);
+
+    return Array.from(new Set(ids));
+}
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
     loadUsers('all');
@@ -85,11 +94,12 @@ function setupEventListeners() {
     });
 
     document.getElementById('deactivateBtn').addEventListener('click', () => {
-        if (selectedUsers.size === 0) {
+        const selectedIds = getSelectedUserIds();
+        if (selectedIds.length === 0) {
             alert('Please select at least one user to deactivate');
             return;
         }
-        deactivateSelectedUsers();
+        deactivateSelectedUsers(selectedIds);
     });
 
     // Add user dropdown handling
@@ -634,9 +644,7 @@ function renderUsersTable(users) {
 }
 
 // Deactivate selected users
-async function deactivateSelectedUsers() {
-    const userIds = Array.from(selectedUsers);
-
+async function deactivateSelectedUsers(userIds = []) {
     if (userIds.length === 0) {
         alert('Please select at least one user');
         return;
@@ -652,7 +660,7 @@ async function deactivateSelectedUsers() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ userIds: userIds })
+            body: JSON.stringify({ userIds })
         });
 
         const result = await response.json();
