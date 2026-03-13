@@ -11,6 +11,23 @@ const path = require('path');
 const mySqlPool = require('../config/database'); // your MySQL pool
 const router = express.Router();
 
+function setUserRoleCookie(res, position) {
+    res.cookie('userRole', position, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
+        maxAge: 8 * 60 * 60 * 1000
+    });
+}
+
+function requireManagerRole(req, res, next) {
+    if (req.cookies && req.cookies.userRole === 'Team Manager') {
+        return next();
+    }
+
+    return res.redirect('/');
+}
+
 // Login page
 router.get('/', (req, res) => {
     res.sendFile(path.join(viewsPath, 'login.html'));
@@ -50,12 +67,16 @@ router.post('/change_password', async (req, res) => {
             // Redirect based on role
             switch(user.position) {
                 case 'Team Manager':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/manager_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Player':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/player_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Team Coach':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/coach_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Applicant':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/applicant_dashboard', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 default:
                     return res.status(400).send('Role not recognized');
@@ -75,7 +96,7 @@ router.get('/applicant_dashboard', (req, res) => {
 });
 
 // Dashboard pages
-router.get('/manager_dashboard.html', (req, res) => {
+router.get('/manager_dashboard.html', requireManagerRole, (req, res) => {
     res.sendFile(path.join(viewsPath, 'manager_dashboard.html'));
 });
 
@@ -112,12 +133,16 @@ router.post('/login', async (req, res) => {
             // Redirect based on role
             switch(user.position) {
                 case 'Team Manager':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/manager_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Player':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/player_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Team Coach':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/coach_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Applicant':
+                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/applicant_dashboard', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 default:
                     return res.status(400).send('Role not recognized');
