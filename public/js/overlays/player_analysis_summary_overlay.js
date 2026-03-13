@@ -10,8 +10,7 @@ window.initSummaryTab = function (userId) {
 
   Backend.fetchTotalChampions(userId)
     .then((item) => {
-      const totalChamps = document.querySelector("#total-champs");
-
+      
       if(item.totalChamps)
         totalChamps.textContent = `(${item.totalChamps} champions total)`;
     })
@@ -69,7 +68,6 @@ window.initSummaryTab = function (userId) {
   Backend.fetchScrimSummary(userId)
     .then((scrims) => {
       const scrimTb = document.querySelector("#scrims-table tbody");
-      const totalGames = document.querySelector("#total-games");
 
       scrimTb.innerHTML = "";
 
@@ -77,11 +75,27 @@ window.initSummaryTab = function (userId) {
         totalGames.textContent = `(${item.totalScrims} games total)`;
         const row = document.createElement("tr");
 
+        let averageGameSense = `<td>${item.averageGameSense}</td>`;
+        let averageComms = `<td>${item.averageComms}</td>`;
+        let averageChampionPool = `<td>${item.averageChampionPool}</td>`;
+
+        if(parseFloat(item.averageGameSense) <= 2.5) {
+          averageGameSense = `<td><span class="score-red">${item.averageGameSense}</span></td>`
+        }
+
+        if(parseFloat(item.averageComms) <= 2.5) {
+          averageComms = `<td><span class="score-red">${item.averageComms}</span></td>`
+        }
+
+        if(parseFloat(item.averageChampionPool) <= 2.5) {
+          averageChampionPool = `<td><span class="score-red">${item.averageChampionPool}</span></td>`
+        }
+
         row.innerHTML = `
-              <td>${item.averageGameSense}</td>
-              <td>${item.averageComms}</td>
-              <td>${item.averageChampionPool}</td>
-            `;
+            ${averageGameSense}
+            ${averageComms}
+            ${averageChampionPool}
+        `;
 
         scrimTb.appendChild(row);
 
@@ -108,7 +122,6 @@ window.initSummaryTab = function (userId) {
     .catch((err) => console.error("[SUMMARY] ✗ Error loading comms summary:", err));
 
 
-  const champTableBody = document.querySelector("#champ-table tbody");
 
   Backend.fetchChampionPool(userId)
     .then((championPool) => {
@@ -127,5 +140,18 @@ window.initSummaryTab = function (userId) {
       console.log("[SUMMARY] ✓ Champion pool rendered successfully");
     })
     .catch((err) => console.error("[SUMMARY] Error loading champion pool:", err));
+
+
+    const recText = document.querySelector(".rec-text");
+
+    // Scrims Section
+    const totalGames = document.querySelector("#total-games");
+
+    // Champion Section
+    const totalChamps = document.querySelector("#total-champs");
+    const champTableBody = document.querySelector("#champ-table tbody");
+    
+    
+
 
 };
