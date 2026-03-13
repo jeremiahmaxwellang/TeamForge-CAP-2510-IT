@@ -8,15 +8,26 @@ window.initSummaryTab = function (userId) {
     return;
   }
 
-  Backend.fetchTotalChampions(userId)
-    .then((item) => {
-      const totalChamps = document.querySelector("#total-champs");
+  const recText = document.querySelector(".rec-text");
 
+  // Scrims Elements
+  const totalGames = document.querySelector("#total-games");
+  let averageGameSense = 0.0;
+  let averageComms = 0.0;
+  let averageChampionPool = 0.0;
+
+  // Champion Elements
+  const totalChamps = document.querySelector("#total-champs");
+  const champTableBody = document.querySelector("#champ-table tbody");
+
+  const totalChampsPromise = Backend.fetchTotalChampions(userId)
+    .then((item) => {
+      
       if(item.totalChamps)
         totalChamps.textContent = `(${item.totalChamps} champions total)`;
     })
 
-  Backend.fetchOverviewSummary(userId)
+  const matchPromise = Backend.fetchOverviewSummary(userId)
     .then((items) => {
       const overviewTb = document.querySelector("#overview-table tbody");
 
@@ -57,31 +68,51 @@ window.initSummaryTab = function (userId) {
                   </div>
               </td>
               <td><span class="kda-text">${item.avgKills} / ${item.avgDeaths} / ${item.avgAssists}</span></td>
-            `;
-
-            
+            `;    
 
         overviewTb.appendChild(row);
       });
     })
     .catch((err) => console.error("[SCRIMS] ✗ Error loading scrim summary:", err));
 
-  Backend.fetchScrimSummary(userId)
+  const scrimsPromise = Backend.fetchScrimSummary(userId)
     .then((scrims) => {
       const scrimTb = document.querySelector("#scrims-table tbody");
-      const totalGames = document.querySelector("#total-games");
 
       scrimTb.innerHTML = "";
 
       scrims.forEach((item) => {
         totalGames.textContent = `(${item.totalScrims} games total)`;
+
+        // Assigning global variables
+        averageGameSense = parseFloat(item.averageGameSense);
+        averageComms = parseFloat(item.averageComms);
+        averageChampionPool = parseFloat(item.averageChampionPool);
+        console.log(averageComms);
+
         const row = document.createElement("tr");
 
+        let rowGameSense = `<td>${item.averageGameSense}</td>`;
+        let rowComms = `<td>${item.averageComms}</td>`;
+        let rowChampionPool = `<td>${item.averageChampionPool}</td>`;
+
+        if(parseFloat(item.averageGameSense) <= 2.5) {
+          rowGameSense = `<td><span class="score-red">${item.averageGameSense}</span></td>`
+        }
+
+        if(parseFloat(item.averageComms) <= 2.5) {
+          rowComms = `<td><span class="score-red">${item.averageComms}</span></td>`
+        }
+
+        if(parseFloat(item.averageChampionPool) <= 2.5) {
+          rowChampionPool = `<td><span class="score-red">${item.averageChampionPool}</span></td>`
+        }
+
         row.innerHTML = `
-              <td>${item.averageGameSense}</td>
-              <td>${item.averageComms}</td>
-              <td>${item.averageChampionPool}</td>
-            `;
+            ${rowGameSense}
+            ${rowComms}
+            ${rowChampionPool}
+        `;
 
         scrimTb.appendChild(row);
 
@@ -95,7 +126,7 @@ window.initSummaryTab = function (userId) {
     .catch((err) => console.error("[SCRIMS] ✗ Error loading scrim summary:", err));
 
 
-  Backend.fetchCommsSummary(userId)
+  const commsPromise = Backend.fetchCommsSummary(userId)
     .then((comms) => {
       const bestComms = document.querySelector("#best-comms");
       const avgComms = document.querySelector("#avg-comms");
@@ -108,9 +139,8 @@ window.initSummaryTab = function (userId) {
     .catch((err) => console.error("[SUMMARY] ✗ Error loading comms summary:", err));
 
 
-  const champTableBody = document.querySelector("#champ-table tbody");
 
-  Backend.fetchChampionPool(userId)
+  const championPromise = Backend.fetchChampionPool(userId)
     .then((championPool) => {
       champTableBody.innerHTML = "";
       championPool.forEach((champ) => {
@@ -127,5 +157,44 @@ window.initSummaryTab = function (userId) {
       console.log("[SUMMARY] ✓ Champion pool rendered successfully");
     })
     .catch((err) => console.error("[SUMMARY] Error loading champion pool:", err));
+
+
+
+    // Recommendations Section
+    
+    async function generateRecommendations() {
+      // Wait for all data to load before generating recommendation
+      await Promise.all([scrimsPromise, totalChampsPromise, championPromise, commsPromise, matchPromise]);
+
+      // TODO: Get player name and primary role
+      let recommendation = `Player ${userId} has`;
+
+      console.log(averageComms);
+
+      // Ranked
+      // TODO: Ranked summary with creep score for all roles except support (needs calculation in overview/riotapi controller)
+
+      // Champions
+      // TODO: High/Low amount of champs
+
+      // Scrims
+      if(averageComms <= 2.5 && averageComms != 0) {
+        recommendation = recommendation.concat(` has poor communication during scrims (${averageComms})` )
+      }
+      else if(averageComms > 2.5 && averageComms != 0) {
+        recommendation = recommendation.concat(` has good communication during scrims (${averageComms})` )
+      }
+
+      console.log(recommendation);
+
+      if(recommendation) {
+        recText.textContent = recommendation;
+      }
+      
+    }
+
+    generateRecommendations();
+    
+
 
 };

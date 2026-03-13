@@ -1,0 +1,377 @@
+:root {
+	--bg: #eff4f9;
+	--panel: #ffffff;
+	--ink: #0f2c44;
+	--muted: #5d7487;
+	--line: #cfdae4;
+	--primary: #184f83;
+	--primary-strong: #113a63;
+	--accent: #1f7aa6;
+	--ok: #e6f7ee;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: radial-gradient(circle at 15% 10%, #f8fbff 0%, #ecf3fa 45%, #e6eef7 100%);
+	color: var(--ink);
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tournament-page {
+	min-height: 100vh;
+	padding: 2rem 1.25rem;
+}
+
+.tournament-panel {
+	max-width: 1100px;
+	margin: 0 auto;
+}
+
+.tournament-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.tournament-header h1 {
+	margin: 0;
+	font-size: 2rem;
+	letter-spacing: -0.02em;
+}
+
+.tournament-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.edit-team-label {
+	color: var(--muted);
+	font-weight: 600;
+}
+
+.btn {
+	border: 1px solid var(--line);
+	background: var(--panel);
+	color: var(--ink);
+	border-radius: 999px;
+	padding: 0.6rem 1.25rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.btn:hover {
+	border-color: #9eb5c7;
+}
+
+.btn-primary {
+	border-color: var(--primary);
+	background: var(--primary);
+	color: #ffffff;
+}
+
+.btn-primary:hover {
+	background: var(--primary-strong);
+}
+
+.tournament-list {
+	margin-top: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+}
+
+.tournament-card {
+	border: 1px solid var(--line);
+	border-radius: 16px;
+	background: var(--panel);
+	box-shadow: 0 8px 18px rgba(24, 56, 92, 0.08);
+	overflow: hidden;
+}
+
+.tournament-card-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.9rem 1rem;
+	cursor: pointer;
+}
+
+.tournament-card-head h3 {
+	margin: 0;
+	font-size: 1.1rem;
+}
+
+.toggle-indicator {
+	color: var(--accent);
+	font-size: 0.9rem;
+}
+
+.tournament-card-body {
+	border-top: 1px solid var(--line);
+	padding: 1rem;
+	background: #f6faff;
+}
+
+.meta-row {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 0.8rem;
+	color: var(--muted);
+	font-weight: 600;
+}
+
+.assignment-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: var(--panel);
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.assignment-table th,
+.assignment-table td {
+	border-bottom: 1px solid #e3ebf2;
+	padding: 0.6rem 0.7rem;
+	text-align: left;
+	font-size: 0.95rem;
+}
+
+.assignment-table th {
+	background: #ebf3fb;
+}
+
+.modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(9, 26, 42, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	z-index: 1000;
+}
+
+.hidden {
+	display: none;
+}
+
+.modal-card {
+	width: min(1100px, 100%);
+	max-height: calc(100vh - 2rem);
+	overflow: auto;
+	background: var(--panel);
+	border-radius: 20px;
+	border: 1px solid var(--line);
+	padding: 1rem;
+}
+
+.modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.modal-header h2 {
+	margin: 0;
+}
+
+.icon-btn {
+	border: none;
+	background: transparent;
+	color: var(--muted);
+	font-size: 1.8rem;
+	cursor: pointer;
+}
+
+.meta-form {
+	margin-top: 1rem;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(180px, 1fr));
+	gap: 0.8rem;
+}
+
+.meta-form label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	font-weight: 600;
+	color: var(--muted);
+}
+
+.meta-form input,
+.meta-form select {
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	padding: 0.55rem 0.65rem;
+	font-size: 0.95rem;
+}
+
+.teams-layout {
+	margin-top: 1rem;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(280px, 1fr));
+	gap: 0.8rem;
+}
+
+.team-column {
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	padding: 0.8rem;
+	background: #f4f9fe;
+}
+
+.team-column h3 {
+	margin: 0 0 0.6rem 0;
+}
+
+.roles-grid {
+	display: grid;
+	gap: 0.55rem;
+}
+
+.role-slot {
+	border: 1px dashed #9eb5c7;
+	border-radius: 10px;
+	padding: 0.55rem;
+	min-height: 58px;
+	background: #ffffff;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.role-slot.over {
+	border-color: var(--accent);
+	background: #f0f9ff;
+}
+
+.role-label {
+	font-weight: 700;
+	font-size: 0.85rem;
+	color: var(--ink);
+}
+
+.slot-player {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: var(--ok);
+	border-radius: 999px;
+	padding: 0.2rem 0.55rem;
+}
+
+.remove-assignment {
+	border: none;
+	background: transparent;
+	color: #b32929;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.pool-section {
+	margin-top: 1rem;
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	padding: 0.8rem;
+	background: #f8fbff;
+}
+
+.pool-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.8rem;
+	flex-wrap: wrap;
+}
+
+.pool-header h4 {
+	margin: 0;
+}
+
+.role-filter {
+	display: flex;
+	gap: 0.35rem;
+	flex-wrap: wrap;
+}
+
+.filter-btn {
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: #ffffff;
+	padding: 0.35rem 0.7rem;
+	cursor: pointer;
+	font-size: 0.85rem;
+}
+
+.filter-btn.active {
+	background: #e1edf9;
+	border-color: #8fb0cd;
+}
+
+.players-grid {
+	margin-top: 0.8rem;
+	min-height: 80px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.player-card {
+	border: 1px solid #bed0df;
+	border-radius: 999px;
+	background: #ffffff;
+	padding: 0.35rem 0.65rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	cursor: grab;
+}
+
+.player-card.assigned {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.player-role-badge {
+	font-size: 0.7rem;
+	color: var(--muted);
+	border: 1px solid #d0dce6;
+	border-radius: 999px;
+	padding: 0.05rem 0.45rem;
+}
+
+.modal-footer {
+	margin-top: 1rem;
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+}
+
+.empty-state {
+	border: 1px dashed var(--line);
+	border-radius: 14px;
+	padding: 1rem;
+	text-align: center;
+	color: var(--muted);
+	background: #f8fbff;
+}
+
+@media (max-width: 900px) {
+	.meta-form {
+		grid-template-columns: 1fr;
+	}
+
+	.teams-layout {
+		grid-template-columns: 1fr;
+	}
+}

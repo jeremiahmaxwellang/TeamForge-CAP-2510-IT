@@ -8,64 +8,121 @@
     <link rel="stylesheet" href="/css/team_management.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="team-management-header">
-            <h1>Team Management</h1>
+    <div class="manager-page">
+        <div class="manager-topbar">
+            <div class="manager-brand">
+                <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+                <span class="manager-brand-title">TeamForge</span>
+            </div>
+            <div class="manager-team-name">Viridis Arcus (Team Name)</div>
+            <div><img src="/images/sample_profile.png" alt="Profile Picture" class="manager-profile-icon"></div>
         </div>
 
-        <!-- Controls Section -->
-        <div class="controls-section">
-            <div class="filter-group">
-                <button id="filterBtn" class="filter-btn">Filter: All</button>
-                <div id="filterDropdown" class="filter-dropdown" style="display: none;">
-                    <button class="filter-option" data-filter="all">All</button>
-                    <button class="filter-option" data-filter="active">Active</button>
-                    <button class="filter-option" data-filter="inactive">Inactive</button>
-                    <button class="filter-option" data-filter="deactivated">Deactivated</button>
-                </div>
+        <div class="manager-content-wrapper">
+            <div class="manager-sidebar" data-role-scope="manager-only">
+                <ul>
+                    <li>
+                        <a href="/announcements">
+                            <img src="/images/announcement_logo.png" alt="Announcement Icon">
+                            Announcement
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/scheduling_logo.png" alt="Scheduling Icon">
+                            Scheduling
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/attendance_logo.png" alt="Attendance Icon">
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/team_management">
+                            <img src="/images/recruitment_evaluation_logo.png" alt="Team Management Icon">
+                            Team Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
+                            idk lol
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/team_management">
+                            <img src="/images/settings_logo.png" alt="Settings Icon">
+                            Settings
+                        </a>
+                    </li>
+                </ul>
             </div>
 
-            <div class="action-buttons">
-                <button id="editUserBtn" class="action-btn edit-btn">Edit User</button>
-                <button id="deactivateBtn" class="action-btn deactivate-btn">Deactivate Selected</button>
-                <div class="add-user-dropdown">
-                    <button id="addUserBtn" class="action-btn add-btn">Add User ▾</button>
-                    <div id="addUserDropdown" class="add-user-options" style="display: none;">
-                        <button class="add-user-option" data-action="upload">Upload CSV File</button>
-                        <button class="add-user-option" data-action="download">Download CSV Template</button>
-                        <button class="add-user-option" data-action="manual">Manually Register User</button>
+            <div class="manager-main-content">
+                <div class="team-management-container">
+                    <!-- Header -->
+                    <div class="team-management-header">
+                        <a href="/manager_dashboard.html" class="back-btn">Back to Manager Dashboard</a>
+                        <h1>Team Management</h1>
                     </div>
-                    <input type="file" id="csvUploadInput" accept=".csv" style="display:none">
+
+                    <!-- Controls Section -->
+                    <div class="controls-section">
+                        <div class="filter-group">
+                            <button id="filterBtn" class="filter-btn">Filter: All</button>
+                            <div id="filterDropdown" class="filter-dropdown" style="display: none;">
+                                <button class="filter-option" data-filter="all">All</button>
+                                <button class="filter-option" data-filter="active">Active</button>
+                                <button class="filter-option" data-filter="inactive">Inactive</button>
+                                <button class="filter-option" data-filter="deactivated">Deactivated</button>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="editUserBtn" class="action-btn edit-btn">Edit User</button>
+                            <button id="deactivateBtn" class="action-btn deactivate-btn">Deactivate Selected</button>
+                            <div class="add-user-dropdown">
+                                <button id="addUserBtn" class="action-btn add-btn">Add User ▾</button>
+                                <div id="addUserDropdown" class="add-user-options" style="display: none;">
+                                    <button class="add-user-option" data-action="upload">Upload CSV File</button>
+                                    <button class="add-user-option" data-action="download">Download CSV Template</button>
+                                    <button class="add-user-option" data-action="manual">Manually Register User</button>
+                                </div>
+                                <input type="file" id="csvUploadInput" accept=".csv" style="display:none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="table-wrapper">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-col">
+                                        <input type="checkbox" id="selectAllCheckbox">
+                                    </th>
+                                    <th>Full Name</th>
+                                    <th>Riot ID</th>
+                                    <th>Position</th>
+                                    <th>Status</th>
+                                    <th>Email Address</th>
+                                    <th>Team Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be populated here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- No Users Message -->
+                    <div id="noUsersMessage" class="no-users-message" style="display: none;">
+                        <p>No users found.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Users Table -->
-        <div class="table-wrapper">
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th class="checkbox-col">
-                            <input type="checkbox" id="selectAllCheckbox">
-                        </th>
-                        <th>Full Name</th>
-                        <th>Riot ID</th>
-                        <th>Position</th>
-                        <th>Status</th>
-                        <th>Email Address</th>
-                        <th>Team Number</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <!-- Users will be populated here by JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- No Users Message -->
-        <div id="noUsersMessage" class="no-users-message" style="display: none;">
-            <p>No users found.</p>
         </div>
 
         <!-- CSV Upload Confirmation Modal -->
@@ -136,6 +193,43 @@
                 <div class="modal-footer">
                     <button id="manualSubmitBtn" class="modal-btn confirm-btn">Register</button>
                     <button id="manualCancelBtn" class="modal-btn cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit User Modal -->
+        <div id="editUserModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit User</h2>
+                    <button class="modal-close" id="editCloseBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="editUserName" style="margin-bottom: 14px;"></p>
+                    <form id="editUserForm">
+                        <div class="form-group">
+                            <label for="editPosition">Position:</label>
+                            <select id="editPosition" style="width:100%;padding:8px;margin:5px 0;">
+                                <option>Team Manager</option>
+                                <option>Team Coach</option>
+                                <option>Player</option>
+                                <option>Sub</option>
+                                <option>Applicant</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStatus">Status:</label>
+                            <select id="editStatus" style="width:100%;padding:8px;margin:5px 0;">
+                                <option>Active</option>
+                                <option>Inactive</option>
+                                <option>Deactivated</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="editSaveBtn" class="modal-btn confirm-btn">Save</button>
+                    <button id="editCancelBtn" class="modal-btn cancel-btn">Cancel</button>
                 </div>
             </div>
         </div>

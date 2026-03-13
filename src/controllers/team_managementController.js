@@ -50,9 +50,15 @@ const getAllUsersWithPlayerData = async (req, res) => {
 const getUsersByStatus = async (req, res) => {
     try {
         const { status } = req.params;
-        const validStatuses = ['Active', 'Inactive', 'Deactivated'];
+        const normalizedStatus = typeof status === 'string' ? status.trim().toLowerCase() : '';
+        const statusMap = {
+            active: 'Active',
+            inactive: 'Inactive',
+            deactivated: 'Deactivated'
+        };
+        const dbStatus = statusMap[normalizedStatus];
 
-        if (!validStatuses.includes(status)) {
+        if (!dbStatus) {
             return res.status(400).send({
                 success: false,
                 message: 'Invalid status'
@@ -75,7 +81,7 @@ const getUsersByStatus = async (req, res) => {
             ORDER BY u.firstname ASC
         `;
 
-        const data = await db.query(query, [status]);
+        const data = await db.query(query, [dbStatus]);
         
         if(!data || data[0].length === 0) {
             return res.status(200).send({
@@ -87,7 +93,7 @@ const getUsersByStatus = async (req, res) => {
 
         res.status(200).send({
             success: true,
-            message: `Users with status: ${status}`,
+            message: `Users with status: ${dbStatus}`,
             data: data[0]
         });
     } catch (error) {
@@ -132,8 +138,69 @@ const deactivateUsers = async (req, res) => {
     }
 };
 
+// UPDATE A SINGLE USER'S POSITION AND STATUS
+const updateUserPositionAndStatus = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { position, status } = req.body;
+
+        const parsedUserId = Number.parseInt(userId, 10);
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            return res.status(400).send({
+                success: false,
+                message: 'Invalid user id'
+            });
+        }
+
+        const validPositions = ['Team Manager', 'Team Coach', 'Player', 'Sub', 'Applicant'];
+        const validStatuses = ['Active', 'Inactive', 'Deactivated'];
+
+        if (!validPositions.includes(position)) {
+            return res.status(400).send({
+                success: false,
+                message: 'Invalid position'
+            });
+        }
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).send({
+                success: false,
+                message: 'Invalid status'
+            });
+        }
+
+        const updateQuery = `
+            UPDATE users
+            SET position = ?, status = ?
+            WHERE userId = ?
+        `;
+
+        const [updateResult] = await db.query(updateQuery, [position, status, parsedUserId]);
+
+        if (!updateResult || updateResult.affectedRows === 0) {
+            return res.status(404).send({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        res.status(200).send({
+            success: true,
+            message: 'User updated successfully'
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: 'Error updating user',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllUsersWithPlayerData,
     getUsersByStatus,
-    deactivateUsers
+    deactivateUsers,
+    updateUserPositionAndStatus
 };

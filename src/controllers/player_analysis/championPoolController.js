@@ -88,7 +88,6 @@ exports.getChampionSummary = async (req, res) => {
             FROM matches m
             JOIN matchParticipants mp ON m.matchId = mp.matchId
             JOIN players p ON p.puuid = mp.puuid
-            CROSS JOIN total_champs tc
             WHERE m.userId = ?
             GROUP BY mp.championName, mp.championId, champ_role
             ORDER BY games DESC,  mp.championName

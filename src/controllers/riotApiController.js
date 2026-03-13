@@ -9,7 +9,8 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 const apiKey = process.env.API_KEY;
 const db = require('../config/database');
 const ROLE_MATCH_LIMIT = 15;
-const ROLE_MATCH_SCAN_LIMIT = 120;
+// const ROLE_MATCH_SCAN_LIMIT = 120;
+const ROLE_MATCH_SCAN_LIMIT = 40;
 const ROLE_MATCH_BATCH_SIZE = 20;
 const RIOT_LIMIT_SHORT = { max: 20, windowMs: 1000 };
 const RIOT_LIMIT_LONG = { max: 100, windowMs: 120000 };
@@ -649,9 +650,12 @@ async function extractParticipantData(matchId, matchData) {
         participants.forEach((participant, index) => {
             // console.log(`[EXTRACT PARTICIPANTS] Processing participant ${index + 1}/${participants.length} - ${participant.riotIdGameName || 'Unknown'}`);
             
+            // Calculate CS
+            const cs =  participant.totalMinionsKilled + participant.wardsKilled;
+
             // Calculate per-minute stats
             const minutesDuration = gameDuration / 60;
-            const csPerMinute = minutesDuration > 0 ? ((participant.minionsKilled || 0) / minutesDuration).toFixed(2) : 0;
+            const csPerMinute = minutesDuration > 0 ? ((cs) / minutesDuration).toFixed(2) : 0;
             const goldPerMinute = minutesDuration > 0 ? ((participant.goldEarned || 0) / minutesDuration).toFixed(2) : 0;
             const visionScorePerMinute = minutesDuration > 0 ? ((participant.visionScore || 0) / minutesDuration).toFixed(3) : 0;
 
@@ -678,7 +682,7 @@ async function extractParticipantData(matchId, matchData) {
                 champLevel: participant.champLevel || null,
                 championId: participant.championId || null,
                 championName: participant.championName || null,
-                creepScore: participant.minionsKilled || 0,
+                creepScore: cs || 0, // added cs calculation (mar 13, Jer)
                 creepScorePerMinute: csPerMinute,
                 damageDealthToBuildings: participant.damageDealtToBuildings || 0,
                 deaths,
@@ -702,7 +706,7 @@ async function extractParticipantData(matchId, matchData) {
                 teamPosition: participant.teamPosition || null,
                 totalDamageDealt: participant.totalDamageDealt || 0,
                 totalDamageTaken: participant.totalDamageTaken || 0,
-                totalMinionsKilled: (participant.minionsKilled || 0) + (participant.neutralMinionsKilled || 0),
+                totalMinionsKilled: participant.totalMinionsKilled || 0,
                 visionScore: participant.visionScore || 0,
                 visionScorePerMinute: visionScorePerMinute,
                 wardsKilled: participant.wardsKilled || 0,
