@@ -1,11 +1,31 @@
-.overlay-container {
-  padding: 20px;
+.overlay {
+  box-sizing: border-box;
+  width: auto;
+  max-width: calc(100% - 30px);
+  margin: 15px;
   background-color: var(--porcelain);
+  padding: 15px;
+  border-radius: 10px;
+  overflow: visible;
+  word-break: break-word;
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+    padding: 12px;
+  }
+}
+
+.overlay-container {
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .overlay-content {
   display: flex;
-  gap: 40px;
+  gap: 20px;
 }
 
 .scrim-list, .times-played-list, .evaluation-form {
