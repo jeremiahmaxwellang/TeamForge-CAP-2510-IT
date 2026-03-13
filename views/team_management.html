@@ -139,6 +139,43 @@
                 </div>
             </div>
         </div>
+
+        <!-- Edit User Modal -->
+        <div id="editUserModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit User</h2>
+                    <button class="modal-close" id="editCloseBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="editUserName" style="margin-bottom: 14px;"></p>
+                    <form id="editUserForm">
+                        <div class="form-group">
+                            <label for="editPosition">Position:</label>
+                            <select id="editPosition" style="width:100%;padding:8px;margin:5px 0;">
+                                <option>Team Manager</option>
+                                <option>Team Coach</option>
+                                <option>Player</option>
+                                <option>Sub</option>
+                                <option>Applicant</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStatus">Status:</label>
+                            <select id="editStatus" style="width:100%;padding:8px;margin:5px 0;">
+                                <option>Active</option>
+                                <option>Inactive</option>
+                                <option>Deactivated</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="editSaveBtn" class="modal-btn confirm-btn">Save</button>
+                    <button id="editCancelBtn" class="modal-btn cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="/js/team_management.js"></script>

@@ -4,6 +4,11 @@
 let allUsers = [];
 let currentFilter = 'all';
 let selectedUsers = new Set();
+let editingUserId = null;
+
+function getCheckedUserCheckboxes() {
+    return Array.from(document.querySelectorAll('.user-checkbox:checked'));
+}
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,12 +55,33 @@ function setupEventListeners() {
 
     // Action buttons
     document.getElementById('editUserBtn').addEventListener('click', () => {
-        if (selectedUsers.size === 0) {
-            alert('Please select a user to edit');
+        const checked = getCheckedUserCheckboxes();
+
+        if (checked.length === 0) {
+            alert('Please select one user to edit');
             return;
         }
-        console.log('Edit user clicked. Selected users:', Array.from(selectedUsers));
-        // Implementation coming soon
+        if (checked.length > 1) {
+            alert('Please select only one user to edit');
+            return;
+        }
+
+        const selectedCheckbox = checked[0];
+        const selectedId = Number.parseInt(selectedCheckbox.dataset.userId, 10);
+        const selectedUser = Number.isInteger(selectedId) ? {
+            userId: selectedId,
+            firstname: selectedCheckbox.dataset.firstname || '',
+            lastname: selectedCheckbox.dataset.lastname || '',
+            position: selectedCheckbox.dataset.position || 'Player',
+            status: selectedCheckbox.dataset.status || 'Active'
+        } : null;
+
+        if (!selectedUser) {
+            alert('Selected user could not be found. Please refresh and try again.');
+            return;
+        }
+
+        showEditUserModal(selectedUser);
     });
 
     document.getElementById('deactivateBtn').addEventListener('click', () => {
@@ -124,6 +150,96 @@ function setupEventListeners() {
         e.preventDefault();
         await registerManualUser();
     });
+
+    // edit user modal buttons
+    const editModal = document.getElementById('editUserModal');
+    const editSaveBtn = document.getElementById('editSaveBtn');
+    const editCancelBtn = document.getElementById('editCancelBtn');
+    const editCloseBtn = document.getElementById('editCloseBtn');
+
+    const closeEdit = () => {
+        editModal.style.display = 'none';
+        delete editModal.dataset.userId;
+        editingUserId = null;
+    };
+
+    editCancelBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeEdit();
+    });
+
+    editCloseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeEdit();
+    });
+
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+            closeEdit();
+        }
+    });
+
+    editSaveBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await saveEditedUser();
+    });
+}
+
+// show modal for editing selected user position and status
+function showEditUserModal(user) {
+    const modal = document.getElementById('editUserModal');
+    editingUserId = String(user.userId);
+    modal.dataset.userId = editingUserId;
+    document.getElementById('editUserName').textContent = `Editing: ${user.firstname} ${user.lastname} (ID: ${user.userId})`;
+    document.getElementById('editPosition').value = user.position;
+    document.getElementById('editStatus').value = user.status;
+    modal.style.display = 'flex';
+}
+
+// save edited position and status for one user
+async function saveEditedUser() {
+    const modal = document.getElementById('editUserModal');
+    const checked = getCheckedUserCheckboxes();
+    const candidateUserId = modal.dataset.userId || editingUserId || (checked[0] && checked[0].dataset.userId);
+    const parsedUserId = Number.parseInt(candidateUserId, 10);
+
+    if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+        alert('No user selected for editing');
+        return;
+    }
+
+    const payload = {
+        position: document.getElementById('editPosition').value,
+        status: document.getElementById('editStatus').value
+    };
+
+    try {
+        const response = await fetch(`/team_management/api/users/${parsedUserId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            alert(result.message || 'Error updating user');
+            return;
+        }
+
+        alert(result.message || 'User updated successfully');
+        modal.style.display = 'none';
+        delete modal.dataset.userId;
+        editingUserId = null;
+        selectedUsers.clear();
+        document.getElementById('selectAllCheckbox').checked = false;
+        await loadUsers(currentFilter);
+    } catch (error) {
+        console.error('Error updating user:', error);
+        alert('Error updating user. Please try again.');
+    }
 }
 
 // Trigger download of a CSV template with headers matching registration fields
@@ -439,15 +555,20 @@ function parseCSVLine(line) {
 // Load users from API
 async function loadUsers(status) {
     try {
+        const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : 'all';
         let url;
-        if (status === 'all') {
+        if (normalizedStatus === 'all') {
             url = '/team_management/api/users';
         } else {
-            url = `/team_management/api/users/status/${status}`;
+            url = `/team_management/api/users/status/${encodeURIComponent(normalizedStatus)}`;
         }
 
         const response = await fetch(url);
         const result = await response.json();
+
+        // Keep selection state aligned with the currently rendered table.
+        selectedUsers.clear();
+        document.getElementById('selectAllCheckbox').checked = false;
 
         if (result.success || result.data) {
             allUsers = result.data;
@@ -480,7 +601,14 @@ function renderUsersTable(users) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td class="checkbox-col">
-                <input type="checkbox" class="user-checkbox" data-userId="${user.userId}">
+                <input
+                    type="checkbox"
+                    class="user-checkbox"
+                    data-user-id="${user.userId}"
+                    data-firstname="${user.firstname}"
+                    data-lastname="${user.lastname}"
+                    data-position="${user.position}"
+                    data-status="${user.status}">
             </td>
             <td>${user.firstname} ${user.lastname}</td>
             <td>${user.riotId}</td>
