@@ -9,7 +9,8 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 const apiKey = process.env.API_KEY;
 const db = require('../config/database');
 const ROLE_MATCH_LIMIT = 15;
-const ROLE_MATCH_SCAN_LIMIT = 120;
+// const ROLE_MATCH_SCAN_LIMIT = 120;
+const ROLE_MATCH_SCAN_LIMIT = 40;
 const ROLE_MATCH_BATCH_SIZE = 20;
 const RIOT_LIMIT_SHORT = { max: 20, windowMs: 1000 };
 const RIOT_LIMIT_LONG = { max: 100, windowMs: 120000 };
