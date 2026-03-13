@@ -6,6 +6,57 @@
   const FETCH_INTERVAL = 1 * 60 * 1000; // 1 minute
   let lastFetchTime = null;
 
+  // Sample Function for Listing Match History
+  // function renderMatches(matches) {
+  //   const container = document.getElementById('match-list');
+
+  //   matches.forEach(match => {
+  //     // 1. Calculate Helpers
+  //     const durationMin = Math.floor(match.gameDuration / 60);
+  //     const durationSec = match.gameDuration % 60;
+  //     const kdaRatio = ((match.kills + match.assists) / Math.max(1, match.deaths)).toFixed(2);
+  //     const resultClass = match.win ? "win" : "loss";
+  //     const resultText = match.win ? "Victory" : "Defeat";
+
+  //     // 2. Create Card
+  //     const card = document.createElement('div');
+  //     card.className = `match-card ${resultClass}`;
+
+  //     card.innerHTML = `
+  //       <div class="game-info">
+  //           <div class="queue-type">${match.queueType}</div>
+  //           <div class="game-result">${resultText}</div>
+  //           <div class="duration">${durationMin}m ${durationSec}s</div>
+  //       </div>
+
+  //       <div class="champ-info">
+  //           <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${match.championName}.png" class="champ-icon" onerror="this.src='https://via.placeholder.com/50'">
+  //           <div class="champ-name">${match.championName}</div>
+  //       </div>
+
+  //       <div class="kda-info">
+  //           <div class="kda-score">${match.kills} / <span style="color:#e84057">${match.deaths}</span> / ${match.assists}</div>
+  //           <div class="kda-ratio"><span>${kdaRatio}:1</span> KDA</div>
+  //       </div>
+
+  //       <div class="stats-info">
+  //           <div class="stat-row">CS ${match.cs} (${(match.cs / durationMin).toFixed(1)})</div>
+  //           <div class="stat-row">Gold ${match.gold.toLocaleString()}</div>
+  //       </div>
+
+  //       <div class="items-info">
+  //           ${match.items.map(itemId => `
+  //           <div class="item-box">
+  //               ${itemId !== 0 ? `<img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/${itemId}.png">` : ''}
+  //           </div>
+  //           `).join('')}
+  //       </div>
+  //       `;
+
+  //     container.appendChild(card);
+  //   });
+  // }
+
   // Fetch stored stats when tab loads
   async function loadStoredBenchmarks(userId, roleId) {
     if (!userId || !roleId) return;
@@ -18,7 +69,7 @@
       if (data.success) {
         console.log("[OVERLAY] ✅ Performance Score:", data.performanceScore);
         console.log("[OVERLAY] ✅ Stored Data:", data.comparison);
-        
+
         // OPTIONAL: If you want to update the UI immediately, you can call a function here
         // e.g., if (window.updateComparisonUI) window.updateComparisonUI(data);
       } else {
@@ -447,11 +498,11 @@
 
               const btn = document.getElementById("player-dropdown-btn");
               if (btn) {
-                  const userId = btn.getAttribute("data-player-id");
-                  // Default to Role 1 if missing, just for testing
-                  const roleId = btn.getAttribute("data-primary-role-id") || 1; 
-                  
-                  loadStoredBenchmarks(userId, roleId);
+                const userId = btn.getAttribute("data-player-id");
+                // Default to Role 1 if missing, just for testing
+                const roleId = btn.getAttribute("data-primary-role-id") || 1;
+
+                loadStoredBenchmarks(userId, roleId);
               }
             }
 
@@ -475,7 +526,7 @@
               setupOverviewRoleDropdown();
 
               refreshOverviewStats(false);
-              
+
               // Update display with cached data if available
               console.log("[OVERVIEW] Updating display with cached data");
               if (PA.cache.winrateData) {
