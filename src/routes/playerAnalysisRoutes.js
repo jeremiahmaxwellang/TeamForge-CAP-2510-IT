@@ -22,6 +22,9 @@ router.get('/players/:id', playerController.getPlayerById);
 // Update puuid
 router.put('/players/:id/puuid', playerController.updatePuuid);
 
+// Get both roles of a player
+router.get('/players/:id/roles', overviewController.getPlayerRoles);
+
 // Champion Pool backend
 router.get('/players/:id/champion_pool', championPoolController.getChampionPool);
 
@@ -42,7 +45,6 @@ router.post('/players/:playerId/:scrimId/evaluation', scrimsController.createEva
 // ============= SUMMARY ROUTES =============
 
 // Get overview summary
-
 router.get('/players/:id/overview_summary', overviewController.getOverviewSummary);
 
 // Get champ pool summary

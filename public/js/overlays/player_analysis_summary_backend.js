@@ -44,5 +44,14 @@
         });
   };
 
+  
+  Backend.fetchPlayerRoles = async function (playerId) {
+    return fetch(`/player_analysis/players/${playerId}/roles`)
+        .then((res) => {
+            if(!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            return res.json();
+        });
+  };
+
   window.SummaryBackend = Backend;
 })();

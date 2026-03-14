@@ -1,11 +1,16 @@
 (function () {
 	const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 	const FILTER_ROLES = ['All', ...ROLE_ORDER];
+	const RESULT_FILTERS = ['All', 'W', 'L', 'N/A'];
 
 	const state = {
 		players: [],
 		tournaments: [],
+		roleById: {},
 		filter: 'All',
+		resultFilter: 'All',
+		selectedTournamentId: null,
+		editingTournamentId: null,
 		team1: {
 			Top: null,
 			Jungle: null,
@@ -23,10 +28,12 @@
 	};
 
 	const createTournamentBtn = document.getElementById('createTournamentBtn');
+	const editTournamentBtn = document.getElementById('editTournamentBtn');
 	const modalOverlay = document.getElementById('modalOverlay');
 	const closeModalBtn = document.getElementById('closeModalBtn');
 	const cancelModalBtn = document.getElementById('cancelModalBtn');
 	const confirmTournamentBtn = document.getElementById('confirmTournamentBtn');
+	const modalTitle = document.getElementById('modalTitle');
 
 	const tournamentNameInput = document.getElementById('tournamentNameInput');
 	const tournamentDateInput = document.getElementById('tournamentDateInput');
@@ -35,11 +42,122 @@
 	const team1Roster = document.getElementById('team1Roster');
 	const subRoster = document.getElementById('subRoster');
 	const roleFilterGroup = document.getElementById('roleFilterGroup');
+	const resultFilterGroup = document.getElementById('resultFilterGroup');
 	const playersGrid = document.getElementById('playersGrid');
 	const tournamentList = document.getElementById('tournamentList');
 
-	const openModal = () => {
+	const syncSelectedTournamentUI = () => {
+		document.querySelectorAll('.tournament-card').forEach((listCard) => {
+			const cardTournamentId = Number.parseInt(listCard.dataset.tournamentId, 10);
+			const isSelected = cardTournamentId === state.selectedTournamentId;
+
+			listCard.classList.toggle('selected', isSelected);
+
+			const checkbox = listCard.querySelector('.card-select-checkbox');
+			if (checkbox) {
+				checkbox.checked = isSelected;
+			}
+		});
+
+		if (editTournamentBtn) {
+			editTournamentBtn.disabled = !state.selectedTournamentId;
+		}
+	};
+
+	const openCreateModal = () => {
+		state.editingTournamentId = null;
+		modalTitle.textContent = 'Create Tournament';
+		confirmTournamentBtn.textContent = 'Confirm';
 		resetModalState();
+		renderRosters();
+		renderFilters();
+		renderPlayers();
+		modalOverlay.classList.remove('hidden');
+		modalOverlay.setAttribute('aria-hidden', 'false');
+	};
+
+	const getTournamentById = (tournamentId) =>
+		state.tournaments.find((item) => item.tournamentId === tournamentId) || null;
+
+	const buildEditablePlayer = (assignment) => {
+		const playerId = Number.parseInt(assignment.playerId, 10);
+		const roleId = Number.parseInt(assignment.roleId, 10);
+		const matchingPlayer = state.players.find((player) => player.userId === playerId);
+
+		if (matchingPlayer) {
+			return matchingPlayer;
+		}
+
+		return {
+			userId: playerId,
+			name: assignment.playerName,
+			primaryRole: assignment.role,
+			secondaryRole: null,
+			primaryRoleId: Number.isInteger(roleId) ? roleId : null,
+			secondaryRoleId: null
+		};
+	};
+
+	const resolveAssignmentRole = (assignment) => {
+		if (ROLE_ORDER.includes(assignment.role)) {
+			return assignment.role;
+		}
+
+		const parsedRoleId = Number.parseInt(assignment.roleId, 10);
+		if (Number.isInteger(parsedRoleId) && state.roleById[parsedRoleId]) {
+			return state.roleById[parsedRoleId];
+		}
+
+		return null;
+	};
+
+	const openEditModal = () => {
+		if (!state.selectedTournamentId) {
+			alert('Please select a tournament to edit.');
+			return;
+		}
+
+		const tournament = getTournamentById(state.selectedTournamentId);
+		if (!tournament) {
+			alert('Selected tournament could not be found.');
+			return;
+		}
+
+		state.editingTournamentId = tournament.tournamentId;
+		modalTitle.textContent = 'Edit Tournament';
+		confirmTournamentBtn.textContent = 'Save Changes';
+
+		resetModalState();
+		tournamentNameInput.value = tournament.name || '';
+
+		const rawTournamentDate = String(tournament.tournamentDate || '').slice(0, 10);
+		if (rawTournamentDate) {
+			tournamentDateInput.value = rawTournamentDate;
+		} else {
+			const parsedDate = tournament.tournamentDate ? new Date(tournament.tournamentDate) : null;
+			tournamentDateInput.value =
+				parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString().slice(0, 10) : '';
+		}
+
+		const normalizedResult = (tournament.result || '').toUpperCase();
+		tournamentResultSelect.value = RESULT_FILTERS.includes(normalizedResult) ? normalizedResult : 'N/A';
+
+		tournament.assignments.forEach((assignment) => {
+			const resolvedRole = resolveAssignmentRole(assignment);
+			if (!resolvedRole) return;
+
+			const player = buildEditablePlayer({
+				...assignment,
+				role: resolvedRole
+			});
+			if (assignment.team === 'Sub') {
+				state.sub[resolvedRole] = player;
+				return;
+			}
+
+			state.team1[resolvedRole] = player;
+		});
+
 		renderRosters();
 		renderFilters();
 		renderPlayers();
@@ -50,6 +168,7 @@
 	const closeModal = () => {
 		modalOverlay.classList.add('hidden');
 		modalOverlay.setAttribute('aria-hidden', 'true');
+		state.editingTournamentId = null;
 	};
 
 	const resetModalState = () => {
@@ -166,6 +285,25 @@
 		});
 	};
 
+	const renderResultFilters = () => {
+		if (!resultFilterGroup) return;
+
+		resultFilterGroup.innerHTML = '';
+
+		RESULT_FILTERS.forEach((filterValue) => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = `filter-btn ${state.resultFilter === filterValue ? 'active' : ''}`;
+			button.textContent = filterValue;
+			button.addEventListener('click', () => {
+				state.resultFilter = filterValue;
+				renderResultFilters();
+				renderTournamentList();
+			});
+			resultFilterGroup.appendChild(button);
+		});
+	};
+
 	const attachRemoveHandlers = () => {
 		document.querySelectorAll('.remove-assignment').forEach((button) => {
 			button.addEventListener('click', () => {
@@ -263,6 +401,7 @@
 		const name = tournamentNameInput.value.trim();
 		const tournamentDate = tournamentDateInput.value;
 		const result = tournamentResultSelect.value;
+		const isEditMode = Number.isInteger(state.editingTournamentId) && state.editingTournamentId > 0;
 
 		if (!name) {
 			alert('Please enter a tournament name.');
@@ -283,8 +422,13 @@
 		const assignments = toAssignments();
 
 		try {
-			const response = await fetch('/tournament/api/create', {
-				method: 'POST',
+			const endpoint = isEditMode
+				? `/tournament/api/${state.editingTournamentId}`
+				: '/tournament/api/create';
+			const method = isEditMode ? 'PUT' : 'POST';
+
+			const response = await fetch(endpoint, {
+				method,
 				headers: {
 					'Content-Type': 'application/json'
 				},
@@ -298,71 +442,129 @@
 
 			const data = await response.json();
 			if (!response.ok || !data.success) {
-				alert(data.message || 'Failed to create tournament.');
+				alert(data.message || 'Failed to save tournament.');
 				return;
+			}
+
+			if (data.tournamentId) {
+				state.selectedTournamentId = Number.parseInt(data.tournamentId, 10);
 			}
 
 			closeModal();
 			await loadTournaments();
 		} catch (error) {
-			console.error('Create tournament failed', error);
-			alert('Failed to create tournament. Please try again.');
+			console.error('Save tournament failed', error);
+			alert('Failed to save tournament. Please try again.');
 		}
 	};
 
 	const renderTournamentList = () => {
 		tournamentList.innerHTML = '';
 
-		if (!state.tournaments.length) {
+		if (
+			state.selectedTournamentId &&
+			!state.tournaments.some((tournament) => tournament.tournamentId === state.selectedTournamentId)
+		) {
+			state.selectedTournamentId = null;
+		}
+
+		if (editTournamentBtn) {
+			editTournamentBtn.disabled = !state.selectedTournamentId;
+		}
+
+		const filteredTournaments = state.tournaments.filter((tournament) => {
+			if (state.resultFilter === 'All') return true;
+			return (tournament.result || '').toUpperCase() === state.resultFilter;
+		});
+
+		if (!filteredTournaments.length) {
 			tournamentList.innerHTML = '<div class="empty-state">No tournaments yet.</div>';
 			return;
 		}
 
-		state.tournaments.forEach((tournament) => {
+		filteredTournaments.forEach((tournament) => {
 			const card = document.createElement('article');
-			card.className = 'tournament-card';
+			card.dataset.tournamentId = String(tournament.tournamentId);
+			card.className = `tournament-card ${
+				state.selectedTournamentId === tournament.tournamentId ? 'selected' : ''
+			}`;
 
-			const head = document.createElement('button');
-			head.type = 'button';
+			const head = document.createElement('div');
 			head.className = 'tournament-card-head';
+
+			const isSelectedTournament = state.selectedTournamentId === tournament.tournamentId;
 			head.innerHTML = `
-				<h3>${tournament.name}</h3>
-				<span class="toggle-indicator">Show details</span>
+				<div class="card-head-left">
+					<input
+						type="checkbox"
+						class="card-select-checkbox"
+						aria-label="Select ${tournament.name} for editing"
+						${isSelectedTournament ? 'checked' : ''}
+					/>
+					<h3>${tournament.name}</h3>
+				</div>
+				<button type="button" class="details-toggle-btn">
+					<span class="toggle-indicator">Show details</span>
+				</button>
 			`;
 
 			const body = document.createElement('div');
 			body.className = 'tournament-card-body hidden';
 
-			const rows = tournament.assignments
-				.map(
-					(item) => `
-						<tr>
-							<td>${item.playerName}</td>
-							<td>${item.team}</td>
-							<td>${item.role}</td>
-						</tr>
-					`
-				)
-				.join('');
+			const buildTeamRows = (teamName) => {
+				const roleMap = new Map();
+				tournament.assignments
+					.filter((item) => item.team === teamName)
+					.forEach((item) => {
+						roleMap.set(item.role, item.playerName);
+					});
+
+				return ROLE_ORDER.map((role) => {
+					const playerName = roleMap.get(role);
+					return `
+						<div class="detail-role-row">
+							<span class="detail-role-name">${role}</span>
+							${
+								playerName
+									? `<span class="detail-player-chip">${playerName}</span>`
+									: '<span class="detail-empty">No player</span>'
+							}
+						</div>
+					`;
+				}).join('');
+			};
 
 			body.innerHTML = `
 				<div class="meta-row">
 					<span>Date: ${new Date(tournament.tournamentDate).toLocaleDateString()}</span>
 					<span>Result: ${tournament.result}</span>
 				</div>
-				<table class="assignment-table">
-					<thead>
-						<tr>
-							<th>Player</th>
-							<th>Team</th>
-							<th>Role</th>
-						</tr>
-					</thead>
-					<tbody>${rows || '<tr><td colspan="3">No assignments</td></tr>'}</tbody>
-				</table>
+				<div class="details-teams-layout">
+					<section class="detail-team-column">
+						<h4>Team 1</h4>
+						${buildTeamRows('Team 1')}
+					</section>
+					<section class="detail-team-column">
+						<h4>Sub</h4>
+						${buildTeamRows('Sub')}
+					</section>
+				</div>
 			`;
 
-			head.addEventListener('click', () => {
+			const selectionCheckbox = head.querySelector('.card-select-checkbox');
+			selectionCheckbox.addEventListener('change', () => {
+				if (selectionCheckbox.checked) {
+					state.selectedTournamentId = tournament.tournamentId;
+				} else if (state.selectedTournamentId === tournament.tournamentId) {
+					state.selectedTournamentId = null;
+				}
+
+				syncSelectedTournamentUI();
+			});
+
+			const detailsToggleBtn = head.querySelector('.details-toggle-btn');
+			detailsToggleBtn.addEventListener('click', () => {
+
 				const isHidden = body.classList.contains('hidden');
 				body.classList.toggle('hidden');
 				head.querySelector('.toggle-indicator').textContent = isHidden ? 'Hide details' : 'Show details';
@@ -387,6 +589,17 @@
 			primaryRoleId: Number.parseInt(player.primaryRoleId, 10),
 			secondaryRoleId: Number.parseInt(player.secondaryRoleId, 10)
 		}));
+
+		state.roleById = {};
+		state.players.forEach((player) => {
+			if (Number.isInteger(player.primaryRoleId) && player.primaryRole) {
+				state.roleById[player.primaryRoleId] = player.primaryRole;
+			}
+
+			if (Number.isInteger(player.secondaryRoleId) && player.secondaryRole) {
+				state.roleById[player.secondaryRoleId] = player.secondaryRole;
+			}
+		});
 	};
 
 	const loadTournaments = async () => {
@@ -397,12 +610,24 @@
 			throw new Error(data.message || 'Failed to load tournaments');
 		}
 
-		state.tournaments = data.data;
+		state.tournaments = data.data.map((tournament) => ({
+			...tournament,
+			tournamentId: Number.parseInt(tournament.tournamentId, 10),
+			assignments: (tournament.assignments || []).map((assignment) => ({
+				...assignment,
+				playerId: Number.parseInt(assignment.playerId, 10),
+				roleId: Number.parseInt(assignment.roleId, 10)
+			}))
+		}));
 		renderTournamentList();
 	};
 
 	const init = async () => {
-		createTournamentBtn.addEventListener('click', openModal);
+		createTournamentBtn.addEventListener('click', openCreateModal);
+		if (editTournamentBtn) {
+			editTournamentBtn.addEventListener('click', openEditModal);
+			editTournamentBtn.disabled = true;
+		}
 		closeModalBtn.addEventListener('click', closeModal);
 		cancelModalBtn.addEventListener('click', closeModal);
 		confirmTournamentBtn.addEventListener('click', confirmTournament);
@@ -416,6 +641,7 @@
 		document.body.addEventListener('dragover', (event) => event.preventDefault());
 
 		try {
+			renderResultFilters();
 			await loadPlayers();
 			await loadTournaments();
 		} catch (error) {

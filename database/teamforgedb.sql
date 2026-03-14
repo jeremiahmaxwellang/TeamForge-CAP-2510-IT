@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
   `position` ENUM('Team Manager', 'Team Coach', 'Player', 'Sub', 'Applicant') NOT NULL,
   `discord` VARCHAR(45) NULL,
   `status` ENUM('Active', 'Inactive', 'Deactivated') NOT NULL,
-  `firstLogin` BOOLEAN DEFAULT 1,
   `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `firstLogin` TINYINT NULL DEFAULT 1,
   PRIMARY KEY (`userId`))
 ENGINE = InnoDB;
 
@@ -304,29 +304,6 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `teamforgedb`.`championPool`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`championPool` (
-  `userId` INT UNSIGNED NOT NULL,
-  `championId` INT NOT NULL,
-  `championName` VARCHAR(45) NULL,
-  `games` INT NULL,
-  `winrate` DECIMAL(6,2) NULL,
-  `kda` DECIMAL(6,2) NULL,
-  `creepScorePerMinute` DECIMAL(6,2) NULL,
-  `goldPerMinute` DECIMAL(6,2) NULL,
-  `damagePerMinute` DECIMAL(6,2) NULL,
-  `killParticipation` DECIMAL(6,2) NULL,
-  PRIMARY KEY (`userId`, `championId`),
-  CONSTRAINT `fk_championPool_players1`
-    FOREIGN KEY (`userId`)
-    REFERENCES `teamforgedb`.`players` (`userId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `teamforgedb`.`teamDetails`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`teamDetails` (
@@ -359,7 +336,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`playerStatistics` (
   `userId` INT UNSIGNED NOT NULL,
   `metricId` INT NOT NULL,
   `roleId` INT NOT NULL,
-  `metricValue` BIGINT NULL,
+  `metricValue` DOUBLE NULL,
   `recordedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`userId`, `metricId`, `roleId`),
   INDEX `fk_playerStatistics_metrics1_idx` (`metricId` ASC) VISIBLE,
@@ -391,7 +368,6 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrimPlayers` (
   `roleId` INT NULL,
   `teamId` ENUM('1', '2') NULL,
   `win` ENUM('W', 'L') NULL,
-  `enemyPlayerIGN` VARCHAR(100) NULL,
   PRIMARY KEY (`scrimId`, `playerId`),
   INDEX `fk_scrimPlayers_players1_idx` (`playerId` ASC) VISIBLE,
   INDEX `fk_scrimPlayers_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
@@ -412,22 +388,6 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrimPlayers` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
--- -----------------------------------------------------
--- Table `teamforgedb`.`applicantEvaluations`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantEvaluations` (
-  `evaluationId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `userId` INT UNSIGNED NOT NULL, 
-  `coachId` INT UNSIGNED NOT NULL, 
-  `comment` LONGTEXT NULL,
-  `ratingGameSense` INT NULL,
-  `ratingCommunication` INT NULL,
-  `ratingChampionPool` INT NULL,
-  `evaluatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`evaluationId`),
-  CONSTRAINT `fk_appEval_applicant` FOREIGN KEY (`userId`) REFERENCES `teamforgedb`.`users` (`userId`),
-  CONSTRAINT `fk_appEval_coach` FOREIGN KEY (`coachId`) REFERENCES `teamforgedb`.`users` (`userId`)
-) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `teamforgedb`.`tournaments`
@@ -466,6 +426,34 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournament_players` (
   CONSTRAINT `fk_tournament_players_leagueRoles1`
     FOREIGN KEY (`roleId`)
     REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`applicantEvaluations`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantEvaluations` (
+  `evaluationId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `userId` INT UNSIGNED NOT NULL,
+  `coachId` INT UNSIGNED NOT NULL,
+  `comment` LONGTEXT NULL,
+  `ratingGameSense` INT NULL,
+  `ratingCommunication` INT NULL,
+  `ratingChampionPool` INT NULL,
+  `evaluatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`evaluationId`),
+  INDEX `fk_applicantEvaluations_players1_idx` (`userId` ASC) VISIBLE,
+  INDEX `fk_applicantEvaluations_players2_idx` (`coachId` ASC) VISIBLE,
+  CONSTRAINT `fk_applicantEvaluations_players1`
+    FOREIGN KEY (`userId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_applicantEvaluations_players2`
+    FOREIGN KEY (`coachId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
