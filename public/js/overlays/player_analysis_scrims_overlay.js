@@ -140,10 +140,18 @@ window.initScrimsTab = function (userId) {
         .catch((err) => console.error("[SCRIMS] ✗ Error loading times played:", err));
   }
 
+  function resetEvaluationForm() {
+    [...document.querySelectorAll('input[name="gameSense"], input[name="communication"], input[name="champPool"]')]
+      .forEach(input => input.checked = false);
+
+    document.getElementById("coachComment").value = "";
+  }
+
   function updateEvaluation(scrimId) {
     // Load existing evaluation
     Backend.fetchEvaluation(userId, scrimId)
       .then((evalData) => {
+        resetEvaluationForm();
 
         document.getElementById("player-evaluation-title").innerHTML = `Evaluation: ${evalData.playerName}`;
 
@@ -156,18 +164,13 @@ window.initScrimsTab = function (userId) {
         if (evalData.ratingChampionPool) {
           document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
         }
-        if (evalData.comment) {
-          document.getElementById("coachComment").value = evalData.comment;
-        }
+        document.getElementById("coachComment").value = evalData.comment || "";
         console.log("[EVALUATION] ✓ Form pre-filled with evaluation data");
       })
       .catch((err) => {
         console.error("[EVALUATION] Error loading evaluation:", err);
 
-        [...document.querySelectorAll('input[name="gameSense"], input[name="communication"], input[name="champPool"]')] 
-          .forEach(input => input.checked = false);
-
-        document.getElementById("coachComment").value = "";
+        resetEvaluationForm();
     });
   }
 
@@ -200,10 +203,11 @@ window.initScrimsTab = function (userId) {
         alert("Evaluation saved!");
         const evalData = result.evaluation;
         if (evalData) {
+          resetEvaluationForm();
           document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
           document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
           document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
-          document.getElementById("coachComment").value = evalData.comment;
+          document.getElementById("coachComment").value = evalData.comment || "";
         }
       } else {
         alert("Error: " + result.error);
