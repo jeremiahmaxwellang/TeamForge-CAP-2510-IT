@@ -26,14 +26,33 @@
 .overlay-content {
   display: flex;
   gap: 20px;
+  align-items: flex-start;
 }
 
 .scrim-list, .times-played-list, .evaluation-form {
   flex: 1;
 }
 
+.scrim-list,
+.times-played-list,
+.player-evaluation-card {
+  align-self: flex-start;
+}
+
 .times-played-list {
-  width: 250px;
+  width: auto;
+}
+
+.times-played-list h2 {
+  margin: 0;
+  padding-top: 5px;
+  padding-bottom: 10px;
+}
+
+.scrim-list h2 {
+  margin: 0;
+  padding-top: 5px;
+  padding-bottom: 10px;
 }
 
 .scrim-table {
@@ -113,13 +132,28 @@
  /* --- START EVALUATION STYLES --- */
 
   /* The main container for the evaluation card */
+  .overlay-container h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: var(--carbon-black); /* Header color from Figma variables */
+  }
+
+  .playerEvaluationHeader h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
   .player-evaluation-card {
     background-color: #fff;
     border-radius: 20px;
     padding: 30px;
     max-width: 600px;
     /* If putting this in a dashboard, remove 'margin: 20px auto' */
-    margin: 20px auto; 
+    margin: 0; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
@@ -128,8 +162,9 @@
   .player-evaluation-card h2 {
     font-size: 24px;
     font-weight: 700;
-    margin-bottom: 25px;
-    color: #000;
+    margin-top: 0;
+    margin-bottom: 0;
+    color: var(--carbon-black);
   }
 
   /* Grid layout for the 1-5 rating system */
@@ -187,7 +222,7 @@
   }
   
   .radio-group input[type="radio"]:checked:hover {
-    background-color: #000;
+    background-color: var(--carbon-black);
   }
 
   /* Comment Box Styling */
@@ -223,8 +258,8 @@
   
   .confirm-btn {
     background-color: #fff;
-    border: 2px solid #000;
-    color: #000;
+    border: 2px solid var(--carbon-black);
+    color: var(--carbon-black);
     padding: 10px 30px;
     font-size: 16px;
     font-weight: 600;
@@ -234,7 +269,7 @@
   }
 
   .confirm-btn:hover {
-    background-color: #000;
+    background-color: var(--carbon-black);
     color: #fff;
   }
 
