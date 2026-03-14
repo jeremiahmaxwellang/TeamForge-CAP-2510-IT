@@ -41,9 +41,16 @@
   border-collapse: collapse;
 }
 
+.scrim-table,
+.times-played-table {
+  background-color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+}
+
 .scrim-table th, .scrim-table td {
   border: 1px solid #ddd;
   padding: 8px;
+  word-break: keep-all;
 }
 
 .scrim-win {
@@ -74,6 +81,10 @@
 
 .times-played-row {
   background-color: #d6d6d6;
+}
+
+.times-played-row th {
+  word-break: keep-all;
 }
 
 .rating-group {
