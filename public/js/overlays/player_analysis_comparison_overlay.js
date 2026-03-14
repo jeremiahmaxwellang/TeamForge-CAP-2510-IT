@@ -368,7 +368,9 @@ window.initComparisonTab = function () {
     } else {
         maxScale = FALLBACK_SCALES[statId] || 10;
     }
-    return Math.min((Number(playerValue) / maxScale) * 10, 10);
+    const numVal = Number(playerValue);
+    const computed = (isNaN(numVal) ? 0 : numVal) / (maxScale || 10) * 10;
+    return Math.min(isNaN(computed) ? 0 : computed, 10);
   }
 
   function updateComparison() {

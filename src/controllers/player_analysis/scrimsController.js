@@ -122,16 +122,28 @@ exports.createEvaluation = async (req, res) => {
             INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
             VALUES
             (?, ?, ?, ?, ?, ?, ?)
-            AS new
             ON DUPLICATE KEY UPDATE
-                comment = new.comment,
-                ratingGameSense = new.ratingGameSense, 
-                ratingCommunication = new.ratingCommunication, 
-                ratingChampionPool = new.ratingChampionPool, 
-                coachId = new.coachId
+                comment = ?,
+                ratingGameSense = ?, 
+                ratingCommunication = ?, 
+                ratingChampionPool = ?, 
+                coachId = ?
         `;
 
-        await db.query(sql, [scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId]);
+        await db.query(sql, [
+            scrimId,
+            playerId,
+            comment,
+            ratingGameSense,
+            ratingCommunication,
+            ratingChampionPool,
+            coachId,
+            comment,
+            ratingGameSense,
+            ratingCommunication,
+            ratingChampionPool,
+            coachId
+        ]);
 
         // Fetch the updated eval
         const [rows] = await db.query(fetchEval, [playerId, scrimId]); 
@@ -144,7 +156,7 @@ exports.createEvaluation = async (req, res) => {
         console.log("Eval saved:", rows[0]);
 
     } catch (err) { 
-        console.error("Error fetching evaluation:", err); 
+        console.error("Error saving evaluation:", err); 
         res.status(500).json({ error: "Internal server error" });
     }
 }
