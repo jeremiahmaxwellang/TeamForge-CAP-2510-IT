@@ -36,6 +36,28 @@ const mapRoleName = (value) => {
 	return mapping[normalized] || null;
 };
 
+const normalizeRoleId = (roleIdValue, roleNameValue) => {
+	const parsedRoleId = Number.parseInt(roleIdValue, 10);
+	if (Number.isInteger(parsedRoleId) && parsedRoleId > 0) {
+		return parsedRoleId;
+	}
+
+	const normalizedRoleName = mapRoleName(roleNameValue);
+	if (!normalizedRoleName) {
+		return null;
+	}
+
+	const fallbackRoleIdByName = {
+		Top: 1,
+		Jungle: 2,
+		Mid: 3,
+		ADC: 4,
+		Support: 5
+	};
+
+	return fallbackRoleIdByName[normalizedRoleName] || null;
+};
+
 const getTournamentPlayers = async (req, res) => {
 	try {
 		const query = `
@@ -189,7 +211,7 @@ const createTournament = async (req, res) => {
 
 		for (const item of assignments) {
 			const playerId = Number.parseInt(item.playerId, 10);
-			const roleId = Number.parseInt(item.roleId, 10);
+			const roleId = normalizeRoleId(item.roleId, item.role);
 			const isSub = item.team === 'Sub' ? 'Y' : 'N';
 
 			if (!Number.isInteger(playerId) || playerId <= 0) {
@@ -201,7 +223,7 @@ const createTournament = async (req, res) => {
 				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 				VALUES (?, ?, ?, ?)
 				`,
-				[tournamentId, playerId, Number.isInteger(roleId) ? roleId : null, isSub]
+				[tournamentId, playerId, roleId, isSub]
 			);
 		}
 
@@ -218,6 +240,165 @@ const createTournament = async (req, res) => {
 		return res.status(500).send({
 			success: false,
 			message: 'Error creating tournament',
+			error: error.message
+		});
+	} finally {
+		connection.release();
+	}
+};
+
+const updateTournament = async (req, res) => {
+	const connection = await db.getConnection();
+
+	try {
+		const tournamentId = Number.parseInt(req.params.tournamentId, 10);
+		const { name, tournamentDate, result, assignments } = req.body;
+
+		if (!Number.isInteger(tournamentId) || tournamentId <= 0) {
+			return res.status(400).send({
+				success: false,
+				message: 'Valid tournament ID is required'
+			});
+		}
+
+		if (!name || !String(name).trim()) {
+			return res.status(400).send({
+				success: false,
+				message: 'Tournament name is required'
+			});
+		}
+
+		const normalizedDate = toIsoDate(tournamentDate);
+		if (!normalizedDate) {
+			return res.status(400).send({
+				success: false,
+				message: 'Valid tournament date is required'
+			});
+		}
+
+		const normalizedResult = normalizeResult(result);
+		if (!normalizedResult) {
+			return res.status(400).send({
+				success: false,
+				message: 'Result must be W, L, or N/A'
+			});
+		}
+
+		if (!Array.isArray(assignments) || assignments.length === 0) {
+			return res.status(400).send({
+				success: false,
+				message: 'Player assignments are required'
+			});
+		}
+
+		const teamOneAssignments = assignments.filter((item) => item.team === 'Team 1');
+		const validTeamRoles = new Set(teamOneAssignments.map((item) => item.role));
+		const hasAllRoles = ROLE_ORDER.every((role) => validTeamRoles.has(role));
+
+		const teamRoleKeys = new Set();
+		const playerIds = new Set();
+		for (const item of assignments) {
+			const assignmentTeam = item.team === 'Sub' ? 'Sub' : 'Team 1';
+			const assignmentRole = String(item.role || '').trim();
+			const assignmentPlayerId = Number.parseInt(item.playerId, 10);
+			const teamRoleKey = `${assignmentTeam}:${assignmentRole}`;
+
+			if (!ROLE_ORDER.includes(assignmentRole)) {
+				return res.status(400).send({
+					success: false,
+					message: 'Invalid role received in assignments'
+				});
+			}
+
+			if (teamRoleKeys.has(teamRoleKey)) {
+				return res.status(400).send({
+					success: false,
+					message: 'Only one player per role per team is allowed'
+				});
+			}
+
+			if (!Number.isInteger(assignmentPlayerId) || assignmentPlayerId <= 0) {
+				return res.status(400).send({
+					success: false,
+					message: 'Invalid player assignment received'
+				});
+			}
+
+			if (playerIds.has(assignmentPlayerId)) {
+				return res.status(400).send({
+					success: false,
+					message: 'A player can only be assigned once per tournament'
+				});
+			}
+
+			teamRoleKeys.add(teamRoleKey);
+			playerIds.add(assignmentPlayerId);
+		}
+
+		if (!hasAllRoles) {
+			return res.status(400).send({
+				success: false,
+				message: 'Team 1 must include Top, Jungle, Mid, ADC, and Support'
+			});
+		}
+
+		await connection.beginTransaction();
+
+		const [existingRows] = await connection.query(
+			`SELECT tournamentId FROM tournaments WHERE tournamentId = ? LIMIT 1`,
+			[tournamentId]
+		);
+
+		if (!existingRows.length) {
+			await connection.rollback();
+			return res.status(404).send({
+				success: false,
+				message: 'Tournament not found'
+			});
+		}
+
+		await connection.query(
+			`
+			UPDATE tournaments
+			SET name = ?, startDate = ?, endDate = ?, win = ?
+			WHERE tournamentId = ?
+			`,
+			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult, tournamentId]
+		);
+
+		await connection.query(`DELETE FROM tournament_players WHERE tournamentId = ?`, [tournamentId]);
+
+		for (const item of assignments) {
+			const playerId = Number.parseInt(item.playerId, 10);
+			const roleId = normalizeRoleId(item.roleId, item.role);
+			const isSub = item.team === 'Sub' ? 'Y' : 'N';
+
+			if (!Number.isInteger(playerId) || playerId <= 0) {
+				throw new Error('Invalid player assignment received');
+			}
+
+			await connection.query(
+				`
+				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+				VALUES (?, ?, ?, ?)
+				`,
+				[tournamentId, playerId, roleId, isSub]
+			);
+		}
+
+		await connection.commit();
+
+		return res.status(200).send({
+			success: true,
+			message: 'Tournament updated successfully',
+			tournamentId
+		});
+	} catch (error) {
+		await connection.rollback();
+		console.log(error);
+		return res.status(500).send({
+			success: false,
+			message: 'Error updating tournament',
 			error: error.message
 		});
 	} finally {
@@ -265,6 +446,7 @@ const getTournaments = async (req, res) => {
 				grouped.get(row.tournamentId).assignments.push({
 					playerId: row.playerId,
 					playerName: `${row.firstname || ''} ${row.lastname || ''}`.trim(),
+					roleId: row.roleId,
 					team: row.isSub === 'Y' ? 'Sub' : 'Team 1',
 					role: mapRoleName(row.roleName) || 'Unknown'
 				});
@@ -288,5 +470,6 @@ const getTournaments = async (req, res) => {
 module.exports = {
 	getTournamentPlayers,
 	createTournament,
+	updateTournament,
 	getTournaments
 };
