@@ -228,7 +228,7 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
 
 };
 
-// SUMMARY TAB
+// ============== SUMMARY TAB ==============
 const overviewSummary = 
 `
 SELECT
@@ -263,4 +263,30 @@ exports.getOverviewSummary = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Gets both roles of a player
+exports.getPlayerRoles = async (req, res) => {
+    try {
+        const playerId = req.params.id;
+
+        const [results] = await db.query(
+            `SELECT
+                p.primaryRoleId, r1.displayedRole AS displayedRole1, r1.role AS role1, r1.teamPosition AS teamPosition1,
+                p.secondaryRoleId, r2.displayedRole AS displayedRole2, r2.role AS role2, r2.teamPosition AS teamPosition2
+            FROM players p
+            JOIN leagueRoles r1 ON r1.roleId = p.primaryRoleId
+            JOIN leagueRoles r2 ON r2.roleId = p.secondaryRoleId
+            WHERE p.userId = ?`,
+            [playerId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'Player not found' });
+        }
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+
 

@@ -10,6 +10,9 @@ window.initSummaryTab = function (userId) {
 
   const recText = document.querySelector(".rec-text");
 
+  // Player Data
+  let [playerRoles] = [];
+
   // Scrims Elements
   const totalGames = document.querySelector("#total-games");
   let averageGameSense = 0.0;
@@ -19,6 +22,13 @@ window.initSummaryTab = function (userId) {
   // Champion Elements
   const totalChamps = document.querySelector("#total-champs");
   const champTableBody = document.querySelector("#champ-table tbody");
+
+  const rolesPromise = Backend.fetchPlayerRoles(userId)
+    .then((roles) => {
+      playerRoles = [...roles];
+      console.log("playerRoles ")
+      console.log(playerRoles);
+  });
 
   const totalChampsPromise = Backend.fetchTotalChampions(userId)
     .then((item) => {
@@ -88,7 +98,6 @@ window.initSummaryTab = function (userId) {
         averageGameSense = parseFloat(item.averageGameSense);
         averageComms = parseFloat(item.averageComms);
         averageChampionPool = parseFloat(item.averageChampionPool);
-        console.log(averageComms);
 
         const row = document.createElement("tr");
 
@@ -138,8 +147,6 @@ window.initSummaryTab = function (userId) {
     })
     .catch((err) => console.error("[SUMMARY] ✗ Error loading comms summary:", err));
 
-
-
   const championPromise = Backend.fetchChampionPool(userId)
     .then((championPool) => {
       champTableBody.innerHTML = "";
@@ -169,8 +176,6 @@ window.initSummaryTab = function (userId) {
       // TODO: Get player name and primary role
       let recommendation = `Player ${userId} has`;
 
-      console.log(averageComms);
-
       // Ranked
       // TODO: Ranked summary with creep score for all roles except support (needs calculation in overview/riotapi controller)
 
@@ -184,8 +189,6 @@ window.initSummaryTab = function (userId) {
       else if(averageComms > 2.5 && averageComms != 0) {
         recommendation = recommendation.concat(` has good communication during scrims (${averageComms})` )
       }
-
-      console.log(recommendation);
 
       if(recommendation) {
         recText.textContent = recommendation;
