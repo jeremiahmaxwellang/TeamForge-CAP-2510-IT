@@ -1,10 +1,31 @@
+.overlay {
+  box-sizing: border-box;
+  width: auto;
+  max-width: calc(100% - 30px);
+  margin: 15px;
+  background-color: var(--porcelain);
+  padding: 15px;
+  border-radius: 10px;
+  overflow: visible;
+  word-break: break-word;
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+    padding: 12px;
+  }
+}
+
 .overlay-container {
-  padding: 20px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .overlay-content {
   display: flex;
-  gap: 40px;
+  gap: 20px;
 }
 
 .scrim-list, .times-played-list, .evaluation-form {
@@ -17,12 +38,22 @@
 
 .scrim-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.scrim-table,
+.times-played-table {
+  background-color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
 }
 
 .scrim-table th, .scrim-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 5px;
+  word-break: keep-all;
 }
 
 .scrim-win {
@@ -34,20 +65,33 @@
 }
 
 .scrim-selected {
-  background-color: #36c9ff; /* blue */
+  background-color: #1f77b4; /* selected row blue */
+}
+
+.scrim-selected th,
+.scrim-selected td {
+  border-color: #1f77b4;
 }
 
 .times-played-table {
   width: 250px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.times-played th, .times-played td {
+.times-played-table th, .times-played-table td {
   border: 1px solid #202020;
-  padding: 8px;
+  padding: 5px;
 }
 
 .times-played-row {
   background-color: #d6d6d6;
+}
+
+.times-played-row th {
+  word-break: keep-all;
 }
 
 .rating-group {

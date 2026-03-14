@@ -8,6 +8,25 @@ window.initScrimsTab = function (userId) {
     return;
   }
 
+  function formatScrimDate(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    const dateLine = date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC"
+    });
+    const timeLine = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "UTC"
+    });
+    return `${dateLine},<br>${timeLine}`;
+  }
+
   console.log("[SCRIMS] Tab logic initialized for user:", userId);
 
   const form = document.getElementById("evalForm");
@@ -59,7 +78,7 @@ window.initScrimsTab = function (userId) {
             row.innerHTML = `
               <td>${index + 1}</td>
               <td>${scrim.name}</td>
-              <td>${scrim.date}</td>
+              <td>${formatScrimDate(scrim.date)}</td>
               <td>${scrim.length}</td>
               <td>${scrim.playerId}</td>
               <td>${scrim.win || ""}</td>
