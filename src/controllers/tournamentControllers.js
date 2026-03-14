@@ -28,6 +28,7 @@ const mapRoleName = (value) => {
 		adc: 'ADC',
 		bottom: 'ADC',
 		bot: 'ADC',
+		utility: 'Support',
 		support: 'Support',
 		sup: 'Support'
 	};

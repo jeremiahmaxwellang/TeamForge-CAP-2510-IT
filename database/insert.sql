@@ -113,6 +113,16 @@ VALUES
     'Player',
     'not#applicable',
     'Active'
+),
+(
+    13,
+    'maria_santos@gmail.com',
+    '1234',
+    'Maria',
+    'Santos',
+    'Player',
+    'maria#support',
+    'Active'
 );
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId)
@@ -225,6 +235,22 @@ VALUES
     'BSIT',
     '2.1',
     '1.9',
+    '2nd Year',
+    'F',
+    1
+),
+(
+    13,
+    'VA Lumi',
+    'ph',
+    'Emerald II',
+    'Diamond IV',
+    5,
+    4,
+    '12412345',
+    'BSIT',
+    '3.3',
+    '3.2',
     '2nd Year',
     'F',
     1

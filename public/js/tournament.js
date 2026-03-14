@@ -333,33 +333,44 @@
 			const body = document.createElement('div');
 			body.className = 'tournament-card-body hidden';
 
-			const rows = tournament.assignments
-				.map(
-					(item) => `
-						<tr>
-							<td>${item.playerName}</td>
-							<td>${item.team}</td>
-							<td>${item.role}</td>
-						</tr>
-					`
-				)
-				.join('');
+			const buildTeamRows = (teamName) => {
+				const roleMap = new Map();
+				tournament.assignments
+					.filter((item) => item.team === teamName)
+					.forEach((item) => {
+						roleMap.set(item.role, item.playerName);
+					});
+
+				return ROLE_ORDER.map((role) => {
+					const playerName = roleMap.get(role);
+					return `
+						<div class="detail-role-row">
+							<span class="detail-role-name">${role}</span>
+							${
+								playerName
+									? `<span class="detail-player-chip">${playerName}</span>`
+									: '<span class="detail-empty">No player</span>'
+							}
+						</div>
+					`;
+				}).join('');
+			};
 
 			body.innerHTML = `
 				<div class="meta-row">
 					<span>Date: ${new Date(tournament.tournamentDate).toLocaleDateString()}</span>
 					<span>Result: ${tournament.result}</span>
 				</div>
-				<table class="assignment-table">
-					<thead>
-						<tr>
-							<th>Player</th>
-							<th>Team</th>
-							<th>Role</th>
-						</tr>
-					</thead>
-					<tbody>${rows || '<tr><td colspan="3">No assignments</td></tr>'}</tbody>
-				</table>
+				<div class="details-teams-layout">
+					<section class="detail-team-column">
+						<h4>Team 1</h4>
+						${buildTeamRows('Team 1')}
+					</section>
+					<section class="detail-team-column">
+						<h4>Sub</h4>
+						${buildTeamRows('Sub')}
+					</section>
+				</div>
 			`;
 
 			head.addEventListener('click', () => {
