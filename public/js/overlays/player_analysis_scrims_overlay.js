@@ -91,6 +91,7 @@ window.initScrimsTab = function (userId) {
 
               row.setAttribute("data-scrim-id", scrim.scrimId);
               dropdownBtn.textContent = scrim.name;
+              scrimIdInput.value = scrim.scrimId;
               updateEvaluation(scrim.scrimId);
               
             });
@@ -102,7 +103,8 @@ window.initScrimsTab = function (userId) {
 
           if (scrims.length > 0) { 
             const firstScrimId = scrims[0].scrimId; 
-            this.selectedScrimId = firstScrimId;
+            scrimIdInput.value = firstScrimId;
+            dropdownBtn.textContent = scrims[0].name;
             updateEvaluation(firstScrimId);
           }
         })
