@@ -1,11 +1,13 @@
 (function () {
 	const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 	const FILTER_ROLES = ['All', ...ROLE_ORDER];
+	const RESULT_FILTERS = ['All', 'W', 'L', 'N/A'];
 
 	const state = {
 		players: [],
 		tournaments: [],
 		filter: 'All',
+		resultFilter: 'All',
 		team1: {
 			Top: null,
 			Jungle: null,
@@ -35,6 +37,7 @@
 	const team1Roster = document.getElementById('team1Roster');
 	const subRoster = document.getElementById('subRoster');
 	const roleFilterGroup = document.getElementById('roleFilterGroup');
+	const resultFilterGroup = document.getElementById('resultFilterGroup');
 	const playersGrid = document.getElementById('playersGrid');
 	const tournamentList = document.getElementById('tournamentList');
 
@@ -163,6 +166,25 @@
 			}
 
 			playersGrid.appendChild(card);
+		});
+	};
+
+	const renderResultFilters = () => {
+		if (!resultFilterGroup) return;
+
+		resultFilterGroup.innerHTML = '';
+
+		RESULT_FILTERS.forEach((filterValue) => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = `filter-btn ${state.resultFilter === filterValue ? 'active' : ''}`;
+			button.textContent = filterValue;
+			button.addEventListener('click', () => {
+				state.resultFilter = filterValue;
+				renderResultFilters();
+				renderTournamentList();
+			});
+			resultFilterGroup.appendChild(button);
 		});
 	};
 
@@ -313,12 +335,17 @@
 	const renderTournamentList = () => {
 		tournamentList.innerHTML = '';
 
-		if (!state.tournaments.length) {
+		const filteredTournaments = state.tournaments.filter((tournament) => {
+			if (state.resultFilter === 'All') return true;
+			return (tournament.result || '').toUpperCase() === state.resultFilter;
+		});
+
+		if (!filteredTournaments.length) {
 			tournamentList.innerHTML = '<div class="empty-state">No tournaments yet.</div>';
 			return;
 		}
 
-		state.tournaments.forEach((tournament) => {
+		filteredTournaments.forEach((tournament) => {
 			const card = document.createElement('article');
 			card.className = 'tournament-card';
 
@@ -427,6 +454,7 @@
 		document.body.addEventListener('dragover', (event) => event.preventDefault());
 
 		try {
+			renderResultFilters();
 			await loadPlayers();
 			await loadTournaments();
 		} catch (error) {
