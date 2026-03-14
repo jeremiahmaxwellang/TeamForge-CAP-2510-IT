@@ -7,16 +7,21 @@
 	<link rel="stylesheet" href="/css/style.css">
 	<link rel="stylesheet" href="/css/tournament.css">
 </head>
-<body>
+<body class="tournament-body">
 	<main class="tournament-page">
 		<section class="tournament-panel">
 			<header class="tournament-header">
 				<h1>Tournament Management</h1>
 				<div class="tournament-actions">
 					<button id="createTournamentBtn" class="btn btn-primary" type="button">Create Tournament</button>
-					<span class="edit-team-label">Edit Team</span>
+					<button id="editTournamentBtn" class="btn" type="button">Edit Tournament</button>
 				</div>
 			</header>
+
+			<div class="list-filters">
+				<span class="list-filters-label">Result Filter</span>
+				<div id="resultFilterGroup" class="result-filter-group"></div>
+			</div>
 
 			<section id="tournamentList" class="tournament-list"></section>
 		</section>

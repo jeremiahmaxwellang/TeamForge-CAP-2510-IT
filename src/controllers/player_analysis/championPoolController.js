@@ -12,8 +12,8 @@ exports.getChampionPool = async (req, res) => {
         const sql = `
         SELECT mp.championName, mp.championId, COUNT(*) AS games, 
         CASE 
-            WHEN mp.role = 'CARRY' AND mp.teamPosition = 'BOT' THEN 'ADC'
-            WHEN mp.role = 'SUPPORT' AND mp.teamPosition = 'UTILITY' THEN 'SUPPORT'
+            WHEN mp.teamPosition = 'BOT' THEN 'ADC'
+            WHEN mp.teamPosition = 'UTILITY' THEN 'SUPPORT'
             ELSE mp.teamPosition
         END AS champ_role,
         CONCAT(ROUND(AVG(CASE WHEN mp.win = 'W' THEN 1 ELSE 0 END) * 100, 1), '%') AS winrate,

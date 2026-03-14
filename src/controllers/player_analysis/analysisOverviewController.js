@@ -228,13 +228,13 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
 
 };
 
-// SUMMARY TAB
+// ============== SUMMARY TAB ==============
 const overviewSummary = 
 `
 SELECT
 	CASE 
-		WHEN mp.role = 'CARRY' AND mp.teamPosition = 'BOT' THEN 'ADC'
-		WHEN mp.role = 'SUPPORT' AND mp.teamPosition = 'UTILITY' THEN 'SUPPORT'
+		WHEN mp.teamPosition = 'BOTTOM' THEN 'ADC'
+		WHEN mp.teamPosition = 'UTILITY' THEN 'SUPPORT'
 		ELSE mp.teamPosition
 	END AS champ_role,
     COUNT(*) AS games,
@@ -242,18 +242,29 @@ SELECT
     COUNT(CASE WHEN mp.win = 'L' THEN 1 END) AS losses,
 	ROUND(AVG(mp.kills), 1) AS avgKills,
 	ROUND(AVG(mp.deaths), 1) AS avgDeaths,
-	ROUND(AVG(mp.assists), 1) AS avgAssists
+	ROUND(AVG(mp.assists), 1) AS avgAssists,
+    ROUND(AVG(mp.creepScorePerMinute), 1) AS avgCsm
 FROM matchParticipants mp
 JOIN players p ON mp.puuid = p.puuid
+LEFT JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
+LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
 WHERE p.userId = ?
 GROUP BY champ_role
+ORDER BY
+	CASE 
+		WHEN champ_role = r1.teamPosition THEN 1
+        WHEN champ_role = r2.teamPosition THEN 2
+        ELSE 3
+	END, 
+    champ_role
 `;
 
 exports.getOverviewSummary = async (req, res) => {
     try {
         const playerId = req.params.id;
+        const teamPosition = req.params.position;
 
-        const [results] = await db.query(overviewSummary, [playerId]);
+        const [results] = await db.query(overviewSummary, [playerId, teamPosition]);
 
         if (results.length === 0) {
             return res.status(404).json({ message: 'Player not found' });
@@ -263,4 +274,30 @@ exports.getOverviewSummary = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Gets both roles of a player
+exports.getPlayerRoles = async (req, res) => {
+    try {
+        const playerId = req.params.id;
+
+        const [results] = await db.query(
+            `SELECT
+                p.primaryRoleId, r1.displayedRole AS displayedRole1, r1.role AS role1, r1.teamPosition AS teamPosition1,
+                p.secondaryRoleId, r2.displayedRole AS displayedRole2, r2.role AS role2, r2.teamPosition AS teamPosition2
+            FROM players p
+            JOIN leagueRoles r1 ON r1.roleId = p.primaryRoleId
+            JOIN leagueRoles r2 ON r2.roleId = p.secondaryRoleId
+            WHERE p.userId = ?`,
+            [playerId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'Player not found' });
+        }
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+
 
