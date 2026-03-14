@@ -38,7 +38,10 @@
 
 .scrim-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .scrim-table,
@@ -49,7 +52,7 @@
 
 .scrim-table th, .scrim-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 5px;
   word-break: keep-all;
 }
 
@@ -72,11 +75,15 @@
 
 .times-played-table {
   width: 250px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.times-played th, .times-played td {
+.times-played-table th, .times-played-table td {
   border: 1px solid #202020;
-  padding: 8px;
+  padding: 5px;
 }
 
 .times-played-row {
