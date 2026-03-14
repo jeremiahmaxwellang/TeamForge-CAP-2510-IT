@@ -23,7 +23,7 @@ body {
 
 /* Sidebar styles */
 .sidebar {
-    width: 150px;
+    width: fit-content;
     background-color: var(--carbon-black); /* Sidebar background color from Figma variables */
     padding: 10px;
     height: auto;
@@ -48,11 +48,11 @@ body {
     flex-direction: column; /* Stack the image and text vertically */
     align-items: center; /* Center the content inside the link */
     justify-content: center; /* Ensure items are centered inside the <a> */
-    width: 100%;
+    width: 150px;
 }
 
 .sidebar ul li a img {
-    width: 50%; /* Adjust image size */
+    width: 25%; /* Adjust image size */
     height: auto; /* Maintain aspect ratio */
     margin-bottom: 5px; /* Space between image and text */
     transition: filter 0.3s ease; /* Smooth transition for the image */

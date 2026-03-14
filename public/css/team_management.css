@@ -74,7 +74,7 @@ body {
 }
 
 .manager-sidebar {
-    width: 150px;
+    width: fit-content;
     background-color: var(--carbon-black);
     padding: 10px;
     height: auto;
@@ -99,11 +99,11 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 150px;
 }
 
 .manager-sidebar ul li a img {
-    width: 50%;
+    width: 25%;
     height: auto;
     margin-bottom: 5px;
     transition: filter 0.3s ease;
