@@ -43,6 +43,15 @@
   width: auto;
 }
 
+.times-played-table-frame {
+  width: 250px;
+  background-color: #fff;
+  border: 1px solid #202020;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+}
+
 .times-played-list h2 {
   margin: 0;
   padding-top: 5px;
@@ -93,16 +102,26 @@
 }
 
 .times-played-table {
-  width: 250px;
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
 }
 
 .times-played-table th, .times-played-table td {
-  border: 1px solid #202020;
+  border-right: 1px solid #202020;
+  border-bottom: 1px solid #202020;
   padding: 5px;
+}
+
+.times-played-table tr > *:last-child {
+  border-right: none;
+}
+
+.times-played-table tbody tr:last-child > * {
+  border-bottom: none;
 }
 
 .times-played-row {
