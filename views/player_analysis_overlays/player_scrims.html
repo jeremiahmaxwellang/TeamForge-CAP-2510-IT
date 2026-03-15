@@ -22,23 +22,25 @@
         <!-- Left Side: Player Communication Stats Table -->
         <div class="times-played-list">
           <h2>Player Communication Stats</h2>
-          
-          <table class="times-played-table">
-              <thead>
-                <tr class="times-played-row">
-                  <th>Player</th>
-                  <th>Games</th>
-                  <th>Avg Comms</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="times-played-row">
-                  <th>No player found.</th>
-                  <th></th>
-                  <th></th>
-                </tr>
-              </tbody>
-            </table>
+
+          <div class="times-played-table-frame">
+            <table class="times-played-table">
+                <thead>
+                  <tr class="times-played-row">
+                    <th>Player</th>
+                    <th>Games</th>
+                    <th>Avg Comms</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="times-played-row">
+                    <th>No player found.</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
         </div>
 
         <!-- Middle Side: Scrim Matches Table -->
@@ -67,9 +69,10 @@
 
         <!-- Right Side: Player Evaluation Form -->
         <div class="playerEvaluationHeader">
-          <h2 id="player-evaluation-title">Player Evaluation</h2>
+          <h2>Player Evaluation</h2>
         <div class="player-evaluation-card">
           <form id="evalForm">
+            <h3 id="player-evaluation-title">Player to Evaluate: </h3>
             <div class="dropdown">
               <button class="dropdown-btn" id="scrimsDropdownBtn">Select a Scrim</button>
               <div class="dropdown-content" id="scrimsDropdownContent">
