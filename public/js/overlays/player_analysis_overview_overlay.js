@@ -6,6 +6,62 @@
   const FETCH_INTERVAL = 1 * 60 * 1000; // 1 minute
   let lastFetchTime = null;
 
+  if (typeof window.logMissingOverviewItemIcon !== "function") {
+    window.logMissingOverviewItemIcon = function (itemId, imageUrl, matchId) {
+      if (!window.__overviewMissingItemIds) {
+        window.__overviewMissingItemIds = new Set();
+      }
+
+      const missingKey = `${itemId}`;
+      if (window.__overviewMissingItemIds.has(missingKey)) return;
+      window.__overviewMissingItemIds.add(missingKey);
+
+      console.error("[ITEM ICON] Missing item image", {
+        itemId,
+        matchId,
+        imageUrl
+      });
+    };
+  }
+
+  if (typeof window.logMissingOverviewSpellIcon !== "function") {
+    window.logMissingOverviewSpellIcon = function (spellId, spellName, imageUrl, matchId) {
+      if (!window.__overviewMissingSpellIds) {
+        window.__overviewMissingSpellIds = new Set();
+      }
+
+      const missingKey = `${spellId}`;
+      if (window.__overviewMissingSpellIds.has(missingKey)) return;
+      window.__overviewMissingSpellIds.add(missingKey);
+
+      console.error("[SPELL ICON] Missing summoner spell image", {
+        spellId,
+        spellName,
+        matchId,
+        imageUrl
+      });
+    };
+  }
+
+  if (typeof window.logMissingOverviewPerkIcon !== "function") {
+    window.logMissingOverviewPerkIcon = function (perkId, perkName, imageUrl, matchId) {
+      if (!window.__overviewMissingPerkIds) {
+        window.__overviewMissingPerkIds = new Set();
+      }
+
+      const missingKey = `${perkId}`;
+      if (window.__overviewMissingPerkIds.has(missingKey)) return;
+      window.__overviewMissingPerkIds.add(missingKey);
+
+      console.error("[PERK ICON] Missing perk image", {
+        perkId,
+        perkName,
+        matchId,
+        imageUrl
+      });
+    };
+  }
+
   // Sample Function for Listing Match History
   // function renderMatches(matches) {
   //   const container = document.getElementById('match-list');
@@ -295,6 +351,183 @@
       requestAnimationFrame(() => api.updateWinrateDisplay(PA.cache.winrateData));
     }
 
+    function timeAgo(timestamp) {
+      const diff = Date.now() - timestamp;
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+      const months = Math.floor(days / 30);
+      if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
+      if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+      if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      return `${Math.max(minutes, 1)} minute${minutes !== 1 ? 's' : ''} ago`;
+    }
+
+    function renderMatchHistory(matches, puuid) {
+      const container = document.getElementById('match-list');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!matches || matches.length === 0) {
+        container.innerHTML = '<div class="no-matches">No match history found.</div>';
+        return;
+      }
+
+      const SUMMONER_SPELL_MAP = {
+        1: 'SummonerBoost', 3: 'SummonerExhaust', 4: 'SummonerFlash',
+        6: 'SummonerHaste', 7: 'SummonerHeal', 11: 'SummonerSmite',
+        12: 'SummonerTeleport', 13: 'SummonerMana', 14: 'SummonerDot',
+        21: 'SummonerBarrier', 32: 'SummonerSnowball', 39: 'SummonerSnowURFSnowball_Mark'
+      };
+
+      const PERK_ICON_MAP = {
+        8005: 'Styles/Precision/PressTheAttack/PressTheAttack.png',
+        8008: 'Styles/Precision/LethalTempo/LethalTempoTemp.png',
+        8021: 'Styles/Precision/FleetFootwork/FleetFootwork.png',
+        8010: 'Styles/Precision/Conqueror/Conqueror.png',
+        8112: 'Styles/Domination/Electrocute/Electrocute.png',
+        8124: 'Styles/Domination/Predator/Predator.png',
+        8128: 'Styles/Domination/DarkHarvest/DarkHarvest.png',
+        9923: 'Styles/Domination/HailOfBlades/HailOfBlades.png',
+        8229: 'Styles/Sorcery/ArcaneComet/ArcaneComet.png',
+        8230: 'Styles/Sorcery/PhaseRush/PhaseRush.png',
+        8214: 'Styles/Sorcery/SummonAery/SummonAery.png',
+        8437: 'Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.png',
+        8439: 'Styles/Resolve/VeteranAftershock/VeteranAftershock.png',
+        8465: 'Styles/Resolve/Guardian/Guardian.png',
+        8351: 'Styles/Inspiration/GlacialAugment/GlacialAugment.png',
+        8358: 'Styles/Inspiration/MasterKey/MasterKey.png',
+        8360: 'Styles/Inspiration/UnsealedSpellbook/UnsealedSpellbook.png',
+        8369: 'Styles/Inspiration/FirstStrike/FirstStrike.png'
+      };
+
+      const PERK_STYLE_ICON_MAP = {
+        8000: 'Styles/7201_Precision.png',
+        8100: 'Styles/7200_Domination.png',
+        8200: 'Styles/7202_Sorcery.png',
+        8300: 'Styles/7203_Whimsy.png',
+        8400: 'Styles/7204_Resolve.png'
+      };
+
+      matches.forEach((match, index) => {
+        if (!match?.info?.participants) return;
+        const player = match.info.participants.find(p => p.puuid === puuid);
+        if (!player) return;
+        const isWin = player.win;
+        const duration = match.info.gameDuration || 0;
+        const matchId = match?.metadata?.matchId || 'unknown-match';
+        const durationMin = Math.floor(duration / 60);
+        const durationSec = duration % 60;
+        const kdaRatio = ((player.kills + player.assists) / Math.max(1, player.deaths)).toFixed(2);
+        const totalCs = Number(player.totalMinionsKilled ?? player.cs ?? 0);
+        const visionScore = Number(player.visionScore ?? player.vision ?? 0);
+        const csPerMin = durationMin > 0 ? (totalCs / durationMin).toFixed(1) : '0.0';
+        const queueNames = { 420: 'Ranked Solo', 440: 'Ranked Flex', 450: 'ARAM', 430: 'Normal', 0: 'Custom' };
+        const queueName = queueNames[match.info.queueId] || 'Normal';
+        const gameDate = match.info.gameStartTimestamp ? timeAgo(match.info.gameStartTimestamp) : '';
+        const allies = match.info.participants.filter(p => p.teamId === player.teamId && p.puuid !== puuid);
+        const enemies = match.info.participants.filter(p => p.teamId !== player.teamId);
+        const makeTeamCol = (players) => players.slice(0, 4).map(p => `
+          <div class="mc-teammate">
+            <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${p.championName}.png"
+                 alt="${p.championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
+            <span class="mc-teammate-name">${(p.riotIdGameName || p.summonerName || '').substring(0, 10)}</span>
+          </div>`).join('');
+        // Items: always render 8 slots, but keep bought items first so empty slots stay on the right.
+        const rawItemIds = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6]
+          .map((value) => Number(value) || 0);
+        const boughtItemIds = rawItemIds.filter((value) => value > 0);
+        const emptySlotCount = Math.max(0, 8 - boughtItemIds.length);
+        const itemIds = [...boughtItemIds, ...Array(emptySlotCount).fill(0)].slice(0, 8);
+        const makeItemSlot = (id) => {
+          const itemId = Number(id);
+          if (!itemId || itemId <= 0) return `<span class="mc-item-empty"></span>`;
+          return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
+        };
+        const itemRow = itemIds.map(makeItemSlot).join('');
+        const spellImg = (id) => {
+          const name = SUMMONER_SPELL_MAP[id];
+          const imageUrl = name
+            ? `https://ddragon.leagueoflegends.com/cdn/16.5.1/img/spell/${name}.png`
+            : null;
+
+          if (name && imageUrl) {
+            console.log("[SPELL ICON] Rendering summoner spell image", {
+              spellId: id,
+              spellName: name,
+              matchId,
+              imageUrl
+            });
+          }
+
+          return name
+            ? `<img src="${imageUrl}" class="mc-spell-icon" title="${name.replace('Summoner', '')}" onerror="window.logMissingOverviewSpellIcon && window.logMissingOverviewSpellIcon(${id}, '${name}', this.src, '${matchId}');this.style.display='none'">`
+            : `<span class="mc-spell-empty"></span>`;
+        };
+
+        const primaryPerkId = Number(player.perks?.styles?.[0]?.selections?.[0]?.perk) || 0;
+        const secondaryStyleId = Number(player.perks?.styles?.[1]?.style) || 0;
+
+        const perkImg = (id, type) => {
+          const perkId = Number(id) || 0;
+          if (!perkId) return `<span class="mc-perk-empty"></span>`;
+
+          const imagePath = type === 'keystone' ? PERK_ICON_MAP[perkId] : PERK_STYLE_ICON_MAP[perkId];
+          const primaryUrl = imagePath
+            ? `https://ddragon.leagueoflegends.com/cdn/img/perk-images/${imagePath}`
+            : null;
+          const fallbackUrl = imagePath
+            ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${imagePath.toLowerCase()}`
+            : null;
+          const perkLabel = type === 'keystone' ? `Keystone ${perkId}` : `Secondary ${perkId}`;
+
+          return primaryUrl
+            ? `<img src="${primaryUrl}" class="mc-perk-icon" title="${perkLabel}" data-fallback-src="${fallbackUrl || ''}" onerror="const fallback=this.getAttribute('data-fallback-src');if(fallback && this.src!==fallback){this.src=fallback;this.removeAttribute('data-fallback-src');return;}window.logMissingOverviewPerkIcon && window.logMissingOverviewPerkIcon(${perkId}, '${perkLabel}', this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-perk-empty&quot;></span>'">`
+            : `<span class="mc-perk-empty"></span>`;
+        };
+
+        const champLevel = player.champLevel || '';
+        const card = document.createElement('div');
+        card.className = `match-card ${isWin ? 'mc-win' : 'mc-loss'}`;
+        card.innerHTML = `
+          <div class="mc-meta">
+            <div class="mc-queue">${queueName}</div>
+            <div class="mc-date">${gameDate}</div>
+            <div class="mc-result ${isWin ? 'mc-win-text' : 'mc-loss-text'}">${isWin ? 'WIN' : 'LOSS'} ${durationMin}:${String(durationSec).padStart(2, '0')}</div>
+          </div>
+          <div class="mc-champ-col">
+            <div class="mc-champ-wrapper">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${player.championName}.png"
+                   alt="${player.championName}" class="mc-champ-icon" onerror="this.src='/images/sample_hero.png'">
+              ${champLevel ? `<span class="mc-champ-level">${champLevel}</span>` : ''}
+            </div>
+            <div class="mc-summoner-spells">
+              ${spellImg(player.summoner1Id)}
+              ${spellImg(player.summoner2Id)}
+            </div>
+            <div class="mc-perk-icons">
+              ${perkImg(primaryPerkId, 'keystone')}
+              ${perkImg(secondaryStyleId, 'style')}
+            </div>
+          </div>
+          <div class="mc-items">
+            <div class="mc-items-row">${itemRow}</div>
+          </div>
+          <div class="mc-kda">
+            <div class="mc-kda-scores">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
+            <div class="mc-kda-ratio">${kdaRatio} KDA</div>
+          </div>
+          <div class="mc-cs-vision">
+            <div class="mc-cs">${totalCs} CS (${csPerMin})</div>
+            <div class="mc-vision">${visionScore} vision</div>
+          </div>
+          <div class="mc-teams">
+            <div class="mc-team-col">${makeTeamCol(allies)}</div>
+            <div class="mc-team-col">${makeTeamCol(enemies)}</div>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
     function refreshOverviewStats(useRiotApi = false) {
       const btn = document.getElementById("player-dropdown-btn");
       const puuid = btn?.getAttribute("data-puuid");
@@ -304,7 +537,10 @@
 
       const matchFetch = useRiotApi ? api.fetchRecentMatches : api.fetchRecentMatchesFromDatabase;
       matchFetch(puuid, state.currentQueueId, selectedTeamPosition)
-        .then(() => api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition))
+        .then(() => {
+          renderMatchHistory(PA.cache.matches, puuid);
+          return api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition);
+        })
         .then(() => redrawWinrateFromCache())
         .catch((err) => console.error("[OVERVIEW] Error refreshing recent matches:", err));
     }
@@ -537,6 +773,10 @@
               }
               if (PA.cache.topChampions) {
                 api.updateChampionDisplay(PA.cache.topChampions);
+              }
+              if (PA.cache.matches) {
+                const cachedPuuid = document.getElementById("player-dropdown-btn")?.getAttribute("data-puuid");
+                if (cachedPuuid) renderMatchHistory(PA.cache.matches, cachedPuuid);
               }
             }
 
