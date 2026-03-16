@@ -50,7 +50,8 @@ async function fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, limit 
 
     let sql = `
         SELECT m.*, mp.puuid, mp.kills, mp.deaths, mp.assists, mp.win,
-               mp.championName, mp.queueId, mp.champLevel, mp.goldEarned
+               mp.championName, mp.queueId, mp.champLevel, mp.goldEarned,
+               mp.item0, mp.item1, mp.item2, mp.item3, mp.item4, mp.item5, mp.item6
         FROM matches m
         JOIN matchParticipants mp ON m.matchId = mp.matchId
         WHERE mp.puuid = ? AND mp.teamPosition = ?
@@ -225,7 +226,14 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
                     championName: row.championName,
                     queueId: row.queueId,
                     champLevel: row.champLevel,
-                    goldEarned: row.goldEarned
+                    goldEarned: row.goldEarned,
+                    item0: row.item0,
+                    item1: row.item1,
+                    item2: row.item2,
+                    item3: row.item3,
+                    item4: row.item4,
+                    item5: row.item5,
+                    item6: row.item6
                 }]
             }
         }));
