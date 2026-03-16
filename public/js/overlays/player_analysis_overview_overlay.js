@@ -368,8 +368,7 @@
           if (!itemId || itemId <= 0) return `<span class="mc-item-empty"></span>`;
           return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
         };
-        const itemRow1 = itemIds.slice(0, 4).map(makeItemSlot).join('');
-        const itemRow2 = itemIds.slice(4, 8).map(makeItemSlot).join('');
+        const itemRow = itemIds.map(makeItemSlot).join('');
         // Summoner spell ID → DDragon spell key mapping
         const SUMMONER_SPELL_MAP = {
           1: 'SummonerBoost', 3: 'SummonerExhaust', 4: 'SummonerFlash',
@@ -404,8 +403,7 @@
             </div>
           </div>
           <div class="mc-items">
-            <div class="mc-items-row">${itemRow1}</div>
-            <div class="mc-items-row">${itemRow2}</div>
+            <div class="mc-items-row">${itemRow}</div>
           </div>
           <div class="mc-kda">
             <div class="mc-kda-scores">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>

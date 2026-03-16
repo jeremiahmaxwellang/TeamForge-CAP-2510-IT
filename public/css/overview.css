@@ -577,11 +577,9 @@
     display: inline-block;
 }
 
-/* Items grid (2 rows of 4) */
+/* Items row */
 .mc-items {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
     flex-shrink: 0;
 }
 
@@ -591,16 +589,16 @@
 }
 
 .mc-item-icon {
-    width: 22px;
-    height: 22px;
+    width: 32px;
+    height: 32px;
     border-radius: 3px;
     object-fit: cover;
     display: block;
 }
 
 .mc-item-empty {
-    width: 22px;
-    height: 22px;
+    width: 32px;
+    height: 32px;
     background: #c9c9c9;
     border-radius: 3px;
     display: inline-block;
