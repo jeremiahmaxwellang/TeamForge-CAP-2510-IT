@@ -395,16 +395,17 @@
         8439: 'Styles/Resolve/VeteranAftershock/VeteranAftershock.png',
         8465: 'Styles/Resolve/Guardian/Guardian.png',
         8351: 'Styles/Inspiration/GlacialAugment/GlacialAugment.png',
+        8358: 'Styles/Inspiration/MasterKey/MasterKey.png',
         8360: 'Styles/Inspiration/UnsealedSpellbook/UnsealedSpellbook.png',
         8369: 'Styles/Inspiration/FirstStrike/FirstStrike.png'
       };
 
       const PERK_STYLE_ICON_MAP = {
-        8000: 'Styles/Precision/Precision.png',
-        8100: 'Styles/Domination/Domination.png',
-        8200: 'Styles/Sorcery/Sorcery.png',
-        8300: 'Styles/Inspiration/Inspiration.png',
-        8400: 'Styles/Resolve/Resolve.png'
+        8000: 'Styles/7201_Precision.png',
+        8100: 'Styles/7200_Domination.png',
+        8200: 'Styles/7202_Sorcery.png',
+        8300: 'Styles/7203_Whimsy.png',
+        8400: 'Styles/7204_Resolve.png'
       };
 
       matches.forEach((match, index) => {
@@ -471,13 +472,16 @@
           if (!perkId) return `<span class="mc-perk-empty"></span>`;
 
           const imagePath = type === 'keystone' ? PERK_ICON_MAP[perkId] : PERK_STYLE_ICON_MAP[perkId];
-          const imageUrl = imagePath
+          const primaryUrl = imagePath
             ? `https://ddragon.leagueoflegends.com/cdn/img/perk-images/${imagePath}`
+            : null;
+          const fallbackUrl = imagePath
+            ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${imagePath.toLowerCase()}`
             : null;
           const perkLabel = type === 'keystone' ? `Keystone ${perkId}` : `Secondary ${perkId}`;
 
-          return imageUrl
-            ? `<img src="${imageUrl}" class="mc-perk-icon" title="${perkLabel}" onerror="window.logMissingOverviewPerkIcon && window.logMissingOverviewPerkIcon(${perkId}, '${perkLabel}', this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-perk-empty&quot;></span>'">`
+          return primaryUrl
+            ? `<img src="${primaryUrl}" class="mc-perk-icon" title="${perkLabel}" data-fallback-src="${fallbackUrl || ''}" onerror="const fallback=this.getAttribute('data-fallback-src');if(fallback && this.src!==fallback){this.src=fallback;this.removeAttribute('data-fallback-src');return;}window.logMissingOverviewPerkIcon && window.logMissingOverviewPerkIcon(${perkId}, '${perkLabel}', this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-perk-empty&quot;></span>'">`
             : `<span class="mc-perk-empty"></span>`;
         };
 
