@@ -25,6 +25,15 @@ app.use('/team_management', require('./routes/team_managementRoutes')); // team 
 app.use('/announcements', require('./routes/announcementRoutes')); // announcement routes
 app.use('/tournament', require('./routes/tournamentRoutes')); // tournament routes
 
+// Backward-compatible URL aliases for applicant profile page
+app.get('/applicant_profile', (req, res) => {
+    res.redirect('/applicant_list/profile');
+});
+
+app.get('/applicant_profile.html', (req, res) => {
+    res.redirect('/applicant_list/profile');
+});
+
 // Backward-compatible URL for pages linking to /tournament.html
 app.get('/tournament.html', (req, res) => {
     res.redirect('/tournament');
