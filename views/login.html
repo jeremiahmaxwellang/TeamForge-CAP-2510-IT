@@ -25,9 +25,6 @@
         <span>Applying to the team? </span> <a href="/signup">Click here!</a>
     </p>
 
-    <p class="signup-text">
-        <span><a href="/player_analysis">Player Analysis!</a></span>
-    </p>
 </div>
 
 <script>
@@ -50,7 +47,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             localStorage.setItem('user', JSON.stringify(data.user));
             window.location.href = data.redirect;
         } else {
-            alert('Invalid email or password');
+            const message = await response.text();
+            alert(message || 'Invalid email or password');
         }
     } catch (error) {
         console.error('Login error:', error);

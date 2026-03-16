@@ -8,24 +8,95 @@
 	<link rel="stylesheet" href="/css/tournament.css">
 </head>
 <body class="tournament-body">
-	<main class="tournament-page">
-		<section class="tournament-panel">
-			<header class="tournament-header">
-				<h1>Tournament Management</h1>
-				<div class="tournament-actions">
-					<button id="createTournamentBtn" class="btn btn-primary" type="button">Create Tournament</button>
-					<button id="editTournamentBtn" class="btn" type="button">Edit Tournament</button>
-				</div>
-			</header>
+	<div class="coach-page">
+		<div class="coach-topbar">
+			<div class="coach-brand">
+				<img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+				<span class="coach-brand-title">TeamForge</span>
+			</div>
+			<div class="coach-team-name">Viridis Arcus (Team Name)</div>
+			<div class="coach-topbar-actions">
+				<a href="/logout" class="logout-btn">Logout</a>
+				<img src="/images/sample_profile.png" alt="Profile Picture" class="coach-profile-icon">
+			</div>
+		</div>
 
-			<div class="list-filters">
-				<span class="list-filters-label">Result Filter</span>
-				<div id="resultFilterGroup" class="result-filter-group"></div>
+		<div class="coach-content-wrapper">
+			<div class="coach-sidebar" data-role-scope="coach-only">
+				<ul>
+					<li>
+						<a href="#">
+							<img src="/images/announcement_logo.png" alt="Announcement Icon">
+							Announcement
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/scheduling_logo.png" alt="Scheduling Icon">
+							Scheduling
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/attendance_logo.png" alt="Attendance Icon">
+							Attendance
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/recruitment_evaluation_logo.png" alt="Recruitment Evaluation Icon">
+							Team Management
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
+							Player Performance<br>Analysis
+						</a>
+					</li>
+					<li>
+						<a href="/applicant_list">
+							<img src="/images/player_analysis_logo.png" alt="Applicant List Icon">
+							Applicant List
+						</a>
+					</li>
+					<li>
+						<a href="/tournament" class="active-nav">
+							<img src="/images/player_analysis_logo.png" alt="Tournament Management Icon">
+							Tournament Management
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/settings_logo.png" alt="Settings Icon">
+							Settings
+						</a>
+					</li>
+				</ul>
 			</div>
 
-			<section id="tournamentList" class="tournament-list"></section>
-		</section>
-	</main>
+			<div class="coach-main-content">
+				<main class="tournament-page">
+					<section class="tournament-panel">
+						<header class="tournament-header">
+							<h1>Tournament Management</h1>
+							<div class="tournament-actions">
+								<button id="createTournamentBtn" class="btn btn-primary" type="button">Create Tournament</button>
+								<button id="editTournamentBtn" class="btn" type="button">Edit Tournament</button>
+							</div>
+						</header>
+
+						<div class="list-filters">
+							<span class="list-filters-label">Result Filter</span>
+							<div id="resultFilterGroup" class="result-filter-group"></div>
+						</div>
+
+						<section id="tournamentList" class="tournament-list"></section>
+					</section>
+				</main>
+			</div>
+		</div>
+	</div>
 
 	<div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
 		<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">

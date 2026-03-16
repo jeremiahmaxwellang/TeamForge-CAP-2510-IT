@@ -11,8 +11,15 @@ const path = require('path');
 const mySqlPool = require('../config/database'); // your MySQL pool
 const router = express.Router();
 
-function setUserRoleCookie(res, position) {
-    res.cookie('userRole', position, {
+function setAuthCookies(res, user) {
+    res.cookie('userRole', user.position, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
+        maxAge: 8 * 60 * 60 * 1000
+    });
+
+    res.cookie('userId', String(user.userId), {
         httpOnly: true,
         sameSite: 'lax',
         secure: false,
@@ -20,17 +27,58 @@ function setUserRoleCookie(res, position) {
     });
 }
 
-function requireManagerRole(req, res, next) {
-    if (req.cookies && req.cookies.userRole === 'Team Manager') {
-        return next();
-    }
+function clearAuthCookies(res) {
+    res.clearCookie('userRole');
+    res.clearCookie('userId');
+}
 
-    return res.redirect('/');
+async function requireCoachRole(req, res, next) {
+    try {
+        const role = req.cookies && req.cookies.userRole;
+        const userId = req.cookies && req.cookies.userId;
+
+        if (role !== 'Team Coach' || !userId) {
+            clearAuthCookies(res);
+            return res.redirect('/');
+        }
+
+        const [rows] = await mySqlPool.query(
+            'SELECT userId, position FROM users WHERE userId = ?',
+            [userId]
+        );
+
+        if (!rows.length || rows[0].position !== 'Team Coach') {
+            clearAuthCookies(res);
+            return res.redirect('/');
+        }
+
+        return next();
+    } catch (err) {
+        console.error(err);
+        clearAuthCookies(res);
+        return res.redirect('/');
+    }
+}
+
+function requireRole(requiredRole) {
+    return (req, res, next) => {
+        if (req.cookies && req.cookies.userRole === requiredRole) {
+            return next();
+        }
+
+        return res.redirect('/');
+    };
 }
 
 // Login page
 router.get('/', (req, res) => {
     res.sendFile(path.join(viewsPath, 'login.html'));
+});
+
+// Logout endpoint
+router.get('/logout', (req, res) => {
+    clearAuthCookies(res);
+    res.redirect('/');
 });
 
 // Signup page
@@ -64,21 +112,19 @@ router.post('/change_password', async (req, res) => {
             const [rows] = await mySqlPool.query('SELECT * FROM users WHERE email = ?', [email]);
             const user = rows[0];
 
-            // Redirect based on role
-            switch(user.position) {
+            setAuthCookies(res, user);
+
+            switch (user.position) {
                 case 'Team Manager':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/manager_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Player':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/player_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Team Coach':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/coach_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Applicant':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/applicant_dashboard', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 default:
+                    clearAuthCookies(res);
                     return res.status(400).send('Role not recognized');
             }
         } else {
@@ -91,20 +137,20 @@ router.post('/change_password', async (req, res) => {
 });
 
 // Applicant dashboard page
-router.get('/applicant_dashboard', (req, res) => {
+router.get('/applicant_dashboard', requireRole('Applicant'), (req, res) => {
     res.sendFile(path.join(viewsPath, 'applicant_dashboard.html'));
 });
 
 // Dashboard pages
-router.get('/manager_dashboard.html', requireManagerRole, (req, res) => {
+router.get('/manager_dashboard.html', requireRole('Team Manager'), (req, res) => {
     res.sendFile(path.join(viewsPath, 'manager_dashboard.html'));
 });
 
-router.get('/player_dashboard.html', (req, res) => {
+router.get('/player_dashboard.html', requireRole('Player'), (req, res) => {
     res.sendFile(path.join(viewsPath, 'player_dashboard.html'));
 });
 
-router.get('/coach_dashboard.html', (req, res) => {
+router.get('/coach_dashboard.html', requireCoachRole, (req, res) => {
     res.sendFile(path.join(viewsPath, 'coach_dashboard.html'));
 });
 
@@ -130,24 +176,23 @@ router.post('/login', async (req, res) => {
             // You can store user in session if needed
             // req.session.user = user;
 
-            // Redirect based on role
-            switch(user.position) {
+            setAuthCookies(res, user);
+
+            switch (user.position) {
                 case 'Team Manager':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/manager_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Player':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/player_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Team Coach':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/coach_dashboard.html', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 case 'Applicant':
-                    setUserRoleCookie(res, user.position);
                     return res.json({ redirect: '/applicant_dashboard', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
                 default:
+                    clearAuthCookies(res);
                     return res.status(400).send('Role not recognized');
             }
         } else {
+            clearAuthCookies(res);
             return res.status(401).send('Invalid email or password');
         }
     } catch (err) {

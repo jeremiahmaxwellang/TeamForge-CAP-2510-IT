@@ -1,13 +1,13 @@
 :root {
-	--bg: #f5f5f5;
-	--panel: #ffffff;
-	--ink: #333333;
-	--muted: #666666;
-	--line: #dee2e6;
-	--primary: #007bff;
-	--primary-strong: #0056b3;
-	--accent: #007bff;
-	--ok: #d4edda;
+	--bg: #3c4046;
+	--panel: #2f3136;
+	--ink: #f2f3f5;
+	--muted: #b9bbbe;
+	--line: #45474d;
+	--primary: #00f2c3;
+	--primary-strong: #00c9a2;
+	--accent: #7ce79c;
+	--ok: rgba(40, 167, 69, 0.24);
 }
 
 * {
@@ -16,7 +16,7 @@
 
 body {
 	margin: 0;
-	background-color: var(--bg);
+	background-color: var(--gunmetal);
 	color: var(--ink);
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
@@ -25,8 +25,142 @@ body {
 	display: block;
 }
 
-.tournament-page {
+.coach-page {
+	width: 100%;
 	min-height: 100vh;
+	background-color: var(--porcelain);
+}
+
+.coach-topbar {
+	width: 100%;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: var(--carbon-black);
+	padding: 10px 20px;
+	color: var(--porcelain);
+}
+
+.coach-brand {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: 100px;
+	height: 100px;
+	margin-right: 10px;
+}
+
+.coach-brand img {
+	width: 100px;
+	height: 100px;
+	margin-right: 10px;
+	margin-left: 20px;
+}
+
+.coach-brand-title {
+	font-family: var(--font-road-rage);
+	font-size: 48px;
+	margin-left: 30px;
+	color: var(--porcelain);
+}
+
+.coach-team-name {
+	font-size: 36px;
+	color: var(--porcelain);
+	margin-left: auto;
+	margin-right: 20px;
+}
+
+.coach-topbar-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.logout-btn {
+	display: inline-block;
+	padding: 10px 14px;
+	border-radius: 10px;
+	text-decoration: none;
+	color: var(--porcelain);
+	background: #2b2d31;
+	border: 1px solid #5b6069;
+	font-weight: 600;
+}
+
+.logout-btn:hover {
+	background: #3b3f46;
+}
+
+.coach-profile-icon {
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	background-color: var(--iron-gray);
+}
+
+.coach-content-wrapper {
+	display: flex;
+	width: 100%;
+}
+
+.coach-sidebar {
+	width: fit-content;
+	background-color: var(--carbon-black);
+	padding: 10px;
+	height: auto;
+	flex-shrink: 0;
+}
+
+.coach-sidebar ul {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+.coach-sidebar ul li {
+	text-align: center;
+}
+
+.coach-sidebar ul li a {
+	margin-bottom: 20px;
+	color: var(--porcelain);
+	text-decoration: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 150px;
+}
+
+.coach-sidebar ul li a img {
+	width: 25%;
+	height: auto;
+	margin-bottom: 5px;
+	transition: filter 0.3s ease;
+}
+
+.coach-sidebar ul li a:hover,
+.coach-sidebar ul li a.active-nav {
+	background-color: #f0f0f0;
+	border-radius: 5px;
+	color: var(--carbon-black);
+}
+
+.coach-sidebar ul li a:hover img,
+.coach-sidebar ul li a.active-nav img {
+	filter: invert(1);
+}
+
+.coach-main-content {
+	flex-grow: 1;
+	background-color: var(--gunmetal);
+	min-height: calc(100vh - 120px);
+}
+
+.tournament-page {
+	min-height: calc(100vh - 120px);
 	width: 100%;
 	padding: 2rem 1.25rem;
 	display: flex;
@@ -93,7 +227,7 @@ body {
 }
 
 .btn:hover {
-	border-color: #9eb5c7;
+	border-color: #6e737d;
 }
 
 .btn:disabled {
@@ -122,13 +256,13 @@ body {
 	border: 1px solid var(--line);
 	border-radius: 16px;
 	background: var(--panel);
-	box-shadow: 0 8px 18px rgba(24, 56, 92, 0.08);
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
 	overflow: hidden;
 }
 
 .tournament-card.selected {
-	border-color: #7ea3c1;
-	box-shadow: 0 0 0 2px rgba(31, 122, 166, 0.18), 0 8px 18px rgba(24, 56, 92, 0.08);
+	border-color: #7ce79c;
+	box-shadow: 0 0 0 2px rgba(124, 231, 156, 0.2), 0 10px 24px rgba(0, 0, 0, 0.25);
 }
 
 .tournament-card-head {
@@ -175,7 +309,7 @@ body {
 .tournament-card-body {
 	border-top: 1px solid var(--line);
 	padding: 1rem;
-	background: #f6faff;
+	background: #2b2d31;
 }
 
 .meta-row {
@@ -198,7 +332,7 @@ body {
 	border: 1px solid var(--line);
 	border-radius: 12px;
 	padding: 0.75rem;
-	background: #ffffff;
+	background: #202225;
 }
 
 .detail-team-column h4 {
@@ -212,10 +346,10 @@ body {
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.45rem 0.5rem;
-	border: 1px solid #e3ebf2;
+	border: 1px solid #3f4248;
 	border-radius: 8px;
 	margin-bottom: 0.45rem;
-	background: #f8fbff;
+	background: #2f3136;
 }
 
 .detail-role-row:last-child {
@@ -229,8 +363,8 @@ body {
 
 .detail-player-chip {
 	font-size: 0.88rem;
-	color: #20425f;
-	background: #e6f2ff;
+	color: #d7f7e3;
+	background: rgba(40, 167, 69, 0.24);
 	border-radius: 999px;
 	padding: 0.15rem 0.55rem;
 	white-space: nowrap;
@@ -262,13 +396,13 @@ body {
 }
 
 .assignment-table th {
-	background: #ebf3fb;
+	background: #202225;
 }
 
 .modal-overlay {
 	position: fixed;
 	inset: 0;
-	background: rgba(9, 26, 42, 0.5);
+	background: rgba(0, 0, 0, 0.6);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -342,7 +476,7 @@ body {
 	border: 1px solid var(--line);
 	border-radius: 14px;
 	padding: 0.8rem;
-	background: #f4f9fe;
+	background: #202225;
 }
 
 .team-column h3 {
@@ -355,11 +489,11 @@ body {
 }
 
 .role-slot {
-	border: 1px dashed #9eb5c7;
+	border: 1px dashed #6e737d;
 	border-radius: 10px;
 	padding: 0.55rem;
 	min-height: 58px;
-	background: #ffffff;
+	background: #2f3136;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -368,7 +502,7 @@ body {
 
 .role-slot.over {
 	border-color: var(--accent);
-	background: #f0f9ff;
+	background: #3b3f46;
 }
 
 .role-label {
@@ -399,7 +533,7 @@ body {
 	border: 1px solid var(--line);
 	border-radius: 14px;
 	padding: 0.8rem;
-	background: #f8fbff;
+	background: #202225;
 }
 
 .pool-header {
@@ -423,15 +557,16 @@ body {
 .filter-btn {
 	border: 1px solid var(--line);
 	border-radius: 999px;
-	background: #ffffff;
+	background: #2f3136;
+	color: #f2f3f5;
 	padding: 0.35rem 0.7rem;
 	cursor: pointer;
 	font-size: 0.85rem;
 }
 
 .filter-btn.active {
-	background: #e1edf9;
-	border-color: #8fb0cd;
+	background: #3b3f46;
+	border-color: #7ce79c;
 }
 
 .players-grid {
@@ -443,9 +578,9 @@ body {
 }
 
 .player-card {
-	border: 1px solid #bed0df;
+	border: 1px solid #5b6069;
 	border-radius: 999px;
-	background: #ffffff;
+	background: #2f3136;
 	padding: 0.35rem 0.65rem;
 	display: inline-flex;
 	align-items: center;
@@ -461,7 +596,7 @@ body {
 .player-role-badge {
 	font-size: 0.7rem;
 	color: var(--muted);
-	border: 1px solid #d0dce6;
+	border: 1px solid #5b6069;
 	border-radius: 999px;
 	padding: 0.05rem 0.45rem;
 }
@@ -479,10 +614,14 @@ body {
 	padding: 1rem;
 	text-align: center;
 	color: var(--muted);
-	background: #f8fbff;
+	background: #202225;
 }
 
 @media (max-width: 900px) {
+	.coach-team-name {
+		font-size: 24px;
+	}
+
 	.meta-form {
 		grid-template-columns: 1fr;
 	}

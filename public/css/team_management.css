@@ -61,6 +61,27 @@ body {
     margin-right: 20px;
 }
 
+.manager-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-btn {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--porcelain);
+    background: #2b2d31;
+    border: 1px solid #5b6069;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background: #3b3f46;
+}
+
 .manager-profile-icon {
     width: 60px;
     height: 60px;

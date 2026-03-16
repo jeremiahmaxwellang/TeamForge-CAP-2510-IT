@@ -60,6 +60,27 @@
             margin-right: 20px;
         }
 
+        .coach-topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logout-btn {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--porcelain);
+            background: #2b2d31;
+            border: 1px solid #5b6069;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #3b3f46;
+        }
+
         .coach-profile-icon {
             width: 60px;
             height: 60px;
@@ -276,7 +297,10 @@
                 <span class="coach-brand-title">TeamForge</span>
             </div>
             <div class="coach-team-name">Viridis Arcus (Team Name)</div>
-            <div><img src="/images/sample_profile.png" alt="Profile Picture" class="coach-profile-icon"></div>
+            <div class="coach-topbar-actions">
+                <a href="/logout" class="logout-btn">Logout</a>
+                <img src="/images/sample_profile.png" alt="Profile Picture" class="coach-profile-icon">
+            </div>
         </div>
 
         <div class="coach-content-wrapper">
@@ -318,6 +342,12 @@
                             Applicant List
                         </a>
                     </li>
+                    <li>
+						<a href="/tournament" class="active-nav">
+							<img src="/images/player_analysis_logo.png" alt="Tournament Management Icon">
+							Tournament Management
+						</a>
+					</li>
                     <li>
                         <a href="#">
                             <img src="/images/settings_logo.png" alt="Settings Icon">
