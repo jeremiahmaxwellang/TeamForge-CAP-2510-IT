@@ -6,6 +6,24 @@
   const FETCH_INTERVAL = 1 * 60 * 1000; // 1 minute
   let lastFetchTime = null;
 
+  if (typeof window.logMissingOverviewItemIcon !== "function") {
+    window.logMissingOverviewItemIcon = function (itemId, imageUrl, matchId) {
+      if (!window.__overviewMissingItemIds) {
+        window.__overviewMissingItemIds = new Set();
+      }
+
+      const missingKey = `${itemId}`;
+      if (window.__overviewMissingItemIds.has(missingKey)) return;
+      window.__overviewMissingItemIds.add(missingKey);
+
+      console.error("[ITEM ICON] Missing item image", {
+        itemId,
+        matchId,
+        imageUrl
+      });
+    };
+  }
+
   // Sample Function for Listing Match History
   // function renderMatches(matches) {
   //   const container = document.getElementById('match-list');
@@ -321,10 +339,13 @@
         if (!player) return;
         const isWin = player.win;
         const duration = match.info.gameDuration || 0;
+        const matchId = match?.metadata?.matchId || 'unknown-match';
         const durationMin = Math.floor(duration / 60);
         const durationSec = duration % 60;
         const kdaRatio = ((player.kills + player.assists) / Math.max(1, player.deaths)).toFixed(2);
-        const csPerMin = durationMin > 0 ? (player.totalMinionsKilled / durationMin).toFixed(1) : '0.0';
+        const totalCs = Number(player.totalMinionsKilled ?? player.cs ?? 0);
+        const visionScore = Number(player.visionScore ?? player.vision ?? 0);
+        const csPerMin = durationMin > 0 ? (totalCs / durationMin).toFixed(1) : '0.0';
         const queueNames = { 420: 'Ranked Solo', 440: 'Ranked Flex', 450: 'ARAM', 430: 'Normal', 0: 'Custom' };
         const queueName = queueNames[match.info.queueId] || 'Normal';
         const gameDate = match.info.gameStartTimestamp ? timeAgo(match.info.gameStartTimestamp) : '';
@@ -336,11 +357,17 @@
                  alt="${p.championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
             <span class="mc-teammate-name">${(p.riotIdGameName || p.summonerName || '').substring(0, 10)}</span>
           </div>`).join('');
-        // Items: 2 rows of 4 (item0-item3 / item4-item5+item6+empty)
-        const itemIds = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6, null];
-        const makeItemSlot = (id) => id
-          ? `<img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/${id}.png" class="mc-item-icon" onerror="this.style.display='none'">`
-          : `<span class="mc-item-empty"></span>`;
+        // Items: always render 8 slots, but keep bought items first so empty slots stay on the right.
+        const rawItemIds = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6]
+          .map((value) => Number(value) || 0);
+        const boughtItemIds = rawItemIds.filter((value) => value > 0);
+        const emptySlotCount = Math.max(0, 8 - boughtItemIds.length);
+        const itemIds = [...boughtItemIds, ...Array(emptySlotCount).fill(0)].slice(0, 8);
+        const makeItemSlot = (id) => {
+          const itemId = Number(id);
+          if (!itemId || itemId <= 0) return `<span class="mc-item-empty"></span>`;
+          return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
+        };
         const itemRow1 = itemIds.slice(0, 4).map(makeItemSlot).join('');
         const itemRow2 = itemIds.slice(4, 8).map(makeItemSlot).join('');
         // Summoner spell ID → DDragon spell key mapping
@@ -383,8 +410,8 @@
           <div class="mc-kda">
             <div class="mc-kda-scores">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
             <div class="mc-kda-ratio">${kdaRatio} KDA</div>
-            <div class="mc-cs">${player.totalMinionsKilled} CS (${csPerMin})</div>
-            <div class="mc-vision">${player.visionScore} vision</div>
+            <div class="mc-cs">${totalCs} CS (${csPerMin})</div>
+            <div class="mc-vision">${visionScore} vision</div>
           </div>
           <div class="mc-teams">
             <div class="mc-team-col">${makeTeamCol(allies)}</div>
