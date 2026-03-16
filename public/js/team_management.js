@@ -155,6 +155,18 @@ function setupEventListeners() {
     const manualSubmit = document.getElementById('manualSubmitBtn');
     const manualCancel = document.getElementById('manualCancelBtn');
     const manualClose = document.getElementById('manualCloseBtn');
+    const manualPosition = document.getElementById('manualPosition');
+    const manualRoleFields = document.getElementById('manualRoleFields');
+    const manualPrimaryRole = document.getElementById('manualPrimaryRoleId');
+
+    const syncManualRoleFields = () => {
+        const isPlayer = manualPosition.value === 'Player';
+        manualRoleFields.style.display = isPlayer ? 'block' : 'none';
+        manualPrimaryRole.required = isPlayer;
+    };
+
+    manualPosition.addEventListener('change', syncManualRoleFields);
+    syncManualRoleFields();
 
     const closeManual = () => { manualModal.style.display = 'none'; };
     manualCancel.addEventListener('click', (e) => { e.preventDefault(); closeManual(); });
@@ -298,9 +310,12 @@ function showManualRegisterModal() {
     document.getElementById('manualFullName').value = '';
     document.getElementById('manualRiotId').value = '';
     document.getElementById('manualPosition').value = 'Player';
+    document.getElementById('manualPrimaryRoleId').value = '1';
+    document.getElementById('manualSecondaryRoleId').value = '';
     document.getElementById('manualStatus').value = 'Active';
     document.getElementById('manualEmail').value = '';
     document.getElementById('manualDiscord').value = '';
+    document.getElementById('manualRoleFields').style.display = 'block';
     modal.style.display = 'flex';
 }
 
@@ -313,6 +328,16 @@ async function registerManualUser() {
         return;
     }
     const discord = document.getElementById('manualDiscord').value.trim();
+    const position = document.getElementById('manualPosition').value;
+    const isPlayer = position === 'Player';
+    const primaryRoleRaw = document.getElementById('manualPrimaryRoleId').value;
+    const secondaryRoleRaw = document.getElementById('manualSecondaryRoleId').value;
+
+    if (isPlayer && !primaryRoleRaw) {
+        alert('Primary role is required for players');
+        return;
+    }
+
     const nameParts = fullName.split(' ').filter(Boolean);
     const firstname = nameParts.shift();
     const lastname = nameParts.join(' ') || '';
@@ -321,10 +346,16 @@ async function registerManualUser() {
         firstname,
         lastname,
         riotId: document.getElementById('manualRiotId').value.trim(),
-        position: document.getElementById('manualPosition').value,
+        position,
         discord: document.getElementById('manualDiscord').value.trim(),
         status: document.getElementById('manualStatus').value
     };
+
+    if (isPlayer) {
+        payload.primaryroleid = Number.parseInt(primaryRoleRaw, 10);
+        payload.secondaryroleid = secondaryRoleRaw ? Number.parseInt(secondaryRoleRaw, 10) : null;
+    }
+
     try {
         const res = await fetch('/api/v1/users/create', {
             method: 'POST',

@@ -62,9 +62,12 @@ const getUserById = async (req, res) => {
 // CREATE USERS
 const createUser = async (req, res) => {
     try {
-        let { userId, email, passwordHash, firstname, lastname, position, discord, status, riotId } = req.body
+        let { userId, email, passwordHash, firstname, lastname, position, discord, status, riotId, primaryroleid, secondaryroleid } = req.body
         // make sure discord is always string
         discord = discord || '';
+
+        const parsedPrimaryRoleId = Number.parseInt(primaryroleid, 10);
+        const parsedSecondaryRoleId = Number.parseInt(secondaryroleid, 10);
 
         // Basic required fields (discord is optional)
         if (!email || !firstname || !lastname || !position || !status) {
@@ -112,37 +115,47 @@ const createUser = async (req, res) => {
             // ignore
         }
 
-        // If riotId provided, attempt to create a players row (store gameName and tagLine)
-        if (riotId) {
-            const parts = riotId.split('#');
-            if (parts.length === 2) {
-                const gameName = parts[0].trim();
-                const tagLine = parts[1].trim();
-
-                // Map textual position to primaryRoleId when possible
-                const roleMap = {
-                    'top': 1,
-                    'jungle': 2,
-                    'mid': 3,
-                    'middle': 3,
-                    'adc': 4,
-                    'ad carry': 4,
-                    'adcarry': 4,
-                    'support': 5
-                };
-
-                let primaryRoleId = 1; // default
-                if (position) {
-                    const key = position.toString().toLowerCase();
-                    if (roleMap[key]) primaryRoleId = roleMap[key];
+        // Create player row for player/sub users or when Riot ID is provided.
+        const shouldCreatePlayerRow = position === 'Player' || position === 'Sub' || Boolean(riotId);
+        if (shouldCreatePlayerRow) {
+            let gameName = null;
+            let tagLine = null;
+            if (riotId) {
+                const parts = riotId.split('#');
+                if (parts.length === 2) {
+                    gameName = parts[0].trim();
+                    tagLine = parts[1].trim();
                 }
+            }
 
-                try {
-                    const applicationStatus = position === 'Player' ? 'Accepted' : null;
-                    await db.query(`INSERT INTO players (userId, gameName, tagLine, primaryRoleId, applicationStatus) VALUES (?, ?, ?, ?, ?)`, [newUserId, gameName, tagLine, primaryRoleId, applicationStatus]);
-                } catch (err) {
-                    console.error('Error inserting into players for riotId:', err.message);
-                }
+            // Map textual position to primaryRoleId when explicit role is not provided
+            const roleMap = {
+                'top': 1,
+                'jungle': 2,
+                'mid': 3,
+                'middle': 3,
+                'adc': 4,
+                'ad carry': 4,
+                'adcarry': 4,
+                'support': 5
+            };
+
+            let primaryRoleId = Number.isInteger(parsedPrimaryRoleId) ? parsedPrimaryRoleId : 1;
+            if (!Number.isInteger(parsedPrimaryRoleId) && position) {
+                const key = position.toString().toLowerCase();
+                if (roleMap[key]) primaryRoleId = roleMap[key];
+            }
+
+            const secondaryRoleId = Number.isInteger(parsedSecondaryRoleId) ? parsedSecondaryRoleId : null;
+
+            try {
+                const applicationStatus = position === 'Player' ? 'Accepted' : null;
+                await db.query(
+                    `INSERT INTO players (userId, gameName, tagLine, primaryRoleId, secondaryRoleId, applicationStatus) VALUES (?, ?, ?, ?, ?, ?)`,
+                    [newUserId, gameName, tagLine, primaryRoleId, secondaryRoleId, applicationStatus]
+                );
+            } catch (err) {
+                console.error('Error inserting into players:', err.message);
             }
         }
 
