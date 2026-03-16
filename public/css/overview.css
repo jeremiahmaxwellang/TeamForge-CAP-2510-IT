@@ -456,7 +456,8 @@
 .match-card {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-evenly;
+    gap: 20px;
     padding: 10px 12px;
     border-radius: 6px;
     cursor: pointer;
@@ -485,6 +486,8 @@
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 2px;
 }
 
@@ -609,29 +612,45 @@
     flex-direction: column;
     min-width: 90px;
     flex-shrink: 0;
+    align-items: center;
+    text-align: center;
     gap: 1px;
 }
 
 .mc-kda-scores {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     color: #111;
 }
 
 .mc-deaths { color: #e84057; }
 
-.mc-kda-ratio,
+.mc-kda-ratio {
+    font-size: 16px;
+    color: #000;
+}
+
+/* CS / Vision block */
+.mc-cs-vision {
+    display: flex;
+    flex-direction: column;
+    min-width: 80px;
+    flex-shrink: 0;
+    align-items: center;
+    text-align: center;
+    gap: 1px;
+}
+
 .mc-cs,
 .mc-vision {
-    font-size: 11px;
-    color: #555;
+    font-size: 16px;
+    color: #000;
 }
 
 /* Teams block */
 .mc-teams {
     display: flex;
     gap: 10px;
-    margin-left: auto;
 }
 
 .mc-team-col {

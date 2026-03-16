@@ -410,6 +410,8 @@
           <div class="mc-kda">
             <div class="mc-kda-scores">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
             <div class="mc-kda-ratio">${kdaRatio} KDA</div>
+          </div>
+          <div class="mc-cs-vision">
             <div class="mc-cs">${totalCs} CS (${csPerMin})</div>
             <div class="mc-vision">${visionScore} vision</div>
           </div>
