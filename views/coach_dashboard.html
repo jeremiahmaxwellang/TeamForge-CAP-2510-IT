@@ -1,13 +1,234 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Page Title</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Coach Dashboard</title>
+	<link rel="stylesheet" href="/css/style.css">
+	<style>
+		.coach-page {
+			width: 100%;
+			min-height: 100vh;
+			background-color: var(--porcelain);
+		}
+
+		.coach-topbar {
+			width: 100%;
+			box-sizing: border-box;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background-color: var(--carbon-black);
+			padding: 10px 20px;
+			color: var(--porcelain);
+		}
+
+		.coach-brand {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			width: 100px;
+			height: 100px;
+			margin-right: 10px;
+		}
+
+		.coach-brand img {
+			width: 100px;
+			height: 100px;
+			margin-right: 10px;
+			margin-left: 20px;
+		}
+
+		.coach-brand-title {
+			font-family: var(--font-road-rage);
+			font-size: 48px;
+			margin-left: 30px;
+			color: var(--porcelain);
+		}
+
+		.coach-team-name {
+			font-size: 36px;
+			color: var(--porcelain);
+			margin-left: auto;
+			margin-right: 20px;
+		}
+
+		.coach-topbar-actions {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.logout-btn {
+			display: inline-block;
+			padding: 10px 14px;
+			border-radius: 10px;
+			text-decoration: none;
+			color: var(--porcelain);
+			background: #2b2d31;
+			border: 1px solid #5b6069;
+			font-weight: 600;
+		}
+
+		.logout-btn:hover {
+			background: #3b3f46;
+		}
+
+		.coach-profile-icon {
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			background-color: var(--iron-gray);
+		}
+
+		.coach-content-wrapper {
+			display: flex;
+			width: 100%;
+		}
+
+		.coach-sidebar {
+			width: fit-content;
+			background-color: var(--carbon-black);
+			padding: 10px;
+			height: auto;
+			flex-shrink: 0;
+		}
+
+		.coach-sidebar ul {
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.coach-sidebar ul li {
+			text-align: center;
+		}
+
+		.coach-sidebar ul li a {
+			margin-bottom: 20px;
+			color: var(--porcelain);
+			text-decoration: none;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 150px;
+		}
+
+		.coach-sidebar ul li a img {
+			width: 25%;
+			height: auto;
+			margin-bottom: 5px;
+			transition: filter 0.3s ease;
+		}
+
+		.coach-sidebar ul li a:hover {
+			background-color: #f0f0f0;
+			border-radius: 5px;
+			color: var(--carbon-black);
+		}
+
+		.coach-sidebar ul li a:hover img {
+			filter: invert(1);
+		}
+
+		.coach-main-content {
+			flex-grow: 1;
+			background-color: var(--gunmetal);
+			min-height: calc(100vh - 120px);
+		}
+
+		.dashboard-shell {
+			margin: 20px;
+			padding: 24px;
+			min-height: 500px;
+			border-radius: 20px;
+			background-color: var(--porcelain);
+			border: 2px dashed var(--iron-gray);
+			color: var(--carbon-black);
+		}
+
+		.dashboard-shell h2 {
+			margin: 0;
+			font-size: 28px;
+		}
+
+		.dashboard-shell p {
+			margin-top: 10px;
+			font-size: 16px;
+		}
+	</style>
 </head>
 <body>
+	<div class="coach-page">
+		<div class="coach-topbar">
+			<div class="coach-brand">
+				<img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+				<span class="coach-brand-title">TeamForge</span>
+			</div>
+			<div class="coach-team-name">Viridis Arcus (Team Name)</div>
+			<div class="coach-topbar-actions">
+				<a href="/logout" class="logout-btn">Logout</a>
+				<img src="/images/sample_profile.png" alt="Profile Picture" class="coach-profile-icon">
+			</div>
+		</div>
 
-<h1>Coach Dashboard demo</h1>
-<p>This is a paragraph.</p>
+		<div class="coach-content-wrapper">
+			<div class="coach-sidebar" data-role-scope="coach-only">
+				<ul>
+					<li>
+						<a href="#">
+							<img src="/images/announcement_logo.png" alt="Announcement Icon">
+							Announcement
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/scheduling_logo.png" alt="Scheduling Icon">
+							Scheduling
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/attendance_logo.png" alt="Attendance Icon">
+							Attendance
+						</a>
+					</li>
+					<li>
+						<a href="/player_analysis">
+							<img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
+							Player Performance<br>Analysis
+						</a>
+					</li>
+                    <li>
+						<a href="/applicant_list">
+							<img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
+							Applicant List<br>
+						</a>
+					</li>
+                    <li>
+						<a href="/tournament">
+							<img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
+							Tournament Management<br>
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<img src="/images/settings_logo.png" alt="Settings Icon">
+							Settings
+						</a>
+					</li>
+				</ul>
+			</div>
 
+			<div class="coach-main-content">
+				<section class="dashboard-shell">
+					<h2>Coach Dashboard</h2>
+					<p>Dashboard content is intentionally blank for now.</p>
+				</section>
+			</div>
+		</div>
+	</div>
 </body>
 </html>
 

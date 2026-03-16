@@ -43,7 +43,7 @@ function displayApplicants(applicants) {
     }
     
     applicantsBody.innerHTML = applicants.map(applicant => `
-        <tr>
+        <tr class="clickable-row" data-user-id="${applicant.userId}">
             <td>${escapeHtml(applicant.firstname)}</td>
             <td>${escapeHtml(applicant.lastname)}</td>
             <td>${escapeHtml(applicant.gameName)}#${escapeHtml(applicant.tagLine)}</td>
@@ -56,6 +56,14 @@ function displayApplicants(applicants) {
             <td><span class="status ${(applicant.applicationStatus || 'Pending').toLowerCase()}">${escapeHtml(applicant.applicationStatus || 'Pending')}</span></td>
         </tr>
     `).join('');
+
+    applicantsBody.querySelectorAll('.clickable-row').forEach((row) => {
+        row.addEventListener('click', () => {
+            const userId = row.getAttribute('data-user-id');
+            if (!userId) return;
+            window.location.href = `/applicant_list/profile?id=${encodeURIComponent(userId)}`;
+        });
+    });
     
     applicantsTable.style.display = 'table';
 }

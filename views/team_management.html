@@ -15,7 +15,10 @@
                 <span class="manager-brand-title">TeamForge</span>
             </div>
             <div class="manager-team-name">Viridis Arcus (Team Name)</div>
-            <div><img src="/images/sample_profile.png" alt="Profile Picture" class="manager-profile-icon"></div>
+            <div class="manager-topbar-actions">
+                <a href="/logout" class="logout-btn">Logout</a>
+                <img src="/images/sample_profile.png" alt="Profile Picture" class="manager-profile-icon">
+            </div>
         </div>
 
         <div class="manager-content-wrapper">
@@ -52,7 +55,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/team_management">
+                        <a href="#">
                             <img src="/images/settings_logo.png" alt="Settings Icon">
                             Settings
                         </a>
@@ -108,7 +111,7 @@
                                     <th>Position</th>
                                     <th>Status</th>
                                     <th>Email Address</th>
-                                    <th>Team Number</th>
+                                    <th>Discord</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody">
@@ -170,6 +173,25 @@
                                 <option selected>Player</option>
                                 <option>Sub</option>
                                 <option>Applicant</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="manualRoleFields">
+                            <label>Primary Role:</label>
+                            <select id="manualPrimaryRoleId" style="width:100%;padding:8px;margin:5px 0;">
+                                <option value="1" selected>Top</option>
+                                <option value="2">Jungle</option>
+                                <option value="3">Mid</option>
+                                <option value="4">AD Carry</option>
+                                <option value="5">Support</option>
+                            </select>
+                            <label>Secondary Role:</label>
+                            <select id="manualSecondaryRoleId" style="width:100%;padding:8px;margin:5px 0;">
+                                <option value="">None</option>
+                                <option value="1">Top</option>
+                                <option value="2">Jungle</option>
+                                <option value="3">Mid</option>
+                                <option value="4">AD Carry</option>
+                                <option value="5">Support</option>
                             </select>
                         </div>
                         <div class="form-group">

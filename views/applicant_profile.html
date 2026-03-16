@@ -307,6 +307,27 @@
         .btn-action:hover { transform: translateY(-2px); }
         .btn-accept { background-color: #28a745; }
         .btn-reject { background-color: #dc3545; }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logout-btn {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #f2f3f5;
+            background: #2b2d31;
+            border: 1px solid #5b6069;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #3b3f46;
+        }
     </style>
 </head>
 <body>
@@ -318,7 +339,10 @@
                 <span class="header_title">TeamForge</span>
             </div>
             <div class="team-name">Viridis Arcus (Team Name)</div>
-            <div><img src="/images/sample_profile.png" alt="Profile Picture" class="profile-icon"></div>
+            <div class="topbar-actions">
+                <a href="/logout" class="logout-btn">Logout</a>
+                <img src="/images/sample_profile.png" alt="Profile Picture" class="profile-icon">
+            </div>
         </div>
 
         <div class="content-wrapper">
