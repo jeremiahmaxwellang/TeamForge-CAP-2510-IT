@@ -11,8 +11,120 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #36393f;
             color: #ffffff;
+        }
+
+        .coach-page {
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--porcelain);
+        }
+
+        .coach-topbar {
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--carbon-black);
+            padding: 10px 20px;
+            color: var(--porcelain);
+        }
+
+        .coach-brand {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+        }
+
+        .coach-brand img {
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+            margin-left: 20px;
+        }
+
+        .coach-brand-title {
+            font-family: var(--font-road-rage);
+            font-size: 48px;
+            margin-left: 30px;
+            color: var(--porcelain);
+        }
+
+        .coach-team-name {
+            font-size: 36px;
+            color: var(--porcelain);
+            margin-left: auto;
+            margin-right: 20px;
+        }
+
+        .coach-profile-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--iron-gray);
+        }
+
+        .coach-content-wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        .coach-sidebar {
+            width: fit-content;
+            background-color: var(--carbon-black);
+            padding: 10px;
+            height: auto;
+            flex-shrink: 0;
+        }
+
+        .coach-sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .coach-sidebar ul li {
+            text-align: center;
+        }
+
+        .coach-sidebar ul li a {
+            margin-bottom: 20px;
+            color: var(--porcelain);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 150px;
+        }
+
+        .coach-sidebar ul li a img {
+            width: 25%;
+            height: auto;
+            margin-bottom: 5px;
+            transition: filter 0.3s ease;
+        }
+
+        .coach-sidebar ul li a:hover {
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            color: var(--carbon-black);
+        }
+
+        .coach-sidebar ul li a:hover img {
+            filter: invert(1);
+        }
+
+        .coach-main-content {
+            flex-grow: 1;
+            background-color: var(--gunmetal);
+            min-height: calc(100vh - 120px);
             padding: 28px;
         }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -22,9 +134,35 @@
             border: 1px solid #202225;
             box-shadow: 0 14px 34px rgba(0,0,0,0.28);
         }
+
+        .applicant-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background-color: #202225;
+            color: #f2f3f5;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #45474d;
+            font-weight: 600;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #3b3f46;
+            border-color: #5b5f67;
+        }
+
         h1 {
             color: #ffffff;
-            margin-bottom: 30px;
+            margin: 0;
             text-align: left;
             font-weight: 700;
             letter-spacing: 0.4px;
@@ -111,13 +249,16 @@
             transition: background-color 0.15s ease;
         }
         @media (max-width: 900px) {
-            body {
-                padding: 14px;
-            }
             .container {
                 padding: 18px;
                 border-radius: 12px;
             }
+
+            .applicant-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
             table {
                 font-size: 13px;
             }
@@ -128,30 +269,95 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Applicants List</h1>
-        
-        <div id="loading" class="loading">Loading applicants...</div>
-        <div id="error" class="error" style="display: none;"></div>
-        
-        <table id="applicantsTable" style="display: none;">
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Riot ID</th>
-                    <th>Primary Role</th>
-                    <th>Secondary Role</th>
-                    <th>Peak Rank</th>
-                    <th>Current Rank</th>
-                    <th>GPA</th>
-                    <th>CGPA</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="applicantsBody">
-            </tbody>
-        </table>
+    <div class="coach-page">
+        <div class="coach-topbar">
+            <div class="coach-brand">
+                <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+                <span class="coach-brand-title">TeamForge</span>
+            </div>
+            <div class="coach-team-name">Viridis Arcus (Team Name)</div>
+            <div><img src="/images/sample_profile.png" alt="Profile Picture" class="coach-profile-icon"></div>
+        </div>
+
+        <div class="coach-content-wrapper">
+            <div class="coach-sidebar" data-role-scope="coach-only">
+                <ul>
+                    <li>
+                        <a href="#">
+                            <img src="/images/announcement_logo.png" alt="Announcement Icon">
+                            Announcement
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/scheduling_logo.png" alt="Scheduling Icon">
+                            Scheduling
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/attendance_logo.png" alt="Attendance Icon">
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/recruitment_evaluation_logo.png" alt="Recruitment Evaluation Icon">
+                            Team Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
+                            Player Performance<br>Analysis
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/applicant_list">
+                            <img src="/images/player_analysis_logo.png" alt="Applicant List Icon">
+                            Applicant List
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/images/settings_logo.png" alt="Settings Icon">
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="coach-main-content">
+                <div class="container">
+                    <div class="applicant-header">
+                        <a href="/coach_dashboard.html" class="back-btn">Back to Coach Dashboard</a>
+                        <h1>Applicants List</h1>
+                    </div>
+
+                    <div id="loading" class="loading">Loading applicants...</div>
+                    <div id="error" class="error" style="display: none;"></div>
+
+                    <table id="applicantsTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Riot ID</th>
+                                <th>Primary Role</th>
+                                <th>Secondary Role</th>
+                                <th>Peak Rank</th>
+                                <th>Current Rank</th>
+                                <th>GPA</th>
+                                <th>CGPA</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicantsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="/js/applicant_list.js"></script>
