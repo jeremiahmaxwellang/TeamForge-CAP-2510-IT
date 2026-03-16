@@ -43,6 +43,25 @@
     };
   }
 
+  if (typeof window.logMissingOverviewPerkIcon !== "function") {
+    window.logMissingOverviewPerkIcon = function (perkId, perkName, imageUrl, matchId) {
+      if (!window.__overviewMissingPerkIds) {
+        window.__overviewMissingPerkIds = new Set();
+      }
+
+      const missingKey = `${perkId}`;
+      if (window.__overviewMissingPerkIds.has(missingKey)) return;
+      window.__overviewMissingPerkIds.add(missingKey);
+
+      console.error("[PERK ICON] Missing perk image", {
+        perkId,
+        perkName,
+        matchId,
+        imageUrl
+      });
+    };
+  }
+
   // Sample Function for Listing Match History
   // function renderMatches(matches) {
   //   const container = document.getElementById('match-list');
@@ -352,6 +371,42 @@
         container.innerHTML = '<div class="no-matches">No match history found.</div>';
         return;
       }
+
+      const SUMMONER_SPELL_MAP = {
+        1: 'SummonerBoost', 3: 'SummonerExhaust', 4: 'SummonerFlash',
+        6: 'SummonerHaste', 7: 'SummonerHeal', 11: 'SummonerSmite',
+        12: 'SummonerTeleport', 13: 'SummonerMana', 14: 'SummonerDot',
+        21: 'SummonerBarrier', 32: 'SummonerSnowball', 39: 'SummonerSnowURFSnowball_Mark'
+      };
+
+      const PERK_ICON_MAP = {
+        8005: 'Styles/Precision/PressTheAttack/PressTheAttack.png',
+        8008: 'Styles/Precision/LethalTempo/LethalTempoTemp.png',
+        8021: 'Styles/Precision/FleetFootwork/FleetFootwork.png',
+        8010: 'Styles/Precision/Conqueror/Conqueror.png',
+        8112: 'Styles/Domination/Electrocute/Electrocute.png',
+        8124: 'Styles/Domination/Predator/Predator.png',
+        8128: 'Styles/Domination/DarkHarvest/DarkHarvest.png',
+        9923: 'Styles/Domination/HailOfBlades/HailOfBlades.png',
+        8229: 'Styles/Sorcery/ArcaneComet/ArcaneComet.png',
+        8230: 'Styles/Sorcery/PhaseRush/PhaseRush.png',
+        8214: 'Styles/Sorcery/SummonAery/SummonAery.png',
+        8437: 'Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.png',
+        8439: 'Styles/Resolve/VeteranAftershock/VeteranAftershock.png',
+        8465: 'Styles/Resolve/Guardian/Guardian.png',
+        8351: 'Styles/Inspiration/GlacialAugment/GlacialAugment.png',
+        8360: 'Styles/Inspiration/UnsealedSpellbook/UnsealedSpellbook.png',
+        8369: 'Styles/Inspiration/FirstStrike/FirstStrike.png'
+      };
+
+      const PERK_STYLE_ICON_MAP = {
+        8000: 'Styles/Precision/Precision.png',
+        8100: 'Styles/Domination/Domination.png',
+        8200: 'Styles/Sorcery/Sorcery.png',
+        8300: 'Styles/Inspiration/Inspiration.png',
+        8400: 'Styles/Resolve/Resolve.png'
+      };
+
       matches.forEach((match, index) => {
         if (!match?.info?.participants) return;
         const player = match.info.participants.find(p => p.puuid === puuid);
@@ -388,13 +443,6 @@
           return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
         };
         const itemRow = itemIds.map(makeItemSlot).join('');
-        // Summoner spell ID → DDragon spell key mapping
-        const SUMMONER_SPELL_MAP = {
-          1: 'SummonerBoost', 3: 'SummonerExhaust', 4: 'SummonerFlash',
-          6: 'SummonerHaste', 7: 'SummonerHeal', 11: 'SummonerSmite',
-          12: 'SummonerTeleport', 13: 'SummonerMana', 14: 'SummonerDot',
-          21: 'SummonerBarrier', 32: 'SummonerSnowball', 39: 'SummonerSnowURFSnowball_Mark'
-        };
         const spellImg = (id) => {
           const name = SUMMONER_SPELL_MAP[id];
           const imageUrl = name
@@ -414,6 +462,25 @@
             ? `<img src="${imageUrl}" class="mc-spell-icon" title="${name.replace('Summoner', '')}" onerror="window.logMissingOverviewSpellIcon && window.logMissingOverviewSpellIcon(${id}, '${name}', this.src, '${matchId}');this.style.display='none'">`
             : `<span class="mc-spell-empty"></span>`;
         };
+
+        const primaryPerkId = Number(player.perks?.styles?.[0]?.selections?.[0]?.perk) || 0;
+        const secondaryStyleId = Number(player.perks?.styles?.[1]?.style) || 0;
+
+        const perkImg = (id, type) => {
+          const perkId = Number(id) || 0;
+          if (!perkId) return `<span class="mc-perk-empty"></span>`;
+
+          const imagePath = type === 'keystone' ? PERK_ICON_MAP[perkId] : PERK_STYLE_ICON_MAP[perkId];
+          const imageUrl = imagePath
+            ? `https://ddragon.leagueoflegends.com/cdn/img/perk-images/${imagePath}`
+            : null;
+          const perkLabel = type === 'keystone' ? `Keystone ${perkId}` : `Secondary ${perkId}`;
+
+          return imageUrl
+            ? `<img src="${imageUrl}" class="mc-perk-icon" title="${perkLabel}" onerror="window.logMissingOverviewPerkIcon && window.logMissingOverviewPerkIcon(${perkId}, '${perkLabel}', this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-perk-empty&quot;></span>'">`
+            : `<span class="mc-perk-empty"></span>`;
+        };
+
         const champLevel = player.champLevel || '';
         const card = document.createElement('div');
         card.className = `match-card ${isWin ? 'mc-win' : 'mc-loss'}`;
@@ -432,6 +499,10 @@
             <div class="mc-summoner-spells">
               ${spellImg(player.summoner1Id)}
               ${spellImg(player.summoner2Id)}
+            </div>
+            <div class="mc-perk-icons">
+              ${perkImg(primaryPerkId, 'keystone')}
+              ${perkImg(secondaryStyleId, 'style')}
             </div>
           </div>
           <div class="mc-items">
