@@ -162,6 +162,8 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
   `item4` INT NULL,
   `item5` INT NULL,
   `item6` INT NULL,
+  `summoner1Id` INT NULL,
+  `summoner2Id` INT NULL,
   `neutralMinionsKilled` INT NULL,
   `role` VARCHAR(45) NULL,
   `soloKills` INT NULL,

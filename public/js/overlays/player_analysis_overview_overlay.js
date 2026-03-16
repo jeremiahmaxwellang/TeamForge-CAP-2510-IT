@@ -24,6 +24,25 @@
     };
   }
 
+  if (typeof window.logMissingOverviewSpellIcon !== "function") {
+    window.logMissingOverviewSpellIcon = function (spellId, spellName, imageUrl, matchId) {
+      if (!window.__overviewMissingSpellIds) {
+        window.__overviewMissingSpellIds = new Set();
+      }
+
+      const missingKey = `${spellId}`;
+      if (window.__overviewMissingSpellIds.has(missingKey)) return;
+      window.__overviewMissingSpellIds.add(missingKey);
+
+      console.error("[SPELL ICON] Missing summoner spell image", {
+        spellId,
+        spellName,
+        matchId,
+        imageUrl
+      });
+    };
+  }
+
   // Sample Function for Listing Match History
   // function renderMatches(matches) {
   //   const container = document.getElementById('match-list');
@@ -378,8 +397,21 @@
         };
         const spellImg = (id) => {
           const name = SUMMONER_SPELL_MAP[id];
+          const imageUrl = name
+            ? `https://ddragon.leagueoflegends.com/cdn/16.5.1/img/spell/${name}.png`
+            : null;
+
+          if (name && imageUrl) {
+            console.log("[SPELL ICON] Rendering summoner spell image", {
+              spellId: id,
+              spellName: name,
+              matchId,
+              imageUrl
+            });
+          }
+
           return name
-            ? `<img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/${name}.png" class="mc-spell-icon" title="${name.replace('Summoner', '')}" onerror="this.style.display='none'">`
+            ? `<img src="${imageUrl}" class="mc-spell-icon" title="${name.replace('Summoner', '')}" onerror="window.logMissingOverviewSpellIcon && window.logMissingOverviewSpellIcon(${id}, '${name}', this.src, '${matchId}');this.style.display='none'">`
             : `<span class="mc-spell-empty"></span>`;
         };
         const champLevel = player.champLevel || '';
