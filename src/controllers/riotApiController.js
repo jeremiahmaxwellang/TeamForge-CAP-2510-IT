@@ -701,6 +701,8 @@ async function extractParticipantData(matchId, matchData) {
                 item6: participant.item6 || null,
                 summoner1Id: participant.summoner1Id || null,
                 summoner2Id: participant.summoner2Id || null,
+                primaryPerkId: participant.perks?.styles?.[0]?.selections?.[0]?.perk || null,
+                secondaryPerkStyleId: participant.perks?.styles?.[1]?.style || null,
                 neutralMinionsKilled: participant.neutralMinionsKilled || 0,
                 role: participant.role || null,
                 soloKills: participant.challenges?.soloKills || 0,
@@ -743,11 +745,11 @@ async function storeParticipantDetails(participantData) {
             INSERT INTO matchParticipants 
             (matchId, participantId, puuid, riotIdGameTag, riotIdTagline, queueId, assists, champLevel, championId, championName, 
              creepScore, creepScorePerMinute, damageDealthToBuildings, deaths, dragonKills, goldEarned, goldPerMinute, kda, 
-             kills, killParticipation, item0, item1, item2, item3, item4, item5, item6, summoner1Id, summoner2Id, neutralMinionsKilled, role, soloKills, 
+             kills, killParticipation, item0, item1, item2, item3, item4, item5, item6, summoner1Id, summoner2Id, primaryPerkId, secondaryPerkStyleId, neutralMinionsKilled, role, soloKills, 
              teamId, teamPosition, totalDamageDealt, totalDamageTaken, totalMinionsKilled, visionScore, visionScorePerMinute, 
              wardsKilled, wardsPlaced, win, teamBaronKills, teamElderDragonKills, teamRiftHeraldKills, voidMonsterKill, 
              objectiveRate, damageShare)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
             puuid = VALUES(puuid),
             riotIdGameTag = VALUES(riotIdGameTag),
@@ -773,6 +775,8 @@ async function storeParticipantDetails(participantData) {
             item6 = VALUES(item6),
             summoner1Id = VALUES(summoner1Id),
             summoner2Id = VALUES(summoner2Id),
+            primaryPerkId = VALUES(primaryPerkId),
+            secondaryPerkStyleId = VALUES(secondaryPerkStyleId),
             neutralMinionsKilled = VALUES(neutralMinionsKilled),
             role = VALUES(role),
             soloKills = VALUES(soloKills),
@@ -823,6 +827,8 @@ async function storeParticipantDetails(participantData) {
             participantData.item6,
             participantData.summoner1Id,
             participantData.summoner2Id,
+            participantData.primaryPerkId,
+            participantData.secondaryPerkStyleId,
             participantData.neutralMinionsKilled,
             participantData.role,
             participantData.soloKills,
