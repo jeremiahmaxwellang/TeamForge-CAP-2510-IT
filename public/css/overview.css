@@ -427,3 +427,418 @@
         height: 18px;
     }
 }
+
+/* ============================================
+   MATCH HISTORY LIST + DETAIL PANEL
+   ============================================ */
+
+.match-panel-container {
+    display: block;
+    margin-top: 16px;
+}
+
+.match-history-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.no-matches {
+    padding: 16px;
+    color: #666;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Match Card */
+.match-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border-left: 5px solid transparent;
+    transition: filter 0.15s;
+    font-family: 'Roboto', sans-serif;
+}
+
+.match-card:hover {
+    filter: brightness(0.96);
+}
+
+.match-card.mc-win {
+    background-color: #e8f4fd;
+    border-left-color: #4e9fe0;
+}
+
+.match-card.mc-loss {
+    background-color: #fde8eb;
+    border-left-color: #e04e5a;
+}
+
+/* Meta column */
+.mc-meta {
+    width: 96px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mc-queue {
+    font-size: 13px;
+    font-weight: 700;
+    color: #222;
+}
+
+.mc-date {
+    font-size: 11px;
+    color: #777;
+}
+
+.mc-result {
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.mc-win-text { color: #1a73e8; }
+.mc-loss-text { color: #e84057; }
+
+/* Champion column (icon + level badge + summoner spells) */
+.mc-champ-col {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.mc-champ-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Champion icon */
+.mc-champ-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid rgba(0,0,0,0.12);
+    object-fit: cover;
+    display: block;
+}
+
+/* Level badge drawn at bottom-center of champion icon */
+.mc-champ-level {
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 4px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.25);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* Summoner spell icons stacked vertically */
+.mc-summoner-spells {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mc-spell-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    object-fit: cover;
+    display: block;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+
+.mc-spell-empty {
+    width: 22px;
+    height: 22px;
+    background: #c9c9c9;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* Items grid (2 rows of 4) */
+.mc-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.mc-items-row {
+    display: flex;
+    gap: 2px;
+}
+
+.mc-item-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    object-fit: cover;
+    display: block;
+}
+
+.mc-item-empty {
+    width: 22px;
+    height: 22px;
+    background: #c9c9c9;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* KDA block */
+.mc-kda {
+    display: flex;
+    flex-direction: column;
+    min-width: 90px;
+    flex-shrink: 0;
+    gap: 1px;
+}
+
+.mc-kda-scores {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+}
+
+.mc-deaths { color: #e84057; }
+
+.mc-kda-ratio,
+.mc-cs,
+.mc-vision {
+    font-size: 11px;
+    color: #555;
+}
+
+/* Teams block */
+.mc-teams {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.mc-team-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mc-teammate {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mc-teammate-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.mc-teammate-name {
+    font-size: 10px;
+    color: #444;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 68px;
+}
+
+/* ============================================
+   MATCH DETAIL PANEL
+   ============================================ */
+
+.match-detail-panel {
+    flex: 1 1 52%;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e6e8ec;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    min-width: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+.match-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e6e8ec;
+    background: linear-gradient(180deg, #fafbfc 0%, #f3f5f8 100%);
+    border-radius: 8px 8px 0 0;
+}
+
+#match-detail-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.match-detail-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.match-detail-close:hover { color: #333; }
+
+.match-detail-content {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Team blocks */
+.md-team-block {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e6e8ec;
+}
+
+.md-team-win .md-team-header { background-color: #bfdbfe; }
+.md-team-loss .md-team-header { background-color: #fecaca; }
+
+.md-team-header {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.md-result-badge {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.md-badge-win { color: #1a73e8; }
+.md-badge-loss { color: #e84057; }
+
+.md-team-label {
+    font-size: 13px;
+    color: #555;
+}
+
+.md-table-scroll { overflow-x: auto; }
+
+.md-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.md-table thead th {
+    padding: 6px 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: #4b5563;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.md-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+    color: #1f2937;
+    white-space: nowrap;
+}
+
+.md-table tbody tr:last-child td { border-bottom: none; }
+
+.md-player-cell {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+}
+
+.md-champ-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.md-kda-ratio {
+    font-size: 10px;
+    color: #777;
+}
+
+.md-items-cell {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.md-item {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    object-fit: cover;
+}
+
+.md-item-empty {
+    width: 20px;
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Carry column */
+.md-carry-cell {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    color: #374151;
+}
+
+.md-carry-high {
+    background-color: #fef9c3 !important;
+    color: #b45309 !important;
+    font-weight: 700;
+}
+
+/* Perfect KDA */
+.md-perfect-kda {
+    color: #059669;
+    font-weight: 700;
+}
+
+@media (max-width: 900px) {
+    .match-panel-container {
+        flex-direction: column;
+    }
+    .match-history-list,
+    .match-detail-panel {
+        flex-basis: 100%;
+    }
+}

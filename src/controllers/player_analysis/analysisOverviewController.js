@@ -129,6 +129,17 @@ exports.getWinrate = async (req, res) => {
 // Get recent match details from database for a player by puuid
 exports.getRecentMatchesFromDatabase = async (req, res) => {
     try {
+        const toWinBoolean = (value) => {
+            if (typeof value === 'boolean') return value;
+            if (typeof value === 'number') return value === 1;
+
+            const normalized = String(value || '').trim().toUpperCase();
+            if (normalized === 'W' || normalized === 'WIN' || normalized === 'TRUE' || normalized === '1') return true;
+            if (normalized === 'L' || normalized === 'LOSS' || normalized === 'FALSE' || normalized === '0') return false;
+
+            return false;
+        };
+
         const { puuid } = req.params;
         const { queueId, teamPosition } = req.query;
 
@@ -210,7 +221,7 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
                     kills: row.kills,
                     deaths: row.deaths,
                     assists: row.assists,
-                    win: row.win,
+                    win: toWinBoolean(row.win),
                     championName: row.championName,
                     queueId: row.queueId,
                     champLevel: row.champLevel,

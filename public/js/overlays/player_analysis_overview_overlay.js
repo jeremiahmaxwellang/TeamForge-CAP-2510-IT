@@ -295,6 +295,105 @@
       requestAnimationFrame(() => api.updateWinrateDisplay(PA.cache.winrateData));
     }
 
+    function timeAgo(timestamp) {
+      const diff = Date.now() - timestamp;
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+      const months = Math.floor(days / 30);
+      if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
+      if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+      if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      return `${Math.max(minutes, 1)} minute${minutes !== 1 ? 's' : ''} ago`;
+    }
+
+    function renderMatchHistory(matches, puuid) {
+      const container = document.getElementById('match-list');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!matches || matches.length === 0) {
+        container.innerHTML = '<div class="no-matches">No match history found.</div>';
+        return;
+      }
+      matches.forEach((match, index) => {
+        if (!match?.info?.participants) return;
+        const player = match.info.participants.find(p => p.puuid === puuid);
+        if (!player) return;
+        const isWin = player.win;
+        const duration = match.info.gameDuration || 0;
+        const durationMin = Math.floor(duration / 60);
+        const durationSec = duration % 60;
+        const kdaRatio = ((player.kills + player.assists) / Math.max(1, player.deaths)).toFixed(2);
+        const csPerMin = durationMin > 0 ? (player.totalMinionsKilled / durationMin).toFixed(1) : '0.0';
+        const queueNames = { 420: 'Ranked Solo', 440: 'Ranked Flex', 450: 'ARAM', 430: 'Normal', 0: 'Custom' };
+        const queueName = queueNames[match.info.queueId] || 'Normal';
+        const gameDate = match.info.gameStartTimestamp ? timeAgo(match.info.gameStartTimestamp) : '';
+        const allies = match.info.participants.filter(p => p.teamId === player.teamId && p.puuid !== puuid);
+        const enemies = match.info.participants.filter(p => p.teamId !== player.teamId);
+        const makeTeamCol = (players) => players.slice(0, 4).map(p => `
+          <div class="mc-teammate">
+            <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${p.championName}.png"
+                 alt="${p.championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
+            <span class="mc-teammate-name">${(p.riotIdGameName || p.summonerName || '').substring(0, 10)}</span>
+          </div>`).join('');
+        // Items: 2 rows of 4 (item0-item3 / item4-item5+item6+empty)
+        const itemIds = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6, null];
+        const makeItemSlot = (id) => id
+          ? `<img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/${id}.png" class="mc-item-icon" onerror="this.style.display='none'">`
+          : `<span class="mc-item-empty"></span>`;
+        const itemRow1 = itemIds.slice(0, 4).map(makeItemSlot).join('');
+        const itemRow2 = itemIds.slice(4, 8).map(makeItemSlot).join('');
+        // Summoner spell ID → DDragon spell key mapping
+        const SUMMONER_SPELL_MAP = {
+          1: 'SummonerBoost', 3: 'SummonerExhaust', 4: 'SummonerFlash',
+          6: 'SummonerHaste', 7: 'SummonerHeal', 11: 'SummonerSmite',
+          12: 'SummonerTeleport', 13: 'SummonerMana', 14: 'SummonerDot',
+          21: 'SummonerBarrier', 32: 'SummonerSnowball', 39: 'SummonerSnowURFSnowball_Mark'
+        };
+        const spellImg = (id) => {
+          const name = SUMMONER_SPELL_MAP[id];
+          return name
+            ? `<img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/${name}.png" class="mc-spell-icon" title="${name.replace('Summoner', '')}" onerror="this.style.display='none'">`
+            : `<span class="mc-spell-empty"></span>`;
+        };
+        const champLevel = player.champLevel || '';
+        const card = document.createElement('div');
+        card.className = `match-card ${isWin ? 'mc-win' : 'mc-loss'}`;
+        card.innerHTML = `
+          <div class="mc-meta">
+            <div class="mc-queue">${queueName}</div>
+            <div class="mc-date">${gameDate}</div>
+            <div class="mc-result ${isWin ? 'mc-win-text' : 'mc-loss-text'}">${isWin ? 'WIN' : 'LOSS'} ${durationMin}:${String(durationSec).padStart(2, '0')}</div>
+          </div>
+          <div class="mc-champ-col">
+            <div class="mc-champ-wrapper">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${player.championName}.png"
+                   alt="${player.championName}" class="mc-champ-icon" onerror="this.src='/images/sample_hero.png'">
+              ${champLevel ? `<span class="mc-champ-level">${champLevel}</span>` : ''}
+            </div>
+            <div class="mc-summoner-spells">
+              ${spellImg(player.summoner1Id)}
+              ${spellImg(player.summoner2Id)}
+            </div>
+          </div>
+          <div class="mc-items">
+            <div class="mc-items-row">${itemRow1}</div>
+            <div class="mc-items-row">${itemRow2}</div>
+          </div>
+          <div class="mc-kda">
+            <div class="mc-kda-scores">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
+            <div class="mc-kda-ratio">${kdaRatio} KDA</div>
+            <div class="mc-cs">${player.totalMinionsKilled} CS (${csPerMin})</div>
+            <div class="mc-vision">${player.visionScore} vision</div>
+          </div>
+          <div class="mc-teams">
+            <div class="mc-team-col">${makeTeamCol(allies)}</div>
+            <div class="mc-team-col">${makeTeamCol(enemies)}</div>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
     function refreshOverviewStats(useRiotApi = false) {
       const btn = document.getElementById("player-dropdown-btn");
       const puuid = btn?.getAttribute("data-puuid");
@@ -304,7 +403,10 @@
 
       const matchFetch = useRiotApi ? api.fetchRecentMatches : api.fetchRecentMatchesFromDatabase;
       matchFetch(puuid, state.currentQueueId, selectedTeamPosition)
-        .then(() => api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition))
+        .then(() => {
+          renderMatchHistory(PA.cache.matches, puuid);
+          return api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition);
+        })
         .then(() => redrawWinrateFromCache())
         .catch((err) => console.error("[OVERVIEW] Error refreshing recent matches:", err));
     }
@@ -537,6 +639,10 @@
               }
               if (PA.cache.topChampions) {
                 api.updateChampionDisplay(PA.cache.topChampions);
+              }
+              if (PA.cache.matches) {
+                const cachedPuuid = document.getElementById("player-dropdown-btn")?.getAttribute("data-puuid");
+                if (cachedPuuid) renderMatchHistory(PA.cache.matches, cachedPuuid);
               }
             }
 
