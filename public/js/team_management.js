@@ -112,6 +112,13 @@ function setupEventListeners() {
         addUserDropdown.style.display = addUserDropdown.style.display === 'none' ? 'block' : 'none';
     });
 
+    csvUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            handleCsvFile(file);
+        }
+    });
+
     // Dropdown option clicks
     document.querySelectorAll('.add-user-option').forEach(option => {
         option.addEventListener('click', (e) => {
@@ -625,7 +632,7 @@ function renderUsersTable(users) {
             <td>${user.position}</td>
             <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
             <td>${user.email}</td>
-            <td>${user.teamId}</td>
+            <td>${user.discord || '—'}</td>
         `;
 
         tbody.appendChild(row);
