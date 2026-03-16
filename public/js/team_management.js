@@ -276,22 +276,18 @@ function downloadCsvTemplate() {
     const headers = [
         'Full Name',
         'Riot ID',
-        'Position (Team Manager, Team Coach, Player, Sub, Applicant)',
-        'Status (Active, Inactive, Deactivated)',
+        'Position (Team Manager/Team Coach/Player/Sub/Applicant)',
+        'Status (Active/Inactive/Deactivated)',
         'Email',
         'Discord'
     ];
 
-    const example = [
-        'John Doe',
-        'GameName#1234',
-        'Player',
-        'Active',
-        'player@example.com',
-        'John#1234'
+    const examples = [
+        ['John Manager', 'ManagerOne#1111', 'Team Manager', 'Active', 'manager@example.com', 'Manager#1111'],
+        
     ];
 
-    const csvContent = `${headers.join(',')}\n${example.join(',')}\n`;
+    const csvContent = [headers.join(','), ...examples.map((row) => row.join(','))].join('\n') + '\n';
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -386,26 +382,41 @@ function handleCsvFile(file) {
             return;
         }
 
-        // Normalize header names to lowercase for matching
-        const normalized = headers.map(h => h.toLowerCase());
+        // Normalize header names to lowercase for matching.
+        const normalized = headers.map(h => h.toLowerCase().trim());
         const idx = (names) => {
-            for (let n of names) {
-                const i = normalized.indexOf(n);
-                if (i !== -1) return i;
+            for (let i = 0; i < normalized.length; i++) {
+                for (const n of names) {
+                    if (normalized[i] === n || normalized[i].startsWith(`${n} (`) || normalized[i].includes(n)) {
+                        return i;
+                    }
+                }
             }
             return -1;
         };
 
-        const fullNameIdx = idx(['full name', 'fullname', 'name']);
-        const riotIdIdx = idx(['riot id', 'riotid']);
-        const positionIdx = idx(['position']);
-        const statusIdx = idx(['status']);
-        const emailIdx = idx(['email']);
-        const discordIdx = idx(['discord']);
+        let fullNameIdx = idx(['full name', 'fullname', 'name']);
+        let riotIdIdx = idx(['riot id', 'riotid']);
+        let positionIdx = idx(['position']);
+        let statusIdx = idx(['status']);
+        let emailIdx = idx(['email']);
+        let discordIdx = idx(['discord']);
 
         if (fullNameIdx === -1 || emailIdx === -1) {
             alert('CSV must include at least "Full Name" and "Email" headers');
             return;
+        }
+
+        // Backward compatibility: older templates had commas in header labels,
+        // which shifted header indexes while data rows still had 6 columns.
+        const firstDataRow = rows.find(row => row.some(cell => (cell || '').trim() !== ''));
+        if (firstDataRow && emailIdx >= firstDataRow.length && firstDataRow.length >= 5) {
+            if (fullNameIdx === -1 || fullNameIdx >= firstDataRow.length) fullNameIdx = 0;
+            if (riotIdIdx === -1 || riotIdIdx >= firstDataRow.length) riotIdIdx = firstDataRow.length > 1 ? 1 : -1;
+            if (positionIdx === -1 || positionIdx >= firstDataRow.length) positionIdx = firstDataRow.length > 2 ? 2 : -1;
+            if (statusIdx === -1 || statusIdx >= firstDataRow.length) statusIdx = firstDataRow.length > 3 ? 3 : -1;
+            emailIdx = 4;
+            discordIdx = firstDataRow.length > 5 ? 5 : -1;
         }
 
         // Build validated payloads
