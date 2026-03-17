@@ -44,6 +44,39 @@ function requireRole(requiredRole) {
     };
 }
 
+function requireAnyRole(allowedRoles) {
+    return async (req, res, next) => {
+        try {
+            const role = req.cookies && req.cookies.userRole;
+            const userId = req.cookies && req.cookies.userId;
+
+            if (!allowedRoles.includes(role) || !userId) {
+                res.clearCookie('userRole');
+                res.clearCookie('userId');
+                return res.redirect('/');
+            }
+
+            const [rows] = await mySqlPool.query(
+                'SELECT userId, position FROM users WHERE userId = ?',
+                [userId]
+            );
+
+            if (!rows.length || !allowedRoles.includes(rows[0].position)) {
+                res.clearCookie('userRole');
+                res.clearCookie('userId');
+                return res.redirect('/');
+            }
+
+            return next();
+        } catch (err) {
+            console.error(err);
+            res.clearCookie('userRole');
+            res.clearCookie('userId');
+            return res.redirect('/');
+        }
+    };
+}
+
 async function requireCoachRole(req, res, next) {
     try {
         const role = req.cookies && req.cookies.userRole;
@@ -83,8 +116,8 @@ global.viewsPath = path.join(process.cwd(), 'views');
 app.use("/", require("./routes/authRoutes")); // login routes
 app.use('/register', require("./routes/registerRoutes")); // registration routes
 app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applicant_listRoutes')); // applicant list routes
-app.use('/player_analysis', requireRole('Team Coach'), require('./routes/playerAnalysisRoutes'));
-app.use('/riot', requireRole('Team Coach'), require('./routes/riotApiRoutes'));
+app.use('/player_analysis', requireAnyRole(['Team Coach', 'Player']), require('./routes/playerAnalysisRoutes'));
+app.use('/riot', requireAnyRole(['Team Coach', 'Player']), require('./routes/riotApiRoutes'));
 app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes')); // team management routes
 app.use('/announcements', requireRole('Team Manager'), require('./routes/announcementRoutes')); // announcement routes
 app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRoutes')); // tournament routes
