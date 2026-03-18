@@ -12,19 +12,25 @@
         <h2>Complete Your Registration</h2>
 
         <label>Full Name</label>
-        <input type="text" placeholder="Enter your full name">
+        <input type="text" id="fullName" placeholder="Enter your full name" required>
 
         <label>Riot ID</label>
-        <input type="text" placeholder="Enter your Riot ID">
+        <input type="text" id="riotId" placeholder="Enter your Riot ID" required>
+
+        <label>Discord</label>
+        <input type="text" id="discord" placeholder="Enter your Discord (e.g. User#1234)" required>
+
+        <label>Profile Photo</label>
+        <input type="file" id="profilePhoto" accept=".png,.jpg,.jpeg,image/png,image/jpeg" required>
 
         <label>GPA</label>
-        <input type="number" placeholder="Enter your GPA">
+        <input type="number" id="gpa" placeholder="Enter your GPA" required>
 
         <label>CGPA</label>
-        <input type="number" placeholder="Enter your CGPA">
+        <input type="number" id="cgpa" placeholder="Enter your CGPA" required>
 
         <label>Current Rank</label>
-        <select id="currentRank">
+        <select id="currentRank" required>
             <option value="">Select current rank</option>
             <option value="Challenger">Challenger</option>
             <option value="Grand Master">Grand Master</option>
@@ -36,7 +42,7 @@
         </select>
 
         <label>Peak Rank</label>
-        <select id="peakRank">
+        <select id="peakRank" required>
             <option value="">Select peak rank</option>
             <option value="Challenger">Challenger</option>
             <option value="Grand Master">Grand Master</option>
@@ -48,7 +54,7 @@
         </select>
 
         <label>Primary Role</label>
-        <select id="primaryRole">
+        <select id="primaryRole" required>
             <option value="">Select primary role</option>
             <option value="1">Top</option>
             <option value="2">Jungle</option>
@@ -58,7 +64,7 @@
         </select>
 
         <label>Secondary Role</label>
-        <select id="secondaryRole">
+        <select id="secondaryRole" required>
             <option value="">Select secondary role</option>
             <option value="1">Top</option>
             <option value="2">Jungle</option>

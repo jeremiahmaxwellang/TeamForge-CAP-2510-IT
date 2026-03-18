@@ -160,9 +160,9 @@ function setupEventListeners() {
     const manualPrimaryRole = document.getElementById('manualPrimaryRoleId');
 
     const syncManualRoleFields = () => {
-        const isPlayer = manualPosition.value === 'Player';
-        manualRoleFields.style.display = isPlayer ? 'block' : 'none';
-        manualPrimaryRole.required = isPlayer;
+        const showRoles = ['Player', 'Sub', 'Applicant'].includes(manualPosition.value);
+        manualRoleFields.style.display = showRoles ? 'block' : 'none';
+        manualPrimaryRole.required = showRoles;
     };
 
     manualPosition.addEventListener('change', syncManualRoleFields);
@@ -279,12 +279,13 @@ function downloadCsvTemplate() {
         'Position (Team Manager/Team Coach/Player/Sub/Applicant)',
         'Status (Active/Inactive/Deactivated)',
         'Email',
-        'Discord'
+        'Discord',
+        'Primary Role (Top/Jungle/Mid/AD Carry/Support)',
+        'Secondary Role (Top/Jungle/Mid/AD Carry/Support)'
     ];
 
     const examples = [
-        ['John Manager', 'ManagerOne#1111', 'Team Manager', 'Active', 'manager@example.com', 'Manager#1111'],
-        
+        ['John Manager', 'ManagerOne#1111', 'Team Manager', 'Active', 'manager@example.com', 'Manager#1111', '', '']
     ];
 
     const csvContent = [headers.join(','), ...examples.map((row) => row.join(','))].join('\n') + '\n';
@@ -325,12 +326,12 @@ async function registerManualUser() {
     }
     const discord = document.getElementById('manualDiscord').value.trim();
     const position = document.getElementById('manualPosition').value;
-    const isPlayer = position === 'Player';
+    const needsRoles = ['Player', 'Sub', 'Applicant'].includes(position);
     const primaryRoleRaw = document.getElementById('manualPrimaryRoleId').value;
     const secondaryRoleRaw = document.getElementById('manualSecondaryRoleId').value;
 
-    if (isPlayer && !primaryRoleRaw) {
-        alert('Primary role is required for players');
+    if (needsRoles && !primaryRoleRaw) {
+        alert('Primary role is required for players, subs, and applicants');
         return;
     }
 
@@ -344,10 +345,11 @@ async function registerManualUser() {
         riotId: document.getElementById('manualRiotId').value.trim(),
         position,
         discord: document.getElementById('manualDiscord').value.trim(),
-        status: document.getElementById('manualStatus').value
+        status: document.getElementById('manualStatus').value,
+        profilePhoto: 'defaultusericon.png'
     };
 
-    if (isPlayer) {
+    if (needsRoles) {
         payload.primaryroleid = Number.parseInt(primaryRoleRaw, 10);
         payload.secondaryroleid = secondaryRoleRaw ? Number.parseInt(secondaryRoleRaw, 10) : null;
     }
@@ -401,6 +403,8 @@ function handleCsvFile(file) {
         let statusIdx = idx(['status']);
         let emailIdx = idx(['email']);
         let discordIdx = idx(['discord']);
+        let primaryRoleIdx = idx(['primary role', 'primaryrole', 'primaryroleid']);
+        let secondaryRoleIdx = idx(['secondary role', 'secondaryrole', 'secondaryroleid']);
 
         if (fullNameIdx === -1 || emailIdx === -1) {
             alert('CSV must include at least "Full Name" and "Email" headers');
@@ -419,6 +423,13 @@ function handleCsvFile(file) {
             discordIdx = firstDataRow.length > 5 ? 5 : -1;
         }
 
+        // Role name to ID mapping
+        const roleNameToId = { 'top': 1, 'jungle': 2, 'mid': 3, 'ad carry': 4, 'adc': 4, 'support': 5, 'sup': 5 };
+        const parseRoleId = (val) => {
+            const name = (val || '').trim().toLowerCase();
+            return roleNameToId[name] || null;
+        };
+
         // Build validated payloads
         const payloads = [];
         for (let i = 0; i < rows.length; i++) {
@@ -430,15 +441,27 @@ function handleCsvFile(file) {
             const firstname = nameParts.shift();
             const lastname = nameParts.join(' ') || '';
 
+            const position = positionIdx !== -1 ? (row[positionIdx] || '').trim() : 'Player';
             const payload = {
                 email: (row[emailIdx] || '').trim(),
                 firstname: firstname || '',
                 lastname: lastname || '',
                 riotId: riotIdIdx !== -1 ? (row[riotIdIdx] || '').trim() : '',
-                position: positionIdx !== -1 ? (row[positionIdx] || '').trim() : 'Player',
+                position,
                 discord: discordIdx !== -1 ? (row[discordIdx] || '').trim() : '',
-                status: statusIdx !== -1 ? (row[statusIdx] || '').trim() : 'Active'
+                status: statusIdx !== -1 ? (row[statusIdx] || '').trim() : 'Active',
+                profilePhoto: 'defaultusericon.png'
             };
+
+            // Include role IDs for positions that require them
+            if (['Player', 'Sub', 'Applicant'].includes(position)) {
+                const primaryRoleName = primaryRoleIdx !== -1 ? (row[primaryRoleIdx] || '') : '';
+                const secondaryRoleName = secondaryRoleIdx !== -1 ? (row[secondaryRoleIdx] || '') : '';
+                const primaryRoleId = parseRoleId(primaryRoleName);
+                const secondaryRoleId = parseRoleId(secondaryRoleName);
+                if (primaryRoleId) payload.primaryroleid = primaryRoleId;
+                if (secondaryRoleId) payload.secondaryroleid = secondaryRoleId;
+            }
 
             // Basic validation
             if (payload.email && payload.firstname) {
@@ -470,6 +493,9 @@ function showUploadConfirmation(payloads) {
     // Update modal content
     countEl.textContent = `Ready to upload ${payloads.length} user(s)`;
 
+    // Role ID to name mapping for preview
+    const roleIdToName = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'AD Carry', 5: 'Support' };
+
     // Build preview table
     tableEl.innerHTML = `
         <thead>
@@ -480,6 +506,8 @@ function showUploadConfirmation(payloads) {
                 <th>Status</th>
                 <th>Email</th>
                 <th>Discord</th>
+                <th>Primary Role</th>
+                <th>Secondary Role</th>
             </tr>
         </thead>
         <tbody>
@@ -491,6 +519,8 @@ function showUploadConfirmation(payloads) {
                     <td>${p.status}</td>
                     <td>${p.email}</td>
                     <td>${p.discord || '—'}</td>
+                    <td>${p.primaryroleid ? (roleIdToName[p.primaryroleid] || p.primaryroleid) : '—'}</td>
+                    <td>${p.secondaryroleid ? (roleIdToName[p.secondaryroleid] || p.secondaryroleid) : '—'}</td>
                 </tr>
             `).join('')}
         </tbody>

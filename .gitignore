@@ -1,2 +1,4 @@
 /node_modules
 .env
+public/uploads/profile-photos/*
+!public/uploads/profile-photos/defaultusericon.png

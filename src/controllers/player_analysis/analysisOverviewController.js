@@ -50,7 +50,9 @@ async function fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, limit 
 
     let sql = `
         SELECT m.*, mp.puuid, mp.kills, mp.deaths, mp.assists, mp.win,
-               mp.championName, mp.queueId, mp.champLevel, mp.goldEarned
+               mp.championName, mp.queueId, mp.champLevel, mp.goldEarned,
+             mp.item0, mp.item1, mp.item2, mp.item3, mp.item4, mp.item5, mp.item6,
+               mp.summoner1Id, mp.summoner2Id, mp.primaryPerkId, mp.secondaryPerkStyleId
         FROM matches m
         JOIN matchParticipants mp ON m.matchId = mp.matchId
         WHERE mp.puuid = ? AND mp.teamPosition = ?
@@ -129,6 +131,17 @@ exports.getWinrate = async (req, res) => {
 // Get recent match details from database for a player by puuid
 exports.getRecentMatchesFromDatabase = async (req, res) => {
     try {
+        const toWinBoolean = (value) => {
+            if (typeof value === 'boolean') return value;
+            if (typeof value === 'number') return value === 1;
+
+            const normalized = String(value || '').trim().toUpperCase();
+            if (normalized === 'W' || normalized === 'WIN' || normalized === 'TRUE' || normalized === '1') return true;
+            if (normalized === 'L' || normalized === 'LOSS' || normalized === 'FALSE' || normalized === '0') return false;
+
+            return false;
+        };
+
         const { puuid } = req.params;
         const { queueId, teamPosition } = req.query;
 
@@ -210,11 +223,32 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
                     kills: row.kills,
                     deaths: row.deaths,
                     assists: row.assists,
-                    win: row.win,
+                    win: toWinBoolean(row.win),
                     championName: row.championName,
                     queueId: row.queueId,
                     champLevel: row.champLevel,
-                    goldEarned: row.goldEarned
+                    goldEarned: row.goldEarned,
+                    item0: row.item0,
+                    item1: row.item1,
+                    item2: row.item2,
+                    item3: row.item3,
+                    item4: row.item4,
+                    item5: row.item5,
+                    item6: row.item6,
+                    summoner1Id: row.summoner1Id,
+                    summoner2Id: row.summoner2Id,
+                    perks: {
+                        styles: [
+                            {
+                                selections: [
+                                    { perk: row.primaryPerkId || null }
+                                ]
+                            },
+                            {
+                                style: row.secondaryPerkStyleId || null
+                            }
+                        ]
+                    }
                 }]
             }
         }));

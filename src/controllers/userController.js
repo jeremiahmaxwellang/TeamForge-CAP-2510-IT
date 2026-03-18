@@ -62,9 +62,10 @@ const getUserById = async (req, res) => {
 // CREATE USERS
 const createUser = async (req, res) => {
     try {
-        let { userId, email, passwordHash, firstname, lastname, position, discord, status, riotId, primaryroleid, secondaryroleid } = req.body
+        let { userId, email, passwordHash, firstname, lastname, position, discord, status, riotId, primaryroleid, secondaryroleid, profilePhoto } = req.body
         // make sure discord is always string
         discord = discord || '';
+        profilePhoto = profilePhoto || 'defaultusericon.png';
 
         const parsedPrimaryRoleId = Number.parseInt(primaryroleid, 10);
         const parsedSecondaryRoleId = Number.parseInt(secondaryroleid, 10);
@@ -151,8 +152,8 @@ const createUser = async (req, res) => {
             try {
                 const applicationStatus = position === 'Player' ? 'Accepted' : null;
                 await db.query(
-                    `INSERT INTO players (userId, gameName, tagLine, primaryRoleId, secondaryRoleId, applicationStatus) VALUES (?, ?, ?, ?, ?, ?)`,
-                    [newUserId, gameName, tagLine, primaryRoleId, secondaryRoleId, applicationStatus]
+                    `INSERT INTO players (userId, gameName, tagLine, primaryRoleId, secondaryRoleId, profilePhoto, applicationStatus) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    [newUserId, gameName, tagLine, primaryRoleId, secondaryRoleId, profilePhoto, applicationStatus]
                 );
             } catch (err) {
                 console.error('Error inserting into players:', err.message);

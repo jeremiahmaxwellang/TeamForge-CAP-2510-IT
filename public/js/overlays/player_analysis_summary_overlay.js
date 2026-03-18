@@ -8,19 +8,18 @@ window.initSummaryTab = function (userId) {
     return;
   }
 
-  const recText = document.querySelector(".rec-text");
-
   // Player Data
   let [playerRoles] = [];
 
   // Scrims Elements
-  const totalGames = document.querySelector("#total-games");
+  const totalScrims = document.querySelector("#total-games");
   let averageGameSense = 0.0;
   let averageComms = 0.0;
   let averageChampionPool = 0.0;
 
   // Champion Elements
-  const totalChamps = document.querySelector("#total-champs");
+  const totalChampsHeader = document.querySelector("#total-champs");
+  let totalChamps = 0;
   const champTableBody = document.querySelector("#champ-table tbody");
 
   const rolesPromise = Backend.fetchPlayerRoles(userId)
@@ -28,15 +27,18 @@ window.initSummaryTab = function (userId) {
       playerRoles = [...roles];
       console.log("playerRoles ")
       console.log(playerRoles);
-  });
+    });
 
   const totalChampsPromise = Backend.fetchTotalChampions(userId)
     .then((item) => {
-      
-      if(item.totalChamps)
-        totalChamps.textContent = `(${item.totalChamps} champions total)`;
+
+      if (item.totalChamps)
+        totalChampsHeader.textContent = `(${item.totalChamps} champions total)`;
+        totalChamps = item.totalChamps;
+
     })
 
+  // RANKED GAMES SUMMARY
   const matchPromise = Backend.fetchOverviewSummary(userId)
     .then((items) => {
       const overviewTb = document.querySelector("#overview-table tbody");
@@ -78,12 +80,13 @@ window.initSummaryTab = function (userId) {
                   </div>
               </td>
               <td><span class="kda-text">${item.avgKills} / ${item.avgDeaths} / ${item.avgAssists}</span></td>
-            `;    
+              <td>${item.avgCsm}</td>
+            `;
 
         overviewTb.appendChild(row);
       });
     })
-    .catch((err) => console.error("[SCRIMS] ✗ Error loading scrim summary:", err));
+    .catch((err) => console.error("[SUMMARY] ✗ Error loading ranked summary:", err));
 
   const scrimsPromise = Backend.fetchScrimSummary(userId)
     .then((scrims) => {
@@ -92,7 +95,7 @@ window.initSummaryTab = function (userId) {
       scrimTb.innerHTML = "";
 
       scrims.forEach((item) => {
-        totalGames.textContent = `(${item.totalScrims} games total)`;
+        totalScrims.textContent = `(${item.totalScrims} games total)`;
 
         // Assigning global variables
         averageGameSense = parseFloat(item.averageGameSense);
@@ -105,15 +108,15 @@ window.initSummaryTab = function (userId) {
         let rowComms = `<td>${item.averageComms}</td>`;
         let rowChampionPool = `<td>${item.averageChampionPool}</td>`;
 
-        if(parseFloat(item.averageGameSense) <= 2.5) {
+        if (parseFloat(item.averageGameSense) <= 2.5) {
           rowGameSense = `<td><span class="score-red">${item.averageGameSense}</span></td>`
         }
 
-        if(parseFloat(item.averageComms) <= 2.5) {
+        if (parseFloat(item.averageComms) <= 2.5) {
           rowComms = `<td><span class="score-red">${item.averageComms}</span></td>`
         }
 
-        if(parseFloat(item.averageChampionPool) <= 2.5) {
+        if (parseFloat(item.averageChampionPool) <= 2.5) {
           rowChampionPool = `<td><span class="score-red">${item.averageChampionPool}</span></td>`
         }
 
@@ -167,37 +170,102 @@ window.initSummaryTab = function (userId) {
 
 
 
-    // Recommendations Section
-    
-    async function generateRecommendations() {
-      // Wait for all data to load before generating recommendation
-      await Promise.all([scrimsPromise, totalChampsPromise, championPromise, commsPromise, matchPromise]);
+  // Recommendations Section
 
-      // TODO: Get player name and primary role
-      let recommendation = `Player ${userId} has`;
+  // async function generateRecommendations() {
+  //   // Wait for all data to load before generating recommendation
+  //   await Promise.all([scrimsPromise, totalChampsPromise, championPromise, commsPromise, matchPromise]);
 
-      // Ranked
-      // TODO: Ranked summary with creep score for all roles except support (needs calculation in overview/riotapi controller)
+  //   // TODO: Get player name and primary role
+  //   let recommendation = `Player ${userId} has`;
 
-      // Champions
-      // TODO: High/Low amount of champs
+  //   // Ranked
+  //   // TODO: Ranked summary with creep score for all roles except support (needs calculation in overview/riotapi controller)
 
-      // Scrims
-      if(averageComms <= 2.5 && averageComms != 0) {
-        recommendation = recommendation.concat(` has poor communication during scrims (${averageComms})` )
+  //   // Champions
+  //   // TODO: High/Low amount of champs
+
+  //   // Scrims
+  //   if (averageComms <= 2.5 && averageComms != 0) {
+  //     recommendation = recommendation.concat(` has poor communication during scrims (${averageComms})`)
+  //   }
+  //   else if (averageComms > 2.5 && averageComms != 0) {
+  //     recommendation = recommendation.concat(` has good communication during scrims (${averageComms})`)
+  //   }
+
+  //   if (recommendation) {
+  //     recText.textContent = recommendation;
+  //   }
+
+  // }
+
+  const recText = document.querySelector(".rec-text");
+
+  async function generateRecommendations() {
+    await Promise.all([scrimsPromise, totalChampsPromise, championPromise, commsPromise, matchPromise]);
+
+    const recommendations = [];
+    const playerName = `Player ${userId}`;
+    const primaryRole = "Unknown Role";
+
+    // ── SCRIMS ──────────────────────────────────────────────────────
+    if (averageComms !== 0) {
+      if (averageComms <= 2.5) {
+        recommendations.push(`has poor communication during scrims (${averageComms})`);
+      } else {
+        recommendations.push(`has good communication during scrims (${averageComms})`);
       }
-      else if(averageComms > 2.5 && averageComms != 0) {
-        recommendation = recommendation.concat(` has good communication during scrims (${averageComms})` )
-      }
-
-      if(recommendation) {
-        recText.textContent = recommendation;
-      }
-      
     }
 
-    generateRecommendations();
-    
+    if (averageGameSense !== 0) {
+      if (averageGameSense <= 2.5) {
+        recommendations.push(`needs improvement in game sense (${averageGameSense})`);
+      }
+    }
 
+    if (averageChampionPool !== 0 && averageChampionPool <= 2.5) {
+      recommendations.push(`has a weak champion pool rating in scrims (${averageChampionPool})`);
+    }
+
+    // ── RANKED / MATCH DATA ─────────────────────────────────────────
+    // Low winrate
+    // const totalGames = matchData?.reduce((sum, r) => sum + r.games, 0) ?? 0;
+    // const totalWins = matchData?.reduce((sum, r) => sum + (r.games * r.winrate / 100), 0) ?? 0;
+    // const overallWR = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+
+    // if (totalGames >= 10 && overallWR < 45) {
+    //   recommendations.push(`has a low ranked winrate of ${overallWR.toFixed(1)}% over ${totalGames} games`);
+    // }
+
+    // Low KDA
+    // const avgKDA = matchData?.find(r => r.teamPosition === primaryRole.toUpperCase())?.kda ?? null;
+    // if (avgKDA !== null && avgKDA < 2.0) {
+    //   recommendations.push(`has a below-average KDA of ${avgKDA} as ${primaryRole}`);
+    // }
+
+    // ── CHAMPION POOL ───────────────────────────────────────────────
+
+    if (totalChamps <= 3) {
+      recommendations.push(`has a very limited champion pool (${totalChamps} champions) — consider expanding`);
+    } else if (totalChamps >= 10) {
+      recommendations.push(`has a wide champion pool (${totalChamps} champions)`);
+    }
+
+    // ── BUILD FINAL TEXT ────────────────────────────────────────────
+    if (recommendations.length === 0) {
+      recText.textContent = `${playerName} is performing well across all areas.`;
+    } else {
+      // Capitalize first recommendation, join rest with semicolons
+      const [first, ...rest] = recommendations;
+      const firstCap = first.charAt(0).toUpperCase() + first.slice(1);
+      const joined = rest.length > 0
+        ? `${firstCap}; ${rest.join("; ")}.`
+        : `${firstCap}.`;
+
+      recText.textContent = `${playerName} ${joined}`;
+    }
+  }
+
+  generateRecommendations();
 
 };
