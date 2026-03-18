@@ -457,7 +457,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantEvaluations` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_applicantEvaluations_players2`
     FOREIGN KEY (`coachId`)
-    REFERENCES `teamforgedb`.`players` (`userId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

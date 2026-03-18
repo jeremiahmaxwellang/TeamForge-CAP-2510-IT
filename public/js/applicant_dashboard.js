@@ -53,6 +53,32 @@ function displayApplicantDetails(applicant) {
     const detailsBody = document.getElementById('applicantDetailsBody');
     
     loadingDiv.style.display = 'none';
+
+    // Update the top status badge 
+    const topBadge = document.getElementById('statusBadge');
+    if (topBadge) {
+        const currentStatus = applicant.applicationStatus || 'Pending';
+        topBadge.textContent = currentStatus;
+        
+        // Reset base styles
+        topBadge.style.backgroundColor = ''; 
+        topBadge.style.color = '';
+
+        // Apply colors based on status
+        if (currentStatus === 'Accepted') {
+            topBadge.style.backgroundColor = '#4CAF50'; // Green
+            topBadge.style.color = 'white';
+            // Unhide the Action Button 
+            const actionContainer = document.getElementById('actionContainer');
+            if (actionContainer) actionContainer.style.display = 'block';
+        } else if (currentStatus === 'Rejected') {
+            topBadge.style.backgroundColor = '#f44336'; // Red
+            topBadge.style.color = 'white';
+        } else {
+            topBadge.style.backgroundColor = '#fff3cd'; // Yellow 
+            topBadge.style.color = '#856404';
+        }
+    }
     
     const details = [
         { field: 'First Name', value: escapeHtml(applicant.firstname) },
@@ -100,6 +126,32 @@ function logout() {
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');
     window.location.href = '/';
+}
+
+// Handle the "Claim Spot" button click
+const btnClaimSpot = document.getElementById('btnClaimSpot');
+if (btnClaimSpot) {
+    btnClaimSpot.addEventListener('click', async () => {
+        btnClaimSpot.textContent = "Processing...";
+        btnClaimSpot.disabled = true;
+
+        try {
+            const response = await fetch('/applicant_list/claim_spot', { method: 'POST' });
+            const result = await response.json();
+            
+            if (result.success) {
+                // Success! Redirect them to their new player profile
+                window.location.href = result.redirect; 
+            } else {
+                alert("Error: " + result.message);
+                btnClaimSpot.textContent = "Claim Roster Spot & View Player Profile";
+                btnClaimSpot.disabled = false;
+            }
+        } catch (error) {
+            console.error(error);
+            alert("A server error occurred.");
+        }
+    });
 }
 
 // Load dashboard when the page loads
