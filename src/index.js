@@ -164,6 +164,7 @@ app.use('/api/v1/users', require("./routes/userRoutes"));
 
 
 
+
 mySqlPool.query('SELECT 1').then(() => {
     console.log('MySQL DB Connected');
 })
