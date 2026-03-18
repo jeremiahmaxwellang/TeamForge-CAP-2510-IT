@@ -40,6 +40,8 @@
         .profile-banner img { width: 100px; height: 100px; border-radius: 50%; background: #ccc; }
         .profile-info h2 { margin: 0 0 5px 0; font-size: 24px; }
         .profile-info p { margin: 0; color: #555; font-size: 16px; }
+        .profile-photo-controls { margin-left: auto; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+        .profile-photo-controls input[type="file"] { max-width: 220px; }
         .btn-confirm { 
             margin-left: auto; padding: 10px 24px; border-radius: 8px; 
             border: 1px solid #333; background: white; color: #333; 
@@ -63,6 +65,16 @@
         .metric-name { font-size: 16px; color: #333; }
         .comparator-select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
         .value-input { padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; font-weight: bold; text-align: center; width: 100px; }
+
+        .benchmark-dropdown { border: 1px solid #ddd; border-radius: 12px; padding: 8px 12px; background: #fafafa; }
+        .benchmark-dropdown summary { cursor: pointer; font-size: 18px; font-weight: 700; }
+
+        .settings-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .settings-form-row.single { grid-template-columns: 1fr; }
+        .settings-form-row input { padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; }
+        .status-text { font-size: 14px; margin-top: 10px; min-height: 18px; }
+        .status-text.success { color: #198754; }
+        .status-text.error { color: #b42318; }
 
         /* --- MODAL OVERLAY STYLES --- */
         .modal-overlay {
@@ -122,8 +134,8 @@
 				<span class="coach-brand-title">TeamForge</span>
 			</div>
 			<div class="coach-team-name">Viridis Arcus (Team Name)</div>
-			<div class="coach-topbar-actions" style="position: relative;">
-				<img src="/images/sample_profile.png" alt="Profile Picture" class="coach-profile-icon" id="profileDropdownBtn" style="cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
+            <div class="coach-topbar-actions" style="position: relative;">
+                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" class="coach-profile-icon js-current-user-photo" id="profileDropdownBtn" style="cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
 				<div id="profileDropdownMenu" style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
                     <a href="/settings" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">Settings</a>
                     <a href="/logout" style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fef0f0'" onmouseout="this.style.backgroundColor='transparent'">Logout</a>
@@ -140,14 +152,14 @@
 					<li><a href="/player_analysis"><img src="/images/player_analysis_logo.png" alt="Player Performance">Player Performance<br>Analysis</a></li>
                     <li><a href="/applicant_list"><img src="/images/player_analysis_logo.png" alt="Applicant List">Applicant List</a></li>
                     <li><a href="/tournament"><img src="/images/player_analysis_logo.png" alt="Tournament">Tournament Management</a></li>
-					<li><a href="/coach_settings"><img src="/images/settings_logo.png" alt="Settings">Settings</a></li>
+                    <li><a href="/settings"><img src="/images/settings_logo.png" alt="Settings">Settings</a></li>
 				</ul>
 			</div>
 
 			<div class="settings-main-content">
 				
                 <div class="settings-card profile-banner">
-                    <img src="/images/sample_profile.png" alt="Profile">
+                    <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile" id="settings-profile-photo">
                     <div class="profile-info" style="display: flex; flex-direction: column; gap: 8px;">
                         
                         <div id="name-display-mode">
@@ -166,31 +178,56 @@
                         <button class="btn-cancel" id="btn-cancel-edit">Cancel</button>
                         <button class="btn-confirm" id="btn-save-profile">Save Profile</button>
                     </div>
+
+                    <div class="profile-photo-controls">
+                        <input type="file" id="profile-photo-input" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+                        <button class="btn-confirm" id="btn-save-photo">Change Profile Photo</button>
+                        <p id="photo-status" class="status-text"></p>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Change Password</h3>
+                    <div class="settings-form-row single">
+                        <input type="password" id="old-password" placeholder="Old Password">
+                    </div>
+                    <div class="settings-form-row">
+                        <input type="password" id="new-password" placeholder="New Password">
+                        <input type="password" id="confirm-new-password" placeholder="Confirm New Password">
+                    </div>
+                    <div style="text-align: right;">
+                        <button class="btn-confirm" id="btn-change-password">Update Password</button>
+                    </div>
+                    <p id="password-status" class="status-text"></p>
                 </div>
 
                 <div class="settings-card" id="coach-benchmark-section" style="display: none;">
-                    <h3>Benchmark Settings</h3>
-                    
-                    <select id="roleSelect" class="role-select">
-                        <option value="1">Role Selected: Top</option>
-                        <option value="2">Role Selected: Jungle</option>
-                        <option value="3">Role Selected: Mid</option>
-                        <option value="4">Role Selected: Bot / ADC</option>
-                        <option value="5">Role Selected: Support</option>
-                    </select>
+                    <details class="benchmark-dropdown" open>
+                        <summary>Benchmark Settings (Team Coach Only)</summary>
 
-                    <div class="benchmark-grid" id="benchmarkGrid">
-                        <strong>Metric</strong>
-                        <strong></strong> 
-                        <strong></strong> 
-                        <div style="display:contents;" id="benchmark-rows-container">
-                            <p style="grid-column: span 3;">Loading metrics...</p>
+                        <div style="padding-top: 12px;">
+                            <select id="roleSelect" class="role-select">
+                                <option value="1">Role Selected: Top</option>
+                                <option value="2">Role Selected: Jungle</option>
+                                <option value="3">Role Selected: Mid</option>
+                                <option value="4">Role Selected: Bot / ADC</option>
+                                <option value="5">Role Selected: Support</option>
+                            </select>
+
+                            <div class="benchmark-grid" id="benchmarkGrid">
+                                <strong>Metric</strong>
+                                <strong></strong> 
+                                <strong></strong> 
+                                <div style="display:contents;" id="benchmark-rows-container">
+                                    <p style="grid-column: span 3;">Loading metrics...</p>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 25px; text-align: right;">
+                                <button class="btn-confirm" id="saveBenchmarksBtn" style="background: #111; color: white;">Confirm Changes</button>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div style="margin-top: 25px; text-align: right;">
-                        <button class="btn-confirm" id="saveBenchmarksBtn" style="background: #111; color: white;">Confirm Changes</button>
-                    </div>
+                    </details>
                 </div>
 
 			</div>
@@ -214,6 +251,7 @@
             });
         }
     </script>
+    <script src="/js/current_user_photo.js"></script>
     <script src="/js/settings.js"></script>
 </body>
 </html>

@@ -8,6 +8,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const inputFirstname = document.getElementById('input-firstname');
     const inputLastname = document.getElementById('input-lastname');
     const roleText = document.getElementById('settings-role');
+    const topbarProfilePhoto = document.getElementById('profileDropdownBtn');
+    const settingsProfilePhoto = document.getElementById('settings-profile-photo');
+    const profilePhotoInput = document.getElementById('profile-photo-input');
+    const btnSavePhoto = document.getElementById('btn-save-photo');
+    const photoStatus = document.getElementById('photo-status');
+    const oldPasswordInput = document.getElementById('old-password');
+    const newPasswordInput = document.getElementById('new-password');
+    const confirmNewPasswordInput = document.getElementById('confirm-new-password');
+    const btnChangePassword = document.getElementById('btn-change-password');
+    const passwordStatus = document.getElementById('password-status');
     
     // New Button Variables
     const editActionButtons = document.getElementById('edit-action-buttons');
@@ -19,6 +29,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const roleSelect = document.getElementById('roleSelect');
     const container = document.getElementById('benchmark-rows-container');
     const saveBtn = document.getElementById('saveBenchmarksBtn');
+
+    function setStatus(el, message, isSuccess) {
+        if (!el) return;
+        el.textContent = message;
+        el.classList.remove('success', 'error');
+        el.classList.add(isSuccess ? 'success' : 'error');
+    }
+
+    function applyProfilePhoto(photoUrl) {
+        if (!photoUrl) return;
+        if (topbarProfilePhoto) topbarProfilePhoto.src = photoUrl;
+        if (settingsProfilePhoto) settingsProfilePhoto.src = photoUrl;
+    }
 
     // --- FETCH USER PROFILE ---
     try {
@@ -38,6 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const userRole = userData.position || userData.role;
             if (roleText) roleText.textContent = `Role: ${userRole || "Unassigned"}`;
+            applyProfilePhoto(userData.profilePhotoUrl || '/uploads/profile-photos/defaultusericon.png');
 
             // Reveal the benchmark section ONLY if they are the Team Coach
             if (userRole === 'Team Coach' && benchmarkSection) {
@@ -59,8 +83,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         nameText.addEventListener('click', () => {
             nameDisplayMode.style.display = 'none';
             nameEditMode.style.display = 'flex';
-            editActionButtons.style.display = 'flex'; // Show the button container
-            inputFirstname.focus(); // Automatically put their cursor in the first name box
+            editActionButtons.style.display = 'flex';
+            inputFirstname.focus();
         });
     }
 
@@ -137,16 +161,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Error loading benchmarks:', error);
             container.innerHTML = '<p style="grid-column: span 3; color: red;">Failed to load metrics.</p>';
         }
-    }
-
-    // --- CLICK TO EDIT LOGIC ---
-    if (nameText) {
-        nameText.addEventListener('click', () => {
-            nameDisplayMode.style.display = 'none';
-            nameEditMode.style.display = 'flex';
-            btnSaveProfile.style.display = 'block';
-            inputFirstname.focus(); // Automatically put their cursor in the first name box
-        });
     }
 
     // --- SAVE CHANGES ---
@@ -249,6 +263,90 @@ document.addEventListener('DOMContentLoaded', async () => {
             } finally {
                 btnSaveProfile.textContent = "Save Profile";
                 btnSaveProfile.disabled = false;
+            }
+        });
+    }
+
+    // --- CHANGE PROFILE PHOTO ---
+    if (btnSavePhoto) {
+        btnSavePhoto.addEventListener('click', async () => {
+            if (!profilePhotoInput || !profilePhotoInput.files || !profilePhotoInput.files.length) {
+                setStatus(photoStatus, 'Please select a PNG or JPEG file.', false);
+                return;
+            }
+
+            const file = profilePhotoInput.files[0];
+            const formData = new FormData();
+            formData.append('profilePhoto', file);
+
+            btnSavePhoto.disabled = true;
+            btnSavePhoto.textContent = 'Uploading...';
+            setStatus(photoStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/profile/photo', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    setStatus(photoStatus, result.message || 'Failed to update profile photo.', false);
+                    return;
+                }
+
+                applyProfilePhoto(result.profilePhotoUrl);
+                profilePhotoInput.value = '';
+                setStatus(photoStatus, 'Profile photo updated successfully.', true);
+            } catch (error) {
+                console.error('Failed to upload profile photo:', error);
+                setStatus(photoStatus, 'Network error while uploading profile photo.', false);
+            } finally {
+                btnSavePhoto.disabled = false;
+                btnSavePhoto.textContent = 'Change Profile Photo';
+            }
+        });
+    }
+
+    // --- CHANGE PASSWORD ---
+    if (btnChangePassword) {
+        btnChangePassword.addEventListener('click', async () => {
+            const oldPassword = oldPasswordInput ? oldPasswordInput.value : '';
+            const newPassword = newPasswordInput ? newPasswordInput.value : '';
+            const confirmNewPassword = confirmNewPasswordInput ? confirmNewPasswordInput.value : '';
+
+            if (!oldPassword || !newPassword || !confirmNewPassword) {
+                setStatus(passwordStatus, 'Please complete all password fields.', false);
+                return;
+            }
+
+            btnChangePassword.disabled = true;
+            btnChangePassword.textContent = 'Updating...';
+            setStatus(passwordStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/profile/password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ oldPassword, newPassword, confirmNewPassword })
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    setStatus(passwordStatus, result.message || 'Failed to update password.', false);
+                    return;
+                }
+
+                oldPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmNewPasswordInput.value = '';
+                setStatus(passwordStatus, 'Password updated successfully.', true);
+            } catch (error) {
+                console.error('Failed to update password:', error);
+                setStatus(passwordStatus, 'Network error while updating password.', false);
+            } finally {
+                btnChangePassword.disabled = false;
+                btnChangePassword.textContent = 'Update Password';
             }
         });
     }

@@ -131,7 +131,7 @@ app.use('/announcements', requireRole('Team Manager'), require('./routes/announc
 app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRoutes')); // tournament routes
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
 app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane
-app.use('/settings', require('./routes/settingsRoutes')); // user settings
+app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./routes/settingsRoutes')); // user settings
 
 app.get('/api/user/profile', async (req, res) => {
     try {
@@ -141,17 +141,25 @@ app.get('/api/user/profile', async (req, res) => {
             return res.status(401).json({ error: "Not logged in" });
         }
 
-        // Query the database for the user's details
+        // Query the database for the user's details and the saved profile photo, if available.
         const [rows] = await mySqlPool.query(
-            'SELECT position, firstName, lastName FROM users WHERE userId = ?', 
+            `SELECT u.position, u.firstname, u.lastname, p.profilePhoto
+             FROM users u
+             LEFT JOIN players p ON p.userId = u.userId
+             WHERE u.userId = ?`,
             [userId]
         );
 
         if (rows.length > 0) {
-            // Adjust firstName and lastName to match your actual database column names
+            const photoFile = rows[0].profilePhoto || 'defaultusericon.png';
             res.json({
-                name: `${rows[0].firstName} ${rows[0].lastName}`, 
-                role: rows[0].position
+                name: `${rows[0].firstname} ${rows[0].lastname}`,
+                firstname: rows[0].firstname,
+                lastname: rows[0].lastname,
+                role: rows[0].position,
+                position: rows[0].position,
+                profilePhoto: photoFile,
+                profilePhotoUrl: `/uploads/profile-photos/${photoFile}`
             });
         } else {
             res.status(404).json({ error: "User not found" });
