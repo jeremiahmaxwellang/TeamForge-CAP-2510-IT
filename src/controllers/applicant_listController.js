@@ -49,10 +49,7 @@ exports.getApplicantByEmail = async (req, res) => {
         const email = req.query.email;
 
         if (!email) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email parameter is required'
-            });
+            return res.status(400).json({ success: false, message: 'Email parameter is required' });
         }
 
         const query = `
@@ -72,7 +69,7 @@ exports.getApplicantByEmail = async (req, res) => {
                 p.applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
-            WHERE u.email = ? AND u.position = 'Applicant'
+            WHERE u.email = ? 
         `;
 
         const [applicants] = await mySqlPool.query(query, [email]);
@@ -106,7 +103,6 @@ exports.saveEvaluation = async (req, res) => {
     try {
         const { 
             userId, 
-            coachId, 
             notes, 
             gameSense, 
             communication, 
@@ -114,8 +110,10 @@ exports.saveEvaluation = async (req, res) => {
             status 
         } = req.body;
 
+        const coachId = req.cookies && req.cookies.userId;
+
         if (!userId || !coachId) {
-            return res.status(400).json({ success: false, message: 'Applicant ID and Coach ID are required.' });
+            return res.status(400).json({ success: false, message: 'Applicant ID and Coach ID are required or your session expired.' });
         }
 
         await connection.beginTransaction();
@@ -145,5 +143,31 @@ exports.saveEvaluation = async (req, res) => {
         res.status(500).json({ success: false, message: 'Database error while saving evaluation.' });
     } finally {
         connection.release();
+    }
+};
+
+// Allow an accepted applicant to claim their spot and become a Player
+exports.claimRosterSpot = async (req, res) => {
+    try {
+        const userId = req.cookies && req.cookies.userId;
+        if (!userId) return res.status(401).json({ success: false, message: 'Not logged in' });
+
+        // 1. Promote them in the database
+        const updateQuery = `UPDATE users SET position = 'Player' WHERE userId = ?`;
+        await mySqlPool.query(updateQuery, [userId]);
+
+        // 2. Overwrite their old 'Applicant' cookie with a new 'Player' cookie
+        res.cookie('userRole', 'Player', {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: false,
+            maxAge: 8 * 60 * 60 * 1000
+        });
+
+        // 3. Send them to their new home
+        res.status(200).json({ success: true, redirect: '/player_dashboard.html' });
+    } catch (err) {
+        console.error("Error claiming roster spot:", err);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 };
