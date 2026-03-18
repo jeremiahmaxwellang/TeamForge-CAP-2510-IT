@@ -196,9 +196,43 @@ const deleteUser = async (req, res) => {
     }
 }
 
+// UPDATE USER NAME
+const updateName = async (req, res) => {
+    try {
+        const userId = req.cookies && req.cookies.userId;
+        const userRole = req.cookies && req.cookies.userRole;
+
+        // 1. Security Checks
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not logged in.' });
+        }
+        if (userRole === 'Applicant') {
+            return res.status(403).json({ success: false, message: 'Applicants cannot edit their profile.' });
+        }
+
+        // 2. Grab the new names from the frontend
+        const { firstname, lastname } = req.body;
+
+        if (!firstname || !lastname) {
+            return res.status(400).json({ success: false, message: 'First and last name are required.' });
+        }
+
+        // 3. Update the database
+        const updateQuery = `UPDATE users SET firstname = ?, lastname = ? WHERE userId = ?`;
+        await db.query(updateQuery, [firstname, lastname, userId]);
+
+        res.status(200).json({ success: true, message: 'Profile updated successfully!' });
+
+    } catch (error) {
+        console.error('Error updating name:', error);
+        res.status(500).json({ success: false, message: 'Database error while saving profile.' });
+    }
+};
+
 module.exports = { 
     getUsers, 
     getUserById,
     createUser,
-    deleteUser
+    deleteUser,
+    updateName
 };

@@ -5,7 +5,8 @@ const {
     getUsers, 
     getUserById, 
     createUser,
-    deleteUser
+    deleteUser,
+    updateName
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -18,5 +19,7 @@ router.get('/get/:id', getUserById); // http://localhost:3000/api/v1/users/get/2
 router.post('/create', createUser); // http://localhost:3000/api/v1/users/create
 
 router.delete('/delete/:id', deleteUser); // http://localhost:3000/api/v1/users/delete/2
+
+router.post('/update-name', updateName); // http://localhost:3000/api/v1/users/update-name
 
 module.exports = router;
