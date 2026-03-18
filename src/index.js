@@ -130,6 +130,7 @@ app.use('/team_management', requireRole('Team Manager'), require('./routes/team_
 app.use('/announcements', requireRole('Team Manager'), require('./routes/announcementRoutes')); // announcement routes
 app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRoutes')); // tournament routes
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
+app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane
 app.use('/settings', require('./routes/settingsRoutes')); // user settings
 
 app.get('/api/user/profile', async (req, res) => {
