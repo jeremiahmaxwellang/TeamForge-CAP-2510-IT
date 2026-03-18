@@ -345,7 +345,8 @@ async function registerManualUser() {
         riotId: document.getElementById('manualRiotId').value.trim(),
         position,
         discord: document.getElementById('manualDiscord').value.trim(),
-        status: document.getElementById('manualStatus').value
+        status: document.getElementById('manualStatus').value,
+        profilePhoto: 'defaultusericon.png'
     };
 
     if (needsRoles) {
@@ -448,7 +449,8 @@ function handleCsvFile(file) {
                 riotId: riotIdIdx !== -1 ? (row[riotIdIdx] || '').trim() : '',
                 position,
                 discord: discordIdx !== -1 ? (row[discordIdx] || '').trim() : '',
-                status: statusIdx !== -1 ? (row[statusIdx] || '').trim() : 'Active'
+                status: statusIdx !== -1 ? (row[statusIdx] || '').trim() : 'Active',
+                profilePhoto: 'defaultusericon.png'
             };
 
             // Include role IDs for positions that require them

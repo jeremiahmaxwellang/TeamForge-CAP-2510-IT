@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv').config();
 const cookieParser = require('cookie-parser');
+const fileUpload = require('express-fileupload');
 const mySqlPool = require('./config/database');
 
 const app = express();
@@ -9,6 +10,11 @@ const port = process.env.PORT || 3000;
 app.set("view engine", 'hbs');
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb' }));
+app.use(fileUpload({
+    createParentPath: true,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    abortOnLimit: true
+}));
 app.use(cookieParser());
 
 function requireRole(requiredRole) {
