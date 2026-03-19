@@ -456,7 +456,7 @@
 .match-card {
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     gap: 20px;
     padding: 10px 12px;
     border-radius: 6px;
@@ -672,18 +672,28 @@
 .mc-teams {
     display: flex;
     gap: 10px;
+    margin-left: auto;
+    width: 186px;
+    flex-shrink: 0;
+    justify-content: space-between;
 }
 
 .mc-team-col {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    width: 88px;
 }
 
 .mc-teammate {
     display: flex;
     align-items: center;
     gap: 4px;
+}
+
+.mc-teammate-empty {
+    opacity: 0.75;
+    font-style: italic;
 }
 
 .mc-teammate-icon {
@@ -699,7 +709,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 68px;
+    max-width: 66px;
 }
 
 /* ============================================

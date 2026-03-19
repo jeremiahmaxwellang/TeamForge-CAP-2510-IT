@@ -437,14 +437,33 @@
         const queueNames = { 420: 'Ranked Solo', 440: 'Ranked Flex', 450: 'ARAM', 430: 'Normal', 0: 'Custom' };
         const queueName = queueNames[match.info.queueId] || 'Normal';
         const gameDate = match.info.gameStartTimestamp ? timeAgo(match.info.gameStartTimestamp) : '';
-        const allies = match.info.participants.filter(p => p.teamId === player.teamId && p.puuid !== puuid);
-        const enemies = match.info.participants.filter(p => p.teamId !== player.teamId);
-        const makeTeamCol = (players) => players.slice(0, 4).map(p => `
+        const participants = Array.isArray(match.info.participants) ? match.info.participants : [];
+        let allies = participants.filter((p) => p.teamId === player.teamId && p.puuid !== puuid);
+        let enemies = participants.filter((p) => p.teamId !== player.teamId);
+
+        // Some stored payloads may have missing teamId values; fallback to a stable split.
+        if ((!allies.length && !enemies.length) || player.teamId === undefined || player.teamId === null) {
+          const others = participants.filter((p) => p.puuid !== puuid);
+          allies = others.slice(0, 4);
+          enemies = others.slice(4, 8);
+        }
+
+        const makeTeamCol = (players) => {
+          const rows = (Array.isArray(players) ? players : []).slice(0, 4);
+          if (rows.length === 0) {
+            return `
+              <div class="mc-teammate mc-teammate-empty">
+                <span class="mc-teammate-name">No player data</span>
+              </div>`;
+          }
+
+          return rows.map(p => `
           <div class="mc-teammate">
             <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${p.championName}.png"
                  alt="${p.championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
             <span class="mc-teammate-name">${(p.riotIdGameName || p.summonerName || '').substring(0, 10)}</span>
           </div>`).join('');
+        };
         // Items: always render 8 slots, but keep bought items first so empty slots stay on the right.
         const rawItemIds = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6]
           .map((value) => Number(value) || 0);
