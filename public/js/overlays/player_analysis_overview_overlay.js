@@ -322,6 +322,19 @@
       }
     });
 
+    // Auto-refresh match list whenever backend updates cached matches
+    document.addEventListener("playeranalysis:matches-updated", (event) => {
+      const matchListEl = overlayContainer?.querySelector("#match-list");
+      const matches = event?.detail?.matches;
+      const eventPuuid = event?.detail?.puuid;
+      const currentPuuid = document.getElementById("player-dropdown-btn")?.getAttribute("data-puuid");
+      const puuid = eventPuuid || currentPuuid;
+
+      if (matchListEl && puuid && Array.isArray(matches)) {
+        requestAnimationFrame(() => renderMatchHistory(matches, puuid));
+      }
+    });
+
     function closeOverlay() {
       const overlay = overlayContainer?.querySelector(".overlay");
       if (overlay) overlay.style.display = "none";
