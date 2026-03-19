@@ -422,22 +422,3 @@ function loadCalendar() {
     // Initial render
     renderGrid(currentMonth, currentYear);
 }
-
-// --- PROFILE DROPDOWN LOGIC ---
-const profileBtn = document.getElementById('profileDropdownBtn');
-const profileMenu = document.getElementById('profileDropdownMenu');
-
-if (profileBtn && profileMenu) {
-    profileBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevents the document click from instantly closing it
-        const isShowing = profileMenu.style.display === 'block';
-        profileMenu.style.display = isShowing ? 'none' : 'block';
-        profileBtn.style.borderColor = isShowing ? 'transparent' : '#00f2c3';
-    });
-
-    // Close if clicking anywhere else on the page
-    document.addEventListener('click', () => {
-        profileMenu.style.display = 'none';
-        profileBtn.style.borderColor = 'transparent';
-    });
-}

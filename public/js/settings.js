@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnSaveProfile = document.getElementById('btn-save-profile');
     const btnCancelEdit = document.getElementById('btn-cancel-edit');
 
-    // RESTORED BENCHMARK VARIABLES
+    // BENCHMARK VARIABLES
     const benchmarkSection = document.getElementById('coach-benchmark-section');
     const roleSelect = document.getElementById('roleSelect');
     const container = document.getElementById('benchmark-rows-container');
