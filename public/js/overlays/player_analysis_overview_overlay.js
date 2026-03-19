@@ -445,11 +445,11 @@
         if ((!allies.length && !enemies.length) || player.teamId === undefined || player.teamId === null) {
           const others = participants.filter((p) => p.puuid !== puuid);
           allies = others.slice(0, 4);
-          enemies = others.slice(4, 8);
+          enemies = others.slice(4, 9);
         }
 
-        const makeTeamCol = (players) => {
-          const rows = (Array.isArray(players) ? players : []).slice(0, 4);
+        const makeTeamCol = (players, maxRows = 4) => {
+          const rows = (Array.isArray(players) ? players : []).slice(0, maxRows);
           if (rows.length === 0) {
             return `
               <div class="mc-teammate mc-teammate-empty">
@@ -553,8 +553,8 @@
             <div class="mc-vision">${visionScore} vision</div>
           </div>
           <div class="mc-teams">
-            <div class="mc-team-col">${makeTeamCol(allies)}</div>
-            <div class="mc-team-col">${makeTeamCol(enemies)}</div>
+            <div class="mc-team-col">${makeTeamCol(allies, 4)}</div>
+            <div class="mc-team-col">${makeTeamCol(enemies, 5)}</div>
           </div>`;
         container.appendChild(card);
       });
