@@ -4,6 +4,7 @@ const path = require('path');
 
 const reports_controller = require('../controllers/reports_controller');
 
+router.get('/current_players', reports_controller.getCurrentPlayers);
 router.get('/applicant_roles', reports_controller.getApplicantRoles);
 
 // Reports 
