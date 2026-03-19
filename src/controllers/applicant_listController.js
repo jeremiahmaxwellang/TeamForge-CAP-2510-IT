@@ -171,3 +171,27 @@ exports.claimRosterSpot = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+// REJECT APPLICANT
+exports.rejectApplicant = async (req, res) => {
+    try {
+        const { applicantId } = req.body;
+        
+        if (!applicantId) {
+            return res.status(400).json({ success: false, message: 'Applicant ID is required.' });
+        }
+
+        const updateQuery = `UPDATE users SET status = 'Rejected' WHERE userId = ? AND position = 'Applicant'`;
+        const [result] = await db.query(updateQuery, [applicantId]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Applicant not found or already processed.' });
+        }
+
+        res.status(200).json({ success: true, message: 'Applicant has been rejected.' });
+
+    } catch (error) {
+        console.error('Error rejecting applicant:', error);
+        res.status(500).json({ success: false, message: 'Database error while rejecting applicant.' });
+    }
+};
