@@ -4,13 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TeamForge – Reports</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap"
-    rel="stylesheet" />
+  <title>Reports</title>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/reports.css">
+  <script src="/js/reports.js" defer></script>
 </head>
 
 <body>
@@ -279,49 +278,6 @@
     </div><!-- /grid -->
   </main>
 
-  <script>
-    // Role pie chart
-    new Chart(document.getElementById('roleChart'), {
-      type: 'pie',
-      data: {
-        labels: ['Top', 'Mid', 'Jungle', 'Support'],
-        datasets: [{
-          data: [36, 32, 24, 8],
-          backgroundColor: ['#3b82f6', '#f59e0b', '#9ca3af', '#f97316'],
-          borderWidth: 2, borderColor: '#fff'
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
-          }
-        }
-      }
-    });
-
-    // Accepted pie chart
-    new Chart(document.getElementById('acceptChart'), {
-      type: 'pie',
-      data: {
-        labels: ['Rejected', 'Accepted'],
-        datasets: [{
-          data: [77, 23],
-          backgroundColor: ['#f97316', '#3b82f6'],
-          borderWidth: 2, borderColor: '#fff'
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
-          }
-        }
-      }
-    });
-  </script>
 </body>
 
 </html>

@@ -154,12 +154,6 @@ router.get('/coach_dashboard.html', requireCoachRole, (req, res) => {
     res.sendFile(path.join(viewsPath, 'coach_dashboard.html'));
 });
 
-// Reports 
-// TODO: requireRole('Team Coach')
-router.get('/reports', (req, res) => {
-    res.sendFile(path.join(viewsPath, 'reports.html'));
-});
-
 // --- POST /login ---
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
