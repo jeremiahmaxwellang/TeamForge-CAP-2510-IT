@@ -650,8 +650,8 @@ async function extractParticipantData(matchId, matchData) {
         participants.forEach((participant, index) => {
             // console.log(`[EXTRACT PARTICIPANTS] Processing participant ${index + 1}/${participants.length} - ${participant.riotIdGameName || 'Unknown'}`);
             
-            // Calculate CS
-            const cs =  participant.totalMinionsKilled + participant.wardsKilled;
+            // Calculate CS from lane and neutral minions.
+            const cs = (participant.totalMinionsKilled || 0) + (participant.neutralMinionsKilled || 0);
 
             // Calculate per-minute stats
             const minutesDuration = gameDuration / 60;

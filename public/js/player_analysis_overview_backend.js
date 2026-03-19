@@ -447,6 +447,11 @@
         // Cache the matches
         PA.cache.matches = displayMatches;
 
+        // Notify overlays/listeners that match history changed
+        document.dispatchEvent(new CustomEvent("playeranalysis:matches-updated", {
+          detail: { matches: displayMatches, puuid }
+        }));
+
         // Calculate and cache stats from matches
         const kdaStats = calculateAverageKDA(displayMatches, puuid);
         PA.cache.kdaStats = kdaStats;
@@ -533,6 +538,11 @@
 
         // Cache the matches
         PA.cache.matches = matchesData;
+
+        // Notify overlays/listeners that match history changed
+        document.dispatchEvent(new CustomEvent("playeranalysis:matches-updated", {
+          detail: { matches: matchesData, puuid }
+        }));
 
         // Calculate and cache stats from matches
         const kdaStats = calculateAverageKDA(matchesData, puuid);

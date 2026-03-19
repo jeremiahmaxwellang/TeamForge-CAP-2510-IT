@@ -51,6 +51,8 @@ async function fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, limit 
     let sql = `
         SELECT m.*, mp.puuid, mp.kills, mp.deaths, mp.assists, mp.win,
                mp.championName, mp.queueId, mp.champLevel, mp.goldEarned,
+             mp.totalMinionsKilled, mp.neutralMinionsKilled,
+             mp.visionScore, mp.visionScorePerMinute,
              mp.item0, mp.item1, mp.item2, mp.item3, mp.item4, mp.item5, mp.item6,
                mp.summoner1Id, mp.summoner2Id, mp.primaryPerkId, mp.secondaryPerkStyleId
         FROM matches m
@@ -202,56 +204,162 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
             return res.json({ matches: [] });
         }
 
-        // Convert database rows to match details format that mimics Riot API structure
-        const formattedMatches = matches.map(row => ({
-            metadata: {
-                matchId: row.matchId,
-                participants: [row.puuid],
-                dataVersion: '1'
-            },
-            info: {
-                gameCreation: row.gameCreation,
-                gameDuration: row.gameDuration,
-                gameEndTimestamp: row.gameEndTimestamp,
-                gameStartTimestamp: row.gameStartTimestamp,
-                gameMode: row.gameMode,
-                gameName: row.gameName,
-                gameType: row.gameType,
-                gameVersion: row.gameVersion,
-                participants: [{
-                    puuid: row.puuid,
-                    kills: row.kills,
-                    deaths: row.deaths,
-                    assists: row.assists,
-                    win: toWinBoolean(row.win),
-                    championName: row.championName,
-                    queueId: row.queueId,
-                    champLevel: row.champLevel,
-                    goldEarned: row.goldEarned,
-                    item0: row.item0,
-                    item1: row.item1,
-                    item2: row.item2,
-                    item3: row.item3,
-                    item4: row.item4,
-                    item5: row.item5,
-                    item6: row.item6,
-                    summoner1Id: row.summoner1Id,
-                    summoner2Id: row.summoner2Id,
-                    perks: {
-                        styles: [
-                            {
-                                selections: [
-                                    { perk: row.primaryPerkId || null }
-                                ]
-                            },
-                            {
-                                style: row.secondaryPerkStyleId || null
-                            }
-                        ]
-                    }
-                }]
+        const matchIds = matches.map((row) => row.matchId);
+        const placeholders = matchIds.map(() => '?').join(', ');
+
+        const [participantRows] = await db.query(
+            `
+                SELECT
+                    matchId,
+                    participantId,
+                    puuid,
+                    riotIdGameTag,
+                    queueId,
+                    kills,
+                    deaths,
+                    assists,
+                    win,
+                    championName,
+                    champLevel,
+                    goldEarned,
+                    totalMinionsKilled,
+                    neutralMinionsKilled,
+                    visionScore,
+                    visionScorePerMinute,
+                    item0,
+                    item1,
+                    item2,
+                    item3,
+                    item4,
+                    item5,
+                    item6,
+                    summoner1Id,
+                    summoner2Id,
+                    primaryPerkId,
+                    secondaryPerkStyleId,
+                    teamId,
+                    teamPosition
+                FROM matchParticipants
+                WHERE matchId IN (${placeholders})
+                ORDER BY matchId, teamId, participantId
+            `,
+            matchIds
+        );
+
+        const participantsByMatch = new Map();
+
+        participantRows.forEach((participantRow) => {
+            if (!participantsByMatch.has(participantRow.matchId)) {
+                participantsByMatch.set(participantRow.matchId, []);
             }
-        }));
+
+            participantsByMatch.get(participantRow.matchId).push({
+                puuid: participantRow.puuid,
+                kills: participantRow.kills,
+                deaths: participantRow.deaths,
+                assists: participantRow.assists,
+                win: toWinBoolean(participantRow.win),
+                championName: participantRow.championName,
+                queueId: participantRow.queueId,
+                champLevel: participantRow.champLevel,
+                goldEarned: participantRow.goldEarned,
+                totalMinionsKilled: participantRow.totalMinionsKilled,
+                neutralMinionsKilled: participantRow.neutralMinionsKilled,
+                visionScore: participantRow.visionScore,
+                visionScorePerMinute: participantRow.visionScorePerMinute,
+                vision: participantRow.visionScore,
+                cs: Number(participantRow.totalMinionsKilled || 0) + Number(participantRow.neutralMinionsKilled || 0),
+                item0: participantRow.item0,
+                item1: participantRow.item1,
+                item2: participantRow.item2,
+                item3: participantRow.item3,
+                item4: participantRow.item4,
+                item5: participantRow.item5,
+                item6: participantRow.item6,
+                summoner1Id: participantRow.summoner1Id,
+                summoner2Id: participantRow.summoner2Id,
+                teamId: participantRow.teamId,
+                teamPosition: participantRow.teamPosition,
+                riotIdGameName: participantRow.riotIdGameTag || '',
+                summonerName: participantRow.riotIdGameTag || '',
+                perks: {
+                    styles: [
+                        {
+                            selections: [
+                                { perk: participantRow.primaryPerkId || null }
+                            ]
+                        },
+                        {
+                            style: participantRow.secondaryPerkStyleId || null
+                        }
+                    ]
+                }
+            });
+        });
+
+        // Convert database rows to match details format that mimics Riot API structure
+        const formattedMatches = matches.map((row) => {
+            const dbParticipants = participantsByMatch.get(row.matchId) || [];
+            const fallbackPlayer = {
+                puuid: row.puuid,
+                kills: row.kills,
+                deaths: row.deaths,
+                assists: row.assists,
+                win: toWinBoolean(row.win),
+                championName: row.championName,
+                queueId: row.queueId,
+                champLevel: row.champLevel,
+                goldEarned: row.goldEarned,
+                totalMinionsKilled: row.totalMinionsKilled,
+                neutralMinionsKilled: row.neutralMinionsKilled,
+                visionScore: row.visionScore,
+                visionScorePerMinute: row.visionScorePerMinute,
+                vision: row.visionScore,
+                cs: Number(row.totalMinionsKilled || 0) + Number(row.neutralMinionsKilled || 0),
+                item0: row.item0,
+                item1: row.item1,
+                item2: row.item2,
+                item3: row.item3,
+                item4: row.item4,
+                item5: row.item5,
+                item6: row.item6,
+                summoner1Id: row.summoner1Id,
+                summoner2Id: row.summoner2Id,
+                perks: {
+                    styles: [
+                        {
+                            selections: [
+                                { perk: row.primaryPerkId || null }
+                            ]
+                        },
+                        {
+                            style: row.secondaryPerkStyleId || null
+                        }
+                    ]
+                }
+            };
+
+            const participants = dbParticipants.length > 0 ? dbParticipants : [fallbackPlayer];
+
+            return {
+                metadata: {
+                    matchId: row.matchId,
+                    participants: participants.map((participant) => participant.puuid),
+                    dataVersion: '1'
+                },
+                info: {
+                    gameCreation: row.gameCreation,
+                    gameDuration: row.gameDuration,
+                    gameEndTimestamp: row.gameEndTimestamp,
+                    gameStartTimestamp: row.gameStartTimestamp,
+                    gameMode: row.gameMode,
+                    gameName: row.gameName,
+                    gameType: row.gameType,
+                    gameVersion: row.gameVersion,
+                    participants
+                }
+            };
+        });
 
         console.log(`[DB MATCHES] ✓ Retrieved ${matches.length} matches from database for Player: ${gameName}#${tagLine} (15 primary + 15 secondary)`);
         res.json({ matches: formattedMatches });
