@@ -52,6 +52,7 @@ async function fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, limit 
         SELECT m.*, mp.puuid, mp.kills, mp.deaths, mp.assists, mp.win,
                mp.championName, mp.queueId, mp.champLevel, mp.goldEarned,
              mp.totalMinionsKilled, mp.neutralMinionsKilled,
+             mp.visionScore, mp.visionScorePerMinute,
              mp.item0, mp.item1, mp.item2, mp.item3, mp.item4, mp.item5, mp.item6,
                mp.summoner1Id, mp.summoner2Id, mp.primaryPerkId, mp.secondaryPerkStyleId
         FROM matches m
@@ -231,6 +232,9 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
                     goldEarned: row.goldEarned,
                     totalMinionsKilled: row.totalMinionsKilled,
                     neutralMinionsKilled: row.neutralMinionsKilled,
+                    visionScore: row.visionScore,
+                    visionScorePerMinute: row.visionScorePerMinute,
+                    vision: row.visionScore,
                     cs: Number(row.totalMinionsKilled || 0) + Number(row.neutralMinionsKilled || 0),
                     item0: row.item0,
                     item1: row.item1,
