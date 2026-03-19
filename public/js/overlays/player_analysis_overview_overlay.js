@@ -560,9 +560,9 @@
             <div class="mc-result ${isWin ? 'mc-win-text' : 'mc-loss-text'}" data-tooltip="Result &amp; Duration">${isWin ? 'WIN' : 'LOSS'} ${durationMin}:${String(durationSec).padStart(2, '0')}</div>
           </div>
           <div class="mc-champ-col">
-            <div class="mc-champ-wrapper">
+            <div class="mc-champ-wrapper" data-tooltip="${player.championName}">
               <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${player.championName}.png"
-                   alt="${player.championName}" class="mc-champ-icon" data-tooltip="${player.championName}" onerror="this.src='/images/sample_hero.png'">
+                   alt="${player.championName}" class="mc-champ-icon" onerror="this.src='/images/sample_hero.png'">
               ${champLevel ? `<span class="mc-champ-level">${champLevel}</span>` : ''}
             </div>
             <div class="mc-summoner-spells">
