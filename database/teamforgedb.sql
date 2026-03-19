@@ -162,10 +162,6 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
   `item4` INT NULL,
   `item5` INT NULL,
   `item6` INT NULL,
-  `summoner1Id` INT NULL,
-  `summoner2Id` INT NULL,
-  `primaryPerkId` INT NULL,
-  `secondaryPerkStyleId` INT NULL,
   `neutralMinionsKilled` INT NULL,
   `role` VARCHAR(45) NULL,
   `soloKills` INT NULL,
@@ -449,13 +445,13 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantEvaluations` (
   `evaluatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`evaluationId`),
   INDEX `fk_applicantEvaluations_players1_idx` (`userId` ASC) VISIBLE,
-  INDEX `fk_applicantEvaluations_players2_idx` (`coachId` ASC) VISIBLE,
+  INDEX `fk_applicantEvaluations_users1_idx` (`coachId` ASC) VISIBLE,
   CONSTRAINT `fk_applicantEvaluations_players1`
     FOREIGN KEY (`userId`)
     REFERENCES `teamforgedb`.`players` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_applicantEvaluations_players2`
+  CONSTRAINT `fk_applicantEvaluations_users1`
     FOREIGN KEY (`coachId`)
     REFERENCES `teamforgedb`.`users` (`userId`)
     ON DELETE NO ACTION

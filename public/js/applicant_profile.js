@@ -541,9 +541,10 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
         const commsEl = document.querySelector('input[name="communication"]:checked');
         const champPoolEl = document.querySelector('input[name="champPool"]:checked');
 
+        // TODO: Change to logged-in coach ID
         const evaluationData = {
             userId: state.currentApplicant.userId,
-            coachId: 1, 
+            coachId: 2, 
             notes: UI.commentBox ? UI.commentBox.value : "",
             gameSense: gameSenseEl ? parseInt(gameSenseEl.value, 10) : 0,
             communication: commsEl ? parseInt(commsEl.value, 10) : 0,
