@@ -298,62 +298,29 @@
             </div>
             <div class="coach-team-name">Viridis Arcus (Team Name)</div>
             <div class="coach-topbar-actions">
-                <a href="/logout" class="logout-btn">Logout</a>
-                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" class="coach-profile-icon js-current-user-photo">
+                <div style="position: relative; display: flex; align-items: center;">
+                    <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" class="js-current-user-photo" id="profileDropdownBtn" style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--iron-gray); cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
+                    
+                    <div id="profileDropdownMenu" style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
+                        <a href="/settings" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">Settings</a>
+                        <a href="/logout" style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fef0f0'" onmouseout="this.style.backgroundColor='transparent'">Logout</a>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="coach-content-wrapper">
             <div class="coach-sidebar" data-role-scope="coach-only">
-                <ul>
-                    <li>
-                        <a href="#">
-                            <img src="/images/announcement_logo.png" alt="Announcement Icon">
-                            Announcement
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <img src="/images/scheduling_logo.png" alt="Scheduling Icon">
-                            Scheduling
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <img src="/images/attendance_logo.png" alt="Attendance Icon">
-                            Attendance
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="/player_analysis">
-                            <img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
-                            Player Performance<br>Analysis
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/applicant_list">
-                            <img src="/images/player_analysis_logo.png" alt="Applicant List Icon">
-                            Applicant List
-                        </a>
-                    </li>
-                    <li>
-						<a href="/tournament" class="active-nav">
-							<img src="/images/player_analysis_logo.png" alt="Tournament Management Icon">
-							Tournament Management
-						</a>
-					</li>
-                    <li>
-                        <a href="/settings">
-                            <img src="/images/settings_logo.png" alt="Settings Icon">
-                            Settings
-                        </a>
-                    </li>
-                </ul>
+                <ul></ul>
             </div>
 
             <div class="coach-main-content">
                 <div class="container">
+                    <div class="applicant-tabs" style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+                        <button class="tab-btn active" data-status="Pending" style="background: transparent; color: #00f2c3; border: none; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px 10px; border-bottom: 3px solid #00f2c3;">Pending</button>
+                        <button class="tab-btn" data-status="Accepted" style="background: transparent; color: #888; border: none; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px 10px; border-bottom: 3px solid transparent;">Accepted</button>
+                        <button class="tab-btn" data-status="Rejected" style="background: transparent; color: #888; border: none; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px 10px; border-bottom: 3px solid transparent;">Rejected</button>
+                    </div>
                     <div class="applicant-header">
                         <a href="/coach_dashboard.html" class="back-btn">Back to Coach Dashboard</a>
                         <h1>Applicants List</h1>
@@ -387,5 +354,7 @@
 
     <script src="/js/current_user_photo.js"></script>
     <script src="/js/applicant_list.js"></script>
+    <script src="/js/userDropdown.js"></script>
+    <script src="/js/sidebar.js"></script>
 </body>
 </html>
