@@ -456,7 +456,7 @@
 .match-card {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     gap: 20px;
     padding: 10px 12px;
     border-radius: 6px;
@@ -672,7 +672,6 @@
 .mc-teams {
     display: flex;
     gap: 10px;
-    margin-left: auto;
     width: 186px;
     flex-shrink: 0;
     justify-content: space-between;
