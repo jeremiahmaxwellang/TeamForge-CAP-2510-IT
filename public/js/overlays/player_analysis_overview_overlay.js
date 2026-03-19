@@ -413,12 +413,41 @@
         8369: 'Styles/Inspiration/FirstStrike/FirstStrike.png'
       };
 
+      const PERK_NAME_MAP = {
+        8005: 'Press the Attack',
+        8008: 'Lethal Tempo',
+        8021: 'Fleet Footwork',
+        8010: 'Conqueror',
+        8112: 'Electrocute',
+        8124: 'Predator',
+        8128: 'Dark Harvest',
+        9923: 'Hail of Blades',
+        8229: 'Arcane Comet',
+        8230: 'Phase Rush',
+        8214: 'Summon Aery',
+        8437: 'Grasp of the Undying',
+        8439: 'Aftershock',
+        8465: 'Guardian',
+        8351: 'Glacial Augment',
+        8358: 'Prototype: Omnistone',
+        8360: 'Unsealed Spellbook',
+        8369: 'First Strike'
+      };
+
       const PERK_STYLE_ICON_MAP = {
         8000: 'Styles/7201_Precision.png',
         8100: 'Styles/7200_Domination.png',
         8200: 'Styles/7202_Sorcery.png',
         8300: 'Styles/7203_Whimsy.png',
         8400: 'Styles/7204_Resolve.png'
+      };
+
+      const PERK_STYLE_NAME_MAP = {
+        8000: 'Precision',
+        8100: 'Domination',
+        8200: 'Sorcery',
+        8300: 'Inspiration',
+        8400: 'Resolve'
       };
 
       matches.forEach((match, index) => {
@@ -458,7 +487,7 @@
           }
 
           return rows.map(p => `
-          <div class="mc-teammate">
+          <div class="mc-teammate" data-tooltip="${p.championName || 'Unknown Champion'}" title="${p.championName || 'Unknown Champion'}">
             <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${p.championName}.png"
                  alt="${p.championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
             <span class="mc-teammate-name">${(p.riotIdGameName || p.summonerName || '').substring(0, 10)}</span>
@@ -512,7 +541,9 @@
           const fallbackUrl = imagePath
             ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${imagePath.toLowerCase()}`
             : null;
-          const perkLabel = type === 'keystone' ? `Keystone ${perkId}` : `Secondary ${perkId}`;
+            const perkLabel = type === 'keystone'
+              ? (PERK_NAME_MAP[perkId] || `Keystone ${perkId}`)
+              : (PERK_STYLE_NAME_MAP[perkId] || `Secondary ${perkId}`);
 
           return primaryUrl
             ? `<img src="${primaryUrl}" class="mc-perk-icon" title="${perkLabel}" data-fallback-src="${fallbackUrl || ''}" onerror="const fallback=this.getAttribute('data-fallback-src');if(fallback && this.src!==fallback){this.src=fallback;this.removeAttribute('data-fallback-src');return;}window.logMissingOverviewPerkIcon && window.logMissingOverviewPerkIcon(${perkId}, '${perkLabel}', this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-perk-empty&quot;></span>'">`
