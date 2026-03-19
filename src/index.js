@@ -129,9 +129,13 @@ app.use('/riot', requireAnyRole(['Team Coach', 'Player']), require('./routes/rio
 app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes')); // team management routes
 app.use('/announcements', requireRole('Team Manager'), require('./routes/announcementRoutes')); // announcement routes
 app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRoutes')); // tournament routes
+
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
 app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane
 app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./routes/settingsRoutes')); // user settings
+
+// TODO: Require coach
+app.use('/reports', require('./routes/reportsRoutes'));
 
 app.get('/api/user/profile', async (req, res) => {
     try {
