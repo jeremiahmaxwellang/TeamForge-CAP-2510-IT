@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamForge – Reports</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/reports.css">
+</head>
+
+<body>
+
+  <!-- todo: REPLACE SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+      </svg>
+    </div>
+
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      </svg>
+      Announce
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24">
+        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      Schedule
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      Attend
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      Recruit
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24">
+        <path d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      Analysis
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      Settings
+    </div>
+  </aside>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">TeamForge</div>
+    <span class="team-name">Viridis Arcus (Team Name)</span>
+    <div class="avatar">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
+      </svg>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <h1 class="page-title">Reports</h1>
+
+    <div class="grid">
+
+      <!-- 1. Best Performing Applicants (col span 2) -->
+      <div class="card col-span-2">
+        <div class="card-title">Best Performing Applicants</div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Player</th>
+              <th>Winrate (Last 15 Games as Role)</th>
+              <th>Role Applied</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rank-num">1</td>
+              <td>Egresados</td>
+              <td><span class="wr-badge">70%</span></td>
+              <td>Top</td>
+            </tr>
+            <tr>
+              <td class="rank-num">2</td>
+              <td>Currículo</td>
+              <td><span class="wr-badge">52%</span></td>
+              <td>Jungle</td>
+            </tr>
+            <tr>
+              <td class="rank-num">3</td>
+              <td>Vinculación</td>
+              <td><span class="wr-badge">51%</span></td>
+              <td>Support</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 2. Percentage by Role -->
+      <div class="card">
+        <div class="card-title">Percentage by Role</div>
+        <div class="chart-wrap">
+          <canvas id="roleChart"></canvas>
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#3b82f6"></div>Top
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#f59e0b"></div>Mid
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#9ca3af"></div>Jungle
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#f97316"></div>Support
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Current Number of Team Players (col span 2) -->
+      <div class="card col-span-2">
+        <div class="card-title">Current Number of Team Players</div>
+        <table class="role-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>No. of Current Players</th>
+              <th class="gold-cell" style="background:#e8b84b;color:#1a1a2e;">Number of graduating / leaving</th>
+              <th class="red-cell">Players left after semester</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Top</td>
+              <td>1</td>
+              <td>1</td>
+              <td class="players-left-zero">0</td>
+            </tr>
+            <tr>
+              <td>Mid</td>
+              <td>1</td>
+              <td>0</td>
+              <td class="players-left-zero">0</td>
+            </tr>
+            <tr>
+              <td>Jungle</td>
+              <td>3</td>
+              <td>1</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>AD Carry</td>
+              <td>1</td>
+              <td>1</td>
+              <td class="players-left-zero">0</td>
+            </tr>
+            <tr>
+              <td>Support</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. Right column: Percentage Accepted + No. of Applications + Recommended Action -->
+      <div class="right-col">
+
+        <!-- Percentage of Accepted Applicants -->
+        <div class="card">
+          <div class="card-title">Percentage of Accepted Applicants</div>
+          <div class="chart-wrap">
+            <canvas id="acceptChart"></canvas>
+            <div class="legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:#ef4444"></div>Rejected
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:#22c55e"></div>Accepted
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Number of Applications -->
+        <div class="card">
+          <div class="card-title">Number of Applications</div>
+          <table class="apps-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>No. of Applicants</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>March 2026</td>
+                <td>15</td>
+              </tr>
+              <tr>
+                <td>Sep 2025</td>
+                <td>11</td>
+              </tr>
+              <tr>
+                <td>March 2025</td>
+                <td>15</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Recommended Action -->
+        <div class="rec-box">
+          <div class="card-title">Recommended Action</div>
+          <p>Prioritize recruiting Top, Mid, and AD Carry players for next semester.</p>
+        </div>
+
+      </div>
+
+      <!-- 5. Applicants with best communication (col span 2) -->
+      <div class="card col-span-2">
+        <div class="card-title">Applicants with the best communication</div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Player</th>
+              <th>Comms Rating</th>
+              <th>Role Applied</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rank-num">1</td>
+              <td>Egresados</td>
+              <td><span class="comms-5">5</span></td>
+              <td>Top</td>
+            </tr>
+            <tr>
+              <td class="rank-num">2</td>
+              <td>Currículo</td>
+              <td><span class="comms-5">5</span></td>
+              <td>Jungle</td>
+            </tr>
+            <tr>
+              <td class="rank-num">3</td>
+              <td>Vinculación</td>
+              <td><span class="comms-4">4</span></td>
+              <td>Support</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /grid -->
+  </main>
+
+  <script>
+    // Role pie chart
+    new Chart(document.getElementById('roleChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Top', 'Mid', 'Jungle', 'Support'],
+        datasets: [{
+          data: [36, 32, 24, 8],
+          backgroundColor: ['#3b82f6', '#f59e0b', '#9ca3af', '#f97316'],
+          borderWidth: 2, borderColor: '#fff'
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
+          }
+        }
+      }
+    });
+
+    // Accepted pie chart
+    new Chart(document.getElementById('acceptChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Rejected', 'Accepted'],
+        datasets: [{
+          data: [77, 23],
+          backgroundColor: ['#f97316', '#3b82f6'],
+          borderWidth: 2, borderColor: '#fff'
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

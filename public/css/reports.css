@@ -1,0 +1,363 @@
+  *,
+  *::before,
+  *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+  }
+
+  :root {
+      --bg: #1c1f26;
+      --sidebar: #13151a;
+      --card: #ffffff;
+      --card-alt: #f7f4f0;
+      --red: #c0263b;
+      --gold: #e8b84b;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --header-h: 64px;
+      --sidebar-w: 72px;
+  }
+
+  body {
+      font-family: 'Barlow', sans-serif;
+      background: #f0ede8;
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ─────────────────────────────── */
+  .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 4px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+  }
+
+  .sidebar .logo {
+      width: 40px;
+      height: 40px;
+      background: var(--red);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+  }
+
+  .sidebar .logo svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+  }
+
+  .nav-item {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .2s;
+      color: #6b7280;
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      text-align: center;
+  }
+
+  .nav-item:hover {
+      background: rgba(255, 255, 255, .06);
+      color: #d1d5db;
+  }
+
+  .nav-item.active {
+      background: rgba(192, 38, 59, .18);
+      color: var(--red);
+  }
+
+  .nav-item svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+  }
+
+  /* ── HEADER ──────────────────────────────── */
+  .header {
+      position: fixed;
+      top: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      height: var(--header-h);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      z-index: 90;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+  }
+
+  .header .brand {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+      flex: 1;
+  }
+
+  .header .team-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #d1d5db;
+      margin-right: 16px;
+  }
+
+  .header .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .header .avatar svg {
+      width: 22px;
+      height: 22px;
+      fill: #9ca3af;
+  }
+
+  /* ── MAIN ────────────────────────────────── */
+  .main {
+      margin-left: var(--sidebar-w);
+      margin-top: var(--header-h);
+      padding: 24px 28px;
+      flex: 1;
+      min-width: 0;
+  }
+
+  h1.page-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      margin-bottom: 20px;
+      color: var(--text);
+  }
+
+  /* ── GRID ────────────────────────────────── */
+  .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 16px;
+  }
+
+  .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  }
+
+  .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 14px;
+      color: var(--text);
+  }
+
+  /* span cols */
+  .col-span-2 {
+      grid-column: span 2;
+  }
+
+  /* ── TABLES ──────────────────────────────── */
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+  }
+
+  thead tr {
+      background: #1a1a2e;
+      color: #fff;
+  }
+
+  thead th {
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+  }
+
+  tbody tr {
+      border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr:last-child {
+      border-bottom: none;
+  }
+
+  tbody td {
+      padding: 10px 12px;
+      color: var(--text);
+  }
+
+  .rank-num {
+      font-weight: 700;
+      color: var(--muted);
+  }
+
+  .wr-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: #1a1a2e;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+  }
+
+  /* role table */
+  .role-table thead tr {
+      background: var(--red);
+  }
+
+  .role-table .red-cell {
+      background: var(--red);
+      color: #fff;
+      font-weight: 700;
+  }
+
+  .role-table .gold-cell {
+      background: var(--gold);
+      color: #1a1a2e;
+      font-weight: 700;
+  }
+
+  .players-left-zero {
+      color: var(--red);
+      font-weight: 700;
+  }
+
+  /* comms badge */
+  .comms-5 {
+      background: var(--gold);
+      color: #1a1a2e;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 4px;
+      display: inline-block;
+  }
+
+  .comms-4 {
+      background: #fde68a;
+      color: #1a1a2e;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 4px;
+      display: inline-block;
+  }
+
+  /* ── CHARTS ──────────────────────────────── */
+  .chart-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+  }
+
+  .chart-wrap canvas {
+      max-width: 160px;
+      max-height: 160px;
+  }
+
+  .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+  }
+
+  .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+  }
+
+  .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+  }
+
+  /* ── RECOMMENDED ACTION ─────────────────── */
+  .rec-box {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  }
+
+  .rec-box .card-title {
+      margin-bottom: 8px;
+  }
+
+  .rec-box p {
+      color: var(--red);
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 1.5;
+  }
+
+  /* ── APPLICATIONS TABLE ─────────────────── */
+  .apps-table thead tr {
+      background: var(--red);
+  }
+
+  /* ── NO OF APPLICATIONS ─────────────────── */
+  .month-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+  }
+
+  .month-row:last-child {
+      border-bottom: none;
+  }
+
+  .month-label {
+      color: var(--muted);
+  }
+
+  .month-count {
+      font-weight: 700;
+  }
+
+  /* right column stacked */
+  .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+  }
