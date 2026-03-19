@@ -5,10 +5,13 @@ async function submitRegistration() {
     const password = sessionStorage.getItem('password');
     
     // Get registration form data
-    const fullname = document.querySelector('input[placeholder="Enter your full name"]')?.value || '';
-    const riotId = document.querySelector('input[placeholder="Enter your Riot ID"]')?.value || '';
-    const gpa = document.querySelector('input[placeholder="Enter your GPA"]')?.value || '';
-    const cgpa = document.querySelector('input[placeholder="Enter your CGPA"]')?.value || '';
+    const fullname = document.getElementById('fullName')?.value || '';
+    const riotId = document.getElementById('riotId')?.value || '';
+    const discord = document.getElementById('discord')?.value || '';
+    const photoInput = document.getElementById('profilePhoto');
+    const photoFile = photoInput && photoInput.files ? photoInput.files[0] : null;
+    const gpa = document.getElementById('gpa')?.value || '';
+    const cgpa = document.getElementById('cgpa')?.value || '';
     const currentRank = document.getElementById('currentRank')?.value || '';
     const peakRank = document.getElementById('peakRank')?.value || '';
     const primaryRole = document.getElementById('primaryRole')?.value || '';
@@ -26,37 +29,37 @@ async function submitRegistration() {
         return;
     }
 
-    if (!fullname || !riotId || !gpa || !cgpa) {
+    if (!fullname || !riotId || !discord || !gpa || !cgpa || !photoFile) {
         alert('Please fill in all registration fields');
-        console.log('Missing fields:', { fullname, riotId, gpa, cgpa });
+        console.log('Missing fields:', { fullname, riotId, discord, gpa, cgpa, hasPhoto: Boolean(photoFile) });
         return;
     }
 
-    if (!currentRank || !peakRank || !primaryRole) {
+    if (!currentRank || !peakRank || !primaryRole || !secondaryRole) {
         alert('Please select all rank and role fields');
-        console.log('Missing selections:', { currentRank, peakRank, primaryRole });
+        console.log('Missing selections:', { currentRank, peakRank, primaryRole, secondaryRole });
         return;
     }
 
     try {
+        const formData = new FormData();
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('firstname', firstname);
+        formData.append('lastname', lastname);
+        formData.append('riotId', riotId);
+        formData.append('discord', discord);
+        formData.append('gpa', parseFloat(gpa));
+        formData.append('cgpa', parseFloat(cgpa));
+        formData.append('currentRank', currentRank);
+        formData.append('peakRank', peakRank);
+        formData.append('primaryRole', parseInt(primaryRole, 10));
+        formData.append('secondaryRole', parseInt(secondaryRole, 10));
+        formData.append('profilePhoto', photoFile);
+
         const response = await fetch('/register/createuser', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email,
-                password,
-                firstname: firstname,
-                lastname: lastname,
-                riotId,
-                gpa: parseFloat(gpa),
-                cgpa: parseFloat(cgpa),
-                currentRank,
-                peakRank,
-                primaryRole: parseInt(primaryRole),
-                secondaryRole: secondaryRole && secondaryRole !== '' ? parseInt(secondaryRole) : null
-            })
+            body: formData
         });
 
         const data = await response.json();

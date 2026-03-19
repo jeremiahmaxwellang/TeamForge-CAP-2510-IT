@@ -157,6 +157,61 @@
             margin-top: 10px;
             font-size: 16px;
         }
+
+        /* Manager Dashboard Grid Layout */
+        .manager-dashboard-grid {
+            margin: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two equal columns */
+            gap: 20px;
+            align-items: start;
+        }
+
+        .manager-card {
+            background-color: var(--porcelain);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: var(--carbon-black);
+            min-height: 250px;
+        }
+
+        .manager-card h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--iron-gray);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Mock List Styles */
+        .mock-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .mock-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .mock-list li:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -169,7 +224,7 @@
             <div class="manager-team-name">Viridis Arcus (Team Name)</div>
             <div class="manager-topbar-actions">
                 <a href="/logout" class="logout-btn">Logout</a>
-                <img src="/images/sample_profile.png" alt="Profile Picture" class="manager-profile-icon">
+                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" class="manager-profile-icon js-current-user-photo">
             </div>
         </div>
 
@@ -201,13 +256,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon">
-                            idk lol<br>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
+                        <a href="/settings">
                             <img src="/images/settings_logo.png" alt="Team Management Icon">
                             Settings
                         </a>
@@ -216,12 +265,33 @@
             </div>
 
             <div class="manager-main-content">
-                <section class="dashboard-shell">
-                    <h2>Manager Dashboard</h2>
-                    <p>Dashboard content is intentionally blank for now.</p>
-                </section>
+                <div class="manager-dashboard-grid">
+                    <div id="card-players" class="dash-card">
+						<h3>Player List</h3>
+						<div id="player-list-container">Loading players...</div>
+					</div>
+
+					<div id="card-announcements" class="dash-card">
+						<h3 style="cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#007bff'" onmouseout="this.style.color='#333'" onclick="window.location.href='/announcements'">
+							Announcements
+						</h3>
+						<div id="announcement-list-container">Loading announcements...</div>
+					</div>
+
+                    <div id="card-calendar" class="dash-card">
+						<h3>Calendar</h3>
+						<div id="calendar-container">Calendar UI goes here...</div>
+					</div>
+
+                    <div id="card-draft" class="dash-card">
+						<h3>Upcoming Tournament Draft</h3>
+						<div id="draft-list-container">Loading draft...</div>
+					</div>
+
+                </div>
             </div>
         </div>
     </div>
+    <script src="/js/current_user_photo.js"></script>
 </body>
 </html>

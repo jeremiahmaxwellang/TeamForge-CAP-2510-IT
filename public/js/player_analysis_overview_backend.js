@@ -751,8 +751,24 @@
           dropdownMenu.appendChild(link);
         });
 
-        if (players.length > 0) loadPlayer(players[0].userId);
+        if (players.length > 0) {
+            // NEW: Check if a specific player ID was passed in the URL from the Dashboard
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetId = urlParams.get('id');
+            
+            let selectedUserId = players[0].userId; // Default to first player
+            
+            if (targetId) {
+                // Try to find the matching player
+                const match = players.find(p => p.userId == targetId);
+                if (match) {
+                    selectedUserId = match.userId;
+                }
+            }
+            
+            loadPlayer(selectedUserId);
+        }
       })
       .catch((err) => console.error("[LOAD PLAYERS] ✗ Error loading player list:", err));
   });
-})();
+})(); // End of IIFE
