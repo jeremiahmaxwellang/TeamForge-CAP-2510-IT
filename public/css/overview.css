@@ -470,6 +470,36 @@
     filter: brightness(0.96);
 }
 
+/* Tooltip */
+[data-tooltip] {
+    position: relative;
+    cursor: default;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20, 20, 30, 0.9);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 100;
+    font-family: 'Roboto', sans-serif;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
 .match-card.mc-win {
     background-color: #e8f4fd;
     border-left-color: #4e9fe0;

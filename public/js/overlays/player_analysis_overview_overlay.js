@@ -473,7 +473,7 @@
         const makeItemSlot = (id) => {
           const itemId = Number(id);
           if (!itemId || itemId <= 0) return `<span class="mc-item-empty"></span>`;
-          return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
+          return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" data-tooltip="Item ${itemId}" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
         };
         const itemRow = itemIds.map(makeItemSlot).join('');
         const spellImg = (id) => {
@@ -491,8 +491,10 @@
             });
           }
 
+          const SPELL_DISPLAY_NAMES = { SummonerDot: 'Ignite' };
+          const displayName = SPELL_DISPLAY_NAMES[name] || name.replace('Summoner', '');
           return name
-            ? `<img src="${imageUrl}" class="mc-spell-icon" title="${name.replace('Summoner', '')}" onerror="window.logMissingOverviewSpellIcon && window.logMissingOverviewSpellIcon(${id}, '${name}', this.src, '${matchId}');this.style.display='none'">`
+            ? `<img src="${imageUrl}" class="mc-spell-icon" title="${displayName}" onerror="window.logMissingOverviewSpellIcon && window.logMissingOverviewSpellIcon(${id}, '${name}', this.src, '${matchId}');this.style.display='none'">`
             : `<span class="mc-spell-empty"></span>`;
         };
 
@@ -522,14 +524,14 @@
         card.className = `match-card ${isWin ? 'mc-win' : 'mc-loss'}`;
         card.innerHTML = `
           <div class="mc-meta">
-            <div class="mc-queue">${queueName}</div>
-            <div class="mc-date">${gameDate}</div>
-            <div class="mc-result ${isWin ? 'mc-win-text' : 'mc-loss-text'}">${isWin ? 'WIN' : 'LOSS'} ${durationMin}:${String(durationSec).padStart(2, '0')}</div>
+            <div class="mc-queue" data-tooltip="Game Mode">${queueName}</div>
+            <div class="mc-date" data-tooltip="Date played">${gameDate}</div>
+            <div class="mc-result ${isWin ? 'mc-win-text' : 'mc-loss-text'}" data-tooltip="Result &amp; Duration">${isWin ? 'WIN' : 'LOSS'} ${durationMin}:${String(durationSec).padStart(2, '0')}</div>
           </div>
           <div class="mc-champ-col">
             <div class="mc-champ-wrapper">
               <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${player.championName}.png"
-                   alt="${player.championName}" class="mc-champ-icon" onerror="this.src='/images/sample_hero.png'">
+                   alt="${player.championName}" class="mc-champ-icon" data-tooltip="${player.championName}" onerror="this.src='/images/sample_hero.png'">
               ${champLevel ? `<span class="mc-champ-level">${champLevel}</span>` : ''}
             </div>
             <div class="mc-summoner-spells">
@@ -545,12 +547,12 @@
             <div class="mc-items-row">${itemRow}</div>
           </div>
           <div class="mc-kda">
-            <div class="mc-kda-scores">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
-            <div class="mc-kda-ratio">${kdaRatio} KDA</div>
+            <div class="mc-kda-scores" data-tooltip="Kills / Deaths / Assists">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
+            <div class="mc-kda-ratio" data-tooltip="KDA Ratio">${kdaRatio} KDA</div>
           </div>
           <div class="mc-cs-vision">
-            <div class="mc-cs">${totalCs} CS (${csPerMin})</div>
-            <div class="mc-vision">${visionScore} vision</div>
+            <div class="mc-cs" data-tooltip="Creep Score (CS per Minute)">${totalCs} CS (${csPerMin})</div>
+            <div class="mc-vision" data-tooltip="Vision Score">${visionScore} vision</div>
           </div>
           <div class="mc-teams">
             <div class="mc-team-col">${makeTeamCol(allies, 4)}</div>
