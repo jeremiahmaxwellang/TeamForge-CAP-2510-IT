@@ -569,7 +569,7 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
         }
     }
 
-    if (btnConfirm) btnConfirm.addEventListener('click', () => submitEvaluation('Evaluated'));
+    if (btnConfirm) btnConfirm.addEventListener('click', () => submitEvaluation('Pending'));
     if (btnAccept) btnAccept.addEventListener('click', () => { if (confirm("Are you sure you want to ACCEPT this applicant?")) submitEvaluation('Accepted'); });
     if (btnReject) btnReject.addEventListener('click', () => { if (confirm("Are you sure you want to REJECT this applicant?")) submitEvaluation('Rejected'); });
   }
