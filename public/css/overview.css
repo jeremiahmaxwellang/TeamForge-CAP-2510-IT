@@ -335,6 +335,10 @@
     white-space: nowrap;
 }
 
+.champion-pool-container .table-container thead th {
+    color: #000;
+}
+
 .champion-pool-container .table-container td {
     padding: 11px 10px;
     border-bottom: 1px solid #eef1f4;
