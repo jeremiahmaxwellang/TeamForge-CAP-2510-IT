@@ -6,6 +6,7 @@ const reports_controller = require('../controllers/reports_controller');
 
 router.get('/current_players', reports_controller.getCurrentPlayers);
 router.get('/applicant_roles', reports_controller.getApplicantRoles);
+router.get('/applicant_statuses', reports_controller.getApplicantStatuses);
 router.get('/applications_total', reports_controller.getApplicationsEachPeriod);
 
 // Reports 

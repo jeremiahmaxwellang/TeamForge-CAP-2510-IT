@@ -72,6 +72,43 @@ exports.getApplicantRoles = async (req, res) => {
     }
 }
 
+// Get applicant statuses
+exports.getApplicantStatuses = async (req, res) => {
+
+    try {
+
+        const [rows] = await db.query(
+            `SELECT
+                a.status,
+                ap.startDate, ap.endDate,
+                COUNT(*) AS applicant_count,
+                ROUND(
+                    COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 
+                    2
+                ) AS status_percentage
+            FROM applications a
+            JOIN application_periods ap ON a.periodId = ap.periodId
+            WHERE ap.periodId = (
+                SELECT MAX(periodId) 
+                FROM application_periods
+            )
+            GROUP BY a.status, ap.startDate, ap.endDate;
+        `);
+
+        console.log(rows);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'not found' });
+        }
+
+        res.json(rows);
+        
+    } catch (err) { 
+        console.error("Error:", err); 
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 // Get Num of Applications per Period /applications_total
 exports.getApplicationsEachPeriod = async (req, res) => {
 
