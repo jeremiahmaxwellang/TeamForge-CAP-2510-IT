@@ -531,28 +531,45 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
 
   // =============== Fetch Match Statistics ===============
 
-  document.getElementById('fetchMatchStatsBtn').onclick = fetchMatchStats;
+  document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
-async function fetchMatchStats() {
-  const gameName = state.currentApplicant.gameName;
-  const tagLine = state.currentApplicant.tagLine;
+  async function clickMatchStatsButton() {
+    const gameName = state.currentApplicant.gameName;
+    const tagLine = state.currentApplicant.tagLine;
+    let puuidString = ""
 
-  try {
-    // Fetch and parse JSON
-    const response = await fetch(`/riot/puuid/${gameName}/${tagLine}`);
-    const data = await response.json();
+    // Fetch PUUID from Riot
+    try {
+      const response = await fetch(`/riot/puuid/${gameName}/${tagLine}`);
+      const data = await response.json();
 
-    const puuidString = data.puuid;
+      puuidString = data.puuid;
 
-    const userId = parseInt(state.currentApplicant.userId, 10);
-    console.log(`player number ${userId}, puuid: ${puuidString}`);
+      const userId = parseInt(state.currentApplicant.userId, 10);
+      console.log(`player number ${userId}, puuid: ${puuidString}`);
 
-    updatePuuid(userId, puuidString);
-  } catch (err) {
-    console.error("Error fetching PUUID:", err);
+      updatePuuid(userId, puuidString);
+    } catch (err) {
+      console.error("Error fetching PUUID:", err);
+    }
+
+    // Fetch Match IDs from Riot
+    // TODO: Fetch Match Statistics
+    const queueId = 420; // 440 for Ranked Flex
+
+    try {
+      const response = await fetch(`/riot/matches/${puuidString}/${queueId}`);
+      const data = await response.json();
+      const matches = data.matches
+
+      console.log(`matches: ${matches}`);
+    } catch (err) {
+      console.error("Error:", err);
+    }
+
   }
-}
 
+  // Update player's puuid in the DB
   function updatePuuid(userId, puuid) {
     console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}}`);
     return fetch(`/player_analysis/players/${userId}/puuid`, {
