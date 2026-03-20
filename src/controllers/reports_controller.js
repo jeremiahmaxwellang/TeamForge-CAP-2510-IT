@@ -71,3 +71,35 @@ exports.getApplicantRoles = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 }
+
+// Get Num of Applications per Period /applications_total
+exports.getApplicationsEachPeriod = async (req, res) => {
+
+    try {
+
+        const [rows] = await db.query(
+            `SELECT 
+                ap.periodId,
+                ap.startDate,
+                ap.endDate,
+                COUNT(a.userId) AS registrations
+            FROM application_periods ap
+            LEFT JOIN applications a 
+                ON a.periodId = ap.periodId
+            GROUP BY ap.periodId, ap.startDate, ap.endDate
+            ORDER BY ap.periodId DESC;
+        `);
+
+        console.log(rows);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'not found' });
+        }
+
+        res.json(rows);
+        
+    } catch (err) { 
+        console.error("Error:", err); 
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
