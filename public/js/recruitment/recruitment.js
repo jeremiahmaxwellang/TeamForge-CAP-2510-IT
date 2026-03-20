@@ -10,20 +10,12 @@ async function loadCurrentPeriod() {
         const periodDiv = document.getElementById('currentPeriod');
 
         if (result.applicationPeriod) {
-            const { startDate, endDate } = result.applicationPeriod;
-            // periodDiv.textContent = `Recruitment period: ${startDate} to ${endDate}`;
-            // periodDiv.classList.remove('error-message');
-            return result.applicationPeriod;   // ✅ return the object
+            return result.applicationPeriod;
         } else {
-            // periodDiv.textContent = result.message || 'No active recruitment period';
-            // periodDiv.classList.add('error-message');
-            return null;   // ✅ return null if no active period
+            return null;   // return null if no active period
         }
     } catch (err) {
         console.error("Error fetching current period:", err);
-        // const periodDiv = document.getElementById('currentPeriod');
-        // periodDiv.textContent = 'Error loading recruitment period';
-        // periodDiv.classList.add('error-message');
-        return null;   // ✅ return null on error
+        return null;   // return null on error
     }
 }

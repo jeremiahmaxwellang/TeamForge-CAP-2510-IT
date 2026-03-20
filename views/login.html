@@ -8,15 +8,17 @@
     <script src="/js/recruitment/recruitment.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            const signupText = document.querySelector(".signup-text");
             const currentPeriod = await loadCurrentPeriod();
             if (currentPeriod) {
                 console.log("Active recruitment period:", currentPeriod);
-
+                signupText.innerHTML =        
+                `<p><div>Applying to the team? </div> <a href="/signup">Click here!</a></p>`
             } else {
                 console.log("No active recruitment period.");
-                const signupText = document.querySelector(".signup-text");
+                
                 signupText.innerHTML =        
-                `<p class="signup-text">
+                `<p>
                     <div>Applying to the team?</div> 
                     <div>______________________________</div>
                     <div>Please wait for us to announce</div>
@@ -46,9 +48,7 @@
         </form>
 
 
-        <p class="signup-text">
-            <span>Applying to the team? </span> <a href="/signup">Click here!</a>
-        </p>
+        <p class="signup-text" id="signup-text"></p>
 
         <p class="signup-text">
             <a href="/reports">REPORTS MODULE</a>
