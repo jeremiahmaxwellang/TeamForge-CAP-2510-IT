@@ -135,8 +135,7 @@ app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDa
 app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane
 app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./routes/settingsRoutes')); // user settings
 
-// TODO: Require coach
-app.use('/reports', require('./routes/reportsRoutes'));
+app.use('/reports', requireAnyRole(['Team Manager', 'Team Coach']), require('./routes/reportsRoutes'));
 
 app.get('/api/user/profile', async (req, res) => {
     try {

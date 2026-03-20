@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 2. MANAGER SPECIFIC
         if (role === 'Team Manager') {
             links += buildLink('/team_management', 'recruitment_evaluation_logo.png', 'Team Management');
+            links += buildLink('/reports', 'report_icon.png', 'Reports');
         }
 
         // 3. COACH SPECIFIC

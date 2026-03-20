@@ -15,12 +15,12 @@
 		.coach-team-name { font-size: 36px; color: var(--porcelain); margin-left: auto; margin-right: 20px; }
 		.coach-profile-icon { width: 60px; height: 60px; border-radius: 50%; background-color: var(--iron-gray); }
 		.coach-content-wrapper { display: flex; width: 100%; }
-		.coach-sidebar { width: fit-content; background-color: var(--carbon-black); padding: 10px; height: auto; flex-shrink: 0; min-height: calc(100vh - 120px); }
-		.coach-sidebar ul { list-style-type: none; padding: 0; margin: 0; }
-		.coach-sidebar ul li a { margin-bottom: 20px; color: var(--porcelain); text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 150px; text-align: center; }
-		.coach-sidebar ul li a img { width: 25%; height: auto; margin-bottom: 5px; transition: filter 0.3s ease; }
-		.coach-sidebar ul li a:hover { background-color: #f0f0f0; border-radius: 5px; color: var(--carbon-black); }
-		.coach-sidebar ul li a:hover img { filter: invert(1); }
+        .sidebar { width: fit-content; background-color: var(--carbon-black); padding: 10px; height: auto; flex-shrink: 0; min-height: calc(100vh - 120px); }
+        .sidebar ul { list-style-type: none; padding: 0; margin: 0; }
+        .sidebar ul li a { margin-bottom: 20px; color: var(--porcelain); text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 150px; text-align: center; }
+        .sidebar ul li a img { width: 25%; height: auto; margin-bottom: 5px; transition: filter 0.3s ease; }
+        .sidebar ul li a:hover { background-color: #f0f0f0; border-radius: 5px; color: var(--carbon-black); }
+        .sidebar ul li a:hover img { filter: invert(1); }
 		
         /* Settings Page Specific Styles */
 		.settings-main-content { flex-grow: 1; background-color: var(--gunmetal); padding: 30px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
@@ -144,7 +144,7 @@
 		</div>
 
 		<div class="coach-content-wrapper">
-			<div class="coach-sidebar">
+            <div class="sidebar">
 				<ul></ul>
 			</div>
 

@@ -9,8 +9,7 @@ router.get('/applicant_roles', reports_controller.getApplicantRoles);
 router.get('/applicant_statuses', reports_controller.getApplicantStatuses);
 router.get('/applications_total', reports_controller.getApplicationsEachPeriod);
 
-// Reports 
-// TODO: requireRole('Team Coach')
+// Reports
 router.get('/', (req, res) => {
     res.sendFile(path.join(viewsPath, 'reports.html'));
 });
