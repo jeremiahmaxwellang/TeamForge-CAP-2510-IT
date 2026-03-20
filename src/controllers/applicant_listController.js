@@ -64,7 +64,8 @@ exports.getApplicantByEmail = async (req, res) => {
                 p.peakRank,
                 p.currentRank,
                 p.lastGPA,
-                p.CGPA
+                p.CGPA,
+                p.yearLevel
             FROM users u
             JOIN players p ON u.userId = p.userId
             WHERE u.email = ? 

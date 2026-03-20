@@ -80,8 +80,8 @@ exports.createUser = async (req, res) => {
 
         // Insert into players table
         const insertPlayerQuery = `
-            INSERT INTO players (userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, CGPA, lastGPA, profilePhoto)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO players (userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, CGPA, lastGPA, yearLevel, profilePhoto)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await mySqlPool.query(insertPlayerQuery, [
@@ -94,6 +94,7 @@ exports.createUser = async (req, res) => {
             parsedSecondaryRole,
             cgpa,
             gpa,
+            yearLevel,
             storedPhotoFileName
         ]);
 
