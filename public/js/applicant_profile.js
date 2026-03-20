@@ -529,6 +529,48 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     UI.btnPrev.addEventListener('click', () => loadProfile(state.currentIndex > 0 ? state.currentIndex - 1 : state.allApplicants.length - 1));
     UI.btnNext.addEventListener('click', () => loadProfile(state.currentIndex < state.allApplicants.length - 1 ? state.currentIndex + 1 : 0));
 
+  // =============== Fetch Match Statistics ===============
+
+  document.getElementById('fetchMatchStatsBtn').onclick = fetchMatchStats;
+
+async function fetchMatchStats() {
+  const gameName = state.currentApplicant.gameName;
+  const tagLine = state.currentApplicant.tagLine;
+
+  try {
+    // Fetch and parse JSON
+    const response = await fetch(`/riot/puuid/${gameName}/${tagLine}`);
+    const data = await response.json();
+
+    const puuidString = data.puuid;
+
+    const userId = parseInt(state.currentApplicant.userId, 10);
+    console.log(`player number ${userId}, puuid: ${puuidString}`);
+
+    updatePuuid(userId, puuidString);
+  } catch (err) {
+    console.error("Error fetching PUUID:", err);
+  }
+}
+
+  function updatePuuid(userId, puuid) {
+    console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}}`);
+    return fetch(`/player_analysis/players/${userId}/puuid`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ puuid }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(`[UPDATE PUUID] ✓ Successfully updated PUUID:`, data);
+        return data;
+      })
+      .catch((err) => {
+        console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err);
+        throw err;
+      });
+  }
+
     // --- EVALUATION & FINAL DECISION ---
     const btnAccept = document.querySelector('.btn-accept');
     const btnReject = document.querySelector('.btn-reject');
