@@ -1,0 +1,298 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #36393f;
+    color: #ffffff;
+}
+
+.coach-page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--porcelain);
+}
+
+.coach-topbar {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--carbon-black);
+    padding: 10px 20px;
+    color: var(--porcelain);
+}
+
+.coach-brand {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+.coach-brand img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+    margin-left: 20px;
+}
+
+.coach-brand-title {
+    font-family: var(--font-road-rage);
+    font-size: 48px;
+    margin-left: 30px;
+    color: var(--porcelain);
+}
+
+.coach-team-name {
+    font-size: 36px;
+    color: var(--porcelain);
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.coach-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-btn {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--porcelain);
+    background: #2b2d31;
+    border: 1px solid #5b6069;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background: #3b3f46;
+}
+
+.coach-profile-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--iron-gray);
+}
+
+.coach-content-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.coach-sidebar {
+    width: fit-content;
+    background-color: var(--carbon-black);
+    padding: 10px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.coach-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.coach-sidebar ul li {
+    text-align: center;
+}
+
+.coach-sidebar ul li a {
+    margin-bottom: 20px;
+    color: var(--porcelain);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+}
+
+.coach-sidebar ul li a img {
+    width: 25%;
+    height: auto;
+    margin-bottom: 5px;
+    transition: filter 0.3s ease;
+}
+
+.coach-sidebar ul li a:hover {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    color: var(--carbon-black);
+}
+
+.coach-sidebar ul li a:hover img {
+    filter: invert(1);
+}
+
+.coach-main-content {
+    flex-grow: 1;
+    min-height: calc(100vh - 120px);
+    padding: 28px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #2f3136;
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid #202225;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+.applicant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.back-btn {
+    display: inline-block;
+    background-color: #202225;
+    color: #f2f3f5;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #45474d;
+    font-weight: 600;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.back-btn:hover {
+    background-color: #3b3f46;
+    border-color: #5b5f67;
+}
+
+h1 {
+    color: #ffffff;
+    margin: 0;
+    text-align: left;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+th {
+    background-color: #202225;
+    color: #b9bbbe;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid #45474d;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #3f4248;
+    text-align: left;
+    color: #f2f3f5;
+}
+
+tr:nth-child(even) {
+    background-color: #2b2d31;
+}
+
+tr:hover {
+    background-color: #3b3f46;
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+    color: #b9bbbe;
+    background: #202225;
+    border-radius: 12px;
+}
+
+.error {
+    color: #ffd4d9;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(220, 53, 69, 0.2);
+    border: 1px solid #dc3545;
+    border-radius: 12px;
+}
+
+.status {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-align: center;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.status.pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffd66b;
+}
+
+.status.active {
+    background-color: rgba(0, 242, 195, 0.18);
+    color: #00f2c3;
+}
+
+.status.inactive {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #ff7b8a;
+}
+
+.status.evaluated {
+    background-color: rgba(52, 152, 219, 0.2);
+    color: #8dc8ff;
+}
+
+.status.accepted {
+    background-color: rgba(40, 167, 69, 0.24);
+    color: #7ce79c;
+}
+
+.status.rejected {
+    background-color: rgba(220, 53, 69, 0.24);
+    color: #ff9aa6;
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+@media (max-width: 900px) {
+    .container {
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .applicant-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th,
+    td {
+        padding: 10px 8px;
+    }
+}
