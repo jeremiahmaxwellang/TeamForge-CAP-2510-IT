@@ -12,6 +12,7 @@ async function submitRegistration() {
     const photoFile = photoInput && photoInput.files ? photoInput.files[0] : null;
     const gpa = document.getElementById('gpa')?.value || '';
     const cgpa = document.getElementById('cgpa')?.value || '';
+    const yearLevel = document.getElementById('yearLevel')?.value || '';
     const currentRank = document.getElementById('currentRank')?.value || '';
     const peakRank = document.getElementById('peakRank')?.value || '';
     const primaryRole = document.getElementById('primaryRole')?.value || '';
@@ -29,9 +30,9 @@ async function submitRegistration() {
         return;
     }
 
-    if (!fullname || !riotId || !discord || !gpa || !cgpa || !photoFile) {
+    if (!fullname || !riotId || !discord || !gpa || !cgpa || !photoFile || !yearLevel) {
         alert('Please fill in all registration fields');
-        console.log('Missing fields:', { fullname, riotId, discord, gpa, cgpa, hasPhoto: Boolean(photoFile) });
+        console.log('Missing fields:', { fullname, riotId, discord, gpa, cgpa, hasPhoto: Boolean(photoFile), yearLevel });
         return;
     }
 
@@ -51,6 +52,7 @@ async function submitRegistration() {
         formData.append('discord', discord);
         formData.append('gpa', parseFloat(gpa));
         formData.append('cgpa', parseFloat(cgpa));
+        formData.append('yearLevel', yearLevel);
         formData.append('currentRank', currentRank);
         formData.append('peakRank', peakRank);
         formData.append('primaryRole', parseInt(primaryRole, 10));

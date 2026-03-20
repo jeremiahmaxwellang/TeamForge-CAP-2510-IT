@@ -44,6 +44,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         });
 
+
+  fetch('/reports/current_players')
+    .then(r => r.json())
+    .then(data => {
+      const tbody = document.querySelector('.role-table tbody');
+
+      tbody.innerHTML = data.map(p => `
+        <tr>
+          <td>${p.displayedRole}</td>
+          <td>${p.role_count}</td>
+           <td class="${p.is_leaving >= 1 ? 'players-left-zero' : ''}">${p.is_leaving}</td>
+          <td class="${p.players_left <= 1 ? 'players-left-zero' : ''}">${p.players_left}</td>
+        </tr>
+      `).join('');
+    })
+    .catch(err => console.error('Error loading current players:', err));
+
+
+    
     // Accepted pie chart
     new Chart(document.getElementById('acceptChart'), {
         type: 'pie',

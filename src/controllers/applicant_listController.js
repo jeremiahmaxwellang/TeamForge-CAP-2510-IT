@@ -19,8 +19,7 @@ exports.getAllApplicants = async (req, res) => {
                 p.course,         
                 p.yearLevel,      
                 p.lastGPA,
-                p.CGPA,
-                p.applicationStatus
+                p.CGPA
             FROM users u
             JOIN players p ON u.userId = p.userId
             WHERE u.position = 'Applicant'
@@ -65,8 +64,7 @@ exports.getApplicantByEmail = async (req, res) => {
                 p.peakRank,
                 p.currentRank,
                 p.lastGPA,
-                p.CGPA,
-                p.applicationStatus
+                p.CGPA
             FROM users u
             JOIN players p ON u.userId = p.userId
             WHERE u.email = ? 
@@ -126,6 +124,7 @@ exports.saveEvaluation = async (req, res) => {
         `;
         await connection.query(insertEvalQuery, [userId, coachId, notes, gameSense, communication, champPool]);
 
+        // TODO: USE APPLICATIONS TABLE FOR STATUS
         // 2. Update their final Accept/Reject status in the players table
         const updateStatusQuery = `
             UPDATE players 

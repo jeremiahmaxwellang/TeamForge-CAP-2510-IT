@@ -57,12 +57,11 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `primaryRoleId` INT NOT NULL,
   `secondaryRoleId` INT NULL,
   `puuid` VARCHAR(245) NULL,
-  `accountRegion` ENUM('AMERICAS', 'ASIA', 'EUROPE', 'SEA') NULL,
+  `accountRegion` ENUM('AMERICAS', 'ASIA', 'EUROPE', 'SEA') NULL DEFAULT 'ASIA',
   `schoolId` VARCHAR(45) NULL,
   `course` VARCHAR(45) NULL,
   `lastGPA` DECIMAL(6,2) NULL,
   `CGPA` DECIMAL(6,2) NULL,
-  `applicationStatus` VARCHAR(45) NULL,
   `teamId` INT NULL,
   `yearLevel` VARCHAR(45) NULL,
   `profilePhoto` VARCHAR(260) NULL,
@@ -454,6 +453,46 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantEvaluations` (
   CONSTRAINT `fk_applicantEvaluations_users1`
     FOREIGN KEY (`coachId`)
     REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`application_periods`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`application_periods` (
+  `periodId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `startDate` DATE NULL,
+  `endDate` DATE NULL,
+  PRIMARY KEY (`periodId`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`applications`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`applications` (
+  `periodId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `userId` INT UNSIGNED NOT NULL,
+  `primaryRoleId` INT NOT NULL,
+  `status` VARCHAR(45) NOT NULL DEFAULT 'Pending',
+  PRIMARY KEY (`periodId`, `userId`),
+  INDEX `fk_applications_players1_idx` (`userId` ASC) VISIBLE,
+  INDEX `fk_applications_leagueRoles1_idx` (`primaryRoleId` ASC) VISIBLE,
+  CONSTRAINT `fk_applications_application_periods1`
+    FOREIGN KEY (`periodId`)
+    REFERENCES `teamforgedb`.`application_periods` (`periodId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_applications_players1`
+    FOREIGN KEY (`userId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_applications_leagueRoles1`
+    FOREIGN KEY (`primaryRoleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
