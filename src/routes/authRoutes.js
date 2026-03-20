@@ -70,6 +70,20 @@ function requireRole(requiredRole) {
     };
 }
 
+function requireAnyRole(allowedRoles) {
+    return (req, res, next) => {
+        const role = req.cookies && req.cookies.userRole;
+        const userId = req.cookies && req.cookies.userId;
+
+        if (userId && allowedRoles.includes(role)) {
+            return next();
+        }
+
+        clearAuthCookies(res);
+        return res.redirect('/');
+    };
+}
+
 // Login page
 router.get('/', (req, res) => {
     res.sendFile(path.join(viewsPath, 'login.html'));
@@ -92,12 +106,12 @@ router.get('/register', (req, res) => {
 });
 
 // Change password page
-router.get('/change_password', (req, res) => {
+router.get('/change_password', requireAnyRole(['Team Manager', 'Team Coach', 'Player', 'Applicant', 'Sub']), (req, res) => {
     res.sendFile(path.join(viewsPath, 'change_password.html'));
 });
 
 // --- POST /change_password ---
-router.post('/change_password', async (req, res) => {
+router.post('/change_password', requireAnyRole(['Team Manager', 'Team Coach', 'Player', 'Applicant', 'Sub']), async (req, res) => {
     const { email, newPassword } = req.body;
 
     try {
@@ -170,6 +184,7 @@ router.post('/login', async (req, res) => {
 
             // Check if first login
             if (user.firstLogin) {
+                setAuthCookies(res, user);
                 return res.json({ redirect: '/change_password', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
             }
 
