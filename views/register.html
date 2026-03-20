@@ -3,8 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>TeamForge Registration</title>
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/register.css">
     <script src="/js/register.js"></script>
+    <script src="/js/recruitment/recruitment.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const currentPeriodInput = document.getElementById('currentPeriod');
+            const currentPeriod = await loadCurrentPeriod();
+
+            if (currentPeriod) {
+                console.log("Active recruitment period:", currentPeriod);
+                currentPeriodInput.value = currentPeriod.periodId;
+            } else {
+                console.log("No active recruitment period.");
+                currentPeriodInput.value = "";
+            }
+        });
+
+    </script>
 </head>
 <body>
 
@@ -81,6 +98,8 @@
             <option value="4">AD Carry</option>
             <option value="5">Support</option>
         </select>
+
+        <input type="text" id="currentPeriod" class="hidden-input" />
 
         <button onclick="submitRegistration()">Continue</button>
     </div>

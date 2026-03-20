@@ -122,7 +122,7 @@
         <div class="card-title">Percentage by Role</div>
         <div class="chart-wrap">
           <canvas id="roleChart"></canvas>
-          <div class="legend">
+          <div class="legend" id="role-legend">
 
           </div>
         </div>
@@ -180,43 +180,27 @@
 
         <!-- Percentage of Accepted Applicants -->
         <div class="card">
-          <div class="card-title">Percentage of Accepted Applicants</div>
+          <div class="card-title" id="status-report-label">Percentage of Accepted Applicants</div>
           <div class="chart-wrap">
             <canvas id="acceptChart"></canvas>
-            <div class="legend">
-              <div class="legend-item">
-                <div class="legend-dot" style="background:#ef4444"></div>Rejected
-              </div>
-              <div class="legend-item">
-                <div class="legend-dot" style="background:#22c55e"></div>Accepted
-              </div>
-            </div>
+            <div class="legend" id="status-legend"></div>
           </div>
         </div>
 
         <!-- Number of Applications -->
         <div class="card">
           <div class="card-title">Number of Applications</div>
-          <table class="apps-table">
+          <table class="apps-table" id="applications-table">
             <thead>
               <tr>
-                <th>Month</th>
+                <th>Recruitment Period</th>
                 <th>No. of Applicants</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>March 2026</td>
-                <td>15</td>
-              </tr>
-              <tr>
-                <td>Sep 2025</td>
-                <td>11</td>
-              </tr>
-              <tr>
-                <td>March 2025</td>
-                <td>15</td>
-              </tr>
+            <tr>
+              <td colspan="2" style="text-align:center;">None found</td>
+            </tr>
             </tbody>
           </table>
         </div>

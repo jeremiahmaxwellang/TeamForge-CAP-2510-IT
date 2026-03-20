@@ -18,6 +18,8 @@ async function submitRegistration() {
     const primaryRole = document.getElementById('primaryRole')?.value || '';
     const secondaryRole = document.getElementById('secondaryRole')?.value || '';
 
+    const currentPeriod = document.getElementById('currentPeriod')?.value || '';
+
     // Split full name into first and last name
     const nameParts = fullname.trim().split(/\s+/);
     const firstname = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : fullname.trim();
@@ -57,7 +59,8 @@ async function submitRegistration() {
         formData.append('peakRank', peakRank);
         formData.append('primaryRole', parseInt(primaryRole, 10));
         formData.append('secondaryRole', parseInt(secondaryRole, 10));
-        formData.append('profilePhoto', photoFile);
+        formData.append('profilePhoto', photoFile),
+        formData.append('currentPeriod', parseInt(currentPeriod, 10));
 
         const response = await fetch('/register/createuser', {
             method: 'POST',

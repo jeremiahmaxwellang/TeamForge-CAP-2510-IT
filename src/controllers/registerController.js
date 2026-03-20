@@ -3,13 +3,13 @@ const path = require('path');
 
 // Create a user and player record
 exports.createUser = async (req, res) => {
-    const { email, password, firstname, lastname, riotId, discord, gpa, cgpa, yearLevel, currentRank, peakRank, primaryRole, secondaryRole } = req.body;
+    const { email, password, firstname, lastname, riotId, discord, gpa, cgpa, yearLevel, currentRank, peakRank, primaryRole, secondaryRole, currentPeriod } = req.body;
 
     try {
         const uploadedPhoto = req.files && req.files.profilePhoto;
 
         // Validate required fields
-        if (!email || !password || !firstname || !lastname || !riotId || !discord || !gpa || !cgpa || !yearLevel || !currentRank || !peakRank || !primaryRole || !secondaryRole || !uploadedPhoto) {
+        if (!email || !password || !firstname || !lastname || !riotId || !discord || !gpa || !cgpa || !yearLevel || !currentRank || !peakRank || !primaryRole || !secondaryRole || !uploadedPhoto || !currentPeriod) {
             return res.status(400).json({
                 message: 'Missing required fields'
             });
@@ -24,6 +24,9 @@ exports.createUser = async (req, res) => {
 
         const parsedPrimaryRole = Number.parseInt(primaryRole, 10);
         const parsedSecondaryRole = Number.parseInt(secondaryRole, 10);
+
+        const parsedCurrentPeriod = Number.parseInt(currentPeriod, 10);
+
         if (!Number.isInteger(parsedPrimaryRole) || !Number.isInteger(parsedSecondaryRole)) {
             return res.status(400).json({
                 message: 'Primary and secondary roles are required'
@@ -80,8 +83,8 @@ exports.createUser = async (req, res) => {
 
         // Insert into players table
         const insertPlayerQuery = `
-            INSERT INTO players (userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, CGPA, lastGPA, profilePhoto)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO players (userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, CGPA, lastGPA, yearLevel, profilePhoto)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await mySqlPool.query(insertPlayerQuery, [
@@ -94,7 +97,20 @@ exports.createUser = async (req, res) => {
             parsedSecondaryRole,
             cgpa,
             gpa,
+            yearLevel,
             storedPhotoFileName
+        ]);
+
+        // Insert into applicants table
+        const insertApplicantQuery = `
+            INSERT INTO applications (periodId, userId, primaryRoleId) VALUES
+            (?, ?, ?)
+        `;
+
+        await mySqlPool.query(insertApplicantQuery, [
+            parsedCurrentPeriod,
+            userId,
+            parsedPrimaryRole
         ]);
 
         res.status(201).json({

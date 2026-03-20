@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Dynamically build legend
-            const legendContainer = document.querySelector('.legend');
+            const legendContainer = document.querySelector('#role-legend');
             legendContainer.innerHTML = labels.map(l => `
                 <div class="legend-item">
                 <div class="legend-dot" style="background:${roleColors[l]}"></div>${l}
@@ -44,13 +44,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
         });
 
+    // Applicant Status pie chart
+    fetch('/reports/applicant_statuses')
+        .then(r => r.json())
+        .then(data => {
+            const labels = data.map(a => a.status);
+            const percentages = data.map(a => a.status_percentage);
+            const statusColors = {
+                Accepted: '#128b0d',
+                Pending: '#f59e0b',
+                Rejected: '#841a14'
+            };
 
-  fetch('/reports/current_players')
-    .then(r => r.json())
-    .then(data => {
-      const tbody = document.querySelector('.role-table tbody');
+            // pie chart
+            new Chart(document.getElementById('acceptChart'), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: percentages,
+                        backgroundColor: labels.map(l => statusColors[l]),
+                        borderWidth: 2, borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
+                        }
+                    }
+                }
+            });
 
-      tbody.innerHTML = data.map(p => `
+             // Dynamically build legend
+            const legendContainer = document.querySelector('#status-legend');
+            legendContainer.innerHTML = labels.map(l => `
+                <div class="legend-item">
+                <div class="legend-dot" style="background:${statusColors[l]}"></div>${l}
+                </div>
+            `).join('');
+        });
+
+    fetch('/reports/current_players')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.querySelector('.role-table tbody');
+
+            tbody.innerHTML = data.map(p => `
         <tr>
           <td>${p.displayedRole}</td>
           <td>${p.role_count}</td>
@@ -58,30 +99,35 @@ document.addEventListener('DOMContentLoaded', () => {
           <td class="${p.players_left <= 1 ? 'players-left-zero' : ''}">${p.players_left}</td>
         </tr>
       `).join('');
-    })
-    .catch(err => console.error('Error loading current players:', err));
+        })
+        .catch(err => console.error('Error loading current players:', err));
+
+    // Number of Applications
+    fetch('/reports/applications_total')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.querySelector('#applications-table tbody');
+
+            tbody.innerHTML = data.map(a => {
+                // Convert to JS Date objects
+                const startDateObj = new Date(a.startDate);
+                const endDateObj = new Date(a.endDate);
+
+                // Format to human readable
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                const readableStart = startDateObj.toLocaleDateString('en-US', options);
+                const readableEnd = endDateObj.toLocaleDateString('en-US', options);
+
+                return `
+                    <tr>
+                    <td>${readableStart} - ${readableEnd}</td>
+                    <td>${a.registrations}</td>
+                    </tr>
+                `;
+            }).join('');
+        })
+        .catch(err => console.error('Error loading applications:', err));
 
 
-    
-    // Accepted pie chart
-    new Chart(document.getElementById('acceptChart'), {
-        type: 'pie',
-        data: {
-            labels: ['Rejected', 'Accepted'],
-            datasets: [{
-                data: [77, 23],
-                backgroundColor: ['#f97316', '#3b82f6'],
-                borderWidth: 2, borderColor: '#fff'
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
-                }
-            }
-        }
-    });
 
 });

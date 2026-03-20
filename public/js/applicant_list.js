@@ -7,26 +7,108 @@ const roleMap = {
     5: 'Support'
 };
 
-// Fetch and display applicants
-async function loadApplicants() {
+// Global variables to hold our data and current view
+let allApplicantsData = [];
+let currentStatusView = 'Pending';
+
+document.addEventListener("DOMContentLoaded", async () => {
+    await fetchAndStoreApplicants();
+    setupTabListeners();
+});
+
+// 1. Fetch data ONCE and store it
+async function fetchAndStoreApplicants() {
     try {
-        const response = await fetch('/applicant_list/getall');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
+        const res = await fetch('/applicant_list/getall'); // Update to your actual GET route
+        const data = await res.json();
+
         if (data.success) {
-            displayApplicants(data.applicants);
-        } else {
-            showError(data.message || 'Failed to load applicants');
+            allApplicantsData = data.applicants;
+            renderApplicantList(); // Draw the initial "Pending" list
         }
     } catch (error) {
-        console.error('Error loading applicants:', error);
-        showError('An error occurred while loading applicants');
+        console.error("Failed to fetch applicants:", error);
     }
+}
+
+// 2. Render the list based on the active tab
+function renderApplicantList() {
+    // UPDATED: These IDs now perfectly match your HTML!
+    const applicantsBody = document.getElementById('applicantsBody'); 
+    const applicantsTable = document.getElementById('applicantsTable');
+    const loadingDiv = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
+    
+    if (!applicantsBody || !loadingDiv) return;
+
+    // Filter the global array based on the active tab
+    const filteredApplicants = allApplicantsData.filter(app => {
+        const status = app.applicationStatus || 'Pending';
+        return status === currentStatusView;
+    });
+
+    if (filteredApplicants.length === 0) {
+        // Hide table and show a friendly empty message
+        if (applicantsTable) applicantsTable.style.display = 'none';
+        loadingDiv.textContent = `No applicants found in the ${currentStatusView} tab.`;
+        loadingDiv.style.display = 'block';
+        return;
+    }
+
+    // Hide loading text and show the table
+    loadingDiv.style.display = 'none';
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (applicantsTable) applicantsTable.style.display = 'table';
+
+    // Map data to your exact table rows
+    applicantsBody.innerHTML = filteredApplicants.map(applicant => `
+        <tr class="clickable-row" data-user-id="${applicant.userId}">
+            <td>${escapeHtml(applicant.firstname)}</td>
+            <td>${escapeHtml(applicant.lastname === 'undefined' ? '-' : applicant.lastname || '-')}</td>
+            <td>${escapeHtml(applicant.gameName)}#${escapeHtml(applicant.tagLine)}</td>
+            <td>${roleMap[applicant.primaryRoleId] || 'Unknown'}</td>
+            <td>${roleMap[applicant.secondaryRoleId] || 'Unknown' !== '-' ? roleMap[applicant.secondaryRoleId] || 'Unknown' : '-'}</td>
+            <td>${escapeHtml(applicant.peakRank)}</td>
+            <td>${escapeHtml(applicant.currentRank)}</td>
+            <td>${applicant.lastGPA ? parseFloat(applicant.lastGPA).toFixed(2) : '-'}</td>
+            <td>${applicant.CGPA ? parseFloat(applicant.CGPA).toFixed(2) : '-'}</td>
+            <td><span class="status ${(applicant.applicationStatus || 'Pending').toLowerCase()}">${escapeHtml(applicant.applicationStatus || 'Pending')}</span></td>
+        </tr>
+    `).join('');
+
+    // Reattach the profile click listeners to the new rows
+    applicantsBody.querySelectorAll('.clickable-row').forEach((row) => {
+        row.addEventListener('click', () => {
+            const userId = row.getAttribute('data-user-id');
+            if (!userId) return;
+            window.location.href = `/applicant_list/profile?id=${encodeURIComponent(userId)}`;
+        });
+    });
+}
+
+// 3. Make the tabs clickable
+function setupTabListeners() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Remove active styling from all tabs
+            tabButtons.forEach(b => {
+                b.style.color = '#888';
+                b.style.borderColor = 'transparent';
+                b.classList.remove('active');
+            });
+
+            // Add active styling to the clicked tab
+            e.target.style.color = '#00f2c3';
+            e.target.style.borderColor = '#00f2c3';
+            e.target.classList.add('active');
+
+            // Update the current view and redraw the list!
+            currentStatusView = e.target.getAttribute('data-status');
+            renderApplicantList();
+        });
+    });
 }
 
 // Display applicants in the table
@@ -87,4 +169,7 @@ function escapeHtml(text) {
 }
 
 // Load applicants when the page loads
-document.addEventListener('DOMContentLoaded', loadApplicants);
+document.addEventListener("DOMContentLoaded", async () => {
+    await fetchAndStoreApplicants();
+    setupTabListeners();
+});

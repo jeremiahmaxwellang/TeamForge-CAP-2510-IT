@@ -120,6 +120,7 @@ global.viewsPath = path.join(process.cwd(), 'views');
 
 // Routes 
 app.use("/", require("./routes/authRoutes")); // login routes
+app.use('/recruitment', require("./routes/recruitmentRoutes")); // recruitment routes
 app.use('/register', require("./routes/registerRoutes")); // registration routes
 app.get('/applicant_list/getbyemail', require('./controllers/applicant_listController').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
 app.post('/applicant_list/claim_spot', require('./controllers/applicant_listController').claimRosterSpot); // Allow applicants to press the Claim Spot button
@@ -127,7 +128,7 @@ app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applican
 app.use('/player_analysis', requireAnyRole(['Team Coach', 'Player']), require('./routes/playerAnalysisRoutes'));
 app.use('/riot', requireAnyRole(['Team Coach', 'Player']), require('./routes/riotApiRoutes'));
 app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes')); // team management routes
-app.use('/announcements', requireRole('Team Manager'), require('./routes/announcementRoutes')); // announcement routes
+app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./routes/announcementRoutes')); // announcement routes
 app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRoutes')); // tournament routes
 
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
@@ -218,3 +219,26 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
+// --- GET CURRENT USER ROLE ---
+app.get('/api/current-role', async (req, res) => {
+    try {
+        // Grab the userId from the cookie (adjust if your cookie is named differently)
+        const userId = req.cookies.userId; 
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, role: 'Guest' });
+        }
+
+        // Query the database for their exact position
+        const [rows] = await mySqlPool.query('SELECT position FROM users WHERE userId = ?', [userId]);
+        
+        if (rows.length > 0) {
+            res.status(200).json({ success: true, role: rows[0].position });
+        } else {
+            res.status(404).json({ success: false, role: 'Guest' });
+        }
+    } catch (error) {
+        console.error("Error fetching role:", error);
+        res.status(500).json({ success: false, role: 'Guest' });
+    }
+});

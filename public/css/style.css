@@ -431,3 +431,7 @@ header h1, header h2 {
 .dropdown:hover .dropdown-content {
     display: block;
 }
+
+.hidden-input {
+    visibility: hidden;
+}

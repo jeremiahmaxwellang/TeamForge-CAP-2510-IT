@@ -35,4 +35,7 @@ router.get('/details/:id', playerController.getPlayerById);
 // Save Coach Evaluation (Accept/Reject & Notes)
 router.post('/evaluate', applicant_listController.saveEvaluation);
 
+// Reject applicant
+router.post('/reject', applicant_listController.rejectApplicant);
+
 module.exports = router;

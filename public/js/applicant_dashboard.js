@@ -90,6 +90,7 @@ function displayApplicantDetails(applicant) {
         { field: 'Current Rank', value: escapeHtml(applicant.currentRank) },
         { field: 'GPA', value: applicant.lastGPA ? parseFloat(applicant.lastGPA).toFixed(2) : '-' },
         { field: 'CGPA', value: applicant.CGPA ? parseFloat(applicant.CGPA).toFixed(2) : '-' },
+        { field: 'Year Level', value: escapeHtml(applicant.yearLevel) },
         { field: 'Application Status', value: `<strong>${escapeHtml(applicant.applicationStatus || 'Pending')}</strong>` }
     ];
     
