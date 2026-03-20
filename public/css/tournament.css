@@ -157,14 +157,19 @@ body {
 	flex-grow: 1;
 	background-color: var(--gunmetal);
 	min-height: calc(100vh - 120px);
+	padding: 20px;
 }
 
 .tournament-page {
 	min-height: calc(100vh - 120px);
 	width: 100%;
-	padding: 2rem 1.25rem;
+	padding: 20px;
 	display: flex;
 	justify-content: center;
+	background: #2f3136;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 18px;
+	margin: 1rem;
 }
 
 .tournament-panel {
@@ -202,8 +207,7 @@ body {
 
 .tournament-header h1 {
 	margin: 0;
-	font-size: 2rem;
-	letter-spacing: -0.02em;
+	color: var(--porcelain);
 }
 
 .tournament-actions {
@@ -238,7 +242,7 @@ body {
 }
 
 .btn {
-	border: 1px solid var(--line);
+	border: 1px solid var(--porcelain);
 	background: var(--panel);
 	color: var(--ink);
 	border-radius: 999px;
@@ -264,6 +268,14 @@ body {
 
 .btn-primary:hover {
 	background: var(--primary-strong);
+}
+
+#createTournamentBtn {
+	color: #000000;
+}
+
+.btn-edit-tournament {
+	color: #ffffff;
 }
 
 .tournament-list {
