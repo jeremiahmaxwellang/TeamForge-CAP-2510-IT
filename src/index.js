@@ -120,6 +120,7 @@ global.viewsPath = path.join(process.cwd(), 'views');
 
 // Routes 
 app.use("/", require("./routes/authRoutes")); // login routes
+app.use('/recruitment', require("./routes/recruitmentRoutes")); // recruitment routes
 app.use('/register', require("./routes/registerRoutes")); // registration routes
 app.get('/applicant_list/getbyemail', require('./controllers/applicant_listController').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
 app.post('/applicant_list/claim_spot', require('./controllers/applicant_listController').claimRosterSpot); // Allow applicants to press the Claim Spot button

@@ -1,65 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>TeamForge Login</title>
     <link rel="stylesheet" href="/css/login.css">
+    <script src="/js/recruitment/recruitment.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const currentPeriod = await loadCurrentPeriod();
+            if (currentPeriod) {
+                console.log("Active recruitment period:", currentPeriod);
+
+            } else {
+                console.log("No active recruitment period.");
+                const signupText = document.querySelector(".signup-text");
+                signupText.innerHTML =        
+                `<p class="signup-text">
+                    <div>Applying to the team?</div> 
+                    <div>______________________________</div>
+                    <div>Please wait for us to announce</div>
+                    <div> the next Recruitment period.</div>
+                </p>`
+            }
+        });
+
+    </script>
 </head>
+
 <body>
 
-<div class="login-box">
-    <h2>Welcome to TeamForge</h2>
+    <div class="login-box">
+        <h2>Welcome to TeamForge</h2>
 
-    <form id="loginForm">
-    <label>Email</label>
-    <input type="email" id="email" placeholder="Enter your email" required>
+        <div id="currentPeriod"></div>
 
-    <label>Password</label>
-    <input type="password" id="password" placeholder="Enter your password" required>
+        <form id="loginForm">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
 
-    <button type="submit">Continue</button>
-</form>
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+
+            <button type="submit">Continue</button>
+        </form>
 
 
-    <p class="signup-text">
-        <span>Applying to the team? </span> <a href="/signup">Click here!</a>
-    </p>
+        <p class="signup-text">
+            <span>Applying to the team? </span> <a href="/signup">Click here!</a>
+        </p>
 
-    <p class="signup-text">
-        <a href="/reports">REPORTS MODULE</a>
-    </p>
+        <p class="signup-text">
+            <a href="/reports">REPORTS MODULE</a>
+        </p>
 
-</div>
+    </div>
 
-<script>
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    try {
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            })
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Store user info in localStorage
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = data.redirect;
+                } else {
+                    const message = await response.text();
+                    alert(message || 'Invalid email or password');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('An error occurred. Please try again.');
+            }
         });
-        
-        if (response.ok) {
-            const data = await response.json();
-            // Store user info in localStorage
-            localStorage.setItem('user', JSON.stringify(data.user));
-            window.location.href = data.redirect;
-        } else {
-            const message = await response.text();
-            alert(message || 'Invalid email or password');
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        alert('An error occurred. Please try again.');
-    }
-});
-</script>
+    </script>
 
 </body>
+
 </html>
