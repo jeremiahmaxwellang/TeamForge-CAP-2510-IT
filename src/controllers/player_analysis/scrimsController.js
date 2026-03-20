@@ -20,9 +20,15 @@ exports.getScrims = async (req, res) => {
     try {
         const playerId = req.params.id;
         const sql = `
-            SELECT *
+            SELECT
+                s.*,
+                p.playerId,
+                p.roleId,
+                CONCAT(pl.gameName, '#', pl.tagLine, ' (', lr.displayedRole, ')') AS playerDisplay
             FROM scrims s 
             JOIN scrimPlayers p ON s.scrimId = p.scrimId
+            JOIN players pl ON p.playerId = pl.userId
+            LEFT JOIN leagueRoles lr ON p.roleId = lr.roleId
             WHERE p.playerId = ?
             ORDER BY s.date DESC
         `;
