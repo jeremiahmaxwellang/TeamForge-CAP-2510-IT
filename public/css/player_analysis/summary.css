@@ -25,7 +25,7 @@ body {
 
 /* Title */
 .panel-title {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 16px;
@@ -98,7 +98,7 @@ table {
 }
 
 th {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #666;
   text-align: left;
@@ -108,7 +108,7 @@ th {
 }
 
 td {
-  font-size: 13px;
+  font-size: 14px;
   color: #333;
   padding: 10px 14px;
   border-bottom: 1px solid #eef0f3;
@@ -128,7 +128,7 @@ tr:last-child td {
 }
 
 .role-name {
-  font-size: 11px;
+  font-size: 14px;
   color: #555;
   text-align: center;
 }
