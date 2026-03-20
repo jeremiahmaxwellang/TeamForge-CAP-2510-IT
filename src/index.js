@@ -218,3 +218,26 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
+// --- GET CURRENT USER ROLE ---
+app.get('/api/current-role', async (req, res) => {
+    try {
+        // Grab the userId from the cookie (adjust if your cookie is named differently)
+        const userId = req.cookies.userId; 
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, role: 'Guest' });
+        }
+
+        // Query the database for their exact position
+        const [rows] = await mySqlPool.query('SELECT position FROM users WHERE userId = ?', [userId]);
+        
+        if (rows.length > 0) {
+            res.status(200).json({ success: true, role: rows[0].position });
+        } else {
+            res.status(404).json({ success: false, role: 'Guest' });
+        }
+    } catch (error) {
+        console.error("Error fetching role:", error);
+        res.status(500).json({ success: false, role: 'Guest' });
+    }
+});
