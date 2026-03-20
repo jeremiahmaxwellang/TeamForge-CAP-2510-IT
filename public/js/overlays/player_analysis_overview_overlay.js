@@ -322,6 +322,19 @@
       }
     });
 
+    // Auto-refresh match list whenever backend updates cached matches
+    document.addEventListener("playeranalysis:matches-updated", (event) => {
+      const matchListEl = overlayContainer?.querySelector("#match-list");
+      const matches = event?.detail?.matches;
+      const eventPuuid = event?.detail?.puuid;
+      const currentPuuid = document.getElementById("player-dropdown-btn")?.getAttribute("data-puuid");
+      const puuid = eventPuuid || currentPuuid;
+
+      if (matchListEl && puuid && Array.isArray(matches)) {
+        requestAnimationFrame(() => renderMatchHistory(matches, puuid));
+      }
+    });
+
     function closeOverlay() {
       const overlay = overlayContainer?.querySelector(".overlay");
       if (overlay) overlay.style.display = "none";
@@ -400,12 +413,41 @@
         8369: 'Styles/Inspiration/FirstStrike/FirstStrike.png'
       };
 
+      const PERK_NAME_MAP = {
+        8005: 'Press the Attack',
+        8008: 'Lethal Tempo',
+        8021: 'Fleet Footwork',
+        8010: 'Conqueror',
+        8112: 'Electrocute',
+        8124: 'Predator',
+        8128: 'Dark Harvest',
+        9923: 'Hail of Blades',
+        8229: 'Arcane Comet',
+        8230: 'Phase Rush',
+        8214: 'Summon Aery',
+        8437: 'Grasp of the Undying',
+        8439: 'Aftershock',
+        8465: 'Guardian',
+        8351: 'Glacial Augment',
+        8358: 'Prototype: Omnistone',
+        8360: 'Unsealed Spellbook',
+        8369: 'First Strike'
+      };
+
       const PERK_STYLE_ICON_MAP = {
         8000: 'Styles/7201_Precision.png',
         8100: 'Styles/7200_Domination.png',
         8200: 'Styles/7202_Sorcery.png',
         8300: 'Styles/7203_Whimsy.png',
         8400: 'Styles/7204_Resolve.png'
+      };
+
+      const PERK_STYLE_NAME_MAP = {
+        8000: 'Precision',
+        8100: 'Domination',
+        8200: 'Sorcery',
+        8300: 'Inspiration',
+        8400: 'Resolve'
       };
 
       matches.forEach((match, index) => {
@@ -424,14 +466,33 @@
         const queueNames = { 420: 'Ranked Solo', 440: 'Ranked Flex', 450: 'ARAM', 430: 'Normal', 0: 'Custom' };
         const queueName = queueNames[match.info.queueId] || 'Normal';
         const gameDate = match.info.gameStartTimestamp ? timeAgo(match.info.gameStartTimestamp) : '';
-        const allies = match.info.participants.filter(p => p.teamId === player.teamId && p.puuid !== puuid);
-        const enemies = match.info.participants.filter(p => p.teamId !== player.teamId);
-        const makeTeamCol = (players) => players.slice(0, 4).map(p => `
-          <div class="mc-teammate">
+        const participants = Array.isArray(match.info.participants) ? match.info.participants : [];
+        let allies = participants.filter((p) => p.teamId === player.teamId && p.puuid !== puuid);
+        let enemies = participants.filter((p) => p.teamId !== player.teamId);
+
+        // Some stored payloads may have missing teamId values; fallback to a stable split.
+        if ((!allies.length && !enemies.length) || player.teamId === undefined || player.teamId === null) {
+          const others = participants.filter((p) => p.puuid !== puuid);
+          allies = others.slice(0, 4);
+          enemies = others.slice(4, 9);
+        }
+
+        const makeTeamCol = (players, maxRows = 4) => {
+          const rows = (Array.isArray(players) ? players : []).slice(0, maxRows);
+          if (rows.length === 0) {
+            return `
+              <div class="mc-teammate mc-teammate-empty">
+                <span class="mc-teammate-name">No player data</span>
+              </div>`;
+          }
+
+          return rows.map(p => `
+          <div class="mc-teammate" data-tooltip="${p.championName || 'Unknown Champion'}" title="${p.championName || 'Unknown Champion'}">
             <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${p.championName}.png"
                  alt="${p.championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
             <span class="mc-teammate-name">${(p.riotIdGameName || p.summonerName || '').substring(0, 10)}</span>
           </div>`).join('');
+        };
         // Items: always render 8 slots, but keep bought items first so empty slots stay on the right.
         const rawItemIds = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6]
           .map((value) => Number(value) || 0);
@@ -441,7 +502,7 @@
         const makeItemSlot = (id) => {
           const itemId = Number(id);
           if (!itemId || itemId <= 0) return `<span class="mc-item-empty"></span>`;
-          return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
+          return `<img src="https://ddragon.leagueoflegends.com/cdn/16.5.1/img/item/${itemId}.png" class="mc-item-icon" data-tooltip="Item ${itemId}" onerror="window.logMissingOverviewItemIcon && window.logMissingOverviewItemIcon(${itemId}, this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-item-empty&quot;></span>';">`;
         };
         const itemRow = itemIds.map(makeItemSlot).join('');
         const spellImg = (id) => {
@@ -459,8 +520,10 @@
             });
           }
 
+          const SPELL_DISPLAY_NAMES = { SummonerDot: 'Ignite' };
+          const displayName = SPELL_DISPLAY_NAMES[name] || name.replace('Summoner', '');
           return name
-            ? `<img src="${imageUrl}" class="mc-spell-icon" title="${name.replace('Summoner', '')}" onerror="window.logMissingOverviewSpellIcon && window.logMissingOverviewSpellIcon(${id}, '${name}', this.src, '${matchId}');this.style.display='none'">`
+            ? `<img src="${imageUrl}" class="mc-spell-icon" title="${displayName}" onerror="window.logMissingOverviewSpellIcon && window.logMissingOverviewSpellIcon(${id}, '${name}', this.src, '${matchId}');this.style.display='none'">`
             : `<span class="mc-spell-empty"></span>`;
         };
 
@@ -478,7 +541,9 @@
           const fallbackUrl = imagePath
             ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${imagePath.toLowerCase()}`
             : null;
-          const perkLabel = type === 'keystone' ? `Keystone ${perkId}` : `Secondary ${perkId}`;
+            const perkLabel = type === 'keystone'
+              ? (PERK_NAME_MAP[perkId] || `Keystone ${perkId}`)
+              : (PERK_STYLE_NAME_MAP[perkId] || `Secondary ${perkId}`);
 
           return primaryUrl
             ? `<img src="${primaryUrl}" class="mc-perk-icon" title="${perkLabel}" data-fallback-src="${fallbackUrl || ''}" onerror="const fallback=this.getAttribute('data-fallback-src');if(fallback && this.src!==fallback){this.src=fallback;this.removeAttribute('data-fallback-src');return;}window.logMissingOverviewPerkIcon && window.logMissingOverviewPerkIcon(${perkId}, '${perkLabel}', this.src, '${matchId}');this.onerror=null;this.outerHTML='<span class=&quot;mc-perk-empty&quot;></span>'">`
@@ -490,12 +555,12 @@
         card.className = `match-card ${isWin ? 'mc-win' : 'mc-loss'}`;
         card.innerHTML = `
           <div class="mc-meta">
-            <div class="mc-queue">${queueName}</div>
-            <div class="mc-date">${gameDate}</div>
-            <div class="mc-result ${isWin ? 'mc-win-text' : 'mc-loss-text'}">${isWin ? 'WIN' : 'LOSS'} ${durationMin}:${String(durationSec).padStart(2, '0')}</div>
+            <div class="mc-queue" data-tooltip="Game Mode">${queueName}</div>
+            <div class="mc-date" data-tooltip="Date played">${gameDate}</div>
+            <div class="mc-result ${isWin ? 'mc-win-text' : 'mc-loss-text'}" data-tooltip="Result &amp; Duration">${isWin ? 'WIN' : 'LOSS'} ${durationMin}:${String(durationSec).padStart(2, '0')}</div>
           </div>
           <div class="mc-champ-col">
-            <div class="mc-champ-wrapper">
+            <div class="mc-champ-wrapper" data-tooltip="${player.championName}">
               <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${player.championName}.png"
                    alt="${player.championName}" class="mc-champ-icon" onerror="this.src='/images/sample_hero.png'">
               ${champLevel ? `<span class="mc-champ-level">${champLevel}</span>` : ''}
@@ -513,16 +578,16 @@
             <div class="mc-items-row">${itemRow}</div>
           </div>
           <div class="mc-kda">
-            <div class="mc-kda-scores">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
-            <div class="mc-kda-ratio">${kdaRatio} KDA</div>
+            <div class="mc-kda-scores" data-tooltip="Kills / Deaths / Assists">${player.kills} / <span class="mc-deaths">${player.deaths}</span> / ${player.assists}</div>
+            <div class="mc-kda-ratio" data-tooltip="KDA Ratio">${kdaRatio} KDA</div>
           </div>
           <div class="mc-cs-vision">
-            <div class="mc-cs">${totalCs} CS (${csPerMin})</div>
-            <div class="mc-vision">${visionScore} vision</div>
+            <div class="mc-cs" data-tooltip="Creep Score (CS per Minute)">${totalCs} CS (${csPerMin})</div>
+            <div class="mc-vision" data-tooltip="Vision Score">${visionScore} vision</div>
           </div>
           <div class="mc-teams">
-            <div class="mc-team-col">${makeTeamCol(allies)}</div>
-            <div class="mc-team-col">${makeTeamCol(enemies)}</div>
+            <div class="mc-team-col">${makeTeamCol(allies, 4)}</div>
+            <div class="mc-team-col">${makeTeamCol(enemies, 5)}</div>
           </div>`;
         container.appendChild(card);
       });

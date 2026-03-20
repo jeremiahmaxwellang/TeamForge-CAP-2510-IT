@@ -88,7 +88,7 @@ window.initChampionTab = function (userId) {
         row.innerHTML = `
           <td>${index + 1}</td>
           <td>
-            <div class="champion-cell">
+            <div class="champion-cell" data-tooltip="${championNameSafe}">
               <img
                 class="champion-pool-icon"
                 src="${iconUrl}"

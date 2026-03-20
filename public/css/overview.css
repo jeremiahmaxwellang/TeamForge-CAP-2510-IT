@@ -456,7 +456,7 @@
 .match-card {
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
     gap: 20px;
     padding: 10px 12px;
     border-radius: 6px;
@@ -468,6 +468,36 @@
 
 .match-card:hover {
     filter: brightness(0.96);
+}
+
+/* Tooltip */
+[data-tooltip] {
+    position: relative;
+    cursor: default;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20, 20, 30, 0.9);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 100;
+    font-family: 'Roboto', sans-serif;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
 }
 
 .match-card.mc-win {
@@ -672,18 +702,27 @@
 .mc-teams {
     display: flex;
     gap: 10px;
+    width: 186px;
+    flex-shrink: 0;
+    justify-content: space-between;
 }
 
 .mc-team-col {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    width: 88px;
 }
 
 .mc-teammate {
     display: flex;
     align-items: center;
     gap: 4px;
+}
+
+.mc-teammate-empty {
+    opacity: 0.75;
+    font-style: italic;
 }
 
 .mc-teammate-icon {
@@ -699,7 +738,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 68px;
+    max-width: 66px;
 }
 
 /* ============================================

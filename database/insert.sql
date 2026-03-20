@@ -289,7 +289,7 @@ VALUES (
     'Active'
 );
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, applicationStatus, teamId)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
 VALUES (
     10,
     'Kialos',
@@ -302,7 +302,6 @@ VALUES (
     'BSCS-NIS',
     3.25,
     3.30,
-    'Pending',
     1
 ),
 (
@@ -317,7 +316,6 @@ VALUES (
     'BSCS-ST',
     3.10,
     3.20,
-    'Pending',
     2
 ),
 (
@@ -332,9 +330,24 @@ VALUES (
     'BSIT',
     1.9,
     2.9,
-    'Pending',
     1
 );
+
+-- -----------------------------------------------------
+-- APPLICATION PERIODS (2 weeks each) - change this later for the demo
+-- -----------------------------------------------------
+INSERT INTO application_periods (startDate, endDate) VALUES
+('2025-09-01', '2025-09-13'),
+('2026-01-26', '2026-02-07'),
+('2026-03-16', '2026-03-28'); -- period 3
+
+-- -----------------------------------------------------
+-- APPLICATIONS
+-- -----------------------------------------------------
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+(3, 10, 4, 'Pending'), -- period 3
+(3, 11, 2, 'Pending'), -- period 3
+(3, 12, 4, 'Pending'); -- period 3
 
 -- -----------------------------------------------------
 -- METRICS
