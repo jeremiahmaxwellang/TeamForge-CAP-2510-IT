@@ -25,7 +25,7 @@ body {
 
 /* Title */
 .panel-title {
-  font-size: 22px;
+  font-size: 32px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 16px;
@@ -42,14 +42,14 @@ body {
 }
 
 .rec-title {
-  font-size: 13px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 5px;
 }
 
 .rec-text {
-  font-size: 13px;
+  font-size: 16px;
   color: #444;
 }
 
@@ -80,13 +80,13 @@ body {
 }
 
 .section-title {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: #1a1a1a;
 }
 
 .section-sub {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 400;
   color: #555;
 }
