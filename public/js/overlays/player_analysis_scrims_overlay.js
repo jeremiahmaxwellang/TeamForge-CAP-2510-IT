@@ -35,6 +35,24 @@ window.initScrimsTab = function (userId) {
     return;
   }
 
+  const titleEl = document.getElementById("player-evaluation-title");
+
+  function getSelectedPlayerName() {
+    const playerBtn = document.getElementById("player-dropdown-btn");
+    const rawName = playerBtn ? playerBtn.textContent.trim() : "";
+    if (!rawName || rawName === "No Player Found") return "";
+    return rawName;
+  }
+
+  function setEvaluationTitle(playerName) {
+    if (!titleEl) return;
+    const name = (playerName || "").trim() || getSelectedPlayerName();
+    titleEl.textContent = name ? `Evaluation: ${name}` : "Evaluation:";
+  }
+
+  // Set title immediately when scrims tab is shown, before async fetches finish.
+  setEvaluationTitle();
+
   setupScrims(userId);
 
   function setupScrims(userId) {
@@ -80,7 +98,7 @@ window.initScrimsTab = function (userId) {
               <td>${scrim.name}</td>
               <td>${formatScrimDate(scrim.date)}</td>
               <td>${scrim.length}</td>
-              <td>${scrim.playerId}</td>
+              <td>${scrim.playerDisplay || scrim.playerId || ""}</td>
               <td>${scrim.win || ""}</td>
               <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
             `;
@@ -153,7 +171,7 @@ window.initScrimsTab = function (userId) {
       .then((evalData) => {
         resetEvaluationForm();
 
-        document.getElementById("player-evaluation-title").innerHTML = `Evaluation: ${evalData.playerName}`;
+        setEvaluationTitle(evalData.playerName);
 
         if (evalData.ratingGameSense) {
           document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
@@ -171,6 +189,8 @@ window.initScrimsTab = function (userId) {
         console.error("[EVALUATION] Error loading evaluation:", err);
 
         resetEvaluationForm();
+        // Keep the immediate non-placeholder title even if fetch fails.
+        setEvaluationTitle();
     });
   }
 

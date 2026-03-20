@@ -5,13 +5,13 @@
 }
 
 body {
-  background: #b0b5be;
+  background: transparent;
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 0;
 }
 
 .panel {
@@ -25,7 +25,7 @@ body {
 
 /* Title */
 .panel-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 16px;
@@ -35,21 +35,21 @@ body {
 /* Recommendation */
 .recommendation {
   background: #ffffff;
-  border: 1px solid #dde1e7;
+  border: 1px solid #474747;
   border-radius: 6px;
   padding: 14px 16px;
   margin-bottom: 16px;
 }
 
 .rec-title {
-  font-size: 13px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 5px;
 }
 
 .rec-text {
-  font-size: 13px;
+  font-size: 16px;
   color: #444;
 }
 
@@ -69,24 +69,24 @@ body {
 /* Section card */
 .section {
   background: #ffffff;
-  border: 1px solid #dde1e7;
+  border: 1px solid #474747;
   border-radius: 6px;
   overflow: hidden;
 }
 
 .section-header {
   padding: 10px 14px;
-  border-bottom: 1px solid #dde1e7;
+  border-bottom: 1px solid #474747;
 }
 
 .section-title {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: #1a1a1a;
 }
 
 .section-sub {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 400;
   color: #555;
 }
@@ -98,7 +98,7 @@ table {
 }
 
 th {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #666;
   text-align: left;
@@ -108,7 +108,7 @@ th {
 }
 
 td {
-  font-size: 13px;
+  font-size: 14px;
   color: #333;
   padding: 10px 14px;
   border-bottom: 1px solid #eef0f3;
@@ -128,7 +128,7 @@ tr:last-child td {
 }
 
 .role-name {
-  font-size: 11px;
+  font-size: 14px;
   color: #555;
   text-align: center;
 }
