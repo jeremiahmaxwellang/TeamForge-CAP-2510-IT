@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                              
     if (!sidebarContainer) return;
 
+    const scope = sidebarContainer.dataset.roleScope || '';
+
     // Helper function to build a list item. It checks the current URL to highlight the active tab!
     const currentPath = window.location.pathname;
     const buildLink = (href, icon, text) => {
@@ -20,12 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
     };
 
-    try {
-        // Ask the server who is logged in
-        const res = await fetch('/api/current-role');
-        const data = await res.json();
-        const role = data.role; // Will be 'Team Manager', 'Team Coach', or 'Player'
-
+    const getLinksForRole = (role) => {
         let links = '';
 
         // 1. UNIVERSAL LINKS (Everyone gets these)
@@ -37,24 +34,48 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (role === 'Team Manager') {
             links += buildLink('/team_management', 'recruitment_evaluation_logo.png', 'Team Management');
         }
-        
+
         // 3. COACH SPECIFIC
-        else if (role === 'Team Coach') {
+        if (role === 'Team Coach') {
             links += buildLink('/player_analysis', 'player_analysis_logo.png', 'Player Performance<br>Analysis');
             links += buildLink('/applicant_list', 'applicant_list_icon.png', 'Applicant List');
             links += buildLink('/tournament', 'tournament_icon.png', 'Tournament Management');
             links += buildLink('/reports', 'report_icon.png', 'Reports');
         }
-        
+
         // 4. PLAYER SPECIFIC
-        else if (role === 'Player') {
+        if (role === 'Player') {
             links += buildLink('/player_analysis', 'player_analysis_logo.png', 'Player Performance<br>Analysis');
         }
 
-        // Inject the HTML into the sidebar
-        sidebarContainer.innerHTML = `<ul>${links}</ul>`;
+        return links;
+    };
 
+    const renderSidebar = (role) => {
+        const links = getLinksForRole(role);
+        sidebarContainer.innerHTML = `<ul>${links}</ul>`;
+    };
+
+    // Fast path: some pages explicitly state which role sidebar to render.
+    if (scope === 'coach-only' || sidebarContainer.classList.contains('coach-sidebar')) {
+        renderSidebar('Team Coach');
+        return;
+    }
+
+    if (scope === 'manager-only' || sidebarContainer.classList.contains('manager-sidebar')) {
+        renderSidebar('Team Manager');
+        return;
+    }
+
+    try {
+        // Ask the server who is logged in
+        const res = await fetch('/api/current-role');
+        const data = await res.json();
+        const role = data.role; // Will be 'Team Manager', 'Team Coach', or 'Player'
+        renderSidebar(role);
     } catch (error) {
+        // Keep sidebar visible even when role endpoint is unavailable.
+        renderSidebar('Player');
         console.error("Failed to load dynamic sidebar:", error);
     }
 });
