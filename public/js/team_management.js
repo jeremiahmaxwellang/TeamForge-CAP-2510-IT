@@ -160,7 +160,7 @@ function setupEventListeners() {
     const manualPrimaryRole = document.getElementById('manualPrimaryRoleId');
 
     const syncManualRoleFields = () => {
-        const showRoles = ['Player', 'Sub', 'Applicant'].includes(manualPosition.value);
+        const showRoles = manualPosition.value === 'Player';
         manualRoleFields.style.display = showRoles ? 'block' : 'none';
         manualPrimaryRole.required = showRoles;
     };
@@ -217,10 +217,12 @@ function setupEventListeners() {
 // show modal for editing selected user position and status
 function showEditUserModal(user) {
     const modal = document.getElementById('editUserModal');
+    const editablePositions = new Set(['Team Manager', 'Team Coach', 'Player']);
+    const positionValue = editablePositions.has(user.position) ? user.position : 'Player';
     editingUserId = String(user.userId);
     modal.dataset.userId = editingUserId;
     document.getElementById('editUserName').textContent = `Editing: ${user.firstname} ${user.lastname} (ID: ${user.userId})`;
-    document.getElementById('editPosition').value = user.position;
+    document.getElementById('editPosition').value = positionValue;
     document.getElementById('editStatus').value = user.status;
     modal.style.display = 'flex';
 }
@@ -276,7 +278,7 @@ function downloadCsvTemplate() {
     const headers = [
         'Full Name',
         'Riot ID',
-        'Position (Team Manager/Team Coach/Player/Sub/Applicant)',
+        'Position (Team Manager/Team Coach/Player)',
         'Status (Active/Inactive/Deactivated)',
         'Email',
         'Discord',
@@ -326,12 +328,12 @@ async function registerManualUser() {
     }
     const discord = document.getElementById('manualDiscord').value.trim();
     const position = document.getElementById('manualPosition').value;
-    const needsRoles = ['Player', 'Sub', 'Applicant'].includes(position);
+    const needsRoles = position === 'Player';
     const primaryRoleRaw = document.getElementById('manualPrimaryRoleId').value;
     const secondaryRoleRaw = document.getElementById('manualSecondaryRoleId').value;
 
     if (needsRoles && !primaryRoleRaw) {
-        alert('Primary role is required for players, subs, and applicants');
+        alert('Primary role is required for players');
         return;
     }
 
@@ -432,6 +434,7 @@ function handleCsvFile(file) {
 
         // Build validated payloads
         const payloads = [];
+        const allowedCsvPositions = new Set(['Team Manager', 'Team Coach', 'Player']);
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             const fullName = (row[fullNameIdx] || '').trim();
@@ -441,7 +444,11 @@ function handleCsvFile(file) {
             const firstname = nameParts.shift();
             const lastname = nameParts.join(' ') || '';
 
-            const position = positionIdx !== -1 ? (row[positionIdx] || '').trim() : 'Player';
+            const rawPosition = positionIdx !== -1 ? (row[positionIdx] || '').trim() : 'Player';
+            const position = rawPosition || 'Player';
+            if (!allowedCsvPositions.has(position)) {
+                continue;
+            }
             const payload = {
                 email: (row[emailIdx] || '').trim(),
                 firstname: firstname || '',
@@ -454,7 +461,7 @@ function handleCsvFile(file) {
             };
 
             // Include role IDs for positions that require them
-            if (['Player', 'Sub', 'Applicant'].includes(position)) {
+            if (position === 'Player') {
                 const primaryRoleName = primaryRoleIdx !== -1 ? (row[primaryRoleIdx] || '') : '';
                 const secondaryRoleName = secondaryRoleIdx !== -1 ? (row[secondaryRoleIdx] || '') : '';
                 const primaryRoleId = parseRoleId(primaryRoleName);
