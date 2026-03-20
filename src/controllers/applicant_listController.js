@@ -19,10 +19,15 @@ exports.getAllApplicants = async (req, res) => {
                 p.course,         
                 p.yearLevel,      
                 p.lastGPA,
-                p.CGPA
+                p.CGPA,
+                a.status AS applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
-            WHERE u.position = 'Applicant'
+            JOIN applications a ON a.userId = p.userId
+            WHERE a.periodId = (
+                SELECT MAX(periodId) 
+                FROM application_periods
+            )
             ORDER BY u.createdAt DESC
         `;
 
@@ -56,19 +61,28 @@ exports.getApplicantByEmail = async (req, res) => {
                 u.userId,
                 u.firstname,
                 u.lastname,
-                u.email,
+                u.email,          
+                u.discord,        
                 p.gameName,
                 p.tagLine,
                 p.primaryRoleId,
                 p.secondaryRoleId,
                 p.peakRank,
                 p.currentRank,
+                p.course,         
+                p.yearLevel,      
                 p.lastGPA,
                 p.CGPA,
-                p.yearLevel
+                a.status AS applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
-            WHERE u.email = ? 
+            JOIN applications a ON a.userId = p.userId
+            WHERE u.email = ?
+            AND a.periodId = (
+                SELECT MAX(periodId) 
+                FROM application_periods
+            )
+            ORDER BY u.createdAt DESC
         `;
 
         const [applicants] = await mySqlPool.query(query, [email]);
@@ -125,11 +139,11 @@ exports.saveEvaluation = async (req, res) => {
         `;
         await connection.query(insertEvalQuery, [userId, coachId, notes, gameSense, communication, champPool]);
 
-        // TODO: USE APPLICATIONS TABLE FOR STATUS
-        // 2. Update their final Accept/Reject status in the players table
+        // DONE: USE APPLICATIONS TABLE FOR STATUS
+        // 2. Update their final Accept/Reject status in the applications table
         const updateStatusQuery = `
-            UPDATE players 
-            SET applicationStatus = ? 
+            UPDATE applications 
+            SET status = ?
             WHERE userId = ?
         `;
         await connection.query(updateStatusQuery, [status, userId]);
@@ -181,7 +195,7 @@ exports.rejectApplicant = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Applicant ID is required.' });
         }
 
-        const updateQuery = `UPDATE users SET status = 'Rejected' WHERE userId = ? AND position = 'Applicant'`;
+        const updateQuery = `UPDATE applications SET status = 'Rejected' WHERE userId = ?`;
         const [result] = await db.query(updateQuery, [applicantId]);
 
         if (result.affectedRows === 0) {
