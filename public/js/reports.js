@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
 
-  fetch('/reports/current_players')
-    .then(r => r.json())
-    .then(data => {
-      const tbody = document.querySelector('.role-table tbody');
+    fetch('/reports/current_players')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.querySelector('.role-table tbody');
 
-      tbody.innerHTML = data.map(p => `
+            tbody.innerHTML = data.map(p => `
         <tr>
           <td>${p.displayedRole}</td>
           <td>${p.role_count}</td>
@@ -58,11 +58,35 @@ document.addEventListener('DOMContentLoaded', () => {
           <td class="${p.players_left <= 1 ? 'players-left-zero' : ''}">${p.players_left}</td>
         </tr>
       `).join('');
-    })
-    .catch(err => console.error('Error loading current players:', err));
+        })
+        .catch(err => console.error('Error loading current players:', err));
 
+    // Number of Applications
+    fetch('/reports/applications_total')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.querySelector('#applications-table tbody');
 
-    
+            tbody.innerHTML = data.map(a => {
+                // Convert to JS Date objects
+                const startDateObj = new Date(a.startDate);
+                const endDateObj = new Date(a.endDate);
+
+                // Format to human readable
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                const readableStart = startDateObj.toLocaleDateString('en-US', options);
+                const readableEnd = endDateObj.toLocaleDateString('en-US', options);
+
+                return `
+                    <tr>
+                    <td>${readableStart} - ${readableEnd}</td>
+                    <td>${a.registrations}</td>
+                    </tr>
+                `;
+            }).join('');
+        })
+        .catch(err => console.error('Error loading applications:', err));
+
     // Accepted pie chart
     new Chart(document.getElementById('acceptChart'), {
         type: 'pie',
