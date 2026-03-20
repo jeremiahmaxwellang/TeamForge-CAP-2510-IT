@@ -171,6 +171,27 @@ body {
 	width: min(1100px, 100%);
 }
 
+.tournament-back-row {
+	margin-bottom: 1.25rem;
+}
+
+.back-btn {
+	display: inline-block;
+	background-color: #202225;
+	color: #f2f3f5;
+	text-decoration: none;
+	padding: 10px 14px;
+	border-radius: 10px;
+	border: 1px solid #45474d;
+	font-weight: 600;
+	transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.back-btn:hover {
+	background-color: #3b3f46;
+	border-color: #5b5f67;
+}
+
 .tournament-header {
 	display: flex;
 	justify-content: space-between;

@@ -34,10 +34,25 @@ exports.getAllAnnouncements = async (req, res) => {
 // 3. Create a new announcement (with Discord & Nodemailer Gmail integration!)
 exports.createAnnouncement = async (req, res) => {
     try {
-        const { userId, title, content } = req.body;
+        const { title, content } = req.body;
+        const userId = req.cookies && req.cookies.userId;
+        const userRole = req.cookies && req.cookies.userRole;
 
-        if (!userId || !title || !content) {
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not logged in.' });
+        }
+
+        if (!['Team Manager', 'Team Coach'].includes(userRole)) {
+            return res.status(403).json({ success: false, message: 'Only team managers and team coaches can post announcements.' });
+        }
+
+        if (!title || !content) {
             return res.status(400).json({ success: false, message: 'Title and content are required.' });
+        }
+
+        const parsedUserId = Number.parseInt(userId, 10);
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            return res.status(400).json({ success: false, message: 'Invalid user session.' });
         }
 
         // 1. Save to Database
@@ -45,10 +60,10 @@ exports.createAnnouncement = async (req, res) => {
             INSERT INTO announcements (userId, title, content, dateCreated) 
             VALUES (?, ?, ?, CURRENT_TIMESTAMP)
         `;
-        await mySqlPool.query(insertQuery, [userId, title, content]);
+        await mySqlPool.query(insertQuery, [parsedUserId, title, content]);
 
         // 2. Fetch Author Name and Active User Emails
-        const [[author]] = await mySqlPool.query('SELECT firstname, lastname FROM users WHERE userId = ?', [userId]);
+        const [[author]] = await mySqlPool.query('SELECT firstname, lastname FROM users WHERE userId = ?', [parsedUserId]);
         const authorName = author ? `${author.firstname} ${author.lastname}` : 'Team Manager';
         
         const [users] = await mySqlPool.query('SELECT email FROM users WHERE status = "Active"');

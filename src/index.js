@@ -128,7 +128,7 @@ app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applican
 app.use('/player_analysis', requireAnyRole(['Team Coach', 'Player']), require('./routes/playerAnalysisRoutes'));
 app.use('/riot', requireAnyRole(['Team Coach', 'Player']), require('./routes/riotApiRoutes'));
 app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes')); // team management routes
-app.use('/announcements', requireRole('Team Manager'), require('./routes/announcementRoutes')); // announcement routes
+app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./routes/announcementRoutes')); // announcement routes
 app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRoutes')); // tournament routes
 
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard

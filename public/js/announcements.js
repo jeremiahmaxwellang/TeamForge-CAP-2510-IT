@@ -1,5 +1,25 @@
 document.addEventListener("DOMContentLoaded", async function () {
     const listContainer = document.getElementById('announcement-list');
+    const modal = document.getElementById('announcement-modal');
+    const btnAddNew = document.querySelector('.btn-add-new');
+    const btnCancel = document.getElementById('btn-cancel-ann');
+    const btnSubmit = document.getElementById('btn-submit-ann');
+    let canCreateAnnouncements = false;
+
+    async function loadPermissions() {
+        try {
+            const response = await fetch('/api/current-role');
+            const data = await response.json();
+            canCreateAnnouncements = data.success && ['Team Manager', 'Team Coach'].includes(data.role);
+        } catch (error) {
+            console.error('Error loading announcement permissions:', error);
+            canCreateAnnouncements = false;
+        }
+
+        if (btnAddNew) {
+            btnAddNew.style.display = canCreateAnnouncements ? 'inline-block' : 'none';
+        }
+    }
 
     async function fetchAnnouncements() {
         try {
@@ -47,17 +67,16 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    await loadPermissions();
     fetchAnnouncements();
-
-    // --- MODAL & SUBMISSION LOGIC ---
-    const modal = document.getElementById('announcement-modal');
-    const btnAddNew = document.querySelector('.btn-add-new');
-    const btnCancel = document.getElementById('btn-cancel-ann');
-    const btnSubmit = document.getElementById('btn-submit-ann');
 
     // Open Modal
     if(btnAddNew) {
         btnAddNew.addEventListener('click', () => {
+            if (!canCreateAnnouncements) {
+                return;
+            }
+
             modal.style.display = 'flex';
         });
     }
@@ -74,6 +93,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Submit Data
     if(btnSubmit) {
         btnSubmit.addEventListener('click', async () => {
+            if (!canCreateAnnouncements) {
+                alert('You do not have permission to post announcements.');
+                return;
+            }
+
             const title = document.getElementById('new-ann-title').value.trim();
             const content = document.getElementById('new-ann-content').value.trim();
 
@@ -83,8 +107,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
 
             try {
-                // Temporarily hardcoding userId to 1 (Team Manager). 
-                const payload = { userId: 1, title: title, content: content };
+                const payload = { title: title, content: content };
                 
                 const response = await fetch('/announcements/api/create', {
                     method: 'POST',

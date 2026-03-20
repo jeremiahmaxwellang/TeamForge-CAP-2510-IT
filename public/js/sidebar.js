@@ -41,8 +41,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 3. COACH SPECIFIC
         else if (role === 'Team Coach') {
             links += buildLink('/player_analysis', 'player_analysis_logo.png', 'Player Performance<br>Analysis');
-            links += buildLink('/applicant_list', 'recruitment_evaluation_logo.png', 'Applicant List');
-            links += buildLink('/tournament', 'player_analysis_logo.png', 'Tournament Management');
+            links += buildLink('/applicant_list', 'applicant_list_icon.png', 'Applicant List');
+            links += buildLink('/tournament', 'tournament_icon.png', 'Tournament Management');
+            links += buildLink('/reports', 'report_icon.png', 'Reports');
         }
         
         // 4. PLAYER SPECIFIC
