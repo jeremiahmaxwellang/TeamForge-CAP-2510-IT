@@ -3,13 +3,13 @@ const path = require('path');
 
 // Create a user and player record
 exports.createUser = async (req, res) => {
-    const { email, password, firstname, lastname, riotId, discord, gpa, cgpa, currentRank, peakRank, primaryRole, secondaryRole } = req.body;
+    const { email, password, firstname, lastname, riotId, discord, gpa, cgpa, yearLevel, currentRank, peakRank, primaryRole, secondaryRole } = req.body;
 
     try {
         const uploadedPhoto = req.files && req.files.profilePhoto;
 
         // Validate required fields
-        if (!email || !password || !firstname || !lastname || !riotId || !discord || !gpa || !cgpa || !currentRank || !peakRank || !primaryRole || !secondaryRole || !uploadedPhoto) {
+        if (!email || !password || !firstname || !lastname || !riotId || !discord || !gpa || !cgpa || !yearLevel || !currentRank || !peakRank || !primaryRole || !secondaryRole || !uploadedPhoto) {
             return res.status(400).json({
                 message: 'Missing required fields'
             });
@@ -80,8 +80,8 @@ exports.createUser = async (req, res) => {
 
         // Insert into players table
         const insertPlayerQuery = `
-            INSERT INTO players (userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, CGPA, lastGPA, profilePhoto, applicationStatus)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')
+            INSERT INTO players (userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, CGPA, lastGPA, profilePhoto)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await mySqlPool.query(insertPlayerQuery, [
