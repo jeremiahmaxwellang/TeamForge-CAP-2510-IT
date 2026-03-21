@@ -9,6 +9,10 @@ function getRankIconUrl(rankString) {
     return `${RANK_ICON_BASE_URL}unranked.png`;
 }
 
+function getRankDisplayText(rankString) {
+    return rankString || 'Unranked';
+}
+
 // --- DASHBOARD LOADER ---
 document.addEventListener("DOMContentLoaded", async () => {
     await loadPlayerList();
@@ -53,6 +57,8 @@ async function loadPlayerList() {
             data.players.forEach(p => {
                 const currentRankImg = getRankIconUrl(p.currentRank);
                 const peakRankImg = getRankIconUrl(p.peakRank);
+                const currentRankText = getRankDisplayText(p.currentRank);
+                const peakRankText = getRankDisplayText(p.peakRank);
 
                 html += `
                     <tr style="border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s;" 
@@ -62,14 +68,15 @@ async function loadPlayerList() {
                         
                         <td style="padding: 12px 10px; font-weight: bold; color: #111;">${p.gameName}</td>
                         <td style="padding: 12px 10px; color: #555;">${p.firstname} ${p.lastname}</td>
-                        <td style="padding: 12px 10px; text-align: center;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                <div title="Current: ${p.currentRank || 'Unranked'}">
-                                    <img src="${currentRankImg}" alt="Current Rank" style="width: 35px; height: 35px; object-fit: contain;">
+                        <td style="padding: 12px 10px; text-align: left;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div title="Peak: ${peakRankText}" style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #555; font-size: 13px;">Peak rank: ${peakRankText}</span>
+                                    <img src="${peakRankImg}" alt="Peak Rank" style="width: 35px; height: 35px; object-fit: contain; opacity: 0.85;">
                                 </div>
-                                <span style="color: #888; font-size: 12px;">vs</span>
-                                <div title="Peak: ${p.peakRank || 'Unranked'}">
-                                    <img src="${peakRankImg}" alt="Peak Rank" style="width: 35px; height: 35px; object-fit: contain; opacity: 0.7;">
+                                <div title="Current: ${currentRankText}" style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #555; font-size: 13px;">Current rank: ${currentRankText}</span>
+                                    <img src="${currentRankImg}" alt="Current Rank" style="width: 35px; height: 35px; object-fit: contain;">
                                 </div>
                             </div>
                         </td>
