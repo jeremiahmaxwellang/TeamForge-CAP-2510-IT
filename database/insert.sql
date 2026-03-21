@@ -19,7 +19,7 @@ VALUES
 (
     1,
     'jeremiah_ang@dlsu.edu.ph',
-    '1234',
+    'teamForge123!!',
     'Jeremiah',
     'Ang',
     'Team Manager',
@@ -33,7 +33,7 @@ VALUES
 (
     2,
     'charles_duelas@dlsu.edu.ph',
-    '1234',
+    'teamForge123!!',
     'Charles',
     'Duelas',
     'Team Coach',
@@ -47,7 +47,7 @@ VALUES
 (
     3,
     'tartaros@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Jotaro',
     'Joestar',
     'Player',
@@ -57,7 +57,7 @@ VALUES
 (
     4,
     'haimehen@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Jaime',
     'Henry',
     'Player',
@@ -67,7 +67,7 @@ VALUES
 (
     5,
     'kalachuchi@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Wendy',
     'Chuchi',
     'Player',
@@ -77,7 +77,7 @@ VALUES
 (
     6,
     'vacrowned@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Crow',
     'Ned',
     'Player',
@@ -87,7 +87,7 @@ VALUES
 (
     7,
     '5starprod@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Jonah',
     'Jameson',
     'Player',
@@ -97,7 +97,7 @@ VALUES
 (
     8,
     'mushimiko@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Mikhail',
     'Sy',
     'Player',
@@ -107,7 +107,7 @@ VALUES
 (
     9,
     'lancr1226@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Lance',
     'Go',
     'Player',
@@ -117,7 +117,7 @@ VALUES
 (
     13,
     'maria_santos@gmail.com',
-    '1234',
+    'teamForge123!!',
     'Maria',
     'Santos',
     'Player',
