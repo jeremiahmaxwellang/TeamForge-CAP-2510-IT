@@ -559,26 +559,30 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
 
     // Fetches Match IDs from Riot
     async function fetchMatchIds(puuid) {
-
-      const queueId = 420; // 440 for Ranked Flex
+      const queueId = 420;
 
       try {
         const response = await fetch(`/riot/matches/${puuid}/${queueId}`);
-        const matches = await response.json();
-        // const matches = JSON.stringify(data);
+        const data = await response.json();
 
-        // await matches.forEach(matchId => {
-        //   console.log(`matchId: ${matchId}`);
-        //   fetchMatchDetails(matchId);
-        // });
+        // Extract the array of match IDs
+        const matches = data.matches;
 
-        console.log(`matches: ${JSON.stringify(matches)}`);
+        // Kick off all fetches at once
+        const detailPromises = matches.map(matchId => {
+          console.log(`Fetching details for matchId: ${matchId}`);
+          return fetchMatchDetails(matchId);
+        });
+
+        // Wait for all to finish
+        const allDetails = await Promise.all(detailPromises);
+
+        console.log("All match details:", allDetails);
       } catch (err) {
         console.error("Error:", err);
       }
     }
 
-    // TODO: Fetch Match Details
     async function fetchMatchDetails(matchId) {
       return fetch(`/riot/match/${matchId}`)
         .then((res) => res.json())
@@ -591,8 +595,10 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
 
     // TODO: Save Match Details in DB
     async function saveMatchDetails() {
+      const userId = parseInt(state.currentApplicant.userId, 10);
+
       try {
-        const response = await fetch(`/match/:userId/store`);
+        const response = await fetch(`/match/${userId}/store`);
         const data = await response.json();
 
       } catch (err) {
