@@ -166,6 +166,17 @@
   padding: 5px;
 }
 
+.times-played-table td {
+  padding-left: 20px;
+}
+
+.times-played-table th:nth-child(2),
+.times-played-table td:nth-child(2),
+.times-played-table th:nth-child(3),
+.times-played-table td:nth-child(3) {
+  text-align: center;
+}
+
 .times-played-table tr > *:last-child {
   border-right: none;
 }
