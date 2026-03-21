@@ -916,7 +916,18 @@ exports.saveMatchParticipants = async (req, res) => {
     }
 };
 
-// Batch upload participants from multiple matches
+
+/**
+ * saveMultipleMatchParticipants
+ * Description: Batch upload participants from multiple matches
+ * Input: matches from req.body
+ * 
+ * Helper Functions:
+ * 1. extractParticipantData(matchId, matchData)
+ * 2. storeParticipantDetails(participantData)
+ * 
+ * Route: /riot/participants/batch
+ */
 exports.saveMultipleMatchParticipants = async (req, res) => {
     try {
         const { matches } = req.body;

@@ -19,14 +19,18 @@ router.get('/matches/database/:puuid', analysisOverviewController.getRecentMatch
 // Route: GET /riot/matches/:puuid/:queueId - Fetch from Riot API
 router.get('/matches/:puuid/:queueId', riotApiController.getRecentMatches);
 
+// Route: GET /riot/match/:matchId
+router.get('/match/:matchId', riotApiController.getMatchDetails);
+
+// ===================== Deriving Stats =====================
+
 // Route: GET /riot/winrate/:puuid
 router.get('/winrate/:puuid', analysisOverviewController.getWinrate);
 
 // Route: GET /riot/rank/:puuid
 router.get('/rank/:puuid', riotApiController.getPlayerRank);
 
-// Route: GET /riot/match/:matchId
-router.get('/match/:matchId', riotApiController.getMatchDetails);
+// ====================== POST ROUTES ======================
 
 // Route: POST /riot/matches/:userId/store-multiple - Store multiple matches
 router.post('/matches/:userId/store-multiple', riotApiController.saveMultipleMatches);
