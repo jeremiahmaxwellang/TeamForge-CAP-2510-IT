@@ -11,7 +11,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = [overviewButton, comparisonButton, vodsButton, championButton, evaluationButton];
     const favoriteBtn = document.getElementById('candidateFavoriteBtn');
     const favoriteMessage = document.getElementById('candidateFavoriteMessage');
+    const candidateFavoriteWrap = document.querySelector('.candidate-favorite-wrap');
+    let candidateControlsEnabled = false;
     let favoriteRequestInFlight = false;
+
+    async function initializeCandidateControlsVisibility() {
+        if (!candidateFavoriteWrap) return;
+
+        try {
+            const response = await fetch('/api/user/profile');
+            const payload = await response.json();
+
+            if (!response.ok) {
+                candidateFavoriteWrap.style.display = 'none';
+                candidateControlsEnabled = false;
+                return;
+            }
+
+            const role = String(payload.role || payload.position || '').trim();
+            if (role === 'Team Coach') {
+                candidateFavoriteWrap.style.display = '';
+                candidateControlsEnabled = true;
+                await updateFavoriteButtonState();
+                return;
+            }
+
+            candidateFavoriteWrap.style.display = 'none';
+            candidateControlsEnabled = false;
+        } catch (err) {
+            console.error('[CANDIDATE FAVORITES] Failed to resolve current user role:', err);
+            candidateFavoriteWrap.style.display = 'none';
+            candidateControlsEnabled = false;
+        }
+    }
 
     function getSelectedPlayerMeta() {
         const selectedBtn = document.getElementById('player-dropdown-btn');
@@ -45,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function updateFavoriteButtonState() {
-        if (!favoriteBtn || !favoriteMessage) return;
+        if (!favoriteBtn || !favoriteMessage || !candidateControlsEnabled) return;
 
         const selected = getSelectedPlayerMeta();
         if (!selected) {
@@ -98,6 +130,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function toggleCandidateFavorite() {
+        if (!candidateControlsEnabled) {
+            return;
+        }
+
         const selected = getSelectedPlayerMeta();
         if (!selected) {
             alert('Please select a player first.');
@@ -149,8 +185,11 @@ document.addEventListener('DOMContentLoaded', function() {
         favoriteBtn.addEventListener('click', toggleCandidateFavorite);
     }
 
-    document.addEventListener('playeranalysis:player-changed', updateFavoriteButtonState);
-    setTimeout(updateFavoriteButtonState, 0);
+    document.addEventListener('playeranalysis:player-changed', () => {
+        if (!candidateControlsEnabled) return;
+        updateFavoriteButtonState();
+    });
+    initializeCandidateControlsVisibility();
 
     function closeOverlay() {
         const overlay = overlayContainer.querySelector('.overlay');
