@@ -160,32 +160,25 @@ async function loadTeamStats() {
             const html = `
                 <div class="carousel-container">
                     <button class="carousel-btn prev" onclick="moveCarousel(-1)">&#9664;</button>
-                    <div class="carousel-track" id="stats-track">
-                        <div class="carousel-slide">
-                            <div class="stat-ring" style="--deg: ${degrees}deg; --ring-color: #00b4d8;">
-                                <div class="stat-ring-inner"></div>
+                    <div class="carousel-window">
+                        <div class="carousel-track" id="stats-track">
+                            <div class="carousel-slide">
+                                <div class="carousel-winrate" style="--winrate-angle: ${degrees}deg; --ring-fill: #28b5ff; --ring-empty: #444;">
+                                    <div class="carousel-winrate-pct">${winrate}% WR</div>
+                                    <div class="carousel-winrate-sub">Last ${totalGames} Games</div>
+                                </div>
                             </div>
-                            <div class="stat-info">
-                                <h2>${winrate}% WR</h2>
-                                <p>Last ${totalGames} Games</p>
+                            <div class="carousel-slide">
+                                <div class="carousel-winrate" style="--winrate-angle: 240deg; --ring-fill: #f72585; --ring-empty: #444;">
+                                    <div class="carousel-winrate-pct">3.2 KDA</div>
+                                    <div class="carousel-winrate-sub">Team Average</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="stat-ring" style="--deg: 240deg; --ring-color: #f72585;">
-                                <div class="stat-ring-inner"></div>
-                            </div>
-                            <div class="stat-info">
-                                <h2>3.2 KDA</h2>
-                                <p>Team Average</p>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="stat-ring" style="--deg: 180deg; --ring-color: #00f2c3;">
-                                <div class="stat-ring-inner"></div>
-                            </div>
-                            <div class="stat-info">
-                                <h2>12 Scrims</h2>
-                                <p>Played this Month</p>
+                            <div class="carousel-slide">
+                                <div class="carousel-winrate" style="--winrate-angle: 180deg; --ring-fill: #00f2c3; --ring-empty: #444;">
+                                    <div class="carousel-winrate-pct">12 Scrims</div>
+                                    <div class="carousel-winrate-sub">Played this Month</div>
+                                </div>
                             </div>
                         </div>
                     </div>
