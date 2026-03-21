@@ -9,6 +9,7 @@
   --scrims-win: #14532d;
   --scrims-loss: #7f1d1d;
   --scrims-selected: #075985;
+  --scrims-porcelain: #eef2f3;
 }
 
 .overlay {
@@ -153,11 +154,13 @@
 
 .scrim-selected {
   background-color: #334155;
+  outline: 1px solid var(--scrims-porcelain);
+  outline-offset: -1px;
 }
 
 .scrim-selected th,
 .scrim-selected td {
-  border-color: var(--scrims-accent-strong);
+  border-color: var(--scrims-porcelain);
 }
 
 .scrim-empty-row td {
