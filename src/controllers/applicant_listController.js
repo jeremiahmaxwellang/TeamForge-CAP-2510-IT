@@ -1,4 +1,5 @@
 const mySqlPool = require('../config/database');
+const nodemailer = require('nodemailer');
 
 // Get all applicants
 exports.getAllApplicants = async (req, res) => {
@@ -149,6 +150,52 @@ exports.saveEvaluation = async (req, res) => {
         await connection.query(updateStatusQuery, [status, userId]);
 
         await connection.commit();
+
+        // AUTOMATED EMAIL LOGIC 
+        try {
+            // 1. Fetch the applicant's name and email
+            const [userRows] = await connection.query('SELECT firstname, email FROM users WHERE userId = ?', [userId]);
+            
+            if (userRows.length > 0) {
+                const user = userRows[0];
+                
+                // 2. Set up the email sender
+                const transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: process.env.EMAIL_USER,
+                        pass: process.env.EMAIL_PASS
+                    }
+                });
+
+                // 3. Draft the email based on the Coach's decision
+                let subject = '';
+                let text = '';
+
+                if (status === 'Accepted') {
+                    subject = 'Congratulations! Welcome to Viridis Arcus';
+                    text = `Hi ${user.firstname},\n\nGreat news! The coaching staff has reviewed your application and you have been accepted into Viridis Arcus.\n\nPlease log in to your dashboard to claim your roster spot and view your new team access.\n\nWelcome to the team!\n- TeamForge Management`;
+                } else if (status === 'Rejected') {
+                    subject = 'Viridis Arcus Application Update';
+                    text = `Hi ${user.firstname},\n\nThank you for applying to Viridis Arcus. We appreciate the time you took to share your stats and gameplay with us.\n\nUnfortunately, we have decided to move forward with other candidates who better fit our current roster needs at this time. We wish you the best of luck in your future matches.\n\n- TeamForge Management`;
+                }
+
+                // 4. Send the email
+                if (subject && text) {
+                    await transporter.sendMail({
+                        from: `"TeamForge" <${process.env.EMAIL_USER}>`,
+                        to: user.email,
+                        subject: subject,
+                        text: text
+                    });
+                    console.log(`[Email System] Notification sent to ${user.email} for status: ${status}`);
+                }
+            }
+        } catch (emailError) {
+            // If the email fails, we just log it. We don't want to crash the whole app 
+            // since the database update was already successful!
+            console.error('[Email System] Failed to send email:', emailError);
+        }
         
         res.status(200).json({ success: true, message: 'Evaluation securely saved!' });
     } catch (error) {
