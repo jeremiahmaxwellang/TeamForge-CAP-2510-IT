@@ -143,7 +143,7 @@ header h1, header h2 {
 .player-info {
     margin: 20px;
     padding: 20px;
-    background-color: var(--porcelain); /* Player info background color from Figma variables */
+    background-color: #2f3136;
     border-radius: 20px;
     height: auto;
     display: inline-block;
@@ -169,13 +169,13 @@ header h1, header h2 {
 .player-info .player-details h3 {
     font-size: 24px;
     margin: 0;
-    color: var(--carbon-black); /* Player name color from Figma variables */
+    color: var(--porcelain);
 }
 
 .player-info .player-details p {
     margin: 0px;
     padding: 5px 0;
-    color: var(--carbon-black); /* Player details color from Figma variables */
+    color: var(--porcelain);
 }
 
 .player_contact {
@@ -186,19 +186,20 @@ header h1, header h2 {
     font-size: 20px;
     padding-bottom: 5px;
     margin: 0;
-    color: var(--carbon-black); /* Contact info header color from Figma variables */
+    color: var(--porcelain);
 }
 
 .player_contact p {
     margin: 0;
     padding-bottom: 5px;
-    color: var(--carbon-black); /* Contact info text color from Figma variables */
+    color: var(--porcelain);
 }
 
 /* Styles for Selected Player Dropdown */
 .player-dropdown {
     position: relative;
     display: inline-block;
+    color: var(--porcelain);
 }
 
 .player-dropdown-btn {
@@ -207,7 +208,7 @@ header h1, header h2 {
     padding: 0;
     font-size: 18px;
     font-weight: 600;
-    color: var(--carbon-black);
+    color: var(--porcelain);
     cursor: pointer;
 }
 
