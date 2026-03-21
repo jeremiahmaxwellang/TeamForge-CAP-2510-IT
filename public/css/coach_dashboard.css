@@ -134,8 +134,8 @@
 }
 
 .dashboard-shell {
-	margin: 20px;
-	padding: 24px;
+	margin: 0;
+	padding: 20px;
 	min-height: calc(100vh - 160px);
 	color: var(--porcelain);
 	display: grid;

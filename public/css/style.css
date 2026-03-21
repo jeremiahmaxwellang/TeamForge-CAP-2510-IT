@@ -18,7 +18,9 @@ body {
 
 .container {
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Sidebar styles */
@@ -72,13 +74,13 @@ body {
 .main-content {
     flex-grow: 1; /* Allows the main content to take the remaining space */
     background-color: var(--gunmetal); /* Main content background color */
-    height: 100%; /* Ensure the main content fills the height */
 }
 
 /* Adjust layout of sidebar and main content */
 .content-wrapper {
     display: flex;
     width: 100%;
+    flex: 1;
 }
 
 header h1, header h2 {
@@ -143,7 +145,7 @@ header h1, header h2 {
 .player-info {
     margin: 20px;
     padding: 20px;
-    background-color: var(--porcelain); /* Player info background color from Figma variables */
+    background-color: #2f3136;
     border-radius: 20px;
     height: auto;
     display: inline-block;
@@ -169,13 +171,13 @@ header h1, header h2 {
 .player-info .player-details h3 {
     font-size: 24px;
     margin: 0;
-    color: var(--carbon-black); /* Player name color from Figma variables */
+    color: var(--porcelain);
 }
 
 .player-info .player-details p {
     margin: 0px;
     padding: 5px 0;
-    color: var(--carbon-black); /* Player details color from Figma variables */
+    color: var(--porcelain);
 }
 
 .player_contact {
@@ -186,19 +188,20 @@ header h1, header h2 {
     font-size: 20px;
     padding-bottom: 5px;
     margin: 0;
-    color: var(--carbon-black); /* Contact info header color from Figma variables */
+    color: var(--porcelain);
 }
 
 .player_contact p {
     margin: 0;
     padding-bottom: 5px;
-    color: var(--carbon-black); /* Contact info text color from Figma variables */
+    color: var(--porcelain);
 }
 
 /* Styles for Selected Player Dropdown */
 .player-dropdown {
     position: relative;
     display: inline-block;
+    color: var(--porcelain);
 }
 
 .player-dropdown-btn {
@@ -207,7 +210,7 @@ header h1, header h2 {
     padding: 0;
     font-size: 18px;
     font-weight: 600;
-    color: var(--carbon-black);
+    color: var(--porcelain);
     cursor: pointer;
 }
 
@@ -259,7 +262,7 @@ header h1, header h2 {
 .rank_container {
     margin-top: 20px;
     padding: 20px;
-    background-color: var(--porcelain); /* Rank container background color from Figma variables */
+    background-color: #2f3136;
     border-radius: 20px;
     display: flex;
     flex-direction: row;
@@ -274,31 +277,38 @@ header h1, header h2 {
 }
 
 .rank_and_student_info .rank_container .current_rank h3,
+.rank_and_student_info .rank_container .current_rank p {
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: var(--porcelain);
+}
+
 .rank_and_student_info .rank_container .peak_rank h3,
-.rank_and_student_info .rank_container .current_rank p,
 .rank_and_student_info .rank_container .peak_rank p {
     margin: 0;
     padding-left: 10px;
     padding-right: 10px;
-    color: var(--carbon-black); /* Rank text color from Figma variables */
+    color: var(--porcelain);
 }
 
 .vertical_line {
   width: 5px;
-  background-color: #000; /* Black color for the vertical line */
+    background-color: var(--porcelain);
   height: 100%; /* Adjust the height as needed */
 }
 
 .rank_icon {
     height: 90px;
     width: 90px;
+    padding-left: 10px;
 }
 
 /* Student's Information */
 /* Bottom Container for Left Side */
 .student_info_container {
     padding: 20px;
-    background-color: var(--porcelain); /* Student info container background color from Figma variables */
+    background-color: #2f3136;
     border-radius: 20px;
     height: auto;
     width: auto;
@@ -309,13 +319,13 @@ header h1, header h2 {
     font-size: 24px;
     padding: 5px 0;
     margin: 0;
-    color: var(--carbon-black); /* Student info header color from Figma variables */
+    color: var(--porcelain);
 }
 
 .student_info_container p {
     margin: 0;
     padding: 5px 0;
-    color: var(--carbon-black); /* Student info text color from Figma variables */
+    color: var(--porcelain);
 }
 
 /* Styles of the Tabs for Details Section */

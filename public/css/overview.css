@@ -14,7 +14,7 @@
     width: auto;
     max-width: calc(100% - 30px); /* leave 15px margin on each side without causing overflow */
     margin: 15px; /* uniform margin around overlay */
-    background-color: var(--porcelain); /* White background for content area */
+    background-color: #2f3136;
     padding: 15px;
     border-radius: 10px;
     overflow: visible; /* prevent internal scrollbars */
@@ -59,7 +59,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #f1f1f1;
+    border-bottom: 2px solid var(--carbon-black);
     padding-bottom: 10px;
 }
 
@@ -67,7 +67,7 @@
     font-size: 24px;
     font-weight: bold;
     font-family: 'Roboto', sans-serif;
-    color: #333;
+    color: var(--porcelain);
 }
 
 .ranked {
@@ -142,18 +142,21 @@
     cursor: pointer;
     font-weight: bold;
     font-size: 14px;
+    margin-top: 10px;
 }
 
 .fetch-status-column {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-self: center;
     min-height: 42px;
 }
 
 #timerInfo {
     font-size: 12px;
     color: #666;
+    padding-top: 10px;
 }
 
 .player_average_info {
