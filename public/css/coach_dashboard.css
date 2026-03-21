@@ -358,7 +358,7 @@
 	justify-content: center;
 	gap: 6px;
 	position: relative;
-	padding-left: 96px;
+	padding: 10px 0 10px 96px;
 }
 
 .carousel-winrate::before {
