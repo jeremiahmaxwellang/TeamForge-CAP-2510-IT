@@ -40,7 +40,7 @@
     const currentRankIconEl = document.getElementById('currentRankIcon');
     const peakRankIconEl = document.getElementById('peakRankIcon');
 
-    const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests';
+    const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/';
     const validRankTiers = new Set([
       'iron',
       'bronze',
@@ -64,8 +64,7 @@
 
     function getRankIconUrl(rankValue) {
       const tier = getRankTier(rankValue);
-      const filename = tier === 'emerald' ? 'emerald_tft.svg' : `${tier}.png`;
-      return `${RANK_ICON_BASE_URL}/${filename}`;
+      return `${RANK_ICON_BASE_URL}${tier}.png`;
     }
 
     try {

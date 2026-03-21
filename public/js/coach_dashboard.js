@@ -9,6 +9,10 @@ function getRankIconUrl(rankString) {
     return `${RANK_ICON_BASE_URL}unranked.png`;
 }
 
+function getRankDisplayText(rankString) {
+    return rankString || 'Unranked';
+}
+
 // --- DASHBOARD LOADER ---
 document.addEventListener("DOMContentLoaded", async () => {
     await loadPlayerList();
@@ -39,7 +43,7 @@ async function loadPlayerList() {
                 <div class="scrollable-table-container">
                     <table style="width: 100%; border-collapse: collapse; text-align: left;">
                         <thead>
-                            <tr style="color: #333;">
+                            <tr style="color: #fff;">
                                 <th style="padding: 10px;">Player IGN</th>
                                 <th style="padding: 10px;">Real Name</th>
                                 <th style="padding: 10px; text-align: center;">Rank</th>
@@ -53,28 +57,31 @@ async function loadPlayerList() {
             data.players.forEach(p => {
                 const currentRankImg = getRankIconUrl(p.currentRank);
                 const peakRankImg = getRankIconUrl(p.peakRank);
+                const currentRankText = getRankDisplayText(p.currentRank);
+                const peakRankText = getRankDisplayText(p.peakRank);
 
                 html += `
-                    <tr style="border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s;" 
-                        onmouseover="this.style.backgroundColor='#ffe6e6'" 
+                    <tr style="border-bottom: 1px solid #333; cursor: pointer; transition: background-color 0.2s;" 
+                        onmouseover="this.style.backgroundColor='#181818'" 
                         onmouseout="this.style.backgroundColor='transparent'"
                         onclick="window.location.href='/player_analysis?id=${p.userId}'">
                         
-                        <td style="padding: 12px 10px; font-weight: bold; color: #111;">${p.gameName}</td>
-                        <td style="padding: 12px 10px; color: #555;">${p.firstname} ${p.lastname}</td>
-                        <td style="padding: 12px 10px; text-align: center;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                <div title="Current: ${p.currentRank || 'Unranked'}">
-                                    <img src="${currentRankImg}" alt="Current Rank" style="width: 35px; height: 35px; object-fit: contain;">
+                        <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${p.gameName}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${p.firstname} ${p.lastname}</td>
+                        <td style="padding: 12px 10px; text-align: left;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div title="Peak: ${peakRankText}" style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #fff; font-size: 13px;">Peak rank: ${peakRankText}</span>
+                                    <img src="${peakRankImg}" alt="Peak Rank" style="width: 35px; height: 35px; object-fit: contain; opacity: 0.85;">
                                 </div>
-                                <span style="color: #888; font-size: 12px;">vs</span>
-                                <div title="Peak: ${p.peakRank || 'Unranked'}">
-                                    <img src="${peakRankImg}" alt="Peak Rank" style="width: 35px; height: 35px; object-fit: contain; opacity: 0.7;">
+                                <div title="Current: ${currentRankText}" style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #fff; font-size: 13px;">Current rank: ${currentRankText}</span>
+                                    <img src="${currentRankImg}" alt="Current Rank" style="width: 35px; height: 35px; object-fit: contain;">
                                 </div>
                             </div>
                         </td>
                         <td style="padding: 12px 10px; text-align: right; font-weight: 500;">${p.primaryRole || 'None'}</td>
-                        <td style="padding: 12px 10px; text-align: right; color: #888;">${p.secondaryRole || 'None'}</td>
+                        <td style="padding: 12px 10px; text-align: right; color: #fff;">${p.secondaryRole || 'None'}</td>
                     </tr>
                 `;
             });
@@ -126,7 +133,7 @@ async function loadAnnouncements() {
             });
 
         } else {
-            container.innerHTML = "<p style='color: #666;'>No announcements posted yet.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No announcements posted yet.</p>";
         }
     } catch (error) {
         console.error("Failed to load announcements", error);
@@ -153,32 +160,25 @@ async function loadTeamStats() {
             const html = `
                 <div class="carousel-container">
                     <button class="carousel-btn prev" onclick="moveCarousel(-1)">&#9664;</button>
-                    <div class="carousel-track" id="stats-track">
-                        <div class="carousel-slide">
-                            <div class="stat-ring" style="--deg: ${degrees}deg; --ring-color: #00b4d8;">
-                                <div class="stat-ring-inner"></div>
+                    <div class="carousel-window">
+                        <div class="carousel-track" id="stats-track">
+                            <div class="carousel-slide">
+                                <div class="carousel-winrate" style="--winrate-angle: ${degrees}deg; --ring-fill: #28b5ff; --ring-empty: #444;">
+                                    <div class="carousel-winrate-pct">${winrate}% WR</div>
+                                    <div class="carousel-winrate-sub">Last ${totalGames} Games</div>
+                                </div>
                             </div>
-                            <div class="stat-info">
-                                <h2>${winrate}% WR</h2>
-                                <p>Last ${totalGames} Games</p>
+                            <div class="carousel-slide">
+                                <div class="carousel-winrate" style="--winrate-angle: 240deg; --ring-fill: #f72585; --ring-empty: #444;">
+                                    <div class="carousel-winrate-pct">3.2 KDA</div>
+                                    <div class="carousel-winrate-sub">Team Average</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="stat-ring" style="--deg: 240deg; --ring-color: #f72585;">
-                                <div class="stat-ring-inner"></div>
-                            </div>
-                            <div class="stat-info">
-                                <h2>3.2 KDA</h2>
-                                <p>Team Average</p>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="stat-ring" style="--deg: 180deg; --ring-color: #00f2c3;">
-                                <div class="stat-ring-inner"></div>
-                            </div>
-                            <div class="stat-info">
-                                <h2>12 Scrims</h2>
-                                <p>Played this Month</p>
+                            <div class="carousel-slide">
+                                <div class="carousel-winrate" style="--winrate-angle: 180deg; --ring-fill: #00f2c3; --ring-empty: #444;">
+                                    <div class="carousel-winrate-pct">12 Scrims</div>
+                                    <div class="carousel-winrate-sub">Played this Month</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -189,7 +189,7 @@ async function loadTeamStats() {
             container.innerHTML = html;
             startCarousel();
         } else {
-            container.innerHTML = "<p style='color: #666;'>No stats available yet.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No stats available yet.</p>";
         }
     } catch (error) {
         console.error("Failed to load stats", error);
@@ -226,7 +226,7 @@ async function loadDraft() {
             let html = `
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
-                        <tr style="border-bottom: 2px solid #ddd; color: #333;">
+                        <tr style="border-bottom: 2px solid #333; color: #fff;">
                             <th style="padding: 10px;">Player IGN</th>
                             <th style="padding: 10px;">Real Name</th>
                             <th style="padding: 10px; text-align: right;">Role Played</th>
@@ -237,13 +237,13 @@ async function loadDraft() {
 
             data.draft.forEach(p => {
                 html += `
-                    <tr style="border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s;" 
-                        onmouseover="this.style.backgroundColor='#ffe6e6'" 
+                    <tr style="border-bottom: 1px solid #333; cursor: pointer; transition: background-color 0.2s;" 
+                        onmouseover="this.style.backgroundColor='#181818'" 
                         onmouseout="this.style.backgroundColor='transparent'"
                         onclick="window.location.href='/player_analysis?id=${p.userId}'">
                         
-                        <td style="padding: 12px 10px; font-weight: bold; color: #111;">${p.gameName}</td>
-                        <td style="padding: 12px 10px; color: #555;">${p.firstname} ${p.lastname}</td>
+                        <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${p.gameName}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${p.firstname} ${p.lastname}</td>
                         <td style="padding: 12px 10px; text-align: right; font-weight: 500;">${p.displayedRole}</td>
                     </tr>
                 `;
@@ -252,7 +252,7 @@ async function loadDraft() {
             html += `</tbody></table>`;
             container.innerHTML = html;
         } else {
-            container.innerHTML = "<p style='color: #666;'>No draft roster available.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No draft roster available.</p>";
         }
     } catch (error) {
         console.error("Failed to load draft", error);
@@ -272,7 +272,7 @@ async function loadScrims() {
                 <div class="scrollable-table-container" style="max-height: none; overflow: visible;">
                     <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
                         <thead>
-                            <tr style="border-bottom: 2px solid #ddd; color: #333;">
+                            <tr style="border-bottom: 2px solid #333; color: #fff;">
                                 <th style="padding: 10px;">#</th>
                                 <th style="padding: 10px;">NAME</th>
                                 <th style="padding: 10px;">DATE</th>
@@ -297,17 +297,17 @@ async function loadScrims() {
                 const badgeText = isWin ? 'W' : 'L';
                 
                 html += `
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 12px 10px; font-weight: bold; color: #666;">${index + 1}</td>
-                        <td style="padding: 12px 10px; font-weight: 600; color: #111;">${s.name}</td>
-                        <td style="padding: 12px 10px; color: #555;">${scrimDate}</td>
-                        <td style="padding: 12px 10px; color: #555;">${s.length || 'N/A'}</td>
-                        <td style="padding: 12px 10px; color: #555; font-size: 13px;">${s.teamMembers || 'N/A'}</td>
+                    <tr style="border-bottom: 1px solid #333;">
+                        <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${index + 1}</td>
+                        <td style="padding: 12px 10px; font-weight: 600; color: #fff;">${s.name}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${scrimDate}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${s.length || 'N/A'}</td>
+                        <td style="padding: 12px 10px; color: #fff; font-size: 13px;">${s.teamMembers || 'N/A'}</td>
                         <td style="padding: 12px 10px; text-align: center;">
                             <span class="scrim-badge ${badgeClass}">${badgeText}</span>
                         </td>
                         <td style="padding: 12px 10px; text-align: center;">
-                            ${s.videoLink ? `<a href="${s.videoLink}" target="_blank" class="vod-link">Watch VOD</a>` : '<span style="color:#aaa;">No VOD</span>'}
+                            ${s.videoLink ? `<a href="${s.videoLink}" target="_blank" class="vod-link">Watch VOD</a>` : '<span style="color:#fff;">No VOD</span>'}
                         </td>
                     </tr>
                 `;
@@ -316,7 +316,7 @@ async function loadScrims() {
             html += `</tbody></table></div>`;
             container.innerHTML = html;
         } else {
-            container.innerHTML = "<p style='color: #666;'>No recent scrims found.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No recent scrims found.</p>";
         }
     } catch (error) {
         console.error("Failed to load scrims", error);
