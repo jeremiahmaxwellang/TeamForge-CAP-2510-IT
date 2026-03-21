@@ -5,7 +5,7 @@
 document.addEventListener("DOMContentLoaded", async function () {
 
   const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests';
-  
+
   // function to extract rank tier from rank string (e.g. "Gold IV" -> "gold")
   const validRankTiers = new Set([
     'iron',
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const filename = tier === 'emerald' ? 'emerald_tft.svg' : `${tier}.png`;
     return `${RANK_ICON_BASE_URL}/${filename}`;
   }
-  
+
   // State Management
   const state = {
     allApplicants: [],
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     roleSecondary: document.getElementById('text-secondary-role'), // FIXED ID
     email: document.getElementById('app-email'),
     discord: document.getElementById('app-discord'),
-    
+
     currentRankImg: document.getElementById('img-current-rank'),
     currentRankText: document.getElementById('text-current-rank'),
     peakRankImg: document.getElementById('img-peak-rank'),
@@ -71,11 +71,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     btnPrev: document.getElementById('btn-prev-applicant'),
     btnNext: document.getElementById('btn-next-applicant'),
-    
+
     chartContainer: document.getElementById('radar-chart'),
     statsContainer: document.getElementById('stats-list'), // New Table Container
     comparisonSelect: document.getElementById('comparison-select'), // ADDED
-    
+
     btnConfirmEval: document.getElementById('btn-confirm-eval'),
     commentBox: document.getElementById('eval-comment')
   };
@@ -84,13 +84,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function init() {
     console.log("[APPLICANT] Initializing Profile...");
-    
+
     // 1. Fetch Applicants
     try {
       const appResp = await fetch('/applicant_list/getall');
       if (appResp.ok) {
-          const appData = await appResp.json();
-          if (appData.success) state.allApplicants = appData.applicants || [];
+        const appData = await appResp.json();
+        if (appData.success) state.allApplicants = appData.applicants || [];
       }
     } catch (e) {
       console.error("[APPLICANT] Failed to load applicants:", e);
@@ -98,12 +98,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // 2. Fetch Roster (Using the verified URL!)
     try {
-      const rosterResp = await fetch('/player_analysis/players'); 
+      const rosterResp = await fetch('/player_analysis/players');
       if (rosterResp.ok) {
-          const rosterData = await rosterResp.json();
-          state.rosterPlayers = Array.isArray(rosterData) ? rosterData : (rosterData.players || rosterData.data || []);
+        const rosterData = await rosterResp.json();
+        state.rosterPlayers = Array.isArray(rosterData) ? rosterData : (rosterData.players || rosterData.data || []);
       } else {
-          console.warn(`[APPLICANT] Roster fetch returned status ${rosterResp.status}.`);
+        console.warn(`[APPLICANT] Roster fetch returned status ${rosterResp.status}.`);
       }
     } catch (e) {
       console.warn("[APPLICANT] Failed to load roster:", e);
@@ -111,23 +111,23 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // 3. Load UI safely
     try {
-        if (state.allApplicants.length > 0) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlId = urlParams.get('id');
-            
-            if (urlId) {
-              state.currentIndex = state.allApplicants.findIndex(a => a.userId == urlId);
-              if (state.currentIndex === -1) state.currentIndex = 0;
-            }
-            loadProfile(state.currentIndex);
-        } else {
-            console.warn("[APPLICANT] No applicants found in database.");
-            if(UI.name) UI.name.textContent = "No applicants found";
+      if (state.allApplicants.length > 0) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlId = urlParams.get('id');
+
+        if (urlId) {
+          state.currentIndex = state.allApplicants.findIndex(a => a.userId == urlId);
+          if (state.currentIndex === -1) state.currentIndex = 0;
         }
+        loadProfile(state.currentIndex);
+      } else {
+        console.warn("[APPLICANT] No applicants found in database.");
+        if (UI.name) UI.name.textContent = "No applicants found";
+      }
     } catch (e) {
-        console.error("[APPLICANT] Error loading profile UI:", e);
+      console.error("[APPLICANT] Error loading profile UI:", e);
     }
-    
+
     setupEventListeners();
   }
 
@@ -136,51 +136,51 @@ document.addEventListener("DOMContentLoaded", async function () {
   // ==========================================
   async function loadProfile(index) {
     if (index < 0 || index >= state.allApplicants.length) return;
-    
+
     const applicant = state.allApplicants[index];
     state.currentApplicant = applicant;
     state.currentIndex = index;
 
     const newUrl = `${window.location.pathname}?id=${applicant.userId}`;
-    window.history.pushState({path: newUrl}, '', newUrl);
+    window.history.pushState({ path: newUrl }, '', newUrl);
 
     // Header & Contact
     UI.name.innerHTML = `${applicant.firstname} ${applicant.lastname} <span style="color: #00f2c3; font-weight: bold; margin-left: 8px;">(${getRoleName(applicant.primaryRoleId)})</span>`;
-    
+
     if (UI.ign.options.length <= 1 || UI.ign.options[0].text === 'Loading...') {
-        UI.ign.innerHTML = '';
-        state.allApplicants.forEach((app, idx) => {
-            const opt = document.createElement('option');
-            opt.value = idx;
-            opt.textContent = `${app.gameName} #${app.tagLine}`;
-            UI.ign.appendChild(opt);
-        });
-        UI.ign.addEventListener('change', (e) => loadProfile(parseInt(e.target.value)));
+      UI.ign.innerHTML = '';
+      state.allApplicants.forEach((app, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${app.gameName} #${app.tagLine}`;
+        UI.ign.appendChild(opt);
+      });
+      UI.ign.addEventListener('change', (e) => loadProfile(parseInt(e.target.value)));
     }
     UI.ign.value = state.currentIndex;
 
     UI.email.textContent = applicant.email || 'N/A';
     UI.discord.textContent = applicant.discord || 'N/A';
-    
+
     // Ranks & Images (With Fallbacks for broken links)
     UI.currentRankText.textContent = applicant.currentRank || 'Unranked';
     UI.peakRankText.textContent = applicant.peakRank || 'Unranked';
-    
+
     // Use the Community Dragon helper functions to load the images
     if (UI.currentRankImg) {
-        UI.currentRankImg.src = getRankIconUrl(applicant.currentRank);
-        UI.currentRankImg.onerror = function() {
-            this.onerror = null; // Prevent loop
-            this.src = getRankIconUrl('unranked'); // Fallback to Community Dragon unranked icon
-        };
+      UI.currentRankImg.src = getRankIconUrl(applicant.currentRank);
+      UI.currentRankImg.onerror = function () {
+        this.onerror = null; // Prevent loop
+        this.src = getRankIconUrl('unranked'); // Fallback to Community Dragon unranked icon
+      };
     }
-    
+
     if (UI.peakRankImg) {
-        UI.peakRankImg.src = getRankIconUrl(applicant.peakRank);
-        UI.peakRankImg.onerror = function() {
-            this.onerror = null; // Prevent loop
-            this.src = getRankIconUrl('unranked'); // Fallback to Community Dragon unranked icon
-        };
+      UI.peakRankImg.src = getRankIconUrl(applicant.peakRank);
+      UI.peakRankImg.onerror = function () {
+        this.onerror = null; // Prevent loop
+        this.src = getRankIconUrl('unranked'); // Fallback to Community Dragon unranked icon
+      };
     }
 
     // Student Info (Removed repetitive text labels)
@@ -198,18 +198,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     const btnSecondary = document.getElementById('btn-secondary-role');
 
     if (btnPrimary && btnSecondary) {
-        btnPrimary.classList.add('active');
-        btnSecondary.classList.remove('active');
+      btnPrimary.classList.add('active');
+      btnSecondary.classList.remove('active');
 
-        if (!applicant.secondaryRoleId) {
-            btnSecondary.disabled = true;
-            btnSecondary.style.opacity = '0.5';
-            btnSecondary.style.cursor = 'not-allowed';
-        } else {
-            btnSecondary.disabled = false;
-            btnSecondary.style.opacity = '1';
-            btnSecondary.style.cursor = 'pointer';
-        }
+      if (!applicant.secondaryRoleId) {
+        btnSecondary.disabled = true;
+        btnSecondary.style.opacity = '0.5';
+        btnSecondary.style.cursor = 'not-allowed';
+      } else {
+        btnSecondary.disabled = false;
+        btnSecondary.style.opacity = '1';
+        btnSecondary.style.cursor = 'pointer';
+      }
     }
 
     populateComparisonDropdown(); // ADDED: Refresh dropdown to exclude the current applicant
@@ -217,57 +217,57 @@ document.addEventListener("DOMContentLoaded", async function () {
     fetchStats(applicant.userId, state.selectedRoleId);
   }
 
-function populateComparisonDropdown() {
+  function populateComparisonDropdown() {
     if (!UI.comparisonSelect) return;
-    
+
     const currentSelection = UI.comparisonSelect.value || 'benchmark';
     UI.comparisonSelect.innerHTML = '<option value="benchmark">🏆 Coach Benchmark (Target)</option>';
-    
+
     // --- 1. CURRENT TEAM ROSTER ---
     if (state.rosterPlayers && state.rosterPlayers.length > 0) {
-        const rosterGroup = document.createElement('optgroup');
-        rosterGroup.label = "Current Team Roster";
-        
-        state.rosterPlayers.forEach(player => {
-            const opt = document.createElement('option');
-            opt.value = player.userId || player.id; // Handles different DB column names
-            // Fallback for names in case they use summonerName instead of gameName
-            const nameStr = player.gameName ? `${player.gameName}#${player.tagLine}` : (player.summonerName || `Player`);
-            opt.textContent = `${nameStr} (${getRoleName(player.primaryRoleId)})`;
-            rosterGroup.appendChild(opt);
-        });
-        UI.comparisonSelect.appendChild(rosterGroup);
+      const rosterGroup = document.createElement('optgroup');
+      rosterGroup.label = "Current Team Roster";
+
+      state.rosterPlayers.forEach(player => {
+        const opt = document.createElement('option');
+        opt.value = player.userId || player.id; // Handles different DB column names
+        // Fallback for names in case they use summonerName instead of gameName
+        const nameStr = player.gameName ? `${player.gameName}#${player.tagLine}` : (player.summonerName || `Player`);
+        opt.textContent = `${nameStr} (${getRoleName(player.primaryRoleId)})`;
+        rosterGroup.appendChild(opt);
+      });
+      UI.comparisonSelect.appendChild(rosterGroup);
     }
 
     // --- 2. OTHER APPLICANTS ---
     if (state.allApplicants && state.allApplicants.length > 0) {
-        const appGroup = document.createElement('optgroup');
-        appGroup.label = "Other Applicants";
-        
-        state.allApplicants.forEach(app => {
-          if (app.userId == state.currentApplicant.userId) return; 
-          const opt = document.createElement('option');
-          opt.value = app.userId;
-          opt.textContent = `${app.gameName}#${app.tagLine} (${getRoleName(app.primaryRoleId)})`;
-          appGroup.appendChild(opt);
-        });
-        UI.comparisonSelect.appendChild(appGroup);
+      const appGroup = document.createElement('optgroup');
+      appGroup.label = "Other Applicants";
+
+      state.allApplicants.forEach(app => {
+        if (app.userId == state.currentApplicant.userId) return;
+        const opt = document.createElement('option');
+        opt.value = app.userId;
+        opt.textContent = `${app.gameName}#${app.tagLine} (${getRoleName(app.primaryRoleId)})`;
+        appGroup.appendChild(opt);
+      });
+      UI.comparisonSelect.appendChild(appGroup);
     }
-    
+
     // Restore selection safely
     if (Array.from(UI.comparisonSelect.options).some(o => o.value == currentSelection)) {
-        UI.comparisonSelect.value = currentSelection;
-        state.comparisonTarget = currentSelection;
+      UI.comparisonSelect.value = currentSelection;
+      state.comparisonTarget = currentSelection;
     } else {
-        UI.comparisonSelect.value = 'benchmark';
-        state.comparisonTarget = 'benchmark';
+      UI.comparisonSelect.value = 'benchmark';
+      state.comparisonTarget = 'benchmark';
     }
   }
 
   // ==========================================
   // STATS, RADAR CHART, AND TABLE
   // ==========================================
-  
+
   const ROLE_CONFIGS = {
     1: { axes: [{ id: "KDA", label: "KDA" }, { id: "CS Per Minute", label: "CS/Min" }, { id: "Damage Share", label: "Dmg Share%" }, { id: "Total Damage Taken", label: "Tanking" }, { id: "Solo Kills", label: "Solo Kills" }] },
     2: { axes: [{ id: "KDA", label: "KDA" }, { id: "Kill Participation", label: "KP%" }, { id: "Dragon Kills", label: "Dragons" }, { id: "Vision Score Per Minute", label: "Vision/Min" }, { id: "Gold Per Minute", label: "Gold/Min" }] },
@@ -278,8 +278,8 @@ function populateComparisonDropdown() {
   };
 
   const FALLBACK_SCALES = {
-    "KDA": 8, "CS Per Minute": 9, "Damage Share": 35, "Total Damage Taken": 40000, 
-    "Solo Kills": 3, "Kill Participation": 75, "Dragon Kills": 3, 
+    "KDA": 8, "CS Per Minute": 9, "Damage Share": 35, "Total Damage Taken": 40000,
+    "Solo Kills": 3, "Kill Participation": 75, "Dragon Kills": 3,
     "Vision Score Per Minute": 3.5, "Gold Per Minute": 500, "Total Damage Dealt": 30000,
     "Total Wards Placed": 45, "Total Wards Destroyed": 15, "Kills": 8, "Assists": 12, "Deaths": 5
   };
@@ -291,32 +291,32 @@ function populateComparisonDropdown() {
 
     try {
       const target = state.comparisonTarget || 'benchmark';
-      
+
       const fetches = [
-         fetch('/player_analysis/calculate-stats', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ playerId: userId, roleId: roleId || 1 })
-         }).catch(() => null),
-         fetch(`/player_analysis/api/benchmarks/${roleId || 1}`).catch(() => null)
+        fetch('/player_analysis/calculate-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: userId, roleId: roleId || 1 })
+        }).catch(() => null),
+        fetch(`/player_analysis/api/benchmarks/${roleId || 1}`).catch(() => null)
       ];
 
       // If comparing to another player, FORCE them to be evaluated on the currently toggled role
       if (target !== 'benchmark') {
-         fetches.push(
-             fetch('/player_analysis/calculate-stats', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ playerId: target, roleId: roleId || 1 }) 
-             }).catch(() => null)
-         );
+        fetches.push(
+          fetch('/player_analysis/calculate-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId: target, roleId: roleId || 1 })
+          }).catch(() => null)
+        );
       }
 
       const responses = await Promise.all(fetches);
       const data = responses[0] ? await responses[0].json() : null;
       const benchData = responses[1] ? await responses[1].json() : null;
       const targetData = responses[2] ? await responses[2].json() : null;
-      
+
       const pStats = data && data.playerStats ? data.playerStats : null;
       const benchmarks = Array.isArray(benchData) ? benchData : (benchData && benchData.benchmarks ? benchData.benchmarks : []);
 
@@ -324,10 +324,10 @@ function populateComparisonDropdown() {
         UI.winrate.textContent = `${pStats.winrate || 50}% WR`;
         UI.kda.textContent = `${pStats.KDA || pStats.kda || '0.00'} KDA`;
 
-        if(pStats.topChampions && pStats.topChampions.length > 0) {
-            UI.topChamps.innerHTML = pStats.topChampions.map(c => `<span style="background:#444; padding:3px 10px; border-radius:6px;">${c}</span>`).join('');
+        if (pStats.topChampions && pStats.topChampions.length > 0) {
+          UI.topChamps.innerHTML = pStats.topChampions.map(c => `<span style="background:#444; padding:3px 10px; border-radius:6px;">${c}</span>`).join('');
         } else {
-            UI.topChamps.innerHTML = "<span>No Champ Data</span>";
+          UI.topChamps.innerHTML = "<span>No Champ Data</span>";
         }
 
         let p2Stats = null;
@@ -336,24 +336,24 @@ function populateComparisonDropdown() {
         let isBenchmark = true;
 
         if (target !== 'benchmark') {
-            p2Stats = targetData && targetData.playerStats ? targetData.playerStats : null;
-            isBenchmark = false;
-            
-            // Search both lists combined to find the target player
-            const allPlayers = [...state.allApplicants, ...state.rosterPlayers];
-            const targetApp = allPlayers.find(a => (a.userId || a.id) == target);
-            
-            if (targetApp) {
-                const nameStr = targetApp.gameName ? `${targetApp.gameName}#${targetApp.tagLine}` : (targetApp.summonerName || "Player");
-                p2Name = nameStr;
-                p2Role = `Compared as ${getRoleName(roleId || 1)}`; 
-            } else {
-                p2Name = "Other Player";
-                p2Role = getRoleName(roleId || 1);
-            }
+          p2Stats = targetData && targetData.playerStats ? targetData.playerStats : null;
+          isBenchmark = false;
+
+          // Search both lists combined to find the target player
+          const allPlayers = [...state.allApplicants, ...state.rosterPlayers];
+          const targetApp = allPlayers.find(a => (a.userId || a.id) == target);
+
+          if (targetApp) {
+            const nameStr = targetApp.gameName ? `${targetApp.gameName}#${targetApp.tagLine}` : (targetApp.summonerName || "Player");
+            p2Name = nameStr;
+            p2Role = `Compared as ${getRoleName(roleId || 1)}`;
+          } else {
+            p2Name = "Other Player";
+            p2Role = getRoleName(roleId || 1);
+          }
         } else {
-            p2Stats = benchmarks;
-            p2Role = `Expected ${getRoleName(roleId || 1)}`; 
+          p2Stats = benchmarks;
+          p2Role = `Expected ${getRoleName(roleId || 1)}`;
         }
 
         drawComparisonChart(pStats, p2Stats, benchmarks, isBenchmark);
@@ -365,9 +365,9 @@ function populateComparisonDropdown() {
       console.warn("[APPLICANT] Stats fallback triggered due to missing data:", e);
       UI.winrate.textContent = "--% WR";
       UI.kda.textContent = "-- KDA";
-      if(UI.topChamps) UI.topChamps.innerHTML = "<span>No Data</span>";
+      if (UI.topChamps) UI.topChamps.innerHTML = "<span>No Data</span>";
       UI.chartContainer.innerHTML = "<div style='text-align:center; padding: 40px; color:#888; font-weight:bold;'>No recent match data available for this role.</div>";
-      if(UI.statsContainer) UI.statsContainer.innerHTML = "";
+      if (UI.statsContainer) UI.statsContainer.innerHTML = "";
     }
   }
 
@@ -378,7 +378,7 @@ function populateComparisonDropdown() {
     return Math.min((Number(playerValue) / maxScale) * 10, 10);
   }
 
-function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
+  function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     const roleId = state.selectedRoleId || 1;
     const config = ROLE_CONFIGS[roleId] || ROLE_CONFIGS.default;
 
@@ -390,22 +390,22 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     const p2Axes = config.axes.map(a => {
       let val;
       if (isBenchmark) {
-          const normalizedId = a.id.toLowerCase().replace(/\s/g, '');
-          const dbMatch = benchmarks.find(b => b.metricName && b.metricName.toLowerCase().replace(/\s/g, '') === normalizedId);
-          val = dbMatch ? Number(dbMatch.benchmarkValue) : (FALLBACK_SCALES[a.id] * 0.8);
+        const normalizedId = a.id.toLowerCase().replace(/\s/g, '');
+        const dbMatch = benchmarks.find(b => b.metricName && b.metricName.toLowerCase().replace(/\s/g, '') === normalizedId);
+        val = dbMatch ? Number(dbMatch.benchmarkValue) : (FALLBACK_SCALES[a.id] * 0.8);
       } else {
-          val = p2Stats ? (Number(p2Stats[a.id]) || Number(p2Stats[a.id.replace(/\s/g, '')]) || 0) : 0;
+        val = p2Stats ? (Number(p2Stats[a.id]) || Number(p2Stats[a.id.replace(/\s/g, '')]) || 0) : 0;
       }
       return { axis: a.label, value: calculateRadarScore(val, a.id, benchmarks) };
     });
 
-    UI.chartContainer.innerHTML = ""; 
+    UI.chartContainer.innerHTML = "";
     RadarChart.defaultConfig.w = 280;
     RadarChart.defaultConfig.h = 280;
     RadarChart.defaultConfig.maxValue = 10;
     RadarChart.draw("#radar-chart", [
       { className: "Applicant", axes: p1Axes },
-      { className: "Benchmark", axes: p2Axes } 
+      { className: "Benchmark", axes: p2Axes }
     ]);
   }
 
@@ -414,32 +414,32 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
 
     const config = ROLE_CONFIGS[roleId] || ROLE_CONFIGS.default;
     const p1Name = state.currentApplicant.gameName ? `${state.currentApplicant.gameName}#${state.currentApplicant.tagLine}` : 'Applicant';
-    
+
     // Ensure Player 1's table column also clearly shows the currently toggled role
     const p1RoleStr = getRoleName(roleId || state.selectedRoleId);
-    
+
     const coreGood = [
-        { id: "Kills", label: "Kills" }, { id: "Assists", label: "Assists" },
-        { id: "KDA", label: "KDA" }, { id: "CS Per Minute", label: "CS/Min" }, { id: "Gold Per Minute", label: "Gold/Min" }
+      { id: "Kills", label: "Kills" }, { id: "Assists", label: "Assists" },
+      { id: "KDA", label: "KDA" }, { id: "CS Per Minute", label: "CS/Min" }, { id: "Gold Per Minute", label: "Gold/Min" }
     ];
     config.axes.forEach(a => { if (!coreGood.find(g => g.id === a.id) && a.id !== "Deaths") coreGood.push(a); });
-    
+
     const coreBad = [{ id: "Deaths", label: "Deaths" }];
 
     const getStat = (statsObj, id) => {
-        if (!statsObj) return 0;
-        const cleanId = id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-        for (let key in statsObj) {
-            const cleanKey = key.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-            if (cleanKey === cleanId || cleanKey === "average" + cleanId) return Number(statsObj[key]);
-        }
-        return 0;
+      if (!statsObj) return 0;
+      const cleanId = id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      for (let key in statsObj) {
+        const cleanKey = key.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        if (cleanKey === cleanId || cleanKey === "average" + cleanId) return Number(statsObj[key]);
+      }
+      return 0;
     };
 
     const getBench = (benchmarksList, id) => {
-        const cleanId = id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-        const found = benchmarksList.find(b => b.metricName && b.metricName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '') === cleanId);
-        return found ? Number(found.benchmarkValue) : (FALLBACK_SCALES[id] * 0.8 || 0);
+      const cleanId = id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const found = benchmarksList.find(b => b.metricName && b.metricName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '') === cleanId);
+      return found ? Number(found.benchmarkValue) : (FALLBACK_SCALES[id] * 0.8 || 0);
     };
 
     const formatNum = (num) => Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
@@ -460,7 +460,7 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     coreGood.forEach(m => {
       const val1 = getStat(p1Stats, m.id);
       const val2 = isBenchmark ? getBench(benchmarks, m.id) : getStat(p2Stats, m.id);
-      
+
       let p1Style = "padding: 8px;", p2Style = "padding: 8px;";
       if (val1 > val2) { p1Style += " color: #4CAF50; font-weight: bold;"; p2Style += " color: #f44336; font-weight: bold;"; }
       else if (val2 > val1) { p2Style += " color: #4CAF50; font-weight: bold;"; p1Style += " color: #f44336; font-weight: bold;"; }
@@ -476,7 +476,7 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     coreBad.forEach(m => {
       const val1 = getStat(p1Stats, m.id);
       const val2 = isBenchmark ? (getBench(benchmarks, m.id) > 0 ? getBench(benchmarks, m.id) : 5) : getStat(p2Stats, m.id);
-      
+
       let p1Style = "padding: 8px;", p2Style = "padding: 8px;";
       if (val1 < val2) { p1Style += " color: #4CAF50; font-weight: bold;"; p2Style += " color: #f44336; font-weight: bold;"; }
       else if (val2 < val1) { p2Style += " color: #4CAF50; font-weight: bold;"; p1Style += " color: #f44336; font-weight: bold;"; }
@@ -500,93 +500,170 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     const btnSecondary = document.getElementById('btn-secondary-role');
 
     if (UI.comparisonSelect) {
-        UI.comparisonSelect.addEventListener('change', (e) => {
-            state.comparisonTarget = e.target.value;
-            fetchStats(state.currentApplicant.userId, state.selectedRoleId);
-        });
+      UI.comparisonSelect.addEventListener('change', (e) => {
+        state.comparisonTarget = e.target.value;
+        fetchStats(state.currentApplicant.userId, state.selectedRoleId);
+      });
     }
 
     if (btnPrimary) {
-        btnPrimary.addEventListener('click', () => {
-            if (!state.currentApplicant) return;
-            state.selectedRoleId = state.currentApplicant.primaryRoleId;
-            btnPrimary.classList.add('active');
-            if(btnSecondary) btnSecondary.classList.remove('active');
-            fetchStats(state.currentApplicant.userId, state.selectedRoleId);
-        });
+      btnPrimary.addEventListener('click', () => {
+        if (!state.currentApplicant) return;
+        state.selectedRoleId = state.currentApplicant.primaryRoleId;
+        btnPrimary.classList.add('active');
+        if (btnSecondary) btnSecondary.classList.remove('active');
+        fetchStats(state.currentApplicant.userId, state.selectedRoleId);
+      });
     }
 
     if (btnSecondary) {
-        btnSecondary.addEventListener('click', () => {
-            if (!state.currentApplicant || !state.currentApplicant.secondaryRoleId) return;
-            state.selectedRoleId = state.currentApplicant.secondaryRoleId;
-            btnSecondary.classList.add('active');
-            if(btnPrimary) btnPrimary.classList.remove('active');
-            fetchStats(state.currentApplicant.userId, state.selectedRoleId);
-        });
+      btnSecondary.addEventListener('click', () => {
+        if (!state.currentApplicant || !state.currentApplicant.secondaryRoleId) return;
+        state.selectedRoleId = state.currentApplicant.secondaryRoleId;
+        btnSecondary.classList.add('active');
+        if (btnPrimary) btnPrimary.classList.remove('active');
+        fetchStats(state.currentApplicant.userId, state.selectedRoleId);
+      });
     }
-    
+
     UI.btnPrev.addEventListener('click', () => loadProfile(state.currentIndex > 0 ? state.currentIndex - 1 : state.allApplicants.length - 1));
     UI.btnNext.addEventListener('click', () => loadProfile(state.currentIndex < state.allApplicants.length - 1 ? state.currentIndex + 1 : 0));
 
-  // =============== Fetch Match Statistics ===============
+    // =============== Fetch Match Statistics ===============
 
-  document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
+    document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
-  async function clickMatchStatsButton() {
-    const gameName = state.currentApplicant.gameName;
-    const tagLine = state.currentApplicant.tagLine;
-    let puuidString = ""
+    async function clickMatchStatsButton() {
+      const gameName = state.currentApplicant.gameName;
+      const tagLine = state.currentApplicant.tagLine;
+      let puuidString = ""
 
-    // Fetch PUUID from Riot
-    try {
-      const response = await fetch(`/riot/puuid/${gameName}/${tagLine}`);
-      const data = await response.json();
+      // Fetch PUUID from Riot
+      try {
+        const response = await fetch(`/riot/puuid/${gameName}/${tagLine}`);
+        const data = await response.json();
 
-      puuidString = data.puuid;
+        puuidString = data.puuid;
 
-      const userId = parseInt(state.currentApplicant.userId, 10);
-      console.log(`player number ${userId}, puuid: ${puuidString}`);
+        const userId = parseInt(state.currentApplicant.userId, 10);
+        console.log(`player number ${userId}, puuid: ${puuidString}`);
 
-      updatePuuid(userId, puuidString);
-    } catch (err) {
-      console.error("Error fetching PUUID:", err);
+        updatePuuid(userId, puuidString);
+
+        fetchMatchIds(puuidString);
+      } catch (err) {
+        console.error("Error fetching PUUID:", err);
+      }
+
     }
 
-    // Fetch Match IDs from Riot
-    // TODO: Fetch Match Statistics
-    const queueId = 420; // 440 for Ranked Flex
-
-    try {
-      const response = await fetch(`/riot/matches/${puuidString}/${queueId}`);
-      const data = await response.json();
-      const matches = data.matches
-
-      console.log(`matches: ${matches}`);
-    } catch (err) {
-      console.error("Error:", err);
-    }
-
-  }
-
-  // Update player's puuid in the DB
-  function updatePuuid(userId, puuid) {
-    console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}}`);
-    return fetch(`/player_analysis/players/${userId}/puuid`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ puuid }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(`[UPDATE PUUID] ✓ Successfully updated PUUID:`, data);
-        return data;
+    // 1. Update player's puuid in the DB
+    async function updatePuuid(userId, puuid) {
+      console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}}`);
+      return fetch(`/player_analysis/players/${userId}/puuid`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puuid }),
       })
-      .catch((err) => {
-        console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err);
-        throw err;
-      });
-  }
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(`[UPDATE PUUID] ✓ Successfully updated PUUID:`, data);
+          return data;
+        })
+        .catch((err) => {
+          console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err);
+          throw err;
+        });
+    }
+
+    /**
+     * 2. Fetches Match IDs from Riot
+     * Helper Functions: fetchMatchDetails} puuid 
+     */
+    async function fetchMatchIds(puuid) {
+      const queueId = 420; // Possible CAP2: 440 for Ranked Flex
+
+      try {
+        const response = await fetch(`/riot/matches/${puuid}/${queueId}`);
+        const data = await response.json();
+
+        // Extract the array of match IDs
+        const matches = data.matches;
+
+        // Kick off all fetches at once
+        const detailPromises = matches.map(matchId => {
+          console.log(`Fetching details for matchId: ${matchId}`);
+          fetchMatchDetails(matchId);
+
+        });
+
+        // Fetch and upload Match Participants to DB
+        const participantPromises = uploadMatchParticipants(matches);
+
+        // Wait for all to finish
+        const allDetails = await Promise.all(detailPromises, participantPromises);
+
+        console.log("All match details:", allDetails);
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    // 3. TODO: Store multiple matches
+    // `/matches/:userId/store-multiple`
+
+    // 4. Fetch Match Details from Riot
+    async function fetchMatchDetails(matchId) {
+      return fetch(`/riot/match/${matchId}`)
+        .then((res) => res.json())
+        .then((data) => data.matchDetails)
+        .catch((err) => {
+          console.error(`[FETCH DETAILS] ✗ Error fetching match details for ${matchId}:`, err);
+          throw err;
+        });
+    }
+
+    // 5. TODO: Save Match Details in DB
+    async function saveMatchDetails() {
+      const userId = parseInt(state.currentApplicant.userId, 10);
+
+      try {
+        const response = await fetch(`/match/${userId}/store`);
+        const data = await response.json();
+
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    /**
+     * 6. TODO: Fetch Match Statistics
+     * @param {*} matches - array of matchIds
+     */
+    async function uploadMatchParticipants(matches) {
+      console.log(`uploadMatchParticipants(${matches})`);
+      
+      try {
+        const response = await fetch('/riot/participants/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matches })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Batch upload result:', result);
+
+      } catch (err) {
+        console.error('Error uploading participants:', err);
+      }
+    }
+
+
+
 
     // --- EVALUATION & FINAL DECISION ---
     const btnAccept = document.querySelector('.btn-accept');
@@ -594,38 +671,38 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     const btnConfirm = document.getElementById('btn-confirm-eval');
 
     async function submitEvaluation(finalStatus) {
-        if (!state.currentApplicant || !state.currentApplicant.userId) return alert("No applicant loaded yet!");
+      if (!state.currentApplicant || !state.currentApplicant.userId) return alert("No applicant loaded yet!");
 
-        const gameSenseEl = document.querySelector('input[name="gameSense"]:checked');
-        const commsEl = document.querySelector('input[name="communication"]:checked');
-        const champPoolEl = document.querySelector('input[name="champPool"]:checked');
+      const gameSenseEl = document.querySelector('input[name="gameSense"]:checked');
+      const commsEl = document.querySelector('input[name="communication"]:checked');
+      const champPoolEl = document.querySelector('input[name="champPool"]:checked');
 
-        // TODO: Change to logged-in coach ID
-        const evaluationData = {
-            userId: state.currentApplicant.userId,
-            coachId: 2, 
-            notes: UI.commentBox ? UI.commentBox.value : "",
-            gameSense: gameSenseEl ? parseInt(gameSenseEl.value, 10) : 0,
-            communication: commsEl ? parseInt(commsEl.value, 10) : 0,
-            champPool: champPoolEl ? parseInt(champPoolEl.value, 10) : 0,
-            status: finalStatus
-        };
+      // TODO: Change to logged-in coach ID
+      const evaluationData = {
+        userId: state.currentApplicant.userId,
+        coachId: 2,
+        notes: UI.commentBox ? UI.commentBox.value : "",
+        gameSense: gameSenseEl ? parseInt(gameSenseEl.value, 10) : 0,
+        communication: commsEl ? parseInt(commsEl.value, 10) : 0,
+        champPool: champPoolEl ? parseInt(champPoolEl.value, 10) : 0,
+        status: finalStatus
+      };
 
-        try {
-            const resp = await fetch('/applicant_list/evaluate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(evaluationData)
-            });
-            const result = await resp.json();
-            if (result.success) {
-                alert(`Evaluation saved! Applicant status is now: ${finalStatus}`);
-                if (finalStatus === 'Accepted' || finalStatus === 'Rejected') window.location.href = '/applicant_list';
-            } else alert("Failed to save: " + result.message);
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Database connection error. Check console.");
-        }
+      try {
+        const resp = await fetch('/applicant_list/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(evaluationData)
+        });
+        const result = await resp.json();
+        if (result.success) {
+          alert(`Evaluation saved! Applicant status is now: ${finalStatus}`);
+          if (finalStatus === 'Accepted' || finalStatus === 'Rejected') window.location.href = '/applicant_list';
+        } else alert("Failed to save: " + result.message);
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Database connection error. Check console.");
+      }
     }
 
     if (btnConfirm) btnConfirm.addEventListener('click', () => submitEvaluation('Pending'));
@@ -634,7 +711,7 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
   }
 
   function getRoleName(id) {
-    const roles = {1:'Top', 2:'Jungle', 3:'Mid', 4:'ADC', 5:'Support'};
+    const roles = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'ADC', 5: 'Support' };
     return roles[id] || 'Flex';
   }
 

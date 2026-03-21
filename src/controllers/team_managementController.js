@@ -16,7 +16,9 @@ const getAllUsersWithPlayerData = async (req, res) => {
                 u.position,
                 u.status,
                 COALESCE(CONCAT(p.gameName, '#', p.tagLine), 'N/A') AS riotId,
-                COALESCE(p.teamId, 'N/A') AS teamId
+                COALESCE(p.teamId, 'N/A') AS teamId,
+                p.primaryRoleId,
+                p.secondaryRoleId
             FROM users u
             LEFT JOIN players p ON u.userId = p.userId
             ORDER BY u.firstname ASC
@@ -76,7 +78,9 @@ const getUsersByStatus = async (req, res) => {
                 u.position,
                 u.status,
                 COALESCE(CONCAT(p.gameName, '#', p.tagLine), 'N/A') AS riotId,
-                COALESCE(p.teamId, 'N/A') AS teamId
+                COALESCE(p.teamId, 'N/A') AS teamId,
+                p.primaryRoleId,
+                p.secondaryRoleId
             FROM users u
             LEFT JOIN players p ON u.userId = p.userId
             WHERE u.status = ?
@@ -144,7 +148,7 @@ const deactivateUsers = async (req, res) => {
 const updateUserPositionAndStatus = async (req, res) => {
     try {
         const { userId } = req.params;
-        const { position, status } = req.body;
+        const { position, status, riotId, primaryRoleId, secondaryRoleId } = req.body;
 
         const parsedUserId = Number.parseInt(userId, 10);
         if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
@@ -184,6 +188,47 @@ const updateUserPositionAndStatus = async (req, res) => {
                 success: false,
                 message: 'User not found'
             });
+        }
+
+        // When position is Player, upsert the players table with role and riot id data
+        if (position === 'Player') {
+            const parsedPrimaryRoleId = Number.parseInt(primaryRoleId, 10);
+            if (!Number.isInteger(parsedPrimaryRoleId) || parsedPrimaryRoleId <= 0) {
+                return res.status(400).send({
+                    success: false,
+                    message: 'Primary role is required when position is Player'
+                });
+            }
+
+            const parsedSecondaryRoleId = secondaryRoleId ? Number.parseInt(secondaryRoleId, 10) : null;
+
+            let gameName = null;
+            let tagLine = null;
+            if (riotId && riotId.trim() && riotId !== 'N/A') {
+                const parts = riotId.trim().split('#');
+                if (parts.length === 2) {
+                    gameName = parts[0].trim() || null;
+                    tagLine = parts[1].trim() || null;
+                }
+            }
+
+            const upsertPlayerQuery = `
+                INSERT INTO players (userId, primaryRoleId, secondaryRoleId, gameName, tagLine)
+                VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    primaryRoleId = VALUES(primaryRoleId),
+                    secondaryRoleId = VALUES(secondaryRoleId),
+                    gameName = COALESCE(VALUES(gameName), gameName),
+                    tagLine = COALESCE(VALUES(tagLine), tagLine)
+            `;
+
+            await db.query(upsertPlayerQuery, [
+                parsedUserId,
+                parsedPrimaryRoleId,
+                parsedSecondaryRoleId,
+                gameName,
+                tagLine
+            ]);
         }
 
         res.status(200).send({
