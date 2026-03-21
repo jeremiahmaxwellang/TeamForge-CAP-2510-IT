@@ -185,6 +185,10 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
   `damageShare` DECIMAL(6,2) NULL,
   `visionScoreShare` DECIMAL(6,2) NULL,
   `proximityToAdc` DECIMAL(6,2) NULL,
+  `summoner1Id` INT NULL,
+  `summoner2Id` INT NULL,
+  `primaryPerkId` INT NULL,
+  `secondaryPerkStyleId` INT NULL,
   PRIMARY KEY (`matchId`, `participantId`),
   CONSTRAINT `fk_matchParticipants_matches1`
     FOREIGN KEY (`matchId`)
@@ -192,6 +196,13 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+-- Add missing columns to matchParticipants for existing databases
+ALTER TABLE `teamforgedb`.`matchParticipants`
+  ADD COLUMN IF NOT EXISTS `summoner1Id` INT NULL,
+  ADD COLUMN IF NOT EXISTS `summoner2Id` INT NULL,
+  ADD COLUMN IF NOT EXISTS `primaryPerkId` INT NULL,
+  ADD COLUMN IF NOT EXISTS `secondaryPerkStyleId` INT NULL;
 
 
 -- -----------------------------------------------------
