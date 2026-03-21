@@ -197,12 +197,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
--- Add missing columns to matchParticipants for existing databases
-ALTER TABLE `teamforgedb`.`matchParticipants`
-  ADD COLUMN IF NOT EXISTS `summoner1Id` INT NULL,
-  ADD COLUMN IF NOT EXISTS `summoner2Id` INT NULL,
-  ADD COLUMN IF NOT EXISTS `primaryPerkId` INT NULL,
-  ADD COLUMN IF NOT EXISTS `secondaryPerkStyleId` INT NULL;
+
 
 
 -- -----------------------------------------------------
