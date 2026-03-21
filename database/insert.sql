@@ -113,16 +113,6 @@ VALUES
     'Player',
     'not#applicable',
     'Active'
-),
-(
-    13,
-    'maria_santos@gmail.com',
-    'teamForge123!!',
-    'Maria',
-    'Santos',
-    'Player',
-    'maria#support',
-    'Active'
 );
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId)
@@ -235,22 +225,6 @@ VALUES
     'BSIT',
     '2.1',
     '1.9',
-    '2nd Year',
-    'F',
-    1
-),
-(
-    13,
-    'VA Lumi',
-    'ph',
-    'Emerald II',
-    'Diamond IV',
-    5,
-    4,
-    '12412345',
-    'BSIT',
-    '3.3',
-    '3.2',
     '2nd Year',
     'F',
     1
@@ -559,3 +533,43 @@ VALUES
 (3, 3, 3, '1', 'L'),
 (3, 5, 4, '1', 'L'),
 (3, 6, 5, '1', 'L');
+
+-- -----------------------------------------------------
+-- TOURNAMENTS
+-- -----------------------------------------------------
+
+INSERT INTO tournaments (tournamentId, name, startDate, endDate, win)
+VALUES
+(1, 'Campus Clash 2026 Qualifiers', '2026-01-18', '2026-01-19', 'W'),
+(2, 'Inter-University Rift Cup', '2026-02-07', '2026-02-08', 'L'),
+(3, 'Summer Showdown Invitational', '2026-03-15', '2026-03-16', 'N/A');
+
+-- Tournament 1: full roster with two subs
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(1, 4, 1, 'N'),
+(1, 7, 2, 'N'),
+(1, 3, 3, 'N'),
+(1, 5, 4, 'N'),
+(1, 6, 5, 'N'),
+(1, 8, 2, 'Y'),
+(1, 9, 5, 'Y');
+
+-- Tournament 2: starters only, no subs
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(2, 4, 1, 'N'),
+(2, 7, 2, 'N'),
+(2, 3, 3, 'N'),
+(2, 5, 4, 'N'),
+(2, 6, 5, 'N');
+
+-- Tournament 3: one substitute available
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(3, 4, 1, 'N'),
+(3, 7, 2, 'N'),
+(3, 3, 3, 'N'),
+(3, 5, 4, 'N'),
+(3, 6, 5, 'N'),
+(3, 9, 2, 'Y');
