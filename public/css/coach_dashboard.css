@@ -187,7 +187,6 @@
 .dash-card p,
 .dash-card th,
 .dash-card td,
-.dash-card span,
 .dash-card label,
 .dash-card small,
 .dash-card strong,
@@ -436,25 +435,25 @@
 
 .badge-w {
 	background-color: #d4edda;
-	color: #fff;
+	color: #000;
 	border: 1px solid #c3e6cb;
 }
 
 .badge-l {
 	background-color: #f8d7da;
-	color: #fff;
+	color: #000;
 	border: 1px solid #f5c6cb;
 }
 
 .vod-link {
-	color: #fff;
-	text-decoration: none;
+	color: #aed6f1;
+	text-decoration: underline;
 	font-weight: bold;
 }
 
 .vod-link:hover {
 	text-decoration: underline;
-	color: #fff;
+	color: #aed6f1;
 }
 
 /* --- CALENDAR WIDGET --- */
