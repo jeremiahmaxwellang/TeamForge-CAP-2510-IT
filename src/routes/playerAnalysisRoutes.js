@@ -16,7 +16,7 @@ const scrimsController          = require('../controllers/player_analysis/scrims
 // GET all players
 router.get('/players', playerController.getAllPlayers);
 
-// GET /players/:id [fetch player by ID]
+// GET /player_analysis/players/:id [fetch player by ID]
 router.get('/players/:id', playerController.getPlayerById);
 
 // Update puuid

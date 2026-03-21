@@ -9,6 +9,9 @@ window.initSummaryTab = function (userId) {
   }
 
   // Player Data
+  let player = null; // set in loadPlayer()
+  loadPlayer(userId);
+
   let [playerRoles] = [];
 
   // Scrims Elements
@@ -22,6 +25,23 @@ window.initSummaryTab = function (userId) {
   let totalChamps = 0;
   const champTableBody = document.querySelector("#champ-table tbody");
 
+  async function loadPlayer(userId) {
+    try {
+      const response = await fetch(`/player_analysis/players/${userId}`);
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      // Parse JSON
+      player = await response.json();
+
+      console.log("Player object:", player);
+      console.log("Player gameName:", player.gameName);
+    } catch (err) {
+      console.error("Error fetching player:", err);
+    }
+  }
+
   const rolesPromise = Backend.fetchPlayerRoles(userId)
     .then((roles) => {
       playerRoles = [...roles];
@@ -34,7 +54,7 @@ window.initSummaryTab = function (userId) {
 
       if (item.totalChamps)
         totalChampsHeader.textContent = `(${item.totalChamps} champions total)`;
-        totalChamps = item.totalChamps;
+      totalChamps = item.totalChamps;
 
     })
 
@@ -205,7 +225,7 @@ window.initSummaryTab = function (userId) {
     await Promise.all([scrimsPromise, totalChampsPromise, championPromise, commsPromise, matchPromise]);
 
     const recommendations = [];
-    const playerName = `Player ${userId}`;
+    const playerName = player.gameName;
     const primaryRole = "Unknown Role";
 
     // ── SCRIMS ──────────────────────────────────────────────────────
