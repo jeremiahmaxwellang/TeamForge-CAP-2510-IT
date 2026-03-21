@@ -1,5 +1,39 @@
 const mySqlPool = require('../config/database');
 const path = require('path');
+const academicRequirementsService = require('../services/academicRequirementsService');
+
+function satisfiesRequirement(value, requirement) {
+    if (!requirement || requirement.threshold === null) {
+        return true;
+    }
+
+    switch (requirement.comparator) {
+        case '>':
+            return value > requirement.threshold;
+        case '<':
+            return value < requirement.threshold;
+        case '>=':
+            return value >= requirement.threshold;
+        case '<=':
+            return value <= requirement.threshold;
+        default:
+            return true;
+    }
+}
+
+function buildRequirementMessage(label, requirement) {
+    return `${label} must be ${requirement.comparator} ${Number(requirement.threshold).toFixed(2)}.`;
+}
+
+exports.getAcademicRequirements = async (req, res) => {
+    try {
+        const requirements = await academicRequirementsService.getAcademicRequirements();
+        res.status(200).json({ success: true, requirements });
+    } catch (error) {
+        console.error('Error fetching academic requirements for registration:', error);
+        res.status(500).json({ success: false, message: 'Failed to load academic requirements.' });
+    }
+};
 
 // Create a user and player record
 exports.createUser = async (req, res) => {
@@ -26,10 +60,32 @@ exports.createUser = async (req, res) => {
         const parsedSecondaryRole = Number.parseInt(secondaryRole, 10);
 
         const parsedCurrentPeriod = Number.parseInt(currentPeriod, 10);
+        const parsedGpa = Number.parseFloat(gpa);
+        const parsedCgpa = Number.parseFloat(cgpa);
 
         if (!Number.isInteger(parsedPrimaryRole) || !Number.isInteger(parsedSecondaryRole)) {
             return res.status(400).json({
                 message: 'Primary and secondary roles are required'
+            });
+        }
+
+        if (!Number.isFinite(parsedGpa) || !Number.isFinite(parsedCgpa)) {
+            return res.status(400).json({
+                message: 'GPA and CGPA must be valid numbers.'
+            });
+        }
+
+        const academicRequirements = await academicRequirementsService.getAcademicRequirements();
+
+        if (!satisfiesRequirement(parsedGpa, academicRequirements.gpa)) {
+            return res.status(400).json({
+                message: buildRequirementMessage('GPA', academicRequirements.gpa)
+            });
+        }
+
+        if (!satisfiesRequirement(parsedCgpa, academicRequirements.cgpa)) {
+            return res.status(400).json({
+                message: buildRequirementMessage('CGPA', academicRequirements.cgpa)
             });
         }
 
@@ -95,8 +151,8 @@ exports.createUser = async (req, res) => {
             peakRank,
             parsedPrimaryRole,
             parsedSecondaryRole,
-            cgpa,
-            gpa,
+            parsedCgpa,
+            parsedGpa,
             yearLevel,
             storedPhotoFileName
         ]);

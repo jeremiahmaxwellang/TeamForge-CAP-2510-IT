@@ -333,6 +333,27 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `teamforgedb`.`academicRequirements`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`academicRequirements` (
+  `requirementId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `metricKey` VARCHAR(20) NOT NULL,
+  `comparator` ENUM('>', '<', '>=', '<=') NOT NULL,
+  `threshold` DECIMAL(4,2) NOT NULL,
+  `updatedBy` INT UNSIGNED NULL,
+  `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`requirementId`),
+  UNIQUE INDEX `uq_academicRequirements_metricKey` (`metricKey` ASC) VISIBLE,
+  INDEX `fk_academicRequirements_users1_idx` (`updatedBy` ASC) VISIBLE,
+  CONSTRAINT `fk_academicRequirements_users1`
+    FOREIGN KEY (`updatedBy`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `teamforgedb`.`teamDetails`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`teamDetails` (
