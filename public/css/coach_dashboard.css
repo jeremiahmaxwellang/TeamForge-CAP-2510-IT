@@ -126,6 +126,9 @@
 
 .coach-main-content {
 	flex-grow: 1;
+	min-width: 0;
+	padding-right: 20px;
+	box-sizing: border-box;
 	background-color: #999999;
 	min-height: calc(100vh - 120px);
 }
@@ -136,7 +139,7 @@
 	min-height: calc(100vh - 160px);
 	color: var(--porcelain);
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	grid-template-rows: auto auto auto;
 	gap: 20px;
 	/* Grid Areas Map:
