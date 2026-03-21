@@ -472,14 +472,21 @@ async function fetchMatchDetails(matchId) {
     }
 
     const data = await response.json();
-    
-    // Print out the fetched data to the console
+
     // console.log("Fetched match details:", data);
     
     return data;
 }
 
-// getMatchDetails is called in riotApiRoutes to fetch detailed information about a specific match
+/**
+ * getMatchDetails
+ * Description: Fetches detailed information about a specific match
+ * 
+ * Route: /riot/match/:matchId
+ * 
+ *  Helper Functions:
+ * 1. fetchMatchDetails()
+ */
 exports.getMatchDetails = async (req, res) => {
     try {
         const { matchId } = req.params;
@@ -545,23 +552,7 @@ async function storeMatchDetails(userId, matchData) {
     }
 }
 
-// saveMatchDetails is called via API to store match details
-exports.saveMatchDetails = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const matchData = req.body;
 
-        // Validate that required fields exist
-        if (!matchData.metadata || !matchData.info) {
-            return res.status(400).json({ error: 'Invalid match data format' });
-        }
-
-        const result = await storeMatchDetails(userId, matchData);
-        res.json({ success: true, message: 'Match details stored successfully', affectedRows: result.affectedRows });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
 
 // Bulk store multiple match details
 exports.saveMultipleMatches = async (req, res) => {
@@ -925,7 +916,18 @@ exports.saveMatchParticipants = async (req, res) => {
     }
 };
 
-// Batch upload participants from multiple matches
+
+/**
+ * saveMultipleMatchParticipants
+ * Description: Batch upload participants from multiple matches
+ * Input: matches from req.body
+ * 
+ * Helper Functions:
+ * 1. extractParticipantData(matchId, matchData)
+ * 2. storeParticipantDetails(participantData)
+ * 
+ * Route: /riot/participants/batch
+ */
 exports.saveMultipleMatchParticipants = async (req, res) => {
     try {
         const { matches } = req.body;
@@ -1006,3 +1008,23 @@ exports.saveMultipleMatchParticipants = async (req, res) => {
     }
 };
 
+
+// ====================== UNUSED EXPORTS ======================
+
+// saveMatchDetails is called via API to store match details
+exports.saveMatchDetails = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const matchData = req.body;
+
+        // Validate that required fields exist
+        if (!matchData.metadata || !matchData.info) {
+            return res.status(400).json({ error: 'Invalid match data format' });
+        }
+
+        const result = await storeMatchDetails(userId, matchData);
+        res.json({ success: true, message: 'Match details stored successfully', affectedRows: result.affectedRows });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
