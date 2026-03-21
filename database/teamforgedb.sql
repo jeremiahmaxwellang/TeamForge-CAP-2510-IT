@@ -410,6 +410,36 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `teamforgedb`.`candidateFavorites`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`candidateFavorites` (
+  `favoriteId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `coachId` INT UNSIGNED NOT NULL,
+  `candidateUserId` INT UNSIGNED NOT NULL,
+  `roleId` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`favoriteId`),
+  UNIQUE INDEX `uq_candidateFavorites_coach_candidate_role` (`coachId` ASC, `candidateUserId` ASC, `roleId` ASC) VISIBLE,
+  INDEX `idx_candidateFavorites_coach_role` (`coachId` ASC, `roleId` ASC) VISIBLE,
+  CONSTRAINT `fk_candidateFavorites_users1`
+    FOREIGN KEY (`coachId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_candidateFavorites_players1`
+    FOREIGN KEY (`candidateUserId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_candidateFavorites_leagueRoles1`
+    FOREIGN KEY (`roleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `teamforgedb`.`scrimPlayers`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrimPlayers` (

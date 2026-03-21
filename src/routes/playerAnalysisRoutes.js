@@ -122,6 +122,11 @@ router.post('/stats/store', playerController.storePlayerStatistic);
 // Compare stored stats (from playerStatistics table) to benchmarks
 router.get('/stats/stored-comparison', playerController.getStoredStatsComparison);
 
+// Candidate favorites (max 2 per role, per coach)
+router.get('/candidate-favorites', playerController.getCandidateFavorites);
+router.get('/candidate-favorites/:roleId', playerController.getCandidateFavoritesByRole);
+router.post('/candidate-favorites/toggle', playerController.toggleCandidateFavorite);
+
 
 // ============ HTML ROUTES ============
 
