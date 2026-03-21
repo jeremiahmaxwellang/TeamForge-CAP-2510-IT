@@ -19,6 +19,26 @@ window.initComparisonTab = function () {
   let player2Data = null;
   let activeComparisonRoleId = null;
 
+  // Keeps both player cards the same size by matching the larger width/height.
+  function syncPlayerCardWidths() {
+    const card1 = document.getElementById("card-player1");
+    const card2 = document.getElementById("card-player2");
+    if (!card1 || !card2) return;
+
+    // Reset first so we always measure natural content size before syncing.
+    card1.style.width = "auto";
+    card2.style.width = "auto";
+    card1.style.height = "auto";
+    card2.style.height = "auto";
+
+    const maxWidth = Math.max(card1.offsetWidth, card2.offsetWidth);
+    const maxHeight = Math.max(card1.offsetHeight, card2.offsetHeight);
+    card1.style.width = `${maxWidth}px`;
+    card2.style.width = `${maxWidth}px`;
+    card1.style.height = `${maxHeight}px`;
+    card2.style.height = `${maxHeight}px`;
+  }
+
   // Builds and wires both player dropdowns, including default selections.
   function populateSelects() {
     const p1Select = document.getElementById("player1-select");
@@ -267,6 +287,8 @@ window.initComparisonTab = function () {
     if (pfpEl && player.profilePhoto) {
       pfpEl.src = player.profilePhoto;
     }
+
+    syncPlayerCardWidths();
   }
 
   // Loads player profile + role-scoped stats, then refreshes chart/table when both sides are ready.
