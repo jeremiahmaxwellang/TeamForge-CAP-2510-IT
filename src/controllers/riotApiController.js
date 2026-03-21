@@ -6,8 +6,8 @@
 // Required path because .env is not in the same folder
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 
-const apiKey = process.env.API_KEY;
 const db = require('../config/database');
+const { getActiveRiotApiKey } = require('../services/riotApiKeyService');
 const ROLE_MATCH_LIMIT = 15;
 // const ROLE_MATCH_SCAN_LIMIT = 120;
 const ROLE_MATCH_SCAN_LIMIT = 40;
@@ -68,7 +68,7 @@ async function waitForRiotRateLimitSlot() {
     }
 }
 
-async function riotApiFetch(url, options) {
+async function riotApiFetch(url, options = {}) {
     const previous = riotRateLimiterQueue;
     let releaseQueue;
     riotRateLimiterQueue = new Promise((resolve) => {
@@ -79,21 +79,27 @@ async function riotApiFetch(url, options) {
     await waitForRiotRateLimitSlot();
     releaseQueue();
 
-    return fetch(url, options);
+    const apiKey = await getActiveRiotApiKey();
+    if (!apiKey) {
+        throw new Error('Riot API key is not configured. Add one in Settings before fetching Riot data.');
+    }
+
+    return fetch(url, {
+        ...options,
+        headers: {
+            'User-Agent': 'NodeJS-Server',
+            ...(options.headers || {}),
+            'X-Riot-Token': apiKey
+        }
+    });
 }
-// console.log(apiKey);
 
 // FETCH PUUID of a player
 async function fetchPuuidByName(gameName, tagLine){
     const cluster = 'asia';
     const url = `https://${cluster}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
 
-    const response = await riotApiFetch(url, {
-        headers: {
-            'X-Riot-Token': apiKey,
-            'User-Agent': 'NodeJS-Server'
-        }
-    });
+    const response = await riotApiFetch(url);
 
     if(!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -164,12 +170,7 @@ async function fetchRecentMatches(puuid, queueId, start = 0, count) {
     // console.log(`[FETCH RECENT MATCHES] URL: ${url}?${params.toString()}`);
 
     // Make the API request to fetch recent matches
-    const response = await riotApiFetch(`${url}?${params.toString()}`, {
-        headers: {
-            'X-Riot-Token': apiKey,
-            'User-Agent': 'NodeJS-Server'
-        }
-    });
+    const response = await riotApiFetch(`${url}?${params.toString()}`);
 
     if (!response.ok) {
         const errorText = await response.text();
@@ -364,7 +365,27 @@ async function fetchRoleBucketedMatchIds(puuid, queueId, primaryTeamPosition, se
     };
 }
 
-// getRecentMatches is called in riotApiRoutes to fetch player's recent matches by queue ID
+/**
+ * getRecentMatches
+ * Description: called in riotApiRoutes to fetch player's recent matches by queue ID
+ * 
+ * Route: GET /riot/matches/:puuid/:queueId - Fetch from Riot API
+ * 
+ * Function Calls:
+ * 1. await fetchRoleBucketedMatchIds(puuid, parsedQueueId, teamPosition, null)
+ * 2. await fetchRolePositionsByPuuid(puuid)
+ * 3. await fetchRecentMatches(puuid, parsedQueueId, parseInt(start), matchCount)
+ * 
+ * Behavior:
+ * 1. Accepts PUUID and queueId as route parameters, with optional query parameters for teamPosition, start, and count.
+ * 2. Validates and parses queueId and count values, defaulting to queueId as integer and count = 15 if not provided.
+ * 3. If a teamPosition is specified, fetches matches bucketed by that role and returns role bucket statistics.
+ * 4. If no teamPosition is specified, attempts to determine the player's primary/secondary roles via fetchRolePositionsByPuuid.
+ *   a. If role info is unavailable, falls back to fetching recent matches directly.
+ *   b. If role info is available, fetches matches bucketed by primary and secondary roles and returns role bucket statistics.
+ * 
+ * JSON Response: List of match IDs || role-bucketed match data.
+ */
 exports.getRecentMatches = async (req, res) => {
     try {
         const { puuid, queueId } = req.params;
@@ -444,12 +465,7 @@ async function fetchMatchDetails(matchId) {
     // console.log(`Fetching match details URL: ${url}`);
 
     // Make the API request to fetch match details
-    const response = await riotApiFetch(url, {
-        headers: {
-            'X-Riot-Token': apiKey,
-            'User-Agent': 'NodeJS-Server'
-        }
-    });
+    const response = await riotApiFetch(url);
 
     if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);

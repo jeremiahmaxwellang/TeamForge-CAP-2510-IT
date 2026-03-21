@@ -17,6 +17,8 @@ router.get('/', (req, res) => {
 
 router.post('/api/profile/password', settingsController.changePassword);
 router.post('/api/profile/photo', settingsController.changeProfilePhoto);
+router.get('/api/riot-api-key', settingsController.getRiotApiKeyStatus);
+router.post('/api/riot-api-key', settingsController.updateRiotApiKey);
 
 // API Endpoints
 router.get('/api/benchmarks/:roleId', requireCoachForBenchmarks, settingsController.getBenchmarksByRole);

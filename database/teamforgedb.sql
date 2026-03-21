@@ -197,12 +197,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`matchParticipants` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
--- Add missing columns to matchParticipants for existing databases
-ALTER TABLE `teamforgedb`.`matchParticipants`
-  ADD COLUMN IF NOT EXISTS `summoner1Id` INT NULL,
-  ADD COLUMN IF NOT EXISTS `summoner2Id` INT NULL,
-  ADD COLUMN IF NOT EXISTS `primaryPerkId` INT NULL,
-  ADD COLUMN IF NOT EXISTS `secondaryPerkStyleId` INT NULL;
+
 
 
 -- -----------------------------------------------------
@@ -309,6 +304,30 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`benchmarks` (
     FOREIGN KEY (`metricId`)
     REFERENCES `teamforgedb`.`metrics` (`metricId`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`apiCredentials`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`apiCredentials` (
+  `credentialId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `provider` VARCHAR(50) NOT NULL,
+  `encryptedSecret` LONGTEXT NOT NULL,
+  `iv` VARCHAR(64) NOT NULL,
+  `authTag` VARCHAR(64) NOT NULL,
+  `isActive` TINYINT(1) NOT NULL DEFAULT 1,
+  `createdBy` INT UNSIGNED NULL,
+  `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `rotatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`credentialId`),
+  INDEX `idx_apiCredentials_provider_active` (`provider` ASC, `isActive` ASC) VISIBLE,
+  INDEX `fk_apiCredentials_users1_idx` (`createdBy` ASC) VISIBLE,
+  CONSTRAINT `fk_apiCredentials_users1`
+    FOREIGN KEY (`createdBy`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 

@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const path = require('path');
+const riotApiKeyService = require('../services/riotApiKeyService');
 
 async function getAuthenticatedUser(req) {
     const userId = req.cookies && req.cookies.userId;
@@ -19,6 +20,18 @@ async function ensureCoach(req, res) {
         res.status(403).json({ success: false, message: 'Only Team Coaches can access benchmark settings.' });
         return null;
     }
+    return user;
+}
+
+async function ensureRiotApiKeyManager(req, res) {
+    const user = await getAuthenticatedUser(req);
+    const allowedRoles = ['Team Manager', 'Team Coach'];
+
+    if (!user || !allowedRoles.includes(user.position)) {
+        res.status(403).json({ success: false, message: 'Only Team Managers and Team Coaches can manage the Riot API key.' });
+        return null;
+    }
+
     return user;
 }
 
@@ -115,6 +128,42 @@ exports.changeProfilePhoto = async (req, res) => {
     } catch (error) {
         console.error('Error updating profile photo:', error);
         return res.status(500).json({ success: false, message: 'Failed to update profile photo.' });
+    }
+};
+
+exports.getRiotApiKeyStatus = async (req, res) => {
+    try {
+        const user = await ensureRiotApiKeyManager(req, res);
+        if (!user) return;
+
+        const status = await riotApiKeyService.getActiveRiotApiKeyStatus();
+        return res.status(200).json({ success: true, ...status });
+    } catch (error) {
+        console.error('Error fetching Riot API key status:', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch Riot API key status.' });
+    }
+};
+
+exports.updateRiotApiKey = async (req, res) => {
+    try {
+        const user = await ensureRiotApiKeyManager(req, res);
+        if (!user) return;
+
+        const apiKey = String(req.body?.apiKey || '').trim();
+        if (!apiKey) {
+            return res.status(400).json({ success: false, message: 'Please enter a Riot API key.' });
+        }
+
+        const result = await riotApiKeyService.setActiveRiotApiKey(apiKey, user.userId);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Riot API key updated successfully.',
+            maskedKey: result.maskedKey
+        });
+    } catch (error) {
+        console.error('Error updating Riot API key:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update Riot API key.' });
     }
 };
 

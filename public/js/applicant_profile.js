@@ -529,64 +529,98 @@ function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
     UI.btnPrev.addEventListener('click', () => loadProfile(state.currentIndex > 0 ? state.currentIndex - 1 : state.allApplicants.length - 1));
     UI.btnNext.addEventListener('click', () => loadProfile(state.currentIndex < state.allApplicants.length - 1 ? state.currentIndex + 1 : 0));
 
-  // =============== Fetch Match Statistics ===============
+    // =============== Fetch Match Statistics ===============
 
-  document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
+    document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
-  async function clickMatchStatsButton() {
-    const gameName = state.currentApplicant.gameName;
-    const tagLine = state.currentApplicant.tagLine;
-    let puuidString = ""
+    async function clickMatchStatsButton() {
+      const gameName = state.currentApplicant.gameName;
+      const tagLine = state.currentApplicant.tagLine;
+      let puuidString = ""
 
-    // Fetch PUUID from Riot
-    try {
-      const response = await fetch(`/riot/puuid/${gameName}/${tagLine}`);
-      const data = await response.json();
+      // Fetch PUUID from Riot
+      try {
+        const response = await fetch(`/riot/puuid/${gameName}/${tagLine}`);
+        const data = await response.json();
 
-      puuidString = data.puuid;
+        puuidString = data.puuid;
 
-      const userId = parseInt(state.currentApplicant.userId, 10);
-      console.log(`player number ${userId}, puuid: ${puuidString}`);
+        const userId = parseInt(state.currentApplicant.userId, 10);
+        console.log(`player number ${userId}, puuid: ${puuidString}`);
 
-      updatePuuid(userId, puuidString);
-    } catch (err) {
-      console.error("Error fetching PUUID:", err);
+        updatePuuid(userId, puuidString);
+
+        fetchMatchIds(puuidString);
+      } catch (err) {
+        console.error("Error fetching PUUID:", err);
+      }
+
     }
 
-    // Fetch Match IDs from Riot
+    // Fetches Match IDs from Riot
+    async function fetchMatchIds(puuid) {
+
+      const queueId = 420; // 440 for Ranked Flex
+
+      try {
+        const response = await fetch(`/riot/matches/${puuid}/${queueId}`);
+        const matches = await response.json();
+        // const matches = JSON.stringify(data);
+
+        // await matches.forEach(matchId => {
+        //   console.log(`matchId: ${matchId}`);
+        //   fetchMatchDetails(matchId);
+        // });
+
+        console.log(`matches: ${JSON.stringify(matches)}`);
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    // TODO: Fetch Match Details
+    async function fetchMatchDetails(matchId) {
+      return fetch(`/riot/match/${matchId}`)
+        .then((res) => res.json())
+        .then((data) => data.matchDetails)
+        .catch((err) => {
+          console.error(`[FETCH DETAILS] ✗ Error fetching match details for ${matchId}:`, err);
+          throw err;
+        });
+    }
+
+    // TODO: Save Match Details in DB
+    async function saveMatchDetails() {
+      try {
+        const response = await fetch(`/match/:userId/store`);
+        const data = await response.json();
+
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
     // TODO: Fetch Match Statistics
-    const queueId = 420; // 440 for Ranked Flex
 
-    try {
-      const response = await fetch(`/riot/matches/${puuidString}/${queueId}`);
-      const data = await response.json();
-      const matches = data.matches
 
-      console.log(`matches: ${matches}`);
-    } catch (err) {
-      console.error("Error:", err);
-    }
-
-  }
-
-  // Update player's puuid in the DB
-  function updatePuuid(userId, puuid) {
-    console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}}`);
-    return fetch(`/player_analysis/players/${userId}/puuid`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ puuid }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(`[UPDATE PUUID] ✓ Successfully updated PUUID:`, data);
-        return data;
+    // Update player's puuid in the DB
+    async function updatePuuid(userId, puuid) {
+      console.log(`[UPDATE PUUID] Updating PUUID for user ${userId}}`);
+      return fetch(`/player_analysis/players/${userId}/puuid`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puuid }),
       })
-      .catch((err) => {
-        console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err);
-        throw err;
-      });
-  }
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(`[UPDATE PUUID] ✓ Successfully updated PUUID:`, data);
+          return data;
+        })
+        .catch((err) => {
+          console.error(`[UPDATE PUUID] ✗ Error updating PUUID:`, err);
+          throw err;
+        });
+    }
 
     // --- EVALUATION & FINAL DECISION ---
     const btnAccept = document.querySelector('.btn-accept');
