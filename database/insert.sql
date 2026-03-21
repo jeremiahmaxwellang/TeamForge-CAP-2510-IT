@@ -261,7 +261,7 @@ INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, di
 VALUES (
     10,
     'trebis_detablan@dlsu.edu.ph',
-    'hashed_password_1',
+    'teamForge123!!',
     'Trebis',
     'Detablan',
     'Applicant',
@@ -271,7 +271,7 @@ VALUES (
 (
     11,
     'justin_nicolai_lee@dlsu.edu.ph',
-    'hashed_password_2',
+    'teamForge123!!',
     'Justin',
     'Lee',
     'Applicant',
@@ -281,7 +281,7 @@ VALUES (
 (
     12,
     'jeremiahang2004@gmail.com',
-    'hashed_password_2',
+    'teamForge123!!',
     'Jerry',
     'Lin',
     'Applicant',

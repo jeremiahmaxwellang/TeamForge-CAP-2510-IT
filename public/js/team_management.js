@@ -356,12 +356,26 @@ async function registerManualUser() {
     const discord = document.getElementById('manualDiscord').value.trim();
     const position = document.getElementById('manualPosition').value;
     const needsRoles = position === 'Player';
+    const riotId = document.getElementById('manualRiotId').value.trim();
     const primaryRoleRaw = document.getElementById('manualPrimaryRoleId').value;
     const secondaryRoleRaw = document.getElementById('manualSecondaryRoleId').value;
 
     if (needsRoles && !primaryRoleRaw) {
         alert('Primary role is required for players');
         return;
+    }
+
+    if (needsRoles && !riotId) {
+        alert('Riot ID is required for players');
+        return;
+    }
+
+    if (riotId) {
+        const riotIdParts = riotId.split('#');
+        if (riotIdParts.length !== 2 || !riotIdParts[0].trim() || !riotIdParts[1].trim()) {
+            alert('Riot ID must use the format gameName#tagLine');
+            return;
+        }
     }
 
     const nameParts = fullName.split(' ').filter(Boolean);
@@ -371,7 +385,7 @@ async function registerManualUser() {
         email,
         firstname,
         lastname,
-        riotId: document.getElementById('manualRiotId').value.trim(),
+        riotId,
         position,
         discord: document.getElementById('manualDiscord').value.trim(),
         status: document.getElementById('manualStatus').value,

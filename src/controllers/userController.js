@@ -66,6 +66,7 @@ const createUser = async (req, res) => {
         // make sure discord is always string
         discord = discord || '';
         profilePhoto = profilePhoto || 'defaultusericon.png';
+        riotId = typeof riotId === 'string' ? riotId.trim() : '';
 
         const parsedPrimaryRoleId = Number.parseInt(primaryroleid, 10);
         const parsedSecondaryRoleId = Number.parseInt(secondaryroleid, 10);
@@ -121,12 +122,25 @@ const createUser = async (req, res) => {
         if (shouldCreatePlayerRow) {
             let gameName = null;
             let tagLine = null;
+
+            if (position === 'Player' && !riotId) {
+                return res.status(400).send({
+                    success: false,
+                    message: 'Riot ID is required for players'
+                });
+            }
+
             if (riotId) {
                 const parts = riotId.split('#');
-                if (parts.length === 2) {
-                    gameName = parts[0].trim();
-                    tagLine = parts[1].trim();
+                if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) {
+                    return res.status(400).send({
+                        success: false,
+                        message: 'Invalid Riot ID format. Use gameName#tagLine'
+                    });
                 }
+
+                gameName = parts[0].trim();
+                tagLine = parts[1].trim();
             }
 
             // Map textual position to primaryRoleId when explicit role is not provided
@@ -150,13 +164,25 @@ const createUser = async (req, res) => {
             const secondaryRoleId = Number.isInteger(parsedSecondaryRoleId) ? parsedSecondaryRoleId : null;
 
             try {
-                const applicationStatus = position === 'Player' ? 'Accepted' : null;
                 await db.query(
-                    `INSERT INTO players (userId, gameName, tagLine, primaryRoleId, secondaryRoleId, profilePhoto, applicationStatus) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                    [newUserId, gameName, tagLine, primaryRoleId, secondaryRoleId, profilePhoto, applicationStatus]
+                    `INSERT INTO players (userId, gameName, tagLine, primaryRoleId, secondaryRoleId, profilePhoto, isSub) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    [newUserId, gameName, tagLine, primaryRoleId, secondaryRoleId, profilePhoto, position === 'Sub' ? 'T' : 'F']
                 );
             } catch (err) {
+                if (newUserId) {
+                    try {
+                        await db.query('DELETE FROM users WHERE userId = ?', [newUserId]);
+                    } catch (cleanupErr) {
+                        console.error('Error cleaning up user after player insert failure:', cleanupErr.message);
+                    }
+                }
+
                 console.error('Error inserting into players:', err.message);
+                return res.status(500).send({
+                    success: false,
+                    message: 'Error creating player profile',
+                    error: err.message
+                });
             }
         }
 
