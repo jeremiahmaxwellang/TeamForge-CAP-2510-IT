@@ -193,6 +193,18 @@
                     <p id="password-status" class="status-text"></p>
                 </div>
 
+                <div class="settings-card" id="riot-api-key-section" style="display: none;">
+                    <h3>Riot API Key</h3>
+                    <p id="current-riot-api-key" style="margin-top: 0; color: #555;">Most recent Riot API key: Loading...</p>
+                    <div class="settings-form-row single">
+                        <input type="password" id="riot-api-key-input" placeholder="Enter new Riot API key" autocomplete="off">
+                    </div>
+                    <div style="text-align: right;">
+                        <button class="btn-confirm" id="btn-update-riot-api-key">Confirm</button>
+                    </div>
+                    <p id="riot-api-key-status" class="status-text"></p>
+                </div>
+
                 <div class="settings-card" id="coach-benchmark-section" style="display: none;">
                     <details class="benchmark-dropdown" open>
                         <summary>Benchmark Settings (Team Coach Only)</summary>

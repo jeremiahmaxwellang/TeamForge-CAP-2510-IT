@@ -18,6 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const confirmNewPasswordInput = document.getElementById('confirm-new-password');
     const btnChangePassword = document.getElementById('btn-change-password');
     const passwordStatus = document.getElementById('password-status');
+    const riotApiKeySection = document.getElementById('riot-api-key-section');
+    const currentRiotApiKey = document.getElementById('current-riot-api-key');
+    const riotApiKeyInput = document.getElementById('riot-api-key-input');
+    const btnUpdateRiotApiKey = document.getElementById('btn-update-riot-api-key');
+    const riotApiKeyStatus = document.getElementById('riot-api-key-status');
     
     // New Button Variables
     const editActionButtons = document.getElementById('edit-action-buttons');
@@ -43,6 +48,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (settingsProfilePhoto) settingsProfilePhoto.src = photoUrl;
     }
 
+    async function loadRiotApiKeyStatus() {
+        if (!currentRiotApiKey) return;
+
+        currentRiotApiKey.textContent = 'Most recent Riot API key: Loading...';
+
+        try {
+            const response = await fetch('/settings/api/riot-api-key');
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                currentRiotApiKey.textContent = 'Most recent Riot API key: Unavailable';
+                setStatus(riotApiKeyStatus, result.message || 'Failed to load Riot API key status.', false);
+                return;
+            }
+
+            currentRiotApiKey.textContent = `Most recent Riot API key: ${result.maskedKey}`;
+            setStatus(riotApiKeyStatus, '', false);
+        } catch (error) {
+            console.error('Failed to load Riot API key status:', error);
+            currentRiotApiKey.textContent = 'Most recent Riot API key: Unavailable';
+            setStatus(riotApiKeyStatus, 'Network error while loading Riot API key status.', false);
+        }
+    }
+
     // --- FETCH USER PROFILE ---
     try {
         const profileRes = await fetch('/api/user/profile'); 
@@ -62,6 +91,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const userRole = userData.position || userData.role;
             if (roleText) roleText.textContent = `Role: ${userRole || "Unassigned"}`;
             applyProfilePhoto(userData.profilePhotoUrl || '/uploads/profile-photos/defaultusericon.png');
+
+            if ((userRole === 'Team Manager' || userRole === 'Team Coach') && riotApiKeySection) {
+                riotApiKeySection.style.display = 'block';
+                loadRiotApiKeyStatus();
+            }
 
             // Reveal the benchmark section ONLY if they are the Team Coach
             if (userRole === 'Team Coach' && benchmarkSection) {
@@ -347,6 +381,51 @@ document.addEventListener('DOMContentLoaded', async () => {
             } finally {
                 btnChangePassword.disabled = false;
                 btnChangePassword.textContent = 'Update Password';
+            }
+        });
+    }
+
+    if (btnUpdateRiotApiKey) {
+        btnUpdateRiotApiKey.addEventListener('click', async () => {
+            const apiKey = riotApiKeyInput ? riotApiKeyInput.value.trim() : '';
+
+            if (!apiKey) {
+                setStatus(riotApiKeyStatus, 'Please enter a Riot API key.', false);
+                return;
+            }
+
+            btnUpdateRiotApiKey.disabled = true;
+            btnUpdateRiotApiKey.textContent = 'Updating...';
+            setStatus(riotApiKeyStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/riot-api-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiKey })
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    setStatus(riotApiKeyStatus, result.message || 'Failed to update Riot API key.', false);
+                    return;
+                }
+
+                if (currentRiotApiKey) {
+                    currentRiotApiKey.textContent = `Most recent Riot API key: ${result.maskedKey}`;
+                }
+
+                if (riotApiKeyInput) {
+                    riotApiKeyInput.value = '';
+                }
+
+                setStatus(riotApiKeyStatus, 'Riot API key updated successfully.', true);
+            } catch (error) {
+                console.error('Failed to update Riot API key:', error);
+                setStatus(riotApiKeyStatus, 'Network error while updating Riot API key.', false);
+            } finally {
+                btnUpdateRiotApiKey.disabled = false;
+                btnUpdateRiotApiKey.textContent = 'Confirm';
             }
         });
     }
