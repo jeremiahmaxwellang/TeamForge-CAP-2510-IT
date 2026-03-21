@@ -14,10 +14,10 @@
 .overlay {
   box-sizing: border-box;
   width: auto;
-  max-width: calc(100% - 30px);
-  margin: 15px;
+  max-width: calc(100% - 40px);
+  margin: 20px;
   background: var(--scrims-bg);
-  padding: 15px;
+  padding: 20px;
   border-radius: 10px;
   overflow: visible;
   word-break: break-word;
@@ -37,7 +37,7 @@
 
 .overlay-container {
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .overlay-content {
