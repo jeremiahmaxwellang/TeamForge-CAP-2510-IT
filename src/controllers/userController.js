@@ -91,8 +91,8 @@ const createUser = async (req, res) => {
             console.error('Error checking duplicate email:', checkErr);
         }
 
-        // Provide default passwordHash if not supplied (development only)
-        if (!passwordHash) passwordHash = '1234';
+        // Provide default passwordHash if not supplied (development only, default password is 'teamForge123!!')
+        if (!passwordHash) passwordHash = 'teamForge123!!';
 
         let insertResult;
         if (userId) {
