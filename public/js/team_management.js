@@ -82,7 +82,10 @@ function setupEventListeners() {
             firstname: selectedCheckbox.dataset.firstname || '',
             lastname: selectedCheckbox.dataset.lastname || '',
             position: selectedCheckbox.dataset.position || 'Player',
-            status: selectedCheckbox.dataset.status || 'Active'
+            status: selectedCheckbox.dataset.status || 'Active',
+            riotId: selectedCheckbox.dataset.riotId || '',
+            primaryRoleId: selectedCheckbox.dataset.primaryRoleId || '',
+            secondaryRoleId: selectedCheckbox.dataset.secondaryRoleId || ''
         } : null;
 
         if (!selectedUser) {
@@ -186,6 +189,8 @@ function setupEventListeners() {
     const editCancelBtn = document.getElementById('editCancelBtn');
     const editCloseBtn = document.getElementById('editCloseBtn');
 
+    document.getElementById('editPosition').addEventListener('change', syncEditPlayerFields);
+
     const closeEdit = () => {
         editModal.style.display = 'none';
         delete editModal.dataset.userId;
@@ -214,6 +219,13 @@ function setupEventListeners() {
     });
 }
 
+// show/hide the player-specific fields in the edit modal based on selected position
+function syncEditPlayerFields() {
+    const position = document.getElementById('editPosition').value;
+    const playerFields = document.getElementById('editPlayerFields');
+    playerFields.style.display = position === 'Player' ? 'block' : 'none';
+}
+
 // show modal for editing selected user position and status
 function showEditUserModal(user) {
     const modal = document.getElementById('editUserModal');
@@ -224,6 +236,10 @@ function showEditUserModal(user) {
     document.getElementById('editUserName').textContent = `Editing: ${user.firstname} ${user.lastname} (ID: ${user.userId})`;
     document.getElementById('editPosition').value = positionValue;
     document.getElementById('editStatus').value = user.status;
+    document.getElementById('editRiotId').value = user.riotId || '';
+    document.getElementById('editPrimaryRoleId').value = user.primaryRoleId || '1';
+    document.getElementById('editSecondaryRoleId').value = user.secondaryRoleId || '';
+    syncEditPlayerFields();
     modal.style.display = 'flex';
 }
 
@@ -243,6 +259,17 @@ async function saveEditedUser() {
         position: document.getElementById('editPosition').value,
         status: document.getElementById('editStatus').value
     };
+
+    if (payload.position === 'Player') {
+        const primaryRoleId = document.getElementById('editPrimaryRoleId').value;
+        if (!primaryRoleId) {
+            alert('Primary role is required when position is Player');
+            return;
+        }
+        payload.primaryRoleId = primaryRoleId;
+        payload.secondaryRoleId = document.getElementById('editSecondaryRoleId').value || null;
+        payload.riotId = document.getElementById('editRiotId').value.trim() || null;
+    }
 
     try {
         const response = await fetch(`/team_management/api/users/${parsedUserId}`, {
@@ -704,7 +731,10 @@ function renderUsersTable(users) {
                     data-firstname="${user.firstname}"
                     data-lastname="${user.lastname}"
                     data-position="${user.position}"
-                    data-status="${user.status}">
+                    data-status="${user.status}"
+                    data-riot-id="${user.riotId && user.riotId !== 'N/A' ? user.riotId : ''}"
+                    data-primary-role-id="${user.primaryRoleId || ''}"
+                    data-secondary-role-id="${user.secondaryRoleId || ''}">
             </td>
             <td>${user.firstname} ${user.lastname}</td>
             <td>${user.riotId}</td>

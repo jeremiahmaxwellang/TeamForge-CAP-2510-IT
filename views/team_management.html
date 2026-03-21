@@ -212,6 +212,27 @@
                                 <option>Deactivated</option>
                             </select>
                         </div>
+                        <div class="form-group" id="editPlayerFields" style="display:none;">
+                            <label for="editRiotId">Riot ID:</label>
+                            <input type="text" id="editRiotId" placeholder="gameName#tagLine" style="width:100%;padding:8px;margin:5px 0;" />
+                            <label for="editPrimaryRoleId">Primary Role<span style="color:red;">*</span>:</label>
+                            <select id="editPrimaryRoleId" style="width:100%;padding:8px;margin:5px 0;">
+                                <option value="1">Top</option>
+                                <option value="2">Jungle</option>
+                                <option value="3">Mid</option>
+                                <option value="4">AD Carry</option>
+                                <option value="5">Support</option>
+                            </select>
+                            <label for="editSecondaryRoleId">Secondary Role:</label>
+                            <select id="editSecondaryRoleId" style="width:100%;padding:8px;margin:5px 0;">
+                                <option value="">None</option>
+                                <option value="1">Top</option>
+                                <option value="2">Jungle</option>
+                                <option value="3">Mid</option>
+                                <option value="4">AD Carry</option>
+                                <option value="5">Support</option>
+                            </select>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
