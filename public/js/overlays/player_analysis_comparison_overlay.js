@@ -4,6 +4,7 @@
 
 // player_analysis_comparison_overlay.js
 
+// Initializes the comparison tab state, loads data, and wires UI listeners.
 window.initComparisonTab = function () {
   const Backend = window.PlayerComparisonBackend;
   if (!Backend) {
@@ -18,6 +19,27 @@ window.initComparisonTab = function () {
   let player2Data = null;
   let activeComparisonRoleId = null;
 
+  // Keeps both player cards the same size by matching the larger width/height.
+  function syncPlayerCardWidths() {
+    const card1 = document.getElementById("card-player1");
+    const card2 = document.getElementById("card-player2");
+    if (!card1 || !card2) return;
+
+    // Reset first so we always measure natural content size before syncing.
+    card1.style.width = "auto";
+    card2.style.width = "auto";
+    card1.style.height = "auto";
+    card2.style.height = "auto";
+
+    const maxWidth = Math.max(card1.offsetWidth, card2.offsetWidth);
+    const maxHeight = Math.max(card1.offsetHeight, card2.offsetHeight);
+    card1.style.width = `${maxWidth}px`;
+    card2.style.width = `${maxWidth}px`;
+    card1.style.height = `${maxHeight}px`;
+    card2.style.height = `${maxHeight}px`;
+  }
+
+  // Builds and wires both player dropdowns, including default selections.
   function populateSelects() {
     const p1Select = document.getElementById("player1-select");
     const p2Select = document.getElementById("player2-select");
@@ -53,6 +75,7 @@ window.initComparisonTab = function () {
     });
 
     // 3. Helper to build grouped options
+    // Renders grouped dropdown options by role and optionally includes coach benchmark.
     function buildGroupedOptions(targetSelect, includeCoach) {
       if (!targetSelect) return;
       targetSelect.innerHTML = '<option value="">Select a player...</option>';
@@ -138,6 +161,7 @@ window.initComparisonTab = function () {
     }
   }
 
+  // Updates one player card (name, role, rank, photo) and role toggle controls for player 1.
   function updatePlayerCard(player, playerNumber) {
     const prefix = playerNumber === 1 ? "player1" : "player2";
     const nameEl = document.getElementById(`name-${prefix}`);
@@ -193,8 +217,21 @@ window.initComparisonTab = function () {
                         flex: 1; 
                         font-weight: bold;
                         text-align: center;
+                      white-space: nowrap;
+                      word-break: keep-all;
+                      overflow-wrap: normal;
                         outline: none; /* Remove blue outline on click */
                     }
+
+                      .overlay-role-btn .role-label,
+                      .overlay-role-btn .role-value {
+                        display: block;
+                        white-space: nowrap;
+                      }
+
+                      .overlay-role-btn .role-value {
+                        margin-top: 2px;
+                      }
 
                     /* --- Hover State --- */
                     .overlay-role-btn:hover:not(.active):not(:disabled) {
@@ -220,10 +257,12 @@ window.initComparisonTab = function () {
                     }
                 </style>
                 <button id="overlay-btn-primary" class="overlay-role-btn ${isPrimaryActive ? 'active' : ''}">
-                    Primary: <b>${pRoleName}</b>
+                  <span class="role-label">Primary Role:</span>
+                  <span class="role-value">${pRoleName}</span>
                 </button>
                 <button id="overlay-btn-secondary" class="overlay-role-btn ${!isPrimaryActive ? 'active' : ''}" ${!player.secondaryRoleId ? 'disabled' : ''}>
-                    Secondary: <b>${sRoleName}</b>
+                  <span class="role-label">Secondary Role:</span>
+                  <span class="role-value">${sRoleName}</span>
                 </button>
             `;
 
@@ -248,8 +287,11 @@ window.initComparisonTab = function () {
     if (pfpEl && player.profilePhoto) {
       pfpEl.src = player.profilePhoto;
     }
+
+    syncPlayerCardWidths();
   }
 
+  // Loads player profile + role-scoped stats, then refreshes chart/table when both sides are ready.
   function loadPlayerData(playerId, playerNumber, forceRoleId = null) {
     if (!playerId) return; // Safety check
 
@@ -290,6 +332,7 @@ window.initComparisonTab = function () {
       .catch((err) => console.error(`[COMPARISON] Error loading player ${playerId}:`, err));
   }
 
+  // Loads benchmark stats for player 1's active role and maps them into player 2's card shape.
   function loadCoachBenchmark() {
     if (!player1Data) {
       console.error("[COMPARISON] Player 1 must be selected first to load coach benchmark.");
@@ -323,6 +366,7 @@ window.initComparisonTab = function () {
       .catch((err) => console.error("[COMPARISON] Error loading coach benchmark:", err));
   }
   
+  // Converts raw stats into normalized skill scores (currently available for future UI use).
   function calculateSkillRatings(playerData) {
     const stats = playerData.stats || {};
     const kda = Number(stats.kdaRatio) || 0;
@@ -357,6 +401,7 @@ window.initComparisonTab = function () {
     "Total Wards Placed": 45, "Total Wards Destroyed": 15
   };
 
+  // Normalizes a raw stat into a 0-10 radar value using role benchmarks or fallback scales.
   function calculateRadarScore(playerValue, statId, benchmarks) {
     if (!benchmarks) benchmarks = [];
     const normalizedId = statId.toLowerCase().replace(/\s/g, '');
@@ -373,6 +418,7 @@ window.initComparisonTab = function () {
     return Math.min(isNaN(computed) ? 0 : computed, 10);
   }
 
+  // Safely redraws comparison visuals once both players have stats.
   function updateComparison() {
     console.log("[COMPARISON] Drawing chart and table...");
     if (!player1Data?.stats || !player2Data?.stats) {
@@ -388,6 +434,7 @@ window.initComparisonTab = function () {
     }
   }
 
+  // Draws the radar chart for both players using the active role configuration.
   function updateRadarChart() {
     const chartContainer = document.getElementById("chart-container");
     if (!chartContainer || !player1Data?.stats || !player2Data?.stats) return;
@@ -422,6 +469,7 @@ window.initComparisonTab = function () {
     RadarChart.draw("#chart-container", chartData);
   }
 
+  // Builds the side-by-side metric table with winner/loser color highlights.
   function updateStatsTable() {
     const statsContainer = document.getElementById("stats-list");
     if (!statsContainer || !player1Data?.stats || !player2Data?.stats) return;
@@ -459,6 +507,7 @@ window.initComparisonTab = function () {
     ];
 
     // Helper to safely grab stats (Handles differences between Riot API naming and DB Benchmark naming)
+    // Reads a metric safely from raw stats, with fallback key matching for naming differences.
     const getStat = (statsObj, id) => {
         if (!statsObj || !statsObj.rawStats) return 0;
         if (statsObj.rawStats[id] !== undefined) return Number(statsObj.rawStats[id]);
@@ -476,6 +525,7 @@ window.initComparisonTab = function () {
     };
 
     // Helper to format numbers with commas (e.g. 30000 -> 30,000)
+    // Formats numeric values for display in the comparison table.
     const formatNum = (num) => Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
 
     let html = `
@@ -549,11 +599,13 @@ window.initComparisonTab = function () {
     statsContainer.innerHTML = html;
   }
   
+  // Lightweight redraw wrapper used by downstream calls.
   function updateComparison() {
     updateRadarChart();
     if (typeof updateStatsTable === "function") updateStatsTable();
   }
 
+  // Syncs player 1 in comparison when the main page selected player changes.
   function checkAndUpdatePlayer1() {
     // Get the current player ID from the main page dropdown button
     const btn = document.getElementById("player-dropdown-btn");
@@ -582,6 +634,7 @@ window.initComparisonTab = function () {
     }
   }
 
+  // Watches the main page player selector for ID changes and triggers sync updates.
   function setupPlayerChangeListener() {
     const btn = document.getElementById("player-dropdown-btn");
     if (!btn) {

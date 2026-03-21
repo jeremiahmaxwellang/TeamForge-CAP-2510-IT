@@ -143,7 +143,7 @@ body {
 .coach-main-content {
     min-width: 0;
     flex-grow: 1;
-    padding: 28px;
+    padding: 20px;
 }
 
 .container {
@@ -203,7 +203,7 @@ table {
 
 @media (max-width: 1200px) {
     .coach-main-content {
-        padding: 16px;
+        padding: 20px;
     }
 }
 
