@@ -42,12 +42,27 @@
 
 .overlay-content {
   display: flex;
-  gap: 20px;
+  gap: 14px;
   align-items: flex-start;
 }
 
 .scrim-list, .times-played-list, .evaluation-form {
   flex: 1;
+}
+
+.times-played-list {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.scrim-list {
+  flex: 1.35;
+}
+
+.playerEvaluationHeader {
+  flex: 1;
+  min-width: 0;
 }
 
 .scrim-list,
@@ -56,12 +71,8 @@
   align-self: flex-start;
 }
 
-.times-played-list {
-  width: auto;
-}
-
 .times-played-table-frame {
-  width: 250px;
+  width: 235px;
   background-color: #1e293b;
   border: 1px solid var(--scrims-border);
   border-radius: 10px;
@@ -82,12 +93,15 @@
   margin: 0;
   padding-top: 5px;
   padding-bottom: 10px;
+  font-size: 20px;
+  display: inline-block;
 }
 
 .scrim-list h2 {
   margin: 0;
   padding-top: 5px;
   padding-bottom: 10px;
+  font-size: 20px;
 }
 
 .scrim-table {
@@ -108,7 +122,8 @@
 .scrim-table th, .scrim-table td {
   border-right: 1px solid var(--scrims-border);
   border-bottom: 1px solid var(--scrims-border);
-  padding: 10px 12px;
+  padding: 8px 10px;
+  font-size: clamp(12px, 0.85vw, 14px);
   word-break: keep-all;
 }
 
@@ -163,11 +178,12 @@
 .times-played-table th, .times-played-table td {
   border-right: 1px solid var(--scrims-border);
   border-bottom: 1px solid var(--scrims-border);
-  padding: 5px;
+  padding: 4px;
+  font-size: clamp(12px, 0.85vw, 14px);
 }
 
 .times-played-table td {
-  padding-left: 20px;
+  padding-left: 12px;
 }
 
 .times-played-table th:nth-child(2),
@@ -218,7 +234,7 @@
     padding-top: 10px;
     padding-bottom: 10px;
     color: var(--scrims-text); /* Header color from Figma variables */
-    font-size: 28px;
+    font-size: clamp(36px, 2.4vw, 48px);
     letter-spacing: 0.3px;
   }
 
@@ -228,15 +244,15 @@
     padding-top: 10px;
     padding-bottom: 10px;
     color: var(--scrims-text);
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .player-evaluation-card {
     background-color: #1e293b;
     border: 1px solid var(--scrims-border);
     border-radius: 20px;
-    padding: 30px;
-    max-width: 600px;
+    padding: 20px;
+    max-width: 460px;
     /* If putting this in a dashboard, remove 'margin: 20px auto' */
     margin: 0; 
     box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
@@ -249,6 +265,7 @@
     margin-top: 0;
     margin-bottom: 10px;
     color: #f8fafc;
+    font-size: clamp(18px, 1.2vw, 24px);
   }
 
   #evalForm {
@@ -258,14 +275,14 @@
   /* Grid layout for the 1-5 rating system */
   .rating-grid {
     display: grid;
-    grid-template-columns: 140px repeat(5, 1fr); /* 140px is for the text labels */
-    gap: 15px;
+    grid-template-columns: 120px repeat(5, 1fr); /* 120px is for the text labels */
+    gap: 12px;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 22px;
   }
 
   .rating-label {
-    font-size: 15px;
+    font-size: clamp(13px, 0.9vw, 15px);
     font-weight: 600;
     text-align: right;
     padding-right: 15px;
@@ -275,7 +292,7 @@
   .rating-header {
     text-align: center;
     font-weight: 600;
-    font-size: 18px;
+    font-size: clamp(15px, 1vw, 18px);
     color: var(--scrims-text-muted);
   }
 
@@ -289,8 +306,8 @@
   .radio-group input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 35px;
-    height: 35px;
+    width: 28px;
+    height: 28px;
     background-color: #475569; /* Unchecked color */
     border-radius: 50%;
     cursor: pointer;
@@ -319,19 +336,19 @@
   .comment-section label {
     display: block;
     font-weight: 700;
-    font-size: 16px;
+    font-size: clamp(15px, 1vw, 18px);
     margin-bottom: 10px;
     color: var(--scrims-text);
   }
 
   .comment-box {
     width: 100%;
-    height: 120px;
+    height: 105px;
     border: 2px solid var(--scrims-border);
     border-radius: 12px;
     padding: 15px;
     font-family: inherit;
-    font-size: 14px;
+    font-size: clamp(12px, 0.85vw, 14px);
     resize: none;
     line-height: 1.5;
     color: var(--scrims-text);
@@ -385,7 +402,7 @@
     background-color: #0f172a;
     color: var(--scrims-text);
     border: 1px solid var(--scrims-border);
-    font-size: 18px;
+    font-size: clamp(14px, 0.95vw, 16px);
     font-weight: 500;
   }
 
