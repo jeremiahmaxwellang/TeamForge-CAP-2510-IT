@@ -1,13 +1,30 @@
 .overlay {
+  --scrims-bg: #2f3136;
+  --scrims-times-played-bg: #ffffff0a;
+  --scrims-border: #334155;
+  --scrims-text: #e2e8f0;
+  --scrims-text-muted: #cbd5e1;
+  --scrims-accent: #38bdf8;
+  --scrims-accent-strong: #0ea5e9;
+  --scrims-win: #14532d;
+  --scrims-loss: #7f1d1d;
+  --scrims-selected: #075985;
+}
+
+.overlay {
   box-sizing: border-box;
   width: auto;
-  max-width: calc(100% - 30px);
-  margin: 15px;
-  background-color: var(--porcelain);
-  padding: 15px;
+  max-width: calc(100% - 40px);
+  margin: 20px;
+  background: var(--scrims-bg);
+  padding: 20px;
   border-radius: 10px;
   overflow: visible;
   word-break: break-word;
+  border: 1px solid var(--scrims-border);
+  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.45);
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--scrims-text);
 }
 
 @media (max-width: 480px) {
@@ -20,17 +37,32 @@
 
 .overlay-container {
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .overlay-content {
   display: flex;
-  gap: 20px;
+  gap: 14px;
   align-items: flex-start;
 }
 
 .scrim-list, .times-played-list, .evaluation-form {
   flex: 1;
+}
+
+.times-played-list {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.scrim-list {
+  flex: 1.35;
+}
+
+.playerEvaluationHeader {
+  flex: 1;
+  min-width: 0;
 }
 
 .scrim-list,
@@ -39,66 +71,98 @@
   align-self: flex-start;
 }
 
-.times-played-list {
-  width: auto;
-}
-
 .times-played-table-frame {
-  width: 250px;
-  background-color: #fff;
-  border: 1px solid #202020;
+  width: 235px;
+  background-color: #1e293b;
+  border: 1px solid var(--scrims-border);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
+}
+
+.scrim-table-frame {
+  width: 100%;
+  background-color: #1e293b;
+  border: 1px solid var(--scrims-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
 }
 
 .times-played-list h2 {
   margin: 0;
   padding-top: 5px;
   padding-bottom: 10px;
+  font-size: 20px;
+  display: inline-block;
 }
 
 .scrim-list h2 {
   margin: 0;
   padding-top: 5px;
   padding-bottom: 10px;
+  font-size: 20px;
 }
 
 .scrim-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 0;
+  overflow: visible;
 }
 
 .scrim-table,
 .times-played-table {
-  background-color: #fff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  background-color: var(--scrims-times-played-bg);
+  color: var(--scrims-text);
+  box-shadow: none;
 }
 
 .scrim-table th, .scrim-table td {
-  border: 1px solid #ddd;
-  padding: 5px;
+  border-right: 1px solid var(--scrims-border);
+  border-bottom: 1px solid var(--scrims-border);
+  padding: 8px 10px;
+  font-size: clamp(12px, 0.85vw, 14px);
   word-break: keep-all;
 }
 
+.scrim-table tr > *:last-child {
+  border-right: none;
+}
+
+.scrim-table tbody tr:last-child > * {
+  border-bottom: none;
+}
+
+.scrim-table tbody tr {
+  background-color: #273449;
+}
+
+.scrim-table thead th {
+  font-weight: 700;
+}
+
 .scrim-win {
-  background-color: #d4edda; /* greenish */
+  background-color: #273449;
 }
 
 .scrim-loss {
-  background-color: #f8d7da; /* reddish */
+  background-color: #273449;
 }
 
 .scrim-selected {
-  background-color: #1f77b4; /* selected row blue */
+  background-color: #334155;
 }
 
 .scrim-selected th,
 .scrim-selected td {
-  border-color: #1f77b4;
+  border-color: var(--scrims-accent-strong);
+}
+
+.scrim-empty-row td {
+  text-align: left;
+  color: var(--scrims-text-muted);
 }
 
 .times-played-table {
@@ -107,13 +171,26 @@
   border-spacing: 0;
   border-radius: 0;
   overflow: visible;
+  background-color: var(--scrims-times-played-bg);
   box-shadow: none;
 }
 
 .times-played-table th, .times-played-table td {
-  border-right: 1px solid #202020;
-  border-bottom: 1px solid #202020;
-  padding: 5px;
+  border-right: 1px solid var(--scrims-border);
+  border-bottom: 1px solid var(--scrims-border);
+  padding: 4px;
+  font-size: clamp(12px, 0.85vw, 14px);
+}
+
+.times-played-table td {
+  padding-left: 12px;
+}
+
+.times-played-table th:nth-child(2),
+.times-played-table td:nth-child(2),
+.times-played-table th:nth-child(3),
+.times-played-table td:nth-child(3) {
+  text-align: center;
 }
 
 .times-played-table tr > *:last-child {
@@ -125,7 +202,7 @@
 }
 
 .times-played-row {
-  background-color: #d6d6d6;
+  background-color: #273449;
 }
 
 .times-played-row th {
@@ -156,7 +233,9 @@
     margin-bottom: 0;
     padding-top: 10px;
     padding-bottom: 10px;
-    color: var(--carbon-black); /* Header color from Figma variables */
+    color: var(--scrims-text); /* Header color from Figma variables */
+    font-size: clamp(36px, 2.4vw, 48px);
+    letter-spacing: 0.3px;
   }
 
   .playerEvaluationHeader h2 {
@@ -164,48 +243,57 @@
     margin-bottom: 0;
     padding-top: 10px;
     padding-bottom: 10px;
+    color: var(--scrims-text);
+    font-size: 20px;
   }
 
   .player-evaluation-card {
-    background-color: #fff;
+    background-color: #1e293b;
+    border: 1px solid var(--scrims-border);
     border-radius: 20px;
-    padding: 30px;
-    max-width: 600px;
+    padding: 20px;
+    max-width: 460px;
     /* If putting this in a dashboard, remove 'margin: 20px auto' */
     margin: 0; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--scrims-text);
   }
 
   .player-evaluation-card h3 {
     font-weight: 700;
     margin-top: 0;
     margin-bottom: 10px;
-    color: var(--carbon-black);
+    color: #f8fafc;
+    font-size: clamp(18px, 1.2vw, 24px);
+  }
+
+  #evalForm {
+    background-color: var(--scrims-times-played-bg);
   }
 
   /* Grid layout for the 1-5 rating system */
   .rating-grid {
     display: grid;
-    grid-template-columns: 140px repeat(5, 1fr); /* 140px is for the text labels */
-    gap: 15px;
+    grid-template-columns: 120px repeat(5, 1fr); /* 120px is for the text labels */
+    gap: 12px;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 22px;
   }
 
   .rating-label {
-    font-size: 16px;
-    font-weight: 500;
+    font-size: clamp(13px, 0.9vw, 15px);
+    font-weight: 600;
     text-align: right;
     padding-right: 15px;
+    color: var(--scrims-text-muted);
   }
 
   .rating-header {
     text-align: center;
     font-weight: 600;
-    font-size: 18px;
-    color: #555;
+    font-size: clamp(15px, 1vw, 18px);
+    color: var(--scrims-text-muted);
   }
 
   /* Custom Radio Buttons Logic */
@@ -218,29 +306,29 @@
   .radio-group input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 35px;
-    height: 35px;
-    background-color: #e0e0e0; /* Unchecked color */
+    width: 28px;
+    height: 28px;
+    background-color: #475569; /* Unchecked color */
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
-    border: 2px solid transparent;
+    border: 2px solid #64748b;
   }
 
   /* SELECTED STATE (Dark filled circle) */
   .radio-group input[type="radio"]:checked {
-    background-color: #333;
-    border-color: #333;
+    background-color: var(--scrims-accent);
+    border-color: var(--scrims-accent);
     transform: scale(1.1); /* Little pop animation */
   }
   
   /* Hover effects for better UX */
   .radio-group input[type="radio"]:hover {
-    background-color: #ccc;
+    background-color: #64748b;
   }
   
   .radio-group input[type="radio"]:checked:hover {
-    background-color: var(--carbon-black);
+    background-color: var(--scrims-accent-strong);
   }
 
   /* Comment Box Styling */
@@ -248,36 +336,39 @@
   .comment-section label {
     display: block;
     font-weight: 700;
-    font-size: 16px;
+    font-size: clamp(15px, 1vw, 18px);
     margin-bottom: 10px;
+    color: var(--scrims-text);
   }
 
   .comment-box {
     width: 100%;
-    height: 120px;
-    border: 2px solid #e0e0e0;
+    height: 105px;
+    border: 2px solid var(--scrims-border);
     border-radius: 12px;
     padding: 15px;
     font-family: inherit;
-    font-size: 14px;
+    font-size: clamp(12px, 0.85vw, 14px);
     resize: none;
-    background-color: #f9f9f9;
+    line-height: 1.5;
+    color: var(--scrims-text);
+    background-color: #0f172a;
     box-sizing: border-box; 
   }
   
   .comment-box:focus {
     outline: none;
-    border-color: #333;
-    background-color: #fff;
+    border-color: var(--scrims-accent);
+    background-color: #111827;
   }
 
   /* Confirm Button Styling */
   .confirm-btn-container { text-align: right; }
   
   .confirm-btn {
-    background-color: #fff;
-    border: 2px solid var(--carbon-black);
-    color: var(--carbon-black);
+    background-color: transparent;
+    border: 2px solid var(--scrims-accent);
+    color: var(--scrims-accent);
     padding: 10px 30px;
     font-size: 16px;
     font-weight: 600;
@@ -287,8 +378,46 @@
   }
 
   .confirm-btn:hover {
-    background-color: var(--carbon-black);
-    color: #fff;
+    background-color: var(--scrims-accent);
+    color: #082f49;
+  }
+
+  .scrim-table thead tr,
+  .times-played-table thead tr {
+    background-color: #0b1220;
+  }
+
+  .scrim-table a {
+    color: var(--scrims-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .scrim-table a:hover {
+    color: #7dd3fc;
+    text-decoration: underline;
+  }
+
+  .dropdown-btn {
+    background-color: #0f172a;
+    color: var(--scrims-text);
+    border: 1px solid var(--scrims-border);
+    font-size: clamp(14px, 0.95vw, 16px);
+    font-weight: 500;
+  }
+
+  .dropdown-content {
+    background-color: #0f172a;
+    border: 1px solid var(--scrims-border);
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.45);
+  }
+
+  .dropdown-content a {
+    color: var(--scrims-text);
+  }
+
+  .dropdown-content a:hover {
+    background-color: #1e293b;
   }
 
   /* --- END COMPONENT STYLES --- */
