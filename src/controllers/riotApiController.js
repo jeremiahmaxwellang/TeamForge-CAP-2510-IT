@@ -364,7 +364,27 @@ async function fetchRoleBucketedMatchIds(puuid, queueId, primaryTeamPosition, se
     };
 }
 
-// getRecentMatches is called in riotApiRoutes to fetch player's recent matches by queue ID
+/**
+ * getRecentMatches
+ * Description: called in riotApiRoutes to fetch player's recent matches by queue ID
+ * 
+ * Route: GET /riot/matches/:puuid/:queueId - Fetch from Riot API
+ * 
+ * Function Calls:
+ * 1. await fetchRoleBucketedMatchIds(puuid, parsedQueueId, teamPosition, null)
+ * 2. await fetchRolePositionsByPuuid(puuid)
+ * 3. await fetchRecentMatches(puuid, parsedQueueId, parseInt(start), matchCount)
+ * 
+ * Behavior:
+ * 1. Accepts PUUID and queueId as route parameters, with optional query parameters for teamPosition, start, and count.
+ * 2. Validates and parses queueId and count values, defaulting to queueId as integer and count = 15 if not provided.
+ * 3. If a teamPosition is specified, fetches matches bucketed by that role and returns role bucket statistics.
+ * 4. If no teamPosition is specified, attempts to determine the player's primary/secondary roles via fetchRolePositionsByPuuid.
+ *   a. If role info is unavailable, falls back to fetching recent matches directly.
+ *   b. If role info is available, fetches matches bucketed by primary and secondary roles and returns role bucket statistics.
+ * 
+ * JSON Response: List of match IDs || role-bucketed match data.
+ */
 exports.getRecentMatches = async (req, res) => {
     try {
         const { puuid, queueId } = req.params;
