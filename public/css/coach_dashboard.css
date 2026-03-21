@@ -144,12 +144,12 @@
 	gap: 20px;
 	/* Grid Areas Map:
 	Row 1: Player List (Spans 2 cols), Announcements (1 col)
-	Row 2: Team Stats (1 col), Tourney Draft (1 col), Calendar (1 col)
+	Row 2: Tourney Draft (1 col), Calendar (1 col), Team Stats (1 col)
 	Row 3: Scrims (Spans 2 cols), (Empty space under calendar)
 	*/
 	grid-template-areas:
 		"players players announcements"
-		"stats draft calendar"
+		"draft calendar stats"
 		"scrims scrims .";
 }
 
@@ -187,7 +187,6 @@
 .dash-card p,
 .dash-card th,
 .dash-card td,
-.dash-card span,
 .dash-card label,
 .dash-card small,
 .dash-card strong,
@@ -436,25 +435,25 @@
 
 .badge-w {
 	background-color: #d4edda;
-	color: #fff;
+	color: #000;
 	border: 1px solid #c3e6cb;
 }
 
 .badge-l {
 	background-color: #f8d7da;
-	color: #fff;
+	color: #000;
 	border: 1px solid #f5c6cb;
 }
 
 .vod-link {
-	color: #fff;
-	text-decoration: none;
+	color: #aed6f1;
+	text-decoration: underline;
 	font-weight: bold;
 }
 
 .vod-link:hover {
 	text-decoration: underline;
-	color: #fff;
+	color: #aed6f1;
 }
 
 /* --- CALENDAR WIDGET --- */
