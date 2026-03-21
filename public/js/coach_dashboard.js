@@ -43,7 +43,7 @@ async function loadPlayerList() {
                 <div class="scrollable-table-container">
                     <table style="width: 100%; border-collapse: collapse; text-align: left;">
                         <thead>
-                            <tr style="color: #333;">
+                            <tr style="color: #fff;">
                                 <th style="padding: 10px;">Player IGN</th>
                                 <th style="padding: 10px;">Real Name</th>
                                 <th style="padding: 10px; text-align: center;">Rank</th>
@@ -61,27 +61,27 @@ async function loadPlayerList() {
                 const peakRankText = getRankDisplayText(p.peakRank);
 
                 html += `
-                    <tr style="border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s;" 
-                        onmouseover="this.style.backgroundColor='#ffe6e6'" 
+                    <tr style="border-bottom: 1px solid #333; cursor: pointer; transition: background-color 0.2s;" 
+                        onmouseover="this.style.backgroundColor='#181818'" 
                         onmouseout="this.style.backgroundColor='transparent'"
                         onclick="window.location.href='/player_analysis?id=${p.userId}'">
                         
-                        <td style="padding: 12px 10px; font-weight: bold; color: #111;">${p.gameName}</td>
-                        <td style="padding: 12px 10px; color: #555;">${p.firstname} ${p.lastname}</td>
+                        <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${p.gameName}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${p.firstname} ${p.lastname}</td>
                         <td style="padding: 12px 10px; text-align: left;">
                             <div style="display: flex; flex-direction: column; gap: 8px;">
                                 <div title="Peak: ${peakRankText}" style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #555; font-size: 13px;">Peak rank: ${peakRankText}</span>
+                                    <span style="color: #fff; font-size: 13px;">Peak rank: ${peakRankText}</span>
                                     <img src="${peakRankImg}" alt="Peak Rank" style="width: 35px; height: 35px; object-fit: contain; opacity: 0.85;">
                                 </div>
                                 <div title="Current: ${currentRankText}" style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #555; font-size: 13px;">Current rank: ${currentRankText}</span>
+                                    <span style="color: #fff; font-size: 13px;">Current rank: ${currentRankText}</span>
                                     <img src="${currentRankImg}" alt="Current Rank" style="width: 35px; height: 35px; object-fit: contain;">
                                 </div>
                             </div>
                         </td>
                         <td style="padding: 12px 10px; text-align: right; font-weight: 500;">${p.primaryRole || 'None'}</td>
-                        <td style="padding: 12px 10px; text-align: right; color: #888;">${p.secondaryRole || 'None'}</td>
+                        <td style="padding: 12px 10px; text-align: right; color: #fff;">${p.secondaryRole || 'None'}</td>
                     </tr>
                 `;
             });
@@ -133,7 +133,7 @@ async function loadAnnouncements() {
             });
 
         } else {
-            container.innerHTML = "<p style='color: #666;'>No announcements posted yet.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No announcements posted yet.</p>";
         }
     } catch (error) {
         console.error("Failed to load announcements", error);
@@ -196,7 +196,7 @@ async function loadTeamStats() {
             container.innerHTML = html;
             startCarousel();
         } else {
-            container.innerHTML = "<p style='color: #666;'>No stats available yet.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No stats available yet.</p>";
         }
     } catch (error) {
         console.error("Failed to load stats", error);
@@ -233,7 +233,7 @@ async function loadDraft() {
             let html = `
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
-                        <tr style="border-bottom: 2px solid #ddd; color: #333;">
+                        <tr style="border-bottom: 2px solid #333; color: #fff;">
                             <th style="padding: 10px;">Player IGN</th>
                             <th style="padding: 10px;">Real Name</th>
                             <th style="padding: 10px; text-align: right;">Role Played</th>
@@ -244,13 +244,13 @@ async function loadDraft() {
 
             data.draft.forEach(p => {
                 html += `
-                    <tr style="border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s;" 
-                        onmouseover="this.style.backgroundColor='#ffe6e6'" 
+                    <tr style="border-bottom: 1px solid #333; cursor: pointer; transition: background-color 0.2s;" 
+                        onmouseover="this.style.backgroundColor='#181818'" 
                         onmouseout="this.style.backgroundColor='transparent'"
                         onclick="window.location.href='/player_analysis?id=${p.userId}'">
                         
-                        <td style="padding: 12px 10px; font-weight: bold; color: #111;">${p.gameName}</td>
-                        <td style="padding: 12px 10px; color: #555;">${p.firstname} ${p.lastname}</td>
+                        <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${p.gameName}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${p.firstname} ${p.lastname}</td>
                         <td style="padding: 12px 10px; text-align: right; font-weight: 500;">${p.displayedRole}</td>
                     </tr>
                 `;
@@ -259,7 +259,7 @@ async function loadDraft() {
             html += `</tbody></table>`;
             container.innerHTML = html;
         } else {
-            container.innerHTML = "<p style='color: #666;'>No draft roster available.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No draft roster available.</p>";
         }
     } catch (error) {
         console.error("Failed to load draft", error);
@@ -279,7 +279,7 @@ async function loadScrims() {
                 <div class="scrollable-table-container" style="max-height: none; overflow: visible;">
                     <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
                         <thead>
-                            <tr style="border-bottom: 2px solid #ddd; color: #333;">
+                            <tr style="border-bottom: 2px solid #333; color: #fff;">
                                 <th style="padding: 10px;">#</th>
                                 <th style="padding: 10px;">NAME</th>
                                 <th style="padding: 10px;">DATE</th>
@@ -304,17 +304,17 @@ async function loadScrims() {
                 const badgeText = isWin ? 'W' : 'L';
                 
                 html += `
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 12px 10px; font-weight: bold; color: #666;">${index + 1}</td>
-                        <td style="padding: 12px 10px; font-weight: 600; color: #111;">${s.name}</td>
-                        <td style="padding: 12px 10px; color: #555;">${scrimDate}</td>
-                        <td style="padding: 12px 10px; color: #555;">${s.length || 'N/A'}</td>
-                        <td style="padding: 12px 10px; color: #555; font-size: 13px;">${s.teamMembers || 'N/A'}</td>
+                    <tr style="border-bottom: 1px solid #333;">
+                        <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${index + 1}</td>
+                        <td style="padding: 12px 10px; font-weight: 600; color: #fff;">${s.name}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${scrimDate}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${s.length || 'N/A'}</td>
+                        <td style="padding: 12px 10px; color: #fff; font-size: 13px;">${s.teamMembers || 'N/A'}</td>
                         <td style="padding: 12px 10px; text-align: center;">
                             <span class="scrim-badge ${badgeClass}">${badgeText}</span>
                         </td>
                         <td style="padding: 12px 10px; text-align: center;">
-                            ${s.videoLink ? `<a href="${s.videoLink}" target="_blank" class="vod-link">Watch VOD</a>` : '<span style="color:#aaa;">No VOD</span>'}
+                            ${s.videoLink ? `<a href="${s.videoLink}" target="_blank" class="vod-link">Watch VOD</a>` : '<span style="color:#fff;">No VOD</span>'}
                         </td>
                     </tr>
                 `;
@@ -323,7 +323,7 @@ async function loadScrims() {
             html += `</tbody></table></div>`;
             container.innerHTML = html;
         } else {
-            container.innerHTML = "<p style='color: #666;'>No recent scrims found.</p>";
+            container.innerHTML = "<p style='color: #fff;'>No recent scrims found.</p>";
         }
     } catch (error) {
         console.error("Failed to load scrims", error);
