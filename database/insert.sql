@@ -384,61 +384,61 @@ INSERT INTO application_periods (startDate, endDate) VALUES
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES (18, 'zero@example.com', 'teamForge123!!', 'Lex', 'Luthor', 'Applicant', 'zero#6983', 'Active');
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
-VALUES (18, 'zero', '6983', 'Platinum I', 'Platinum II', 1, 3, '12100018', 'BSCS-NIS', 3.10, 3.20, 1);
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel)
+VALUES (18, 'zero', '6983', 'Platinum I', 'Platinum II', 1, 3, '12100018', 'BSCS-NIS', 3.10, 3.20, 1, '1st Year');
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 18, 1, 'Pending');
 
 -- Applicant: Zayexium#ACT (Jungle/Support)
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (19, 'zayexium@example.com', 'teamForge123!!', 'Barry', 'Allen', 'Applicant', 'Zayexium#ACT', 'Active');
+VALUES (19, 'zayexium@example.com', 'teamForge123!!', 'Barry', 'Allen', 'Applicant', 'Zayexium#ACT', 'Active', '4th Year');
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
-VALUES (19, 'Zayexium', 'ACT', 'Gold II', 'Gold I', 2, 5, '12100019', 'BSCS-NIS', 2.90, 3.00, 1);
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel)
+VALUES (19, 'Zayexium', 'ACT', 'Gold II', 'Gold I', 2, 5, '12100019', 'BSCS-NIS', 2.90, 3.00, 1, '1st Year');
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 19, 2, 'Pending');
 
 -- Applicant: Pr1m3put1n#3135 (Jungle/Jungle)
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (20, 'pr1m3put1n@example.com', 'teamForge123!!', 'Tony', 'Tang', 'Applicant', 'Pr1m3put1n#3135', 'Active');
+VALUES (20, 'pr1m3put1n@example.com', 'teamForge123!!', 'Tony', 'Tang', 'Applicant', 'Pr1m3put1n#3135', 'Active', '4th Year');
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel)
 VALUES (20, 'Pr1m3put1n', '3135', 'Diamond IV', 'Diamond IV', 2, 2, '12100020', 'BSCS-NIS', 3.40, 3.50, 1);
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 20, 2, 'Pending');
 
 -- Applicant: Yishun Resident#walao (Mid/Mid)
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (21, 'yishun@example.com', 'teamForge123!!', 'Zachary', 'Valjean', 'Applicant', 'Yishun Resident#walao', 'Active');
+VALUES (21, 'yishun@example.com', 'teamForge123!!', 'Zachary', 'Valjean', 'Applicant', 'Yishun Resident#walao', 'Active', '2nd Year');
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel)
 VALUES (21, 'Yishun Resident', 'walao', 'Platinum II', 'Platinum III', 3, 3, '12100021', 'BSCS-NIS', 3.00, 3.05, 1);
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 21, 3, 'Pending');
 
 -- Applicant: Sou Hiyori#YTTD (Mid/Top)
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (22, 'souhiyori@example.com', 'teamForge123!!', 'Joshua', 'Hiyori', 'Applicant', 'Sou Hiyori#YTTD', 'Active');
+VALUES (22, 'souhiyori@example.com', 'teamForge123!!', 'Joshua', 'Hiyori', 'Applicant', 'Sou Hiyori#YTTD', 'Active', '1st Year');
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel)
 VALUES (22, 'Sou Hiyori', 'YTTD', 'Emerald I', 'Emerald II', 3, 1, '12100022', 'BSCS-NIS', 3.20, 3.25, 1);
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 22, 3, 'Pending');
 
 -- Applicant: Venzyx#1432 (ADC/Support)
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (23, 'venzyx@example.com', 'teamForge123!!', 'Jordan', 'Peele', 'Applicant', 'Venzyx#1432', 'Active');
+VALUES (23, 'venzyx@example.com', 'teamForge123!!', 'Jordan', 'Peele', 'Applicant', 'Venzyx#1432', 'Active', '3rd Year');
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel)
 VALUES (23, 'Venzyx', '1432', 'Diamond II', 'Diamond III', 4, 5, '12100023', 'BSCS-NIS', 3.35, 3.40, 1);
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 23, 4, 'Pending');
 
 -- Applicant: MrBedroom#0000 (Support/Support, Teemo one-trick)
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (24, 'mrbedroom@example.com', 'teamForge123!!', 'Mikhail', 'Dent', 'Applicant', 'MrBedroom#0000', 'Active');
+VALUES (24, 'mrbedroom@example.com', 'teamForge123!!', 'Mikhail', 'Dent', 'Applicant', 'MrBedroom#0000', 'Active', '2nd Year');
 
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel)
 VALUES (24, 'MrBedroom', '0000', 'Silver I', 'Silver I', 5, 5, '12100024', 'BSCS-NIS', 2.50, 2.60, 1);
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 24, 5, 'Pending');
