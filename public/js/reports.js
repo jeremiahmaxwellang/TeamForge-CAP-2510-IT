@@ -658,5 +658,151 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(err => console.error('Error loading applications:', err));
 
 
+    const printBtn = document.getElementById('generatePdfBtn');
+    
+    if (printBtn) {
+        printBtn.addEventListener('click', async () => {
+            // Change button text while processing
+            const originalText = printBtn.innerHTML;
+            printBtn.innerHTML = "Generating PDF...";
+            printBtn.disabled = true;
 
+            try {
+                // 1. Fetch data from our new endpoint
+                const res = await fetch('/applicant_list/report_data'); // Make sure this matches your route!
+                const data = await res.json();
+                
+                if (!data.success) throw new Error("Failed to fetch report data");
+
+                // 2. Define the Hierarchical Priorities per Role
+                const ROLE_METRICS = {
+                    1: [ // Top
+                        { key: 'averageTotalDamageTaken', label: 'Tanking' },
+                        { key: 'averageDamageShare', label: 'Dmg Share' },
+                        { key: 'averageKDA', label: 'KDA' },
+                        { key: 'averageCsPerMinute', label: 'CS/Min' }
+                    ],
+                    2: [ // Jungle
+                        { key: 'averageKillParticipation', label: 'KP' },
+                        { key: 'averageVisionScorePerMinute', label: 'Vision/Min' },
+                        { key: 'averageKDA', label: 'KDA' },
+                        { key: 'averageDragonKills', label: 'Dragons' }
+                    ],
+                    3: [ // Mid
+                        { key: 'averageDamageShare', label: 'Dmg Share' },
+                        { key: 'averageKillParticipation', label: 'KP' },
+                        { key: 'averageKDA', label: 'KDA' },
+                        { key: 'averageCsPerMinute', label: 'CS/Min' }
+                    ],
+                    4: [ // ADC
+                        { key: 'averageDamageShare', label: 'Dmg Share' },
+                        { key: 'averageGoldPerMinute', label: 'Gold/Min' },
+                        { key: 'averageKDA', label: 'KDA' },
+                        { key: 'averageCsPerMinute', label: 'CS/Min' }
+                    ],
+                    5: [ // Support
+                        { key: 'averageVisionScoreShare', label: 'Vision Share' },
+                        { key: 'averageKillParticipation', label: 'KP' },
+                        { key: 'averageAssists', label: 'Assists' },
+                        { key: 'averageWardsPlaced', label: 'Wards Placed' }
+                    ]
+                };
+
+                const roleNames = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'ADC', 5: 'Support' };
+                const byRole = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+                
+                // Group applicants by role
+                data.applicants.forEach(app => {
+                    if(byRole[app.roleId]) byRole[app.roleId].push(app);
+                });
+
+                // 3. Initialize jsPDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Draw Header
+                doc.setFontSize(22);
+                doc.setTextColor(31, 119, 180); // TeamForge Blue
+                doc.text("Viridis Arcus", 14, 20);
+                
+                doc.setFontSize(14);
+                doc.setTextColor(50, 50, 50);
+                doc.text("Hierarchical Applicant Evaluation Report", 14, 28);
+                
+                let startY = 38;
+
+                // 4. Generate a sorted table for each role
+                for (let roleId = 1; roleId <= 5; roleId++) {
+                    let roleApps = byRole[roleId];
+                    if (!roleApps || roleApps.length === 0) continue;
+
+                    const metrics = ROLE_METRICS[roleId];
+
+                    // THE HIERARCHICAL SORTING ENGINE
+                    roleApps.sort((a, b) => {
+                        for (let m of metrics) {
+                            const valA = Number(a.stats[m.key]) || 0;
+                            const valB = Number(b.stats[m.key]) || 0;
+                            if (valA !== valB) return valB - valA; // Sort Descending
+                        }
+                        return 0;
+                    });
+
+                    // Format Table Headers
+                    const head = [['Rank', 'Riot ID', ...metrics.map(m => m.label)]];
+                    
+                    // Format Table Rows
+                    const body = roleApps.map((app, index) => {
+                        return [
+                            `#${index + 1}`,
+                            app.riotId,
+                            ...metrics.map(m => {
+                                let val = Number(app.stats[m.key] || 0);
+                                if (m.key.includes('Share') || m.key.includes('Participation')) return val.toFixed(1) + '%';
+                                if (m.key === 'averageTotalDamageTaken') return val.toLocaleString(); // Add commas for big numbers
+                                return val.toFixed(2);
+                            })
+                        ];
+                    });
+
+                    // Print Role Title
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`${roleNames[roleId]} Lane Candidates`, 14, startY);
+
+                    // Draw Table
+                    doc.autoTable({
+                        startY: startY + 4,
+                        head: head,
+                        body: body,
+                        theme: 'grid',
+                        headStyles: { fillColor: [42, 45, 51] }, // Dark grey header to match your UI
+                        margin: { left: 14, right: 14 },
+                        styles: { fontSize: 10 }
+                    });
+
+                    // Push the next table down
+                    startY = doc.lastAutoTable.finalY + 15;
+                    
+                    // Add a new page if we are running out of room
+                    if (startY > 250) {
+                        doc.addPage();
+                        startY = 20;
+                    }
+                }
+
+                // 5. Download the PDF
+                doc.save("Viridis_Arcus_Applicant_Report.pdf");
+
+            } catch (error) {
+                console.error("PDF Generation Error:", error);
+                alert("An error occurred while generating the report.");
+            } finally {
+                // Reset button
+                printBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF Report';
+                printBtn.disabled = false;
+            }
+        });
+    }
 });
