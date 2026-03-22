@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!applyTournamentRangeBtn || !resetTournamentRangeBtn) return;
 
         try {
-            const response = await fetch('/tournament/api/list');
+            const response = await fetch('/reports/tournament_results');
             const data = await response.json();
 
             if (!response.ok || !data.success || !Array.isArray(data.data)) {

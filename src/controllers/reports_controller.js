@@ -235,3 +235,33 @@ exports.getBestCommunicationApplicants = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+
+// Get tournament result records for reports (Manager/Coach safe)
+exports.getTournamentResultsReport = async (req, res) => {
+
+    try {
+
+        const [rows] = await db.query(
+            `SELECT
+                t.tournamentId,
+                t.name,
+                t.startDate AS tournamentDate,
+                t.win AS result
+            FROM tournaments t
+            ORDER BY t.tournamentId DESC`
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: rows
+        });
+
+    } catch (err) {
+        console.error('Error:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Error fetching tournament report data',
+            error: err.message
+        });
+    }
+}

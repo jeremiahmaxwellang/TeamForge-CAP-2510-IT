@@ -10,6 +10,7 @@ router.get('/applicant_statuses', reports_controller.getApplicantStatuses);
 router.get('/applications_total', reports_controller.getApplicationsEachPeriod);
 router.get('/best_performing_applicants', reports_controller.getBestPerformingApplicants);
 router.get('/best_communication_applicants', reports_controller.getBestCommunicationApplicants);
+router.get('/tournament_results', reports_controller.getTournamentResultsReport);
 
 // Reports
 router.get('/', (req, res) => {
