@@ -489,8 +489,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
-    console.log('[CHART] benchmarks received:', benchmarks);
-    console.log('[CHART] first benchmark metricName:', benchmarks[0]?.metricName);
+    // console.log('[CHART] benchmarks received:', benchmarks);
+    // console.log('[CHART] first benchmark metricName:', benchmarks[0]?.metricName);
     // e.g. logs "averageKDA" — does NOT match axis id "KDA"
     const roleId = state.selectedRoleId || 1;
     const config = ROLE_CONFIGS[roleId] || ROLE_CONFIGS.default;
@@ -503,7 +503,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const p2Axes = config.axes.map(a => {
       let val;
 
-      // Same fix inside drawComparisonChart p2Axes:
       if (isBenchmark) {
         const normalizedId = a.id.toLowerCase().replace(/\s/g, '');
 
@@ -842,19 +841,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // UNUSED FUNCTION: Save Match Details in DB - Aleady done by saveMatches()
-    // async function saveMatchDetails() {
-    //   const userId = parseInt(state.currentApplicant.userId, 10);
-
-    //   try {
-    //     const response = await fetch(`/match/${userId}/store`);
-    //     const data = await response.json();
-
-    //   } catch (err) {
-    //     console.error("Error:", err);
-    //   }
-    // }
-
     /**
      * 5. Fetch and Store Match Statistics
      * @param {*} matches - array of matchIds
@@ -924,6 +910,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     }
 
+    // Accept / Reject Applicant
     if (btnConfirm) btnConfirm.addEventListener('click', () => submitEvaluation('Pending'));
     if (btnAccept) btnAccept.addEventListener('click', () => { if (confirm("Are you sure you want to ACCEPT this applicant?")) submitEvaluation('Accepted'); });
     if (btnReject) btnReject.addEventListener('click', () => { if (confirm("Are you sure you want to REJECT this applicant?")) submitEvaluation('Rejected'); });
