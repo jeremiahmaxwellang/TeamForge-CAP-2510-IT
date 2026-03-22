@@ -388,7 +388,7 @@ body {
     padding: 10px;
     border: 1px solid #4f545c;
     border-radius: 5px;
-    resize: none;
+    resize: vertical;
     background: #36393f;
     color: var(--porcelain);
     font-family: inherit;
