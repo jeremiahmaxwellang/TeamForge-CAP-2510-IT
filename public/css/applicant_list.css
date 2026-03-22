@@ -192,6 +192,10 @@ h1 {
     letter-spacing: 0.4px;
 }
 
+.header-title-section h2 {
+    font-size: 36px;
+}
+
 table {
     width: 100%;
     min-width: 980px;
