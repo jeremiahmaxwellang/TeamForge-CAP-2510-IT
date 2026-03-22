@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetTournamentRangeBtn = document.getElementById('resetTournamentRange');
     const tournamentRangeSummary = document.getElementById('tournamentRangeSummary');
     const tournamentResultLegend = document.getElementById('tournament-result-legend');
+    const printReportBtn = document.getElementById('printReportBtn');
 
     const tournamentResultColors = {
         Wins: '#128b0d',
@@ -150,6 +151,58 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tournamentEndDateInput) tournamentEndDateInput.value = '';
             applyTournamentRange();
         });
+    }
+
+    const downloadCurrentViewScreenshot = async () => {
+        if (typeof html2canvas !== 'function') {
+            alert('Screenshot tool is not available right now.');
+            return;
+        }
+
+        if (!printReportBtn) return;
+
+        const originalLabel = printReportBtn.textContent;
+        printReportBtn.disabled = true;
+        printReportBtn.textContent = 'Preparing...';
+
+        try {
+            const target = document.querySelector('.reports-shell') || document.body;
+            const originalDisplay = printReportBtn.style.display;
+
+            // Hide floating button so it does not appear in the exported report image.
+            printReportBtn.style.display = 'none';
+
+            const canvas = await html2canvas(target, {
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                width: target.scrollWidth,
+                height: target.scrollHeight,
+                scrollX: 0,
+                scrollY: -window.scrollY,
+                windowWidth: target.scrollWidth,
+                windowHeight: target.scrollHeight,
+                scale: 2
+            });
+
+            printReportBtn.style.display = originalDisplay;
+
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `reports-screenshot-${timestamp}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (error) {
+            console.error('Failed to capture screenshot:', error);
+            alert('Failed to capture screenshot. Please try again.');
+        } finally {
+            printReportBtn.style.display = '';
+            printReportBtn.disabled = false;
+            printReportBtn.textContent = originalLabel;
+        }
+    };
+
+    if (printReportBtn) {
+        printReportBtn.addEventListener('click', downloadCurrentViewScreenshot);
     }
 
     loadTournamentReport();
