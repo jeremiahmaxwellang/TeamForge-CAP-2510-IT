@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   await init();
 
+  // Initialize profile page
   async function init() {
     console.log("[APPLICANT] Initializing Profile...");
 
@@ -128,6 +129,34 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     setupEventListeners();
+  }
+
+
+  // ==========================================
+  // DISPLAY MATCH STATISTICS HELPERS
+  // ==========================================
+
+  async function displayMatchStats(puuid) {
+    await fetchWinrate(puuid);
+  }
+
+  async function fetchWinrate(puuid) {
+    try {
+      const response = await fetch(`/riot/winrate/${puuid}`);
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+      const data = await response.json();
+      console.log('[WINRATE]', data);
+
+      // Update UI
+      UI.winrate.textContent = `${data.winrate}% WR`;
+      return data.winrate;
+
+    } catch (err) {
+      console.error('[WINRATE] Failed to fetch winrate:', err);
+      UI.winrate.textContent = '--% WR';
+    }
   }
 
   // ==========================================
@@ -209,6 +238,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         btnSecondary.style.opacity = '1';
         btnSecondary.style.cursor = 'pointer';
       }
+
+      // Display Match Statistics from DB
+      displayMatchStats(applicant.puuid);
     }
 
     populateComparisonDropdown(); // ADDED: Refresh dropdown to exclude the current applicant
@@ -528,7 +560,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     UI.btnPrev.addEventListener('click', () => loadProfile(state.currentIndex > 0 ? state.currentIndex - 1 : state.allApplicants.length - 1));
     UI.btnNext.addEventListener('click', () => loadProfile(state.currentIndex < state.allApplicants.length - 1 ? state.currentIndex + 1 : 0));
 
-    // =============== Fetch Match Statistics ===============
+    // ==========================================
+    // FETCH AND STORE MATCH STATISTICS
+    // ==========================================
 
     document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
@@ -550,6 +584,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         updatePuuid(userId, puuidString);
 
         fetchMatchIds(puuidString);
+
+        // Display stats
+        displayMatchStats(puuidString);
       } catch (err) {
         console.error("Error fetching PUUID:", err);
       }
@@ -614,7 +651,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     /**
-     * 3. TODO: Store multiple matches
+     * 3. Store multiple matches
      * @param {*} userId 
      * @param {*} matches 
      */
@@ -651,25 +688,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // 5. TODO: Save Match Details in DB
-    async function saveMatchDetails() {
-      const userId = parseInt(state.currentApplicant.userId, 10);
+    // UNUSED FUNCTION: Save Match Details in DB - Aleady done by saveMatches()
+    // async function saveMatchDetails() {
+    //   const userId = parseInt(state.currentApplicant.userId, 10);
 
-      try {
-        const response = await fetch(`/match/${userId}/store`);
-        const data = await response.json();
+    //   try {
+    //     const response = await fetch(`/match/${userId}/store`);
+    //     const data = await response.json();
 
-      } catch (err) {
-        console.error("Error:", err);
-      }
-    }
+    //   } catch (err) {
+    //     console.error("Error:", err);
+    //   }
+    // }
 
     /**
-     * 6. TODO: Fetch Match Statistics
+     * 5. Fetch and Store Match Statistics
      * @param {*} matches - array of matchIds
      */
     async function uploadMatchParticipants(matches) {
-      console.log(`uploadMatchParticipants(${matches})`);
+      // console.log(`uploadMatchParticipants(${matches})`);
 
       try {
         const response = await fetch('/riot/participants/batch', {
@@ -689,7 +726,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.error('Error uploading participants:', err);
       }
     }
-
 
 
 
