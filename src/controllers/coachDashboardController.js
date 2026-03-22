@@ -78,26 +78,95 @@ exports.getDraft = async (req, res) => {
 // 4. Fetch Team Statistics (Last 15 Games Winrate)
 exports.getTeamStats = async (req, res) => {
     try {
-        // 1. Get last 15 games for active players
-        const recentGamesQuery = `
-            SELECT mp.win, mp.kda
-            FROM matches m
-            JOIN matchParticipants mp ON m.matchId = mp.matchId
-            JOIN players p ON m.userId = p.userId AND p.puuid = mp.puuid
+        // 1. Get all active players for the coach's team
+        const teamPlayersQuery = `
+            SELECT p.userId, p.puuid, p.teamId
+            FROM players p
             JOIN users u ON p.userId = u.userId
-            WHERE u.position = 'Player' AND u.status = 'Active'
-            ORDER BY m.gameCreation DESC
-            LIMIT 15
+            WHERE u.position = 'Player' AND u.status = 'Active' AND p.teamId IS NOT NULL
         `;
-        const [recentGames] = await db.query(recentGamesQuery);
+        const [teamPlayers] = await db.query(teamPlayersQuery);
+        if (!teamPlayers.length) {
+            return res.status(200).json({ success: true, winrate: 0, totalGames: 0, avgKDA: 0, scrimsThisMonth: 0 });
+        }
+        const teamId = teamPlayers[0].teamId;
+        const puuidList = teamPlayers.map(p => `'${p.puuid}'`).join(",");
+
+        // 2. Get last 15 matches where any team player participated (for winrate)
+        const recentMatchesQuery = `
+            SELECT mp.matchId, mp.win
+            FROM matchParticipants mp
+            WHERE mp.puuid IN (${puuidList})
+            ORDER BY mp.matchId DESC
+            LIMIT 150
+        `;
+        const [allTeamPlays] = await db.query(recentMatchesQuery);
+        // Group by matchId
+        const matchMap = {};
+        allTeamPlays.forEach(row => {
+            if (!matchMap[row.matchId]) matchMap[row.matchId] = [];
+            matchMap[row.matchId].push(row);
+        });
+        const recentGames = Object.values(matchMap).slice(0, 15);
+
+        // Calculate winrate
+        let winrate = 0, totalGames = 0;
+        if (recentGames.length > 0) {
+            let matchWins = 0;
+            recentGames.forEach(gameArr => {
+                const winsArr = gameArr.map(g => g.win === 'True' || g.win === 'true' || g.win === '1' || g.win === 1 || g.win === true);
+                const winCount = winsArr.filter(Boolean).length;
+                const lossCount = winsArr.length - winCount;
+                if (winCount > lossCount) matchWins++;
+            });
+            winrate = ((matchWins / recentGames.length) * 100).toFixed(1);
+            totalGames = recentGames.length;
+        }
+
+        // 3. Get last 15 matches for team KDA (separately, in case logic changes)
+        const recentKdaQuery = `
+            SELECT mp.kda
+            FROM matchParticipants mp
+            WHERE mp.puuid IN (${puuidList})
+            ORDER BY mp.matchId DESC
+            LIMIT 150
+        `;
+        const [allKdaPlays] = await db.query(recentKdaQuery);
+        // Group by matchId
+        const kdaMatchMap = {};
+        allKdaPlays.forEach(row => {
+            if (!kdaMatchMap[row.matchId]) kdaMatchMap[row.matchId] = [];
+            kdaMatchMap[row.matchId].push(row);
+        });
+        const recentKdaGames = Object.values(kdaMatchMap).slice(0, 15);
+
+        // Calculate average KDA
+        let avgKDA = 0;
+        let kdaVals = [];
+        if (recentKdaGames.length > 0) {
+            recentKdaGames.forEach(gameArr => {
+                const kdas = gameArr.map(g => parseFloat(g.kda)).filter(kda => !isNaN(kda));
+                kdaVals = kdaVals.concat(kdas);
+            });
+            avgKDA = kdaVals.length > 0 ? (kdaVals.reduce((a, b) => a + b, 0) / kdaVals.length).toFixed(2) : 0;
+        }
 
         let winrate = 0, avgKDA = 0, totalGames = 0;
         if (recentGames.length > 0) {
-            const wins = recentGames.filter(g => g.win === 'True' || g.win === 'true' || g.win === 1 || g.win === true).length;
-            winrate = ((wins / recentGames.length) * 100).toFixed(1);
+            let matchWins = 0;
+            let kdaVals = [];
+            recentGames.forEach(g => {
+                // winList: comma-separated list of win values for team players in this match
+                const winsArr = g.winList.split(',').map(val => val === 'True' || val === 'true' || val === '1' || val === 1 || val === true);
+                const winCount = winsArr.filter(Boolean).length;
+                const lossCount = winsArr.length - winCount;
+                if (winCount > lossCount) matchWins++;
+                // kdaList: comma-separated list of kda values for team players in this match
+                const kdas = g.kdaList.split(',').map(val => parseFloat(val)).filter(kda => !isNaN(kda));
+                kdaVals = kdaVals.concat(kdas);
+            });
+            winrate = ((matchWins / recentGames.length) * 100).toFixed(1);
             totalGames = recentGames.length;
-            // Calculate average KDA (ignore nulls)
-            const kdaVals = recentGames.map(g => parseFloat(g.kda)).filter(kda => !isNaN(kda));
             avgKDA = kdaVals.length > 0 ? (kdaVals.reduce((a, b) => a + b, 0) / kdaVals.length).toFixed(2) : 0;
         }
 
