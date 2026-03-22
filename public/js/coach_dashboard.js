@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadDraft();
     await loadScrims();
     loadCalendar();
+    await promptRiotApiKeyOnFirstLoginToday();
 
     // Modal Close Logic
     const closeBtn = document.getElementById('btn-close-view');
@@ -30,6 +31,44 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 });
+
+async function promptRiotApiKeyOnFirstLoginToday() {
+    const today = new Date().toISOString().slice(0, 10);
+    let coachIdentity = 'coach';
+
+    try {
+        const response = await fetch('/api/user/profile');
+        if (response.ok) {
+            const profile = await response.json();
+            const profileName = `${profile.firstname || ''} ${profile.lastname || ''}`.trim();
+            coachIdentity = profileName || profile.name || 'coach';
+        }
+    } catch (error) {
+        console.error('Unable to resolve coach identity for Riot API prompt:', error);
+    }
+
+    const normalizedIdentity = String(coachIdentity)
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
+
+    const promptSeenKey = `coachRiotApiPromptSeen:${normalizedIdentity}:${today}`;
+
+    if (localStorage.getItem(promptSeenKey)) {
+        return;
+    }
+
+    // Mark as seen before showing the dialog so it only appears once per day.
+    localStorage.setItem(promptSeenKey, '1');
+
+    const shouldOpenSettings = window.confirm(
+        'Would you like to add a Riot API key now?\n\nSelect OK for Yes or Cancel for No.'
+    );
+
+    if (shouldOpenSettings) {
+        window.location.href = '/settings';
+    }
+}
 
 // --- 1. PLAYER LIST LOGIC ---
 async function loadPlayerList() {
