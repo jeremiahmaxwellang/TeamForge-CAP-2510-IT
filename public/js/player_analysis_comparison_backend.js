@@ -29,21 +29,15 @@
 
   Backend.formatBenchmarksAsStats = function (benchmarks) {
     const formattedStats = {
-      avgKills: 0,
-      avgDeaths: 0,
-      avgAssists: 0,
-      kdaRatio: 0,
-      avgDamage: 0,
-      totalDamage: 0,
-      totalDamageMitigated: 0,
-      avgGold: 0,
-      winrate: 0,
       benchmarkComparison: benchmarks,
-      rawStats: {} // <--- Stores all role-specific stats
+      rawStats: {} // Stores all role-specific stats perfectly mapped
     };
 
-    // Map database metric names to readable names for the new radar chart
+    // Complete mapping from Database names to Frontend Chart names
     const dbToStatName = {
+      "averagekills": "Kills",
+      "averagedeaths": "Deaths",
+      "averageassists": "Assists",
       "averagekda": "KDA",
       "averagecsperminute": "CS Per Minute",
       "averagegoldperminute": "Gold Per Minute",
@@ -55,36 +49,33 @@
       "averagesolokills": "Solo Kills",
       "averagewardsplaced": "Total Wards Placed",
       "averagewardsdestroyed": "Total Wards Destroyed",
-      "averagedragonkills": "Dragon Kills"
+      "averagedragonkills": "Dragon Kills",
+      "averagedamagetobuildings": "Damage to Buildings"
     };
 
     benchmarks.forEach((benchmark) => {
       const metricName = String(benchmark.metricName || "").toLowerCase();
-
-      // --- KEEPING ORIGINAL LOGIC FOR BACKWARD COMPATIBILITY ---
-      if (metricName.includes("kill") && metricName.includes("participation")) {
-        formattedStats.avgKills = benchmark.benchmarkValue;
-      } else if (metricName.includes("death")) {
-        formattedStats.avgDeaths = benchmark.benchmarkValue;
-      } else if (metricName.includes("assist")) {
-        formattedStats.avgAssists = benchmark.benchmarkValue;
-      } else if (metricName.includes("damage") && metricName.includes("share")) {
-        formattedStats.totalDamage = benchmark.benchmarkValue * 400;
-      } else if (metricName.includes("gold") && metricName.includes("minute")) {
-        formattedStats.avgGold = benchmark.benchmarkValue;
-      } else if (metricName.includes("vision")) {
-        formattedStats.visionScore = benchmark.benchmarkValue;
-      }
-
-      // --- Store EVERYTHING for the role-specific charts ---
       const readableName = dbToStatName[metricName] || benchmark.metricName;
       formattedStats.rawStats[readableName] = benchmark.benchmarkValue;
     });
 
-    formattedStats.kdaRatio = (
-      (Number(formattedStats.avgKills) + Number(formattedStats.avgAssists)) /
-      (Number(formattedStats.avgDeaths) || 1)
-    ).toFixed(2);
+    // Map back to the top-level properties expected by the Player Cards
+    formattedStats.avgKills = formattedStats.rawStats["Kills"] || 0;
+    formattedStats.avgDeaths = formattedStats.rawStats["Deaths"] || 0;
+    formattedStats.avgAssists = formattedStats.rawStats["Assists"] || 0;
+    formattedStats.kdaRatio = formattedStats.rawStats["KDA"] || 0;
+    formattedStats.avgDamage = formattedStats.rawStats["Total Damage Dealt"] || 0;
+    formattedStats.totalDamage = formattedStats.rawStats["Total Damage Dealt"] || 0;
+    formattedStats.totalDamageMitigated = formattedStats.rawStats["Total Damage Taken"] || 0;
+    formattedStats.avgGold = formattedStats.rawStats["Gold Per Minute"] || 0;
+
+    // Calculate KDA if it wasn't explicitly provided as a benchmark
+    if (!formattedStats.kdaRatio && formattedStats.avgDeaths) {
+        formattedStats.kdaRatio = (
+            (Number(formattedStats.avgKills) + Number(formattedStats.avgAssists)) /
+            (Number(formattedStats.avgDeaths) || 1)
+        ).toFixed(2);
+    }
 
     return formattedStats;
   };
@@ -101,7 +92,6 @@
 
         const stats = data.playerStats || {};
         const formattedStats = {
-          // --- KEEPING ORIGINAL LOGIC ---
           avgKills: stats["Kills"] || 0,
           avgDeaths: stats["Deaths"] || 0,
           avgAssists: stats["Assists"] || 0,
@@ -110,11 +100,9 @@
           totalDamage: stats["Total Damage Dealt"] || 0,
           totalDamageMitigated: stats["Total Damage Taken"] || 0,
           avgGold: stats["Gold Per Minute"] || 0,
-          winrate: 0, 
+          winrate: stats["winrate"] || 0, 
           benchmarkComparison: data.benchmarkComparison,
           summary: data.summary,
-          
-          // --- Expose all calculated stats directly ---
           rawStats: stats 
         };
 

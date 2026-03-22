@@ -213,19 +213,16 @@ exports.getBenchmarksByRole = async (req, res) => {
         if (!coach) return;
 
         const roleId = req.params.roleId;
-
-        // Fetch all metrics assigned to this role, and LEFT JOIN any existing benchmark values
         const query = `
             SELECT m.metricId, m.metricName, m.metricDescription, 
                    b.benchmarkValue, b.comparator
-            FROM metricRoles mr
-            JOIN metrics m ON mr.metricId = m.metricId
-            LEFT JOIN benchmarks b ON m.metricId = b.metricId AND b.roleId = ?
-            WHERE mr.roleId = ?
+            FROM benchmarks b
+            JOIN metrics m ON b.metricId = m.metricId
+            WHERE b.roleId = ?
             ORDER BY m.metricName ASC
         `;
         
-        const [benchmarks] = await db.query(query, [roleId, roleId]);
+        const [benchmarks] = await db.query(query, [roleId]);
         res.status(200).json({ success: true, benchmarks });
     } catch (error) {
         console.error('Error fetching benchmarks:', error);

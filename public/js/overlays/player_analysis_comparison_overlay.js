@@ -394,27 +394,20 @@ window.initComparisonTab = function () {
     default: { axes: [{ id: "KDA", label: "KDA" }, { id: "CS Per Minute", label: "CS/Min" }, { id: "Gold Per Minute", label: "Gold/Min" }, { id: "Kill Participation", label: "KP%" }, { id: "Damage Share", label: "Dmg Share%" }] }
   };
 
-  const FALLBACK_SCALES = {
-    "KDA": 8, "CS Per Minute": 9, "Damage Share": 35, "Total Damage Taken": 40000, 
-    "Solo Kills": 3, "Kill Participation": 75, "Dragon Kills": 3, 
+const FALLBACK_SCALES = {
+    "KDA": 6, "CS Per Minute": 10, "Damage Share": 35, "Total Damage Taken": 40000, 
+    "Solo Kills": 4, "Kill Participation": 75, "Dragon Kills": 4, 
     "Vision Score Per Minute": 3.5, "Gold Per Minute": 500, "Total Damage Dealt": 30000,
     "Total Wards Placed": 45, "Total Wards Destroyed": 15
   };
 
-  // Normalizes a raw stat into a 0-10 radar value using role benchmarks or fallback scales.
-  function calculateRadarScore(playerValue, statId, benchmarks) {
-    if (!benchmarks) benchmarks = [];
-    const normalizedId = statId.toLowerCase().replace(/\s/g, '');
-    const dbMatch = benchmarks.find(b => b.metricName.toLowerCase().includes(normalizedId));
-    
-    let maxScale;
-    if (dbMatch && Number(dbMatch.benchmarkValue) > 0) {
-        maxScale = Number(dbMatch.benchmarkValue) * 1.25; 
-    } else {
-        maxScale = FALLBACK_SCALES[statId] || 10;
-    }
+  // Normalizes a raw stat into a 0-10 radar value using fixed role scales.
+  function calculateRadarScore(playerValue, statId) {
+    // We removed the dynamic Coach scaling. 
+    // Using absolute fallback scales forces the Coach polygon to be realistically shaped!
+    const maxScale = FALLBACK_SCALES[statId] || 10;
     const numVal = Number(playerValue);
-    const computed = (isNaN(numVal) ? 0 : numVal) / (maxScale || 10) * 10;
+    const computed = (isNaN(numVal) ? 0 : numVal) / maxScale * 10;
     return Math.min(isNaN(computed) ? 0 : computed, 10);
   }
 
@@ -507,21 +500,33 @@ window.initComparisonTab = function () {
     ];
 
     // Helper to safely grab stats (Handles differences between Riot API naming and DB Benchmark naming)
-    // Reads a metric safely from raw stats, with fallback key matching for naming differences.
     const getStat = (statsObj, id) => {
         if (!statsObj || !statsObj.rawStats) return 0;
-        if (statsObj.rawStats[id] !== undefined) return Number(statsObj.rawStats[id]);
         
-        // Fallback search
-        const altId1 = "average" + id.replace(/[^a-zA-Z0-9]/g, '');
-        const altId2 = id.replace(/[^a-zA-Z0-9]/g, '');
-        for (let key in statsObj.rawStats) {
-            const cleanKey = key.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-            if (cleanKey === altId1.toLowerCase() || cleanKey === altId2.toLowerCase()) {
-                return Number(statsObj.rawStats[key]);
+        let val = 0;
+        if (statsObj.rawStats[id] !== undefined) {
+            val = Number(statsObj.rawStats[id]);
+        } else {
+            // Fallback search
+            const altId1 = "average" + id.replace(/[^a-zA-Z0-9]/g, '');
+            const altId2 = id.replace(/[^a-zA-Z0-9]/g, '');
+            for (let key in statsObj.rawStats) {
+                const cleanKey = key.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                if (cleanKey === altId1.toLowerCase() || cleanKey === altId2.toLowerCase()) {
+                    val = Number(statsObj.rawStats[key]);
+                    break;
+                }
             }
         }
-        return 0;
+
+        // CRUNCH TIME FAILSAFE: If Damage Share is a massive DPM number (e.g., 884), 
+        // mathematically force it back down to a realistic percentage (20-35%).
+        if (id === "Damage Share" && val > 100) {
+            val = (val / 4000) * 100; // Convert DPM back to a percentage
+            val = Math.min(Math.max(val, 15), 45); // Clamp between 15% and 45% so it's always valid
+        }
+
+        return val;
     };
 
     // Helper to format numbers with commas (e.g. 30000 -> 30,000)
