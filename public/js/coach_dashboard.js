@@ -198,6 +198,10 @@ async function loadTeamStats() {
             const scrimsThisMonth = data.scrimsThisMonth || 0;
             const degrees = (winrate / 100) * 360;
 
+            // For KDA, map 0-5 KDA to 0-360deg (clamp if higher)
+            const maxKDA = 5;
+            const kdaAngle = Math.min((parseFloat(avgKDA) / maxKDA) * 360, 360);
+
             const html = `
                 <div class="carousel-container">
                     <button class="carousel-btn prev" onclick="moveCarousel(-1)">&#9664;</button>
@@ -210,7 +214,7 @@ async function loadTeamStats() {
                                 </div>
                             </div>
                             <div class="carousel-slide">
-                                <div class="carousel-winrate" style="--winrate-angle: 240deg; --ring-fill: #f72585; --ring-empty: #444;">
+                                <div class="carousel-winrate" style="--winrate-angle: ${kdaAngle}deg; --ring-fill: #f72585; --ring-empty: #444;">
                                     <div class="carousel-winrate-pct">${avgKDA} KDA</div>
                                     <div class="carousel-winrate-sub">Team Average</div>
                                 </div>
