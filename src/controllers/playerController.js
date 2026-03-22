@@ -907,83 +907,101 @@ function calculateAggregateStats(matchParticipants) {
 
   const count = matchParticipants.length;
   let totals = {
-    kills: 0,
-    deaths: 0,
-    assists: 0,
-    creepScore: 0,
-    goldEarned: 0,
-    visionScore: 0,
-    totalDamageDealt: 0,
-    totalDamageTaken: 0,
-    soloKills: 0,
-    wardsPlaced: 0,
-    wardsKilled: 0,
-    damageDealthToBuildings: 0,
-    teamBaronKills: 0,
-    teamElderDragonKills: 0,
-    dragonKills: 0
+    kills: 0, deaths: 0, assists: 0,
+    csPerMinute: 0, goldPerMinute: 0,
+    visionScore: 0, visionScorePerMinute: 0,
+    totalDamageDealt: 0, totalDamageTaken: 0,
+    soloKills: 0, wardsPlaced: 0, wardsKilled: 0,
+    damageDealtToBuildings: 0,
+    teamBaronKills: 0, teamElderDragonKills: 0, dragonKills: 0,
+    killParticipation: 0, damageShare: 0, visionScoreShare: 0
   };
 
-  matchParticipants.forEach(participant => {
-    totals.kills += participant.kills || 0;
-    totals.deaths += participant.deaths || 0;
-    totals.assists += participant.assists || 0;
-    totals.creepScore += participant.creepScore || 0;
-    totals.goldEarned += participant.goldEarned || 0;
-    totals.visionScore += participant.visionScore || 0;
-    totals.totalDamageDealt += participant.totalDamageDealt || 0;
-    totals.totalDamageTaken += participant.totalDamageTaken || 0;
-    totals.soloKills += participant.soloKills || 0;
-    totals.wardsPlaced += participant.wardsPlaced || 0;
-    totals.wardsKilled += participant.wardsKilled || 0;
-    totals.damageDealthToBuildings += participant.damageDealthToBuildings || 0;
-    totals.teamBaronKills += participant.teamBaronKills || 0;
-    totals.teamElderDragonKills += participant.teamElderDragonKills || 0;
-    totals.dragonKills += participant.dragonKills || 0;
+  let wins = 0;
+  const champCount = {};
+
+  matchParticipants.forEach(p => {
+    totals.kills += Number(p.kills || 0);
+    totals.deaths += Number(p.deaths || 0);
+    totals.assists += Number(p.assists || 0);
+    totals.csPerMinute += Number(p.creepScorePerMinute || p.csPerMinute || 0);
+    totals.goldPerMinute += Number(p.goldPerMinute || 0);
+    totals.visionScore += Number(p.visionScore || 0);
+    totals.visionScorePerMinute += Number(p.visionScorePerMinute || 0);
+    totals.totalDamageDealt += Number(p.totalDamageDealt || p.totalDamageDealtToChampions || 0);
+    totals.totalDamageTaken += Number(p.totalDamageTaken || p.damageTaken || 0);
+    totals.soloKills += Number(p.soloKills || 0);
+    totals.wardsPlaced += Number(p.wardsPlaced || 0);
+    totals.wardsKilled += Number(p.wardsKilled || p.wardsDestroyed || 0);
+    totals.damageDealtToBuildings += Number(p.damageDealthToBuildings || p.damageDealtToBuildings || 0);
+    totals.teamBaronKills += Number(p.teamBaronKills || 0);
+    totals.teamElderDragonKills += Number(p.teamElderDragonKills || 0);
+    totals.dragonKills += Number(p.dragonKills || 0);
+    totals.killParticipation += Number(p.killParticipation || 0);
+    totals.damageShare += Number(p.damageShare || 0);
+    totals.visionScoreShare += Number(p.visionScoreShare || 0);
+
+    if (p.win === 'W' || p.win === 'Win' || p.win === true || p.win === 1) wins++;
+    if (p.championName) champCount[p.championName] = (champCount[p.championName] || 0) + 1;
   });
 
-  // Get game duration from first match (assuming all recent matches have similar duration)
-  const gameDuration = 25; // Average 25 minutes per game for normalization
+// --- SMART MATH FAILSAFES ---
+  let rawDmgShareAvg = totals.damageShare / count;
+  let finalDamageShare = 0;
 
-  // Calculate per-minute stats
+  if (rawDmgShareAvg > 100) {
+      // DB CORRUPTION DETECTED: The DB stored DPM (e.g., 884) instead of Share.
+      // A standard League team does about 4000 DPM combined. 
+      // We will estimate the percentage: (Player DPM / 4000) * 100
+      finalDamageShare = (rawDmgShareAvg / 4000) * 100;
+      
+      // Clamp it between 10% and 45% just in case the math gets weird
+      finalDamageShare = Math.min(Math.max(finalDamageShare, 10), 45); 
+  } else if (rawDmgShareAvg <= 1 && rawDmgShareAvg > 0) {
+      // DB stored a decimal (e.g., 0.25)
+      finalDamageShare = rawDmgShareAvg * 100;
+  } else {
+      // DB stored a normal percentage (e.g., 25)
+      finalDamageShare = rawDmgShareAvg;
+  }
+
+  let rawKpAvg = totals.killParticipation / count;
+  let finalKp = (rawKpAvg <= 1 && rawKpAvg > 0) ? rawKpAvg * 100 : rawKpAvg;
+
+  let rawVsAvg = totals.visionScoreShare / count;
+  let finalVs = (rawVsAvg <= 1 && rawVsAvg > 0) ? rawVsAvg * 100 : rawVsAvg;
+
   const playerStats = {
     'Kills': (totals.kills / count).toFixed(2),
     'Deaths': (totals.deaths / count).toFixed(2),
     'Assists': (totals.assists / count).toFixed(2),
     'KDA': ((totals.kills + totals.assists) / (totals.deaths || 1)).toFixed(2),
-    'CS Per Minute': (totals.creepScore / count / gameDuration).toFixed(2),
-    'Gold Per Minute': (totals.goldEarned / count / gameDuration).toFixed(2),
-    'Vision Score Per Minute': (totals.visionScore / count / gameDuration).toFixed(3),
+    'CS Per Minute': (totals.csPerMinute / count).toFixed(2),
+    'Gold Per Minute': (totals.goldPerMinute / count).toFixed(2),
+    'Vision Score Per Minute': totals.visionScorePerMinute > 0 
+        ? (totals.visionScorePerMinute / count).toFixed(3) 
+        : (totals.visionScore / count / 25).toFixed(3),
     'Total Damage Dealt': (totals.totalDamageDealt / count).toFixed(2),
     'Total Damage Taken': (totals.totalDamageTaken / count).toFixed(2),
     'Solo Kills': (totals.soloKills / count).toFixed(2),
     'Total Wards Placed': (totals.wardsPlaced / count).toFixed(2),
     'Total Wards Destroyed': (totals.wardsKilled / count).toFixed(2),
-    'Damage to Buildings': (totals.damageDealthToBuildings / count).toFixed(2),
-    'Kill Participation': calculateKillParticipation(matchParticipants),
-    'Vision Score Share': calculateVisionScoreShare(matchParticipants),
-    'Damage Share': calculateDamageShare(matchParticipants),
+    'Damage to Buildings': (totals.damageDealtToBuildings / count).toFixed(2),
+    
+    'Kill Participation': finalKp.toFixed(2),
+    'Vision Score Share': finalVs.toFixed(2),
+    'Damage Share': finalDamageShare.toFixed(2),
+    
     'Dragon Kills': (totals.dragonKills / count).toFixed(2),
     'Team Baron Kills': (totals.teamBaronKills / count).toFixed(2),
-    'Team Elder Dragon Kills': (totals.teamElderDragonKills / count).toFixed(2)
+    'Team Elder Dragon Kills': (totals.teamElderDragonKills / count).toFixed(2),
+    'winrate': ((wins / count) * 100).toFixed(1)
   };
-
-  const champCount = {};
-  matchParticipants.forEach(p => {
-    if (p.championName) {
-      champCount[p.championName] = (champCount[p.championName] || 0) + 1;
-    }
-  });
 
   playerStats.topChampions = Object.entries(champCount)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([name]) => name);
-
-  // winrate
-  const wins = matchParticipants.filter(p => p.win === 'Win').length; // adjust value if needed
-  playerStats.winrate = ((wins / count) * 100).toFixed(1);
-
 
   return playerStats;
 }
@@ -998,7 +1016,7 @@ function calculateKillParticipation(matchParticipants) {
     return sum + (p.killParticipation || 0);
   }, 0) / matchParticipants.length;
 
-  return avgKillParticipation.toFixed(2);
+  return (avgKillParticipation * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
 
 /**
@@ -1011,7 +1029,7 @@ function calculateVisionScoreShare(matchParticipants) {
     return sum + (p.visionScoreShare || 0);
   }, 0) / matchParticipants.length;
 
-  return avgVisionScoreShare.toFixed(2);
+  return (avgVisionScoreShare * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
 
 /**
@@ -1024,7 +1042,7 @@ function calculateDamageShare(matchParticipants) {
     return sum + (p.damageShare || 0);
   }, 0) / matchParticipants.length;
 
-  return avgDamageShare.toFixed(2);
+  return (avgDamageShare * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
 
 /**
