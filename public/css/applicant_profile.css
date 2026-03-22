@@ -14,58 +14,6 @@ body {
     width: 100%;
 }
 
-/* --- SIDEBAR --- */
-.sidebar {
-    width: 110px;
-    background-color: #202225;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 20px;
-    z-index: 10;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-}
-
-.sidebar li {
-    width: 100%;
-    margin-bottom: 15px;
-}
-
-.sidebar a {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: #b9bbbe;
-    font-size: 12px;
-    font-weight: 500;
-    text-align: center;
-    padding: 10px 5px;
-    transition: all 0.2s;
-    white-space: normal;
-    line-height: 1.3;
-}
-
-.sidebar a:hover {
-    color: white;
-    background-color: rgba(79, 84, 92, 0.32);
-}
-
-.sidebar img {
-    width: 28px;
-    height: 28px;
-    margin-bottom: 8px;
-    object-fit: contain;
-}
-
 /* --- MAIN CONTENT --- */
 .main-content {
     flex-grow: 1;
