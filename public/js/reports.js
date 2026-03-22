@@ -400,6 +400,41 @@ document.addEventListener('DOMContentLoaded', () => {
           <td class="${p.players_left <= 1 ? 'players-left-zero' : ''}">${p.players_left}</td>
         </tr>
       `).join('');
+
+            // Build recommendation based on player count after semester losses
+            const allRoles = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
+            const criticalRoles = [];   // 0 players left
+            const lowRoles = [];        // 1 player left
+            const missingRoles = [];    // role has no players at all (not in data)
+
+            allRoles.forEach(role => {
+                const entry = data.find(p => p.displayedRole === role);
+                if (!entry) {
+                    missingRoles.push(role);
+                } else if (Number(entry.players_left) === 0) {
+                    criticalRoles.push(role);
+                } else if (Number(entry.players_left) === 1) {
+                    lowRoles.push(role);
+                }
+            });
+
+            const recEl = document.getElementById('recommended-action-text');
+            if (!recEl) return;
+
+            const urgentRoles = [...new Set([...missingRoles, ...criticalRoles])];
+            const parts = [];
+
+            if (urgentRoles.length > 0) {
+                parts.push(`Urgently recruit ${urgentRoles.join(', ')} player${urgentRoles.length > 1 ? 's' : ''} — no remaining players after this semester.`);
+            }
+            if (lowRoles.length > 0) {
+                parts.push(`Consider recruiting backup ${lowRoles.join(', ')} player${lowRoles.length > 1 ? 's' : ''} — only 1 player remaining per role.`);
+            }
+            if (parts.length === 0) {
+                recEl.textContent = 'All roles are sufficiently staffed for next semester. No immediate recruitment needed.';
+            } else {
+                recEl.textContent = parts.join(' ');
+            }
         })
         .catch(err => console.error('Error loading current players:', err));
 
