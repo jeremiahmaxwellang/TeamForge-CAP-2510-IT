@@ -206,6 +206,7 @@ h1.page-title {
     grid-template-columns: 2fr 1fr;
     gap: 16px;
     margin-bottom: 16px;
+    align-items: start;
 }
 
 .tournament-report-controls {
@@ -267,12 +268,12 @@ h1.page-title {
 .card {
     background: #fff;
     border-radius: 12px;
-    padding: 18px 20px;
+    padding: 14px 16px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .card-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.6px;
@@ -287,7 +288,7 @@ h1.page-title {
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 thead tr {
@@ -296,10 +297,10 @@ thead tr {
 }
 
 thead th {
-    padding: 9px 12px;
+    padding: 8px 10px;
     text-align: left;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 tbody tr {
@@ -311,7 +312,7 @@ tbody tr:last-child {
 }
 
 tbody td {
-    padding: 10px 12px;
+    padding: 8px 10px;
     color: #1a1a2e;
 }
 
@@ -421,7 +422,7 @@ tbody td {
 .rec-box {
     background: #fff;
     border-radius: 12px;
-    padding: 16px 20px;
+    padding: 12px 14px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -443,16 +444,62 @@ tbody td {
 .right-col {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+}
+
+.left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reports-priority-row .card-title {
+    margin-bottom: 10px;
+}
+
+.reports-priority-row .role-table th,
+.reports-priority-row .role-table td {
+    font-size: 11px;
+    padding: 6px 8px;
+}
+
+.applications-card,
+.best-performing-card,
+.best-communication-card {
+    padding: 8px 10px;
+}
+
+.applications-card .card-title,
+.best-performing-card .card-title,
+.best-communication-card .card-title {
+    margin-bottom: 7px;
+    font-size: 16px;
+}
+
+.applications-card table,
+.best-performing-card table,
+.best-communication-card table {
+    font-size: 14px;
+}
+
+.applications-card thead th,
+.best-performing-card thead th,
+.best-communication-card thead th {
+    padding: 4px 6px;
+    line-height: 1.05;
+    font-size: 13px;
+}
+
+.applications-card tbody td,
+.best-performing-card tbody td,
+.best-communication-card tbody td {
+    padding: 4px 6px;
+    line-height: 1.05;
 }
 
 @media (max-width: 1200px) {
     .manager-team-name {
         font-size: 26px;
-    }
-
-    .grid {
-        grid-template-columns: 1fr 1fr;
     }
 
     .reports-top-row {
@@ -467,11 +514,11 @@ tbody td {
         grid-template-columns: 1fr 1fr;
     }
 
-    .col-span-2 {
+    .right-col {
         grid-column: span 2;
     }
 
-    .right-col {
+    .left-col {
         grid-column: span 2;
     }
 }
@@ -537,10 +584,6 @@ tbody td {
         padding: 14px;
     }
 
-    .grid {
-        grid-template-columns: 1fr;
-    }
-
     .reports-top-row {
         grid-template-columns: 1fr;
     }
@@ -553,7 +596,7 @@ tbody td {
         grid-template-columns: 1fr;
     }
 
-    .col-span-2,
+    .left-col,
     .right-col {
         grid-column: span 1;
     }
