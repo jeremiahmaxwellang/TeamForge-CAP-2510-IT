@@ -75,7 +75,7 @@ exports.getApplicantByEmail = async (req, res) => {
                 p.yearLevel,      
                 p.lastGPA,
                 p.CGPA,
-                p.puuid
+                p.puuid,
                 a.status AS applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
