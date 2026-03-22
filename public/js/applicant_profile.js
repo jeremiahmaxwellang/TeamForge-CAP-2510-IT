@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     studentGpa: document.getElementById('student-gpa'),
     studentCgpa: document.getElementById('student-cgpa'),
 
+    timerInfo: document.getElementById('timerInfo'),
     winrate: document.getElementById('stat-winrate'),
     kda: document.getElementById('stat-kda'),
     topChamps: document.getElementById('top-champs-container'),
@@ -84,6 +85,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Initialize profile page
   async function init() {
     console.log("[APPLICANT] Initializing Profile...");
+    UI.timerInfo.textContent = 'Ready to fetch recent matches.';
 
     // 1. Fetch Applicants
     try {
@@ -136,8 +138,93 @@ document.addEventListener("DOMContentLoaded", async function () {
   // DISPLAY MATCH STATISTICS HELPERS
   // ==========================================
 
-  async function displayMatchStats(puuid) {
-    await fetchWinrate(puuid);
+  async function displayMatchStats(userId, roleId) {
+    UI.winrate.textContent = "Loading...";
+    UI.kda.textContent = "Loading...";
+    if (UI.topChamps) UI.topChamps.innerHTML = "<span>Loading...</span>";
+
+    try {
+      const target = state.comparisonTarget || 'benchmark';
+
+      const fetches = [
+        fetch('/player_analysis/stats/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: userId, roleId: roleId || 1 })
+        }).catch(() => null),
+
+        fetch(`/player_analysis/benchmarks/role/${roleId || 1}`).catch(() => null)
+      ];
+
+      if (target !== 'benchmark') {
+        fetches.push(
+          fetch('/player_analysis/stats/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId: target, roleId: roleId || 1 })
+          }).catch(() => null)
+        );
+      }
+
+      const responses = await Promise.all(fetches);
+      const data = responses[0] ? await responses[0].json() : null;
+      const benchData = responses[1] ? await responses[1].json() : null;
+      const targetData = responses[2] ? await responses[2].json() : null;
+
+      const pStats = data?.playerStats ?? null;
+      const benchmarks = Array.isArray(benchData)
+        ? benchData
+        : (benchData?.benchmarks ?? []);
+
+      if (data?.success && pStats) {
+        UI.winrate.textContent = `${pStats.winrate ?? '--'}% WR`;
+        UI.kda.textContent = `${pStats.KDA ?? pStats.kda ?? '--'} KDA`;
+
+        if (pStats.topChampions?.length > 0) {
+          UI.topChamps.innerHTML = pStats.topChampions
+            .map(c => `<span style="background:#444; padding:3px 10px; border-radius:6px;">${c}</span>`)
+            .join('');
+        } else {
+          UI.topChamps.innerHTML = "<span>No Champ Data</span>";
+        }
+
+        let p2Stats = null;
+        let p2Name = "Expected Stats";
+        let p2Role = "Coach";
+        let isBenchmark = true;
+
+        if (target !== 'benchmark') {
+          p2Stats = targetData?.playerStats ?? null;
+          isBenchmark = false;
+
+          const allPlayers = [...state.allApplicants, ...state.rosterPlayers];
+          const targetApp = allPlayers.find(a => (a.userId || a.id) == target);
+
+          p2Name = targetApp
+            ? (targetApp.gameName ? `${targetApp.gameName}#${targetApp.tagLine}` : "Player")
+            : "Other Player";
+          p2Role = `Compared as ${getRoleName(roleId || 1)}`;
+        } else {
+          p2Stats = benchmarks;
+          p2Role = `Expected ${getRoleName(roleId || 1)}`;
+        }
+
+        drawComparisonChart(pStats, p2Stats, benchmarks, isBenchmark);
+        drawStatsTable(pStats, p2Stats, benchmarks, roleId, isBenchmark, p2Name, p2Role);
+
+      } else {
+        throw new Error("No match data returned.");
+      }
+
+    } catch (e) {
+      console.warn("[APPLICANT] Stats fallback:", e);
+      UI.winrate.textContent = "--% WR";
+      UI.kda.textContent = "-- KDA";
+      if (UI.topChamps) UI.topChamps.innerHTML = "<span>No Data</span>";
+      if (UI.chartContainer) UI.chartContainer.innerHTML =
+        "<div style='text-align:center;padding:40px;color:#888;'>No recent match data available for this role.</div>";
+      if (UI.statsContainer) UI.statsContainer.innerHTML = "";
+    }
   }
 
   async function fetchWinrate(puuid) {
@@ -240,7 +327,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
 
       // Display Match Statistics from DB
-      displayMatchStats(applicant.puuid);
+      displayMatchStats(applicant.userId, state.selectedRoleId);
     }
 
     populateComparisonDropdown(); // ADDED: Refresh dropdown to exclude the current applicant
@@ -567,6 +654,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
     async function clickMatchStatsButton() {
+      UI.timerInfo.textContent = 'Fetching matches...';
       const gameName = state.currentApplicant.gameName;
       const tagLine = state.currentApplicant.tagLine;
       let puuidString = ""
@@ -579,14 +667,16 @@ document.addEventListener("DOMContentLoaded", async function () {
         puuidString = data.puuid;
 
         const userId = parseInt(state.currentApplicant.userId, 10);
+        const roleId = parseInt(state.selectedRoleId, 10);
         console.log(`player number ${userId}, puuid: ${puuidString}`);
 
-        updatePuuid(userId, puuidString);
+        await updatePuuid(userId, puuidString);
 
-        fetchMatchIds(puuidString);
+        await fetchMatchIds(puuidString);
 
         // Display stats
-        displayMatchStats(puuidString);
+        await displayMatchStats(userId, roleId);
+        UI.timerInfo.textContent = 'Matches fetched.';
       } catch (err) {
         console.error("Error fetching PUUID:", err);
       }
