@@ -21,9 +21,22 @@ exports.getScrims = async (req, res) => {
         const playerId = req.params.id;
         const sql = `
             SELECT
-                s.*,
+                s.scrimId,
+                s.name,
+                s.date,
+                s.videoLink,
+                s.length,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM evaluations e
+                        WHERE e.scrimId = s.scrimId
+                    ) THEN 'evaluated'
+                    ELSE 'unevaluated'
+                END AS status,
                 p.playerId,
                 p.roleId,
+                p.win,
                 CONCAT(pl.gameName, '#', pl.tagLine, ' (', lr.displayedRole, ')') AS playerDisplay
             FROM scrims s 
             JOIN scrimPlayers p ON s.scrimId = p.scrimId
@@ -150,6 +163,12 @@ exports.createEvaluation = async (req, res) => {
             ratingChampionPool,
             coachId
         ]);
+
+        // Keep scrim status in sync once at least one evaluation exists.
+        await db.query(
+            `UPDATE scrims SET status = 'evaluated' WHERE scrimId = ?`,
+            [scrimId]
+        );
 
         // Fetch the updated eval
         const [rows] = await db.query(fetchEval, [playerId, scrimId]); 

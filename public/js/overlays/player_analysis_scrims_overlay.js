@@ -100,6 +100,7 @@ window.initScrimsTab = function (userId) {
               <td>${scrim.length}</td>
               <td>${scrim.playerDisplay || scrim.playerId || ""}</td>
               <td>${scrim.win || ""}</td>
+              <td>${scrim.status || "unevaluated"}</td>
               <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
             `;
 
