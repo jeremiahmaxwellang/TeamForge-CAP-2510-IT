@@ -89,144 +89,147 @@
           </div>
 
           <div class="reports-priority-row">
-            <div class="card">
-              <div class="card-title">Number of Applications</div>
-              <table class="apps-table" id="applications-table">
-                <thead>
-                  <tr>
-                    <th>Recruitment Period</th>
-                    <th>No. of Applicants</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td colspan="2" style="text-align:center;">None found</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="left-col">
+              <div class="card applications-card">
+                <div class="card-title">Number of Applications</div>
+                <table class="apps-table" id="applications-table">
+                  <thead>
+                    <tr>
+                      <th>Recruitment Period</th>
+                      <th>No. of Applicants</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="2" style="text-align:center;">None found</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card best-performing-card">
+                <div class="card-title">Best Performing Applicants</div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th>Winrate (Last 15 Games as Role)</th>
+                      <th>Role Applied</th>
+                    </tr>
+                  </thead>
+                  <tbody id="best-performing-table-body">
+                    <tr>
+                      <td class="rank-num">1</td>
+                      <td>Egresados</td>
+                      <td><span class="wr-badge">70%</span></td>
+                      <td>Top</td>
+                    </tr>
+                    <tr>
+                      <td class="rank-num">2</td>
+                      <td>Curriculo</td>
+                      <td><span class="wr-badge">52%</span></td>
+                      <td>Jungle</td>
+                    </tr>
+                    <tr>
+                      <td class="rank-num">3</td>
+                      <td>Vinculacion</td>
+                      <td><span class="wr-badge">51%</span></td>
+                      <td>Support</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card best-communication-card">
+                <div class="card-title">Applicants with the best communication</div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th>Comms Rating</th>
+                      <th>Role Applied</th>
+                    </tr>
+                  </thead>
+                  <tbody id="best-communication-table-body">
+                    <tr>
+                      <td class="rank-num">1</td>
+                      <td>Egresados</td>
+                      <td><span class="comms-5">5</span></td>
+                      <td>Top</td>
+                    </tr>
+                    <tr>
+                      <td class="rank-num">2</td>
+                      <td>Curriculo</td>
+                      <td><span class="comms-5">5</span></td>
+                      <td>Jungle</td>
+                    </tr>
+                    <tr>
+                      <td class="rank-num">3</td>
+                      <td>Vinculacion</td>
+                      <td><span class="comms-4">4</span></td>
+                      <td>Support</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            <div class="rec-box">
-              <div class="card-title">Recommended Action</div>
-              <p id="recommended-action-text">Loading recommendation...</p>
+            <div class="right-col">
+              <div class="card">
+                <div class="card-title">Current Number of Team Players</div>
+                <table class="role-table">
+                  <thead>
+                    <tr>
+                      <th>Role</th>
+                      <th>No. of Current Players</th>
+                      <th class="gold-cell">Number of graduating / leaving</th>
+                      <th class="red-cell">Players left after semester</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Top</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                    </tr>
+                    <tr>
+                      <td>Mid</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                    </tr>
+                    <tr>
+                      <td>Jungle</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                    </tr>
+                    <tr>
+                      <td>AD Carry</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                    </tr>
+                    <tr>
+                      <td>Support</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                      <td class="players-left-zero">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="rec-box">
+                <div class="card-title">Recommended Action</div>
+                <p id="recommended-action-text">Loading recommendation...</p>
+              </div>
             </div>
           </div>
 
-          <div class="grid">
-            <div class="card col-span-2">
-              <div class="card-title">Best Performing Applicants</div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Player</th>
-                    <th>Winrate (Last 15 Games as Role)</th>
-                    <th>Role Applied</th>
-                  </tr>
-                </thead>
-                <tbody id="best-performing-table-body">
-                  <tr>
-                    <td class="rank-num">1</td>
-                    <td>Egresados</td>
-                    <td><span class="wr-badge">70%</span></td>
-                    <td>Top</td>
-                  </tr>
-                  <tr>
-                    <td class="rank-num">2</td>
-                    <td>Curriculo</td>
-                    <td><span class="wr-badge">52%</span></td>
-                    <td>Jungle</td>
-                  </tr>
-                  <tr>
-                    <td class="rank-num">3</td>
-                    <td>Vinculacion</td>
-                    <td><span class="wr-badge">51%</span></td>
-                    <td>Support</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="card col-span-2">
-              <div class="card-title">Applicants with the best communication</div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Player</th>
-                    <th>Comms Rating</th>
-                    <th>Role Applied</th>
-                  </tr>
-                </thead>
-                <tbody id="best-communication-table-body">
-                  <tr>
-                    <td class="rank-num">1</td>
-                    <td>Egresados</td>
-                    <td><span class="comms-5">5</span></td>
-                    <td>Top</td>
-                  </tr>
-                  <tr>
-                    <td class="rank-num">2</td>
-                    <td>Curriculo</td>
-                    <td><span class="comms-5">5</span></td>
-                    <td>Jungle</td>
-                  </tr>
-                  <tr>
-                    <td class="rank-num">3</td>
-                    <td>Vinculacion</td>
-                    <td><span class="comms-4">4</span></td>
-                    <td>Support</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="card col-span-2">
-              <div class="card-title">Current Number of Team Players</div>
-              <table class="role-table">
-                <thead>
-                  <tr>
-                    <th>Role</th>
-                    <th>No. of Current Players</th>
-                    <th class="gold-cell">Number of graduating / leaving</th>
-                    <th class="red-cell">Players left after semester</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Top</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                  </tr>
-                  <tr>
-                    <td>Mid</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                  </tr>
-                  <tr>
-                    <td>Jungle</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                  </tr>
-                  <tr>
-                    <td>AD Carry</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                  </tr>
-                  <tr>
-                    <td>Support</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                    <td class="players-left-zero">0</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </main>
     </div>
