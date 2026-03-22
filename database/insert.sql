@@ -712,7 +712,14 @@ INSERT INTO tournaments (tournamentId, name, startDate, endDate, win)
 VALUES
 (1, 'Campus Clash 2026 Qualifiers', '2026-01-18', '2026-01-19', 'W'),
 (2, 'Inter-University Rift Cup', '2026-02-07', '2026-02-08', 'L'),
-(3, 'Summer Showdown Invitational', '2026-03-15', '2026-03-16', 'N/A');
+(3, 'Summer Showdown Invitational', '2026-03-15', '2026-03-16', 'N/A'),
+(4, 'January Nexus Open', '2026-01-23', '2026-01-24', 'W'),
+(5, 'Rift Rivals Collegiate Week 1', '2026-01-30', '2026-01-31', 'L'),
+(6, 'February Phoenix Bracket', '2026-02-14', '2026-02-15', 'N/A'),
+(7, 'Spring Split City Clash', '2026-02-27', '2026-02-28', 'W'),
+(8, 'March Midlane Masters', '2026-03-21', '2026-03-22', 'L'),
+(9, 'April Academy Invitational', '2026-04-04', '2026-04-05', 'N/A'),
+(10, 'Campus Crown Cup', '2026-04-18', '2026-04-19', 'W');
 
 -- Tournament 1: full roster with two subs
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
@@ -743,3 +750,73 @@ VALUES
 (3, 16, 4, 'N'),
 (3, 6, 5, 'N'),
 (3, 15, 3, 'Y');
+
+-- Tournament 4: full starters, no substitutes
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(4, 4, 1, 'N'),
+(4, 7, 2, 'N'),
+(4, 3, 3, 'N'),
+(4, 5, 4, 'N'),
+(4, 6, 5, 'N');
+
+-- Tournament 5: one substitute available
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(5, 13, 1, 'N'),
+(5, 14, 2, 'N'),
+(5, 15, 3, 'N'),
+(5, 16, 4, 'N'),
+(5, 17, 5, 'N'),
+(5, 7, 2, 'Y');
+
+-- Tournament 6: two substitutes available
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(6, 4, 1, 'N'),
+(6, 8, 2, 'N'),
+(6, 3, 3, 'N'),
+(6, 5, 4, 'N'),
+(6, 6, 5, 'N'),
+(6, 13, 1, 'Y'),
+(6, 17, 5, 'Y');
+
+-- Tournament 7: starters only
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(7, 13, 1, 'N'),
+(7, 7, 2, 'N'),
+(7, 15, 3, 'N'),
+(7, 16, 4, 'N'),
+(7, 17, 5, 'N');
+
+-- Tournament 8: one substitute available
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(8, 4, 1, 'N'),
+(8, 14, 2, 'N'),
+(8, 3, 3, 'N'),
+(8, 5, 4, 'N'),
+(8, 6, 5, 'N'),
+(8, 15, 3, 'Y');
+
+-- Tournament 9: mixed roster with two subs
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(9, 13, 1, 'N'),
+(9, 8, 2, 'N'),
+(9, 15, 3, 'N'),
+(9, 16, 4, 'N'),
+(9, 17, 5, 'N'),
+(9, 3, 3, 'Y'),
+(9, 6, 5, 'Y');
+
+-- Tournament 10: full roster with one substitute
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(10, 4, 1, 'N'),
+(10, 7, 2, 'N'),
+(10, 3, 3, 'N'),
+(10, 5, 4, 'N'),
+(10, 6, 5, 'N'),
+(10, 14, 2, 'Y');

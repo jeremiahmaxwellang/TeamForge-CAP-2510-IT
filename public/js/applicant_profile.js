@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Initialize profile page
   async function init() {
     console.log("[APPLICANT] Initializing Profile...");
-    UI.timerInfo.textContent = 'Ready to fetch recent matches.';
+    setTimerInfoStatus('ready', 'Ready to fetch recent matches.');
 
     // 1. Fetch Applicants
     try {
@@ -182,7 +182,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (pStats.topChampions?.length > 0) {
           UI.topChamps.innerHTML = pStats.topChampions
-            .map(c => `<span style="background:#444; padding:3px 10px; border-radius:6px;">${c}</span>`)
+            .map(c => {
+              // Remove spaces and special chars for image URL, e.g. "Lee Sin" -> "LeeSin"
+              const champKey = c.replace(/[^a-zA-Z0-9]/g, '');
+              const imgUrl = `https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/${champKey}.png`;
+              return `<span style="display:flex; align-items:center; background:#444; padding:3px 10px; border-radius:6px; min-width:110px; gap:8px;">
+                <img src="${imgUrl}" alt="${c}" style="width:32px; height:32px; object-fit:contain;" />
+                <span style="font-size:15px;">${c}</span>
+              </span>`;
+            })
             .join('');
         } else {
           UI.topChamps.innerHTML = "<span>No Champ Data</span>";
@@ -717,7 +725,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
     async function clickMatchStatsButton() {
-      UI.timerInfo.textContent = 'Fetching matches...';
+      setTimerInfoStatus('fetching', 'Fetching matches...');
       const gameName = state.currentApplicant.gameName;
       const tagLine = state.currentApplicant.tagLine;
       let puuidString = ""
@@ -739,11 +747,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Display stats
         await displayMatchStats(userId, roleId);
-        UI.timerInfo.textContent = 'Matches fetched.';
+        setTimerInfoStatus('success', 'Matches fetched.');
       } catch (err) {
+        setTimerInfoStatus('error', 'Failed to fetch matches.');
         console.error("Error fetching PUUID:", err);
       }
-
     }
 
     // 1. Update player's puuid in the DB
@@ -919,6 +927,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   function getRoleName(id) {
     const roles = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'ADC', 5: 'Support' };
     return roles[id] || 'Flex';
+  }
+
+  function setTimerInfoStatus(status, message) {
+    const el = UI.timerInfo;
+    el.classList.remove('ready', 'fetching', 'success', 'error');
+    if (status) el.classList.add(status);
+    if (message) el.textContent = message;
   }
 
 });

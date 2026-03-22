@@ -128,10 +128,10 @@
                             <p id="email">Email:</p>
                             <p id="discord">Discord:</p>
                             <div class="candidate-favorite-wrap" style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px;">
-                                <label for="candidateFavoriteRoleSelect" style="font-size: 12px; color: #5f6673; font-weight: 600;">Candidate Role</label>
+                                <label class="candidate_role_label" for="candidateFavoriteRoleSelect">Candidate Role</label>
                                 <select
                                     id="candidateFavoriteRoleSelect"
-                                    style="width: fit-content; min-width: 190px; height: 34px; border: 1px solid #d3d6dc; border-radius: 8px; background: #ffffff; color: #374151; padding: 0 10px;"
+                                    class="candidate_role_dropdown_"
                                 >
                                     <option value="" disabled selected>Select role</option>
                                 </select>
@@ -142,7 +142,7 @@
                                     title="Mark as candidate favorite"
                                     style="width: fit-content; min-width: 42px; height: 42px; border: 1px solid #d3d6dc; border-radius: 10px; background: #ffffff; color: #6b7280; font-size: 24px; line-height: 1; cursor: pointer;"
                                 >☆</button>
-                                <p id="candidateFavoriteMessage" style="margin: 0; font-size: 12px; color: #5f6673;">Pick up to 2 candidates per role.</p>
+                                <p  class="candidate_message" id="candidateFavoriteMessage">Pick up to 2 candidates per role.</p>
                             </div>
                         </div>
                     </div>
