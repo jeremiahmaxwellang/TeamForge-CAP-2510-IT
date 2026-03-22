@@ -209,6 +209,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrims` (
   `date` DATE NULL,
   `videoLink` LONGTEXT NULL,
   `length` VARCHAR(45) NULL,
+  `status` ENUM('evaluated', 'unevaluated') NOT NULL DEFAULT 'unevaluated',
   PRIMARY KEY (`scrimId`))
 ENGINE = InnoDB;
 
