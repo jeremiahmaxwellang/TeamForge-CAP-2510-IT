@@ -45,7 +45,17 @@
 
         <!-- Middle Side: Scrim Matches Table -->
         <div class="scrim-list">
-          <h2>Scrim Matches</h2>
+          <div class="scrim-list-header">
+            <h2>Scrim Matches</h2>
+            <div class="scrim-filter-wrapper">
+              <label for="scrimStatusFilter" class="scrim-filter-label">Filter</label>
+              <select id="scrimStatusFilter" class="scrim-filter-select">
+                <option value="all">All</option>
+                <option value="evaluated">Evaluated</option>
+                <option value="unevaluated">Unevaluated</option>
+              </select>
+            </div>
+          </div>
 
           <div class="scrim-table-frame">
             <table class="scrim-table">

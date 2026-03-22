@@ -43,7 +43,16 @@ exports.getScrims = async (req, res) => {
             JOIN players pl ON p.playerId = pl.userId
             LEFT JOIN leagueRoles lr ON p.roleId = lr.roleId
             WHERE p.playerId = ?
-            ORDER BY s.date DESC
+            ORDER BY
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM evaluations e
+                        WHERE e.scrimId = s.scrimId
+                    ) THEN 0
+                    ELSE 1
+                END,
+                s.date DESC
         `;
 
         const [rows] = await db.query(sql, [playerId]);
