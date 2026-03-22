@@ -177,7 +177,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (pStats.topChampions?.length > 0) {
           UI.topChamps.innerHTML = pStats.topChampions
-            .map(c => `<span style="background:#444; padding:3px 10px; border-radius:6px;">${c}</span>`)
+            .map(c => {
+              // Remove spaces and special chars for image URL, e.g. "Lee Sin" -> "LeeSin"
+              const champKey = c.replace(/[^a-zA-Z0-9]/g, '');
+              const imgUrl = `https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/${champKey}.png`;
+              return `<span style="display:flex; align-items:center; background:#444; padding:3px 10px; border-radius:6px; min-width:110px; gap:8px;">
+                <img src="${imgUrl}" alt="${c}" style="width:32px; height:32px; object-fit:contain;" />
+                <span style="font-size:15px;">${c}</span>
+              </span>`;
+            })
             .join('');
         } else {
           UI.topChamps.innerHTML = "<span>No Champ Data</span>";
