@@ -586,70 +586,60 @@ INSERT INTO metricRoles (metricId, roleId) VALUES
 
 -- 1. Top
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(14, 1, 4.00, '>='),     -- Kills
-(2, 1, 6.00, '>='),      -- Assists
-(12, 1, 2.50, '>='),     -- KDA
-(4, 1, 7.80, '>='),      -- CS/Min
-(11, 1, 388.40, '>='),   -- Gold/Min
-(5, 1, 25.00, '>='),     -- Damage Share %
-(19, 1, 28000.00, '>='), -- Tanking
-(15, 1, 1.70, '>='),     -- Solo Kills
-(7, 1, 3.20, '<=');      -- Deaths
+(4, 1, 7.80, '>='),
+(11, 1, 388.40, '>='),
+(3, 1, -0.30, '>='),
+(25, 1, -31.40, '>='),
+(7, 1, 3.20, '<='),
+(15, 1, 1.70, '>='),
+(13, 1, 0.44, '>='),
+(6, 1, 0.21, '>='),
+(19, 1, 0.25, '>=');
 
 -- 2. Jungle
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(14, 2, 5.00, '>='),     -- Kills
-(2, 2, 8.00, '>='),      -- Assists
-(12, 2, 3.50, '>='),     -- KDA
-(4, 2, 6.80, '>='),      -- CS/Min
-(11, 2, 410.00, '>='),   -- Gold/Min
-(7, 2, 3.50, '<='),      -- Deaths
-(13, 2, 67.00, '>='),    -- Kill Participation %
-(20, 2, 1.60, '>='),     -- Vision Score/Min
-(8, 2, 2.00, '>='),      -- Dragon Kills
-(16, 2, 1.00, '>='),     -- Team Baron
-(17, 2, 1.00, '>='),     -- Team Elder
-(18, 2, 1.00, '>='),     -- Team Herald
-(22, 2, 2.00, '>='),     -- Void Monster
-(9, 2, 4.00, '>=');      -- Enemy Jungle Control
+(4, 2, 6.80, '>='),
+(13, 2, 0.67, '>='),
+(20, 2, 1.60, '>='),
+(3, 2, 0.00, '>'),
+(8, 2, 2.00, '>='),
+(16, 2, 1.00, '>='),
+(17, 2, 1.00, '>='),
+(18, 2, 1.00, '>='),
+(22, 2, 2.00, '>='),
+(9, 2, 4.00, '>=');
 
 -- 3. Mid
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(14, 3, 5.50, '>='),     -- Kills
-(2, 3, 6.60, '>='),      -- Assists
-(12, 3, 3.50, '>='),     -- KDA
-(4, 3, 8.60, '>='),      -- CS/Min
-(11, 3, 400.00, '>='),   -- Gold/Min
-(7, 3, 3.20, '<='),      -- Deaths
-(13, 3, 62.00, '>='),    -- Kill Participation %
-(5, 3, 25.00, '>='),     -- Damage Share %
-(15, 3, 1.50, '>=');     -- Solo Kills
+(4, 3, 8.60, '>='),
+(11, 3, 400.00, '>='),
+(13, 3, 0.62, '>='),
+(14, 3, 4.00, '>='),
+(7, 3, 3.20, '<='),
+(2, 3, 6.60, '>='),
+(5, 3, 0.25, '>=');
 
 -- 4. ADC
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(14, 4, 6.00, '>='),     -- Kills
-(2, 4, 6.00, '>='),      -- Assists
-(12, 4, 4.10, '>='),     -- KDA
-(4, 4, 8.90, '>='),      -- CS/Min
-(11, 4, 460.00, '>='),   -- Gold/Min
-(7, 4, 3.50, '<='),      -- Deaths
-(5, 4, 28.00, '>='),     -- Damage Share %
-(20, 4, 1.00, '>=');     -- Vision Score/Min
+(12, 4, 4.10, '>='),
+(20, 4, 1.00, '>='),
+(4, 4, 8.90, '>='),
+(3, 4, -0.25, '>='),
+(25, 4, -6.75, '>='),
+(10, 4, 7.75, '>='),
+(11, 4, 460.00, '>='),
+(5, 4, 0.25, '>=');
 
 -- 5. Support
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(14, 5, 1.00, '>='),     -- Kills
-(2, 5, 12.60, '>='),     -- Assists
-(12, 5, 3.20, '>='),     -- KDA
-(4, 5, 1.50, '>='),      -- CS/Min
-(11, 5, 250.00, '>='),   -- Gold/Min
-(7, 5, 4.00, '<='),      -- Deaths
-(13, 5, 76.00, '>='),    -- Kill Participation %
-(21, 5, 43.00, '>='),    -- Vision Score Share %
-(20, 5, 3.60, '>='),     -- Vision Score/Min
-(24, 5, 35.00, '>='),    -- Wards Placed
-(23, 5, 10.00, '>='),    -- Wards Destroyed
-(1, 5, 55.00, '>=');     -- Proximity Time to ADC
+(21, 5, 0.43, '>='),
+(20, 5, 3.60, '>='),
+(7, 5, 4.00, '<='),
+(2, 5, 12.60, '>='),
+(13, 5, 0.76, '>='),
+(24, 5, 5.00, '>='),
+(23, 5, 5.00, '>='),
+(1, 5, 0.55, '>=');
 
 
 -- -----------------------------------------------------
@@ -887,38 +877,45 @@ VALUES (17, 14, 'Strong comms, very vocal', 4, 4, 3, 2);
 
 INSERT INTO tournaments (tournamentId, name, startDate, endDate, win)
 VALUES
-(1, 'Campus Clash 2026 Qualifiers', '2026-01-18', '2026-01-19', 'W'),
-(2, 'Inter-University Rift Cup', '2026-02-07', '2026-02-08', 'L'),
-(3, 'Summer Showdown Invitational', '2026-03-15', '2026-03-16', 'N/A'),
-(4, 'January Nexus Open', '2026-01-23', '2026-01-24', 'W'),
-(5, 'Rift Rivals Collegiate Week 1', '2026-01-30', '2026-01-31', 'L'),
-(6, 'February Phoenix Bracket', '2026-02-14', '2026-02-15', 'N/A'),
-(7, 'Spring Split City Clash', '2026-02-27', '2026-02-28', 'W'),
-(8, 'March Midlane Masters', '2026-03-21', '2026-03-22', 'L'),
-(9, 'April Academy Invitational', '2026-04-04', '2026-04-05', 'N/A'),
-(10, 'Campus Crown Cup', '2026-04-18', '2026-04-19', 'W');
+(1, 'May Kickoff Clash', '2025-05-17', '2025-05-18', 'W'),
+(2, 'June Rift Gauntlet', '2025-06-07', '2025-06-08', 'L'),
+(3, 'June Campus Showdown', '2025-06-28', '2025-06-29', 'N/A'),
+(4, 'July Collegiate Cup', '2025-07-19', '2025-07-20', 'W'),
+(5, 'August Finals Qualifier', '2025-08-09', '2025-08-10', 'L'),
+(6, 'September Open Series', '2025-09-06', '2025-09-07', 'N/A'),
+(7, 'October Rift Rumble', '2025-10-04', '2025-10-05', 'W'),
+(8, 'October Nexus Trials', '2025-10-25', '2025-10-26', 'L'),
+(9, 'November Varsity Cup', '2025-11-15', '2025-11-16', 'W'),
+(10, 'December Invitational', '2025-12-06', '2025-12-07', 'N/A'),
+(11, 'January Season Opener', '2026-01-17', '2026-01-18', 'L'),
+(12, 'February Rift Cup', '2026-02-07', '2026-02-08', 'W'),
+(13, 'March Midseason Clash', '2026-03-07', '2026-03-08', 'N/A'),
+(14, 'April Academy Cup', '2026-04-04', '2026-04-05', 'W'),
+(15, 'Spring Crown Finals', '2026-04-18', '2026-04-19', 'L');
 
--- Tournament 1: full roster with two subs
+-- Period 1: May 2025 to August 2025
+-- Tournament 1: veteran core with two substitutes
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
 (1, 4, 1, 'N'),
-(1, 14, 2, 'N'),
+(1, 7, 2, 'N'),
 (1, 3, 3, 'N'),
-(1, 16, 4, 'N'),
+(1, 5, 4, 'N'),
 (1, 6, 5, 'N'),
 (1, 13, 1, 'Y'),
 (1, 17, 5, 'Y');
 
--- Tournament 2: starters only, no subs
+-- Tournament 2: academy starters with one substitute
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
 (2, 13, 1, 'N'),
-(2, 7, 2, 'N'),
+(2, 8, 2, 'N'),
 (2, 15, 3, 'N'),
-(2, 5, 4, 'N'),
-(2, 17, 5, 'N');
+(2, 16, 4, 'N'),
+(2, 17, 5, 'N'),
+(2, 14, 2, 'Y');
 
--- Tournament 3: one substitute available
+-- Tournament 3: mixed lineup with mid substitute
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
 (3, 4, 1, 'N'),
@@ -928,72 +925,127 @@ VALUES
 (3, 6, 5, 'N'),
 (3, 15, 3, 'Y');
 
--- Tournament 4: full starters, no substitutes
+-- Tournament 4: starters only
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(4, 4, 1, 'N'),
+(4, 13, 1, 'N'),
 (4, 7, 2, 'N'),
-(4, 3, 3, 'N'),
+(4, 15, 3, 'N'),
 (4, 5, 4, 'N'),
-(4, 6, 5, 'N');
+(4, 17, 5, 'N');
 
--- Tournament 5: one substitute available
+-- Tournament 5: alternate jungler and support reserve
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(5, 13, 1, 'N'),
-(5, 14, 2, 'N'),
-(5, 15, 3, 'N'),
-(5, 16, 4, 'N'),
+(5, 4, 1, 'N'),
+(5, 9, 2, 'N'),
+(5, 3, 3, 'N'),
+(5, 5, 4, 'N'),
 (5, 17, 5, 'N'),
-(5, 7, 2, 'Y');
+(5, 8, 2, 'Y');
 
--- Tournament 6: two substitutes available
+-- Period 2: September 2025 to December 2025
+-- Tournament 6: balanced lineup with top and support subs
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(6, 4, 1, 'N'),
-(6, 8, 2, 'N'),
-(6, 3, 3, 'N'),
-(6, 5, 4, 'N'),
+(6, 13, 1, 'N'),
+(6, 14, 2, 'N'),
+(6, 15, 3, 'N'),
+(6, 16, 4, 'N'),
 (6, 6, 5, 'N'),
-(6, 13, 1, 'Y'),
+(6, 4, 1, 'Y'),
 (6, 17, 5, 'Y');
 
--- Tournament 7: starters only
+-- Tournament 7: returning veterans with ADC reserve
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(7, 13, 1, 'N'),
-(7, 7, 2, 'N'),
-(7, 15, 3, 'N'),
+(7, 4, 1, 'N'),
+(7, 8, 2, 'N'),
+(7, 3, 3, 'N'),
 (7, 16, 4, 'N'),
-(7, 17, 5, 'N');
+(7, 17, 5, 'N'),
+(7, 5, 4, 'Y');
 
--- Tournament 8: one substitute available
+-- Tournament 8: development roster with jungle sub
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(8, 4, 1, 'N'),
-(8, 14, 2, 'N'),
-(8, 3, 3, 'N'),
+(8, 13, 1, 'N'),
+(8, 7, 2, 'N'),
+(8, 15, 3, 'N'),
 (8, 5, 4, 'N'),
 (8, 6, 5, 'N'),
-(8, 15, 3, 'Y');
+(8, 14, 2, 'Y');
 
--- Tournament 9: mixed roster with two subs
+-- Tournament 9: aggressive lineup with two reserves
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(9, 13, 1, 'N'),
-(9, 8, 2, 'N'),
-(9, 15, 3, 'N'),
-(9, 16, 4, 'N'),
+(9, 4, 1, 'N'),
+(9, 14, 2, 'N'),
+(9, 3, 3, 'N'),
+(9, 5, 4, 'N'),
 (9, 17, 5, 'N'),
-(9, 3, 3, 'Y'),
-(9, 6, 5, 'Y');
+(9, 9, 2, 'Y'),
+(9, 16, 4, 'Y');
 
--- Tournament 10: full roster with one substitute
+-- Tournament 10: late-season lineup with support reserve
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(10, 4, 1, 'N'),
-(10, 7, 2, 'N'),
-(10, 3, 3, 'N'),
-(10, 5, 4, 'N'),
+(10, 13, 1, 'N'),
+(10, 9, 2, 'N'),
+(10, 15, 3, 'N'),
+(10, 16, 4, 'N'),
 (10, 6, 5, 'N'),
-(10, 14, 2, 'Y');
+(10, 17, 5, 'Y');
+
+-- Period 3: January 2026 to April 2026
+-- Tournament 11: veteran starters with top reserve
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(11, 4, 1, 'N'),
+(11, 7, 2, 'N'),
+(11, 3, 3, 'N'),
+(11, 16, 4, 'N'),
+(11, 17, 5, 'N'),
+(11, 13, 1, 'Y');
+
+-- Tournament 12: flexible lineup with two substitutes
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(12, 13, 1, 'N'),
+(12, 8, 2, 'N'),
+(12, 15, 3, 'N'),
+(12, 5, 4, 'N'),
+(12, 6, 5, 'N'),
+(12, 4, 1, 'Y'),
+(12, 14, 2, 'Y');
+
+-- Tournament 13: mixed starters with jungle reserve
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(13, 4, 1, 'N'),
+(13, 14, 2, 'N'),
+(13, 3, 3, 'N'),
+(13, 16, 4, 'N'),
+(13, 17, 5, 'N'),
+(13, 7, 2, 'Y');
+
+-- Tournament 14: academy starters with top reserve
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(14, 13, 1, 'N'),
+(14, 9, 2, 'N'),
+(14, 15, 3, 'N'),
+(14, 5, 4, 'N'),
+(14, 6, 5, 'N'),
+(14, 4, 1, 'Y');
+
+-- Tournament 15: spring finals lineup with two substitutes
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(15, 4, 1, 'N'),
+(15, 8, 2, 'N'),
+(15, 15, 3, 'N'),
+(15, 16, 4, 'N'),
+(15, 17, 5, 'N'),
+(15, 13, 1, 'Y'),
+(15, 6, 5, 'Y');

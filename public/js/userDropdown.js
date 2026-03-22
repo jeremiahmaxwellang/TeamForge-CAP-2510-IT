@@ -1,4 +1,4 @@
-// public/js/navbar.js
+// public/js/userDropdown.js
 document.addEventListener("DOMContentLoaded", () => {
     const profileBtn = document.getElementById('profileDropdownBtn');
     const profileMenu = document.getElementById('profileDropdownMenu');

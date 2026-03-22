@@ -24,9 +24,16 @@
                 <span class="header_title">TeamForge</span>
             </div>
             <div class="team-name">Viridis Arcus (Team Name)</div>
-            <div class="topbar-actions">
-                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture"
-                    class="profile-icon js-current-user-photo">
+            <div class="topbar-actions" style="position: relative;">
+                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" 
+                     class="profile-icon js-current-user-photo" 
+                     id="profileDropdownBtn" 
+                     style="cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
+                
+                <div id="profileDropdownMenu" style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
+                    <a href="/settings" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">Settings</a>
+                    <a href="/logout" style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fef0f0'" onmouseout="this.style.backgroundColor='transparent'">Logout</a>
+                </div>
             </div>
         </div>
 
@@ -212,7 +219,7 @@
 
                     <div class="profile-grid">
                         <div class="white-card">
-                            <span class="card-header">Applicant Evaluation</span>
+                            <span class="card-header">Try-Out Evaluation</span>
                             <div class="rating-grid">
                                 <div></div>
                                 <div class="rating-header">1</div>
@@ -331,6 +338,7 @@
         <script src="/js/current_user_photo.js"></script>
         <script src="/js/applicant_profile.js"></script>
         <script src="/js/sidebar.js"></script>
+        <script src="/js/userDropdown.js"></script>
 </body>
 
 </html>

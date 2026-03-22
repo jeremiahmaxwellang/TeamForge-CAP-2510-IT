@@ -70,14 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const updateTournamentSummary = (wins, losses, naCount, total, startDate, endDate) => {
+    const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
         if (!tournamentRangeSummary) return;
 
         const rangeLabel = startDate && endDate
             ? `${formatDateLabel(startDate)} to ${formatDateLabel(endDate)}`
             : 'all tournaments';
 
-        tournamentRangeSummary.textContent = `Range: ${rangeLabel}. Wins: ${wins}, Losses: ${losses}, N/A: ${naCount}, Total tournaments: ${total}.`;
+        tournamentRangeSummary.textContent = `Range: ${rangeLabel}. Wins: ${wins}, Losses: ${losses}, Total tournaments: ${total}.`;
     };
 
     const applyTournamentRange = () => {
@@ -108,18 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let wins = 0;
         let losses = 0;
-        let naCount = 0;
 
         filteredRows.forEach((row) => {
             const normalized = String(row.result || '').trim().toUpperCase();
             if (normalized === 'W') wins += 1;
             if (normalized === 'L') losses += 1;
-            if (normalized === 'N/A') naCount += 1;
         });
 
         renderTournamentLegend();
         renderTournamentChart(wins, losses);
-        updateTournamentSummary(wins, losses, naCount, filteredRows.length, startValue, endValue);
+        updateTournamentSummary(wins, losses, filteredRows.length, startValue, endValue);
     };
 
     const loadTournamentReport = async () => {
