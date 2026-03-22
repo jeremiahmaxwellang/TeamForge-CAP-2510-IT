@@ -8,6 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/reports.css">
   <script src="/js/reports.term.config.js"></script>
@@ -112,7 +113,12 @@
               </div>
 
               <div class="card best-performing-card">
-                <div class="card-title">Best Performing Applicants</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; width: 100%;">
+                  <div class="card-title" style="margin: 0;">Best Performing Applicants</div>
+                  <button type="button" id="generatePdfBtn" style="padding: 8px 16px; background-color: #1f77b4; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                  </button>
+                </div>
                 <table>
                   <thead>
                     <tr>
@@ -237,8 +243,6 @@
         </div>
       </main>
     </div>
-
-    <button type="button" id="printReportBtn" class="print-report-btn">Download Report</button>
 
     <div id="termBreakdownModal" class="term-modal" aria-hidden="true">
       <div class="term-modal-backdrop" data-close-term-modal></div>
