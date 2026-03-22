@@ -11,9 +11,64 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = [overviewButton, comparisonButton, vodsButton, championButton, evaluationButton];
     const favoriteBtn = document.getElementById('candidateFavoriteBtn');
     const favoriteMessage = document.getElementById('candidateFavoriteMessage');
+    const favoriteRoleSelect = document.getElementById('candidateFavoriteRoleSelect');
     const candidateFavoriteWrap = document.querySelector('.candidate-favorite-wrap');
     let candidateControlsEnabled = false;
     let favoriteRequestInFlight = false;
+
+    function getCandidateRoleOptions() {
+        const selectedBtn = document.getElementById('player-dropdown-btn');
+        if (!selectedBtn) return [];
+
+        const options = [];
+        const primaryRoleName = (selectedBtn.getAttribute('data-primary-role-name') || '').trim();
+        const primaryRoleId = Number.parseInt(selectedBtn.getAttribute('data-primary-role-id'), 10);
+        if (primaryRoleName && Number.isInteger(primaryRoleId)) {
+            options.push({ roleId: primaryRoleId, roleName: primaryRoleName, roleType: 'Primary' });
+        }
+
+        const secondaryRoleName = (selectedBtn.getAttribute('data-secondary-role-name') || '').trim();
+        const secondaryRoleId = Number.parseInt(selectedBtn.getAttribute('data-secondary-role-id'), 10);
+        if (secondaryRoleName && Number.isInteger(secondaryRoleId) && secondaryRoleId !== primaryRoleId) {
+            options.push({ roleId: secondaryRoleId, roleName: secondaryRoleName, roleType: 'Secondary' });
+        }
+
+        return options;
+    }
+
+    function syncCandidateRoleSelector() {
+        if (!favoriteRoleSelect) return;
+
+        const existingSelection = Number.parseInt(favoriteRoleSelect.value, 10);
+        const roleOptions = getCandidateRoleOptions();
+
+        favoriteRoleSelect.innerHTML = '';
+
+        if (!roleOptions.length) {
+            const fallbackOption = document.createElement('option');
+            fallbackOption.value = '';
+            fallbackOption.textContent = 'Select role';
+            favoriteRoleSelect.appendChild(fallbackOption);
+            favoriteRoleSelect.value = '';
+            favoriteRoleSelect.disabled = true;
+            return;
+        }
+
+        roleOptions.forEach((option) => {
+            const optionElement = document.createElement('option');
+            optionElement.value = String(option.roleId);
+            optionElement.textContent = `${option.roleType}: ${option.roleName}`;
+            favoriteRoleSelect.appendChild(optionElement);
+        });
+
+        const hasExistingSelection = Number.isInteger(existingSelection)
+            && roleOptions.some((option) => option.roleId === existingSelection);
+
+        favoriteRoleSelect.value = hasExistingSelection
+            ? String(existingSelection)
+            : String(roleOptions[0].roleId);
+        favoriteRoleSelect.disabled = false;
+    }
 
     async function initializeCandidateControlsVisibility() {
         if (!candidateFavoriteWrap) return;
@@ -50,17 +105,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectedBtn) return null;
 
         const userId = Number.parseInt(selectedBtn.getAttribute('data-player-id'), 10);
-        const primaryRole = (selectedBtn.getAttribute('data-primary-role-name') || '').trim();
-        const primaryRoleId = Number.parseInt(selectedBtn.getAttribute('data-primary-role-id'), 10);
+        const roleOptions = getCandidateRoleOptions();
+        const selectedRoleId = Number.parseInt(favoriteRoleSelect?.value || '', 10);
+        const selectedRole = roleOptions.find((option) => option.roleId === selectedRoleId) || roleOptions[0];
 
-        if (!Number.isInteger(userId) || !primaryRole || !Number.isInteger(primaryRoleId)) {
+        if (!Number.isInteger(userId) || !selectedRole) {
             return null;
         }
 
         return {
             userId,
-            primaryRoleId,
-            primaryRole,
+            roleId: selectedRole.roleId,
+            roleName: selectedRole.roleName,
             name: selectedBtn.textContent ? selectedBtn.textContent.trim() : `Player ${userId}`
         };
     }
@@ -79,6 +135,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function updateFavoriteButtonState() {
         if (!favoriteBtn || !favoriteMessage || !candidateControlsEnabled) return;
 
+        syncCandidateRoleSelector();
+
         const selected = getSelectedPlayerMeta();
         if (!selected) {
             favoriteBtn.textContent = '☆';
@@ -94,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const favoritesPayload = await fetchRoleFavorites(selected.primaryRoleId);
+            const favoritesPayload = await fetchRoleFavorites(selected.roleId);
             const roleFavorites = Array.isArray(favoritesPayload.favorites) ? favoritesPayload.favorites : [];
             const isFavorite = roleFavorites.some((entry) => Number(entry.userId) === selected.userId);
         const limitReached = roleFavorites.length >= 2;
@@ -108,13 +166,13 @@ document.addEventListener('DOMContentLoaded', function() {
         favoriteBtn.style.cursor = favoriteBtn.disabled ? 'not-allowed' : 'pointer';
 
         if (!isFavorite && limitReached) {
-            favoriteMessage.textContent = `${selected.primaryRole}: 2/2 candidates selected. Remove one to add another candidate.`;
+            favoriteMessage.textContent = `${selected.roleName}: 2/2 candidates selected. Remove one to add another candidate.`;
             favoriteMessage.style.color = '#b45309';
             return;
         }
 
         favoriteMessage.style.color = '#5f6673';
-        favoriteMessage.textContent = `${selected.primaryRole}: ${roleFavorites.length}/2 candidates selected.`;
+        favoriteMessage.textContent = `${selected.roleName}: ${roleFavorites.length}/2 candidates selected.`;
         } catch (err) {
             console.error('[CANDIDATE FAVORITES] Failed to update favorite button state:', err);
             favoriteBtn.textContent = '☆';
@@ -155,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     candidateUserId: selected.userId,
-                    roleId: selected.primaryRoleId
+                    roleId: selected.roleId
                 })
             });
 
@@ -164,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 if (response.status === 409) {
                     favoriteMessage.style.color = '#b45309';
-                    favoriteMessage.textContent = `${selected.primaryRole}: 2/2 candidates selected. Remove one to add another candidate.`;
+                    favoriteMessage.textContent = `${selected.roleName}: 2/2 candidates selected. Remove one to add another candidate.`;
                     return;
                 }
                 throw new Error(payload.error || 'Failed to update candidate.');
@@ -183,6 +241,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (favoriteBtn) {
         favoriteBtn.addEventListener('click', toggleCandidateFavorite);
+    }
+
+    if (favoriteRoleSelect) {
+        favoriteRoleSelect.addEventListener('change', () => {
+            if (!candidateControlsEnabled) return;
+            updateFavoriteButtonState();
+        });
     }
 
     document.addEventListener('playeranalysis:player-changed', () => {
