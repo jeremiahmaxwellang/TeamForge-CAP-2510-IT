@@ -284,8 +284,10 @@ window.initComparisonTab = function () {
     if (rankEl) rankEl.textContent = player.tier ? `${player.tier} ${player.rank}` : "Unranked";
 
     const pfpEl = document.getElementById(`pfp-${prefix}`);
-    if (pfpEl && player.profilePhoto) {
-      pfpEl.src = player.profilePhoto;
+    if (pfpEl) {
+      pfpEl.src = player.profilePhoto
+        ? `/uploads/profile-photos/${player.profilePhoto}`
+        : '/uploads/profile-photos/defaultusericon.png';
     }
 
     syncPlayerCardWidths();
