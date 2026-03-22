@@ -146,7 +146,6 @@ body {
 /* --- Rank Box --- */
 /* --- Timer Info Status Styles --- */
 #timerInfo {
-    margin-top: 8px;
     padding: 6px 0;
     border-radius: 8px;
     font-size: 14px;
@@ -494,7 +493,8 @@ body {
 
 .fetch-button-container {
     margin-right: auto;
-    flex: vertical;
+    display: flex;
+    flex-direction: column;
     padding-left: 50px;
     /* pushes everything else to the right */
 }
