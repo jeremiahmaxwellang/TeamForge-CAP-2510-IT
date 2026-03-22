@@ -67,6 +67,9 @@
                   <div class="legend" id="tournament-result-legend"></div>
                 </div>
                 <p id="tournamentRangeSummary">Showing all tournaments.</p>
+                <div class="tournament-report-actions">
+                  <button type="button" id="openTermBreakdownBtn" class="secondary-action-btn">Tournament Report</button>
+                </div>
               </div>
             </section>
 
@@ -234,6 +237,67 @@
     </div>
 
     <button type="button" id="printReportBtn" class="print-report-btn">Download Report</button>
+
+    <div id="termBreakdownModal" class="term-modal" aria-hidden="true">
+      <div class="term-modal-backdrop" data-close-term-modal></div>
+      <section class="term-modal-content" role="dialog" aria-modal="true" aria-labelledby="termModalTitle">
+        <div class="term-modal-header">
+          <h2 id="termModalTitle">Term Tournament Breakdown</h2>
+          <button type="button" class="term-modal-close" id="closeTermBreakdownBtn" aria-label="Close term report popup">&times;</button>
+        </div>
+
+        <div class="term-reports-grid">
+          <article class="term-report-card">
+            <div class="term-report-top">
+              <h3>Term Report 1</h3>
+              <select class="term-select" data-term-chart="0" aria-label="Select term for first chart">
+                <option value="Term 1">Term 1</option>
+                <option value="Term 2">Term 2</option>
+                <option value="Term 3">Term 3</option>
+              </select>
+            </div>
+            <div class="term-chart-wrap">
+              <canvas id="termPieChart1"></canvas>
+            </div>
+            <p class="term-summary" id="termSummary1">Loading term data...</p>
+          </article>
+
+          <article class="term-report-card">
+            <div class="term-report-top">
+              <h3>Term Report 2</h3>
+              <select class="term-select" data-term-chart="1" aria-label="Select term for second chart">
+                <option value="Term 1">Term 1</option>
+                <option value="Term 2" selected>Term 2</option>
+                <option value="Term 3">Term 3</option>
+              </select>
+            </div>
+            <div class="term-chart-wrap">
+              <canvas id="termPieChart2"></canvas>
+            </div>
+            <p class="term-summary" id="termSummary2">Loading term data...</p>
+          </article>
+
+          <article class="term-report-card">
+            <div class="term-report-top">
+              <h3>Term Report 3</h3>
+              <select class="term-select" data-term-chart="2" aria-label="Select term for third chart">
+                <option value="Term 1">Term 1</option>
+                <option value="Term 2">Term 2</option>
+                <option value="Term 3" selected>Term 3</option>
+              </select>
+            </div>
+            <div class="term-chart-wrap">
+              <canvas id="termPieChart3"></canvas>
+            </div>
+            <p class="term-summary" id="termSummary3">Loading term data...</p>
+          </article>
+        </div>
+
+        <div class="term-modal-footer">
+          <button type="button" id="saveTermReportBtn" class="save-term-report-btn">Save Report</button>
+        </div>
+      </section>
+    </div>
   </div>
 </body>
 </html>

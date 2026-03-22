@@ -253,6 +253,29 @@ h1.page-title {
     gap: 10px;
 }
 
+.tournament-report-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.secondary-action-btn {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #1a1a2e;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.secondary-action-btn:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+}
+
 #tournamentRangeSummary {
     margin: 0;
     font-size: 13px;
@@ -497,6 +520,145 @@ tbody td {
     line-height: 1.05;
 }
 
+.term-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: none;
+}
+
+.term-modal.show {
+    display: block;
+}
+
+.term-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.55);
+}
+
+.term-modal-content {
+    position: relative;
+    width: min(980px, calc(100% - 28px));
+    max-height: calc(100vh - 40px);
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(17, 24, 39, 0.28);
+    padding: 18px;
+    overflow: auto;
+}
+
+.term-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.term-modal-header h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #111827;
+}
+
+.term-modal-close {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #1f2937;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.term-modal-close:hover {
+    background: #f3f4f6;
+}
+
+.term-reports-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.term-report-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fcfdff;
+}
+
+.term-report-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.term-report-top h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #1f2937;
+}
+
+.term-select {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+.term-chart-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.term-chart-wrap canvas {
+    width: 190px !important;
+    height: 190px !important;
+}
+
+.term-summary {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: #374151;
+    text-align: center;
+}
+
+.term-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.save-term-report-btn {
+    border: none;
+    border-radius: 10px;
+    background: #1a1a2e;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 14px;
+    cursor: pointer;
+}
+
+.save-term-report-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+body.term-modal-open {
+    overflow: hidden;
+}
+
 @media (max-width: 1200px) {
     .manager-team-name {
         font-size: 26px;
@@ -615,5 +777,19 @@ tbody td {
         right: 14px;
         bottom: 14px;
         padding: 9px 16px;
+    }
+
+    .term-reports-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .term-report-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .term-chart-wrap canvas {
+        width: 170px !important;
+        height: 170px !important;
     }
 }
