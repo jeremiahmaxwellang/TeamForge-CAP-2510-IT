@@ -28,6 +28,9 @@ router.get('/players/:id/roles', overviewController.getPlayerRoles);
 // Champion Pool backend
 router.get('/players/:id/champion_pool', championPoolController.getChampionPool);
 
+// Get winrate by role
+router.get('/players/:id/winrate/:roleId', playerController.getWinrateByRole);
+
 // ============= SCRIM ROUTES =============
 
 // Get Scrims
@@ -111,6 +114,9 @@ router.post('/benchmarks/compare', playerController.comparePlayerToBenchmarks);
  * Request body: { playerId, roleId }
  */
 router.post('/stats/calculate', playerController.calculatePlayerStatsFromMatches);
+
+// Calculate stats by Role (USED IN APPLICANT PROFILE ONLY)
+router.post('/stats/calculate-by-role', playerController.calculatePlayerStatsFromMatchesByRole );
 
 /**
  * POST /player_analysis/stats/store
