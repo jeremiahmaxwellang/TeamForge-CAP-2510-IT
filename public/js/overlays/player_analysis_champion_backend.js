@@ -17,6 +17,7 @@
     return championPool.map((champ) => ({
       championName: champ.championName,
       role: champ.champ_role,
+      lastPatch: champ.lastPatch || "Unknown",
       games: champ.games,
       winrate: champ.winrate || "N/A",
       avgKills: champ.avg_kills,
