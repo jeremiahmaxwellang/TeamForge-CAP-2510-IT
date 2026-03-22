@@ -626,6 +626,13 @@
               if (player.secondaryRole) btn.setAttribute("data-secondary-role-name", player.secondaryRole);
           }
 
+          const profileImg = document.querySelector('.profile-img');
+          if (profileImg) {
+            profileImg.src = player.profilePhoto
+              ? `/uploads/profile-photos/${player.profilePhoto}`
+              : '/uploads/profile-photos/defaultusericon.png';
+          }
+
           document.getElementById("primaryRole") && (document.getElementById("primaryRole").textContent = `Primary Role: ${player.primaryRole}`);
           document.getElementById("secondaryRole") && (document.getElementById("secondaryRole").textContent = `Secondary Role: ${player.secondaryRole}`);
           document.getElementById("email") && (document.getElementById("email").textContent = `Email: ${player.email}`);
