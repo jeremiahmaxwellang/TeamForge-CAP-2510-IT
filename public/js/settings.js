@@ -23,6 +23,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const riotApiKeyInput = document.getElementById('riot-api-key-input');
     const btnUpdateRiotApiKey = document.getElementById('btn-update-riot-api-key');
     const riotApiKeyStatus = document.getElementById('riot-api-key-status');
+    const academicRequirementsSection = document.getElementById('academic-requirements-section');
+    const gpaComparatorSelect = document.getElementById('gpa-comparator');
+    const gpaThresholdInput = document.getElementById('gpa-threshold');
+    const cgpaComparatorSelect = document.getElementById('cgpa-comparator');
+    const cgpaThresholdInput = document.getElementById('cgpa-threshold');
+    const btnSaveAcademicRequirements = document.getElementById('btn-save-academic-requirements');
+    const academicRequirementsStatus = document.getElementById('academic-requirements-status');
     
     // New Button Variables
     const editActionButtons = document.getElementById('edit-action-buttons');
@@ -46,6 +53,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!photoUrl) return;
         if (topbarProfilePhoto) topbarProfilePhoto.src = photoUrl;
         if (settingsProfilePhoto) settingsProfilePhoto.src = photoUrl;
+    }
+
+    function populateAcademicRequirements(requirements) {
+        const gpaRequirement = requirements && requirements.gpa;
+        const cgpaRequirement = requirements && requirements.cgpa;
+
+        if (gpaComparatorSelect) {
+            gpaComparatorSelect.value = (gpaRequirement && gpaRequirement.comparator) || '>=';
+        }
+
+        if (gpaThresholdInput) {
+            gpaThresholdInput.value = gpaRequirement && gpaRequirement.threshold !== null
+                ? Number(gpaRequirement.threshold).toFixed(2)
+                : '';
+        }
+
+        if (cgpaComparatorSelect) {
+            cgpaComparatorSelect.value = (cgpaRequirement && cgpaRequirement.comparator) || '>=';
+        }
+
+        if (cgpaThresholdInput) {
+            cgpaThresholdInput.value = cgpaRequirement && cgpaRequirement.threshold !== null
+                ? Number(cgpaRequirement.threshold).toFixed(2)
+                : '';
+        }
+    }
+
+    async function loadAcademicRequirements() {
+        if (!academicRequirementsSection) return;
+
+        setStatus(academicRequirementsStatus, 'Loading academic requirements...', true);
+
+        try {
+            const response = await fetch('/settings/api/academic-requirements');
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                setStatus(academicRequirementsStatus, result.message || 'Failed to load academic requirements.', false);
+                return;
+            }
+
+            populateAcademicRequirements(result.requirements);
+            setStatus(academicRequirementsStatus, 'Academic requirements loaded.', true);
+        } catch (error) {
+            console.error('Failed to load academic requirements:', error);
+            setStatus(academicRequirementsStatus, 'Network error while loading academic requirements.', false);
+        }
     }
 
     async function loadRiotApiKeyStatus() {
@@ -100,6 +154,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Reveal the benchmark section ONLY if they are the Team Coach
             if (userRole === 'Team Coach' && benchmarkSection) {
                 benchmarkSection.style.display = 'block'; 
+                if (academicRequirementsSection) {
+                    academicRequirementsSection.style.display = 'block';
+                    loadAcademicRequirements();
+                }
                 if (roleSelect) {
                     loadBenchmarksForRole(roleSelect.value); // Load default immediately
                 }
@@ -426,6 +484,48 @@ document.addEventListener('DOMContentLoaded', async () => {
             } finally {
                 btnUpdateRiotApiKey.disabled = false;
                 btnUpdateRiotApiKey.textContent = 'Confirm';
+            }
+        });
+    }
+
+    if (btnSaveAcademicRequirements) {
+        btnSaveAcademicRequirements.addEventListener('click', async () => {
+            const requirements = {
+                gpa: {
+                    comparator: gpaComparatorSelect ? gpaComparatorSelect.value : '>=',
+                    threshold: gpaThresholdInput ? gpaThresholdInput.value.trim() : ''
+                },
+                cgpa: {
+                    comparator: cgpaComparatorSelect ? cgpaComparatorSelect.value : '>=',
+                    threshold: cgpaThresholdInput ? cgpaThresholdInput.value.trim() : ''
+                }
+            };
+
+            btnSaveAcademicRequirements.disabled = true;
+            btnSaveAcademicRequirements.textContent = 'Saving...';
+            setStatus(academicRequirementsStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/academic-requirements', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requirements })
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    setStatus(academicRequirementsStatus, result.message || 'Failed to save academic requirements.', false);
+                    return;
+                }
+
+                populateAcademicRequirements(result.requirements);
+                setStatus(academicRequirementsStatus, 'Academic requirements updated successfully.', true);
+            } catch (error) {
+                console.error('Failed to update academic requirements:', error);
+                setStatus(academicRequirementsStatus, 'Network error while saving academic requirements.', false);
+            } finally {
+                btnSaveAcademicRequirements.disabled = false;
+                btnSaveAcademicRequirements.textContent = 'Save Academic Requirements';
             }
         });
     }

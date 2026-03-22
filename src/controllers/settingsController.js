@@ -1,6 +1,7 @@
 const db = require('../config/database');
 const path = require('path');
 const riotApiKeyService = require('../services/riotApiKeyService');
+const academicRequirementsService = require('../services/academicRequirementsService');
 
 async function getAuthenticatedUser(req) {
     const userId = req.cookies && req.cookies.userId;
@@ -164,6 +165,44 @@ exports.updateRiotApiKey = async (req, res) => {
     } catch (error) {
         console.error('Error updating Riot API key:', error);
         return res.status(500).json({ success: false, message: 'Failed to update Riot API key.' });
+    }
+};
+
+exports.getAcademicRequirements = async (req, res) => {
+    try {
+        const coach = await ensureCoach(req, res);
+        if (!coach) return;
+
+        const requirements = await academicRequirementsService.getAcademicRequirements();
+        return res.status(200).json({ success: true, requirements });
+    } catch (error) {
+        console.error('Error fetching academic requirements:', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch academic requirements.' });
+    }
+};
+
+exports.updateAcademicRequirements = async (req, res) => {
+    try {
+        const coach = await ensureCoach(req, res);
+        if (!coach) return;
+
+        const requirements = req.body && req.body.requirements;
+        if (!requirements || typeof requirements !== 'object') {
+            return res.status(400).json({ success: false, message: 'Invalid academic requirements payload.' });
+        }
+
+        const updatedRequirements = await academicRequirementsService.updateAcademicRequirements(requirements, coach.userId);
+        return res.status(200).json({
+            success: true,
+            message: 'Academic requirements updated successfully.',
+            requirements: updatedRequirements
+        });
+    } catch (error) {
+        console.error('Error updating academic requirements:', error);
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || 'Failed to update academic requirements.'
+        });
     }
 };
 

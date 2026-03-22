@@ -74,6 +74,7 @@ const getTournamentPlayers = async (req, res) => {
 			LEFT JOIN leagueRoles lr1 ON lr1.roleId = p.primaryRoleId
 			LEFT JOIN leagueRoles lr2 ON lr2.roleId = p.secondaryRoleId
 			WHERE u.position IN ('Player', 'Sub')
+			AND u.status = 'Active'
 			ORDER BY u.firstname ASC, u.lastname ASC
 		`;
 

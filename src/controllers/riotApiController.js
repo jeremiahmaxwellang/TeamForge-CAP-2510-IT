@@ -553,8 +553,15 @@ async function storeMatchDetails(userId, matchData) {
 }
 
 
-
-// Bulk store multiple match details
+/**
+ * saveMultipleMatches
+ * Description: Bulk store multiple match details
+ * 
+ * Route: POST /riot/matches/:userId/store-multiple
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
 exports.saveMultipleMatches = async (req, res) => {
     try {
         const { userId } = req.params;

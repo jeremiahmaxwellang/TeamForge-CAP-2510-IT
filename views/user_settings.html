@@ -75,6 +75,9 @@
         .status-text { font-size: 14px; margin-top: 10px; min-height: 18px; }
         .status-text.success { color: #198754; }
         .status-text.error { color: #b42318; }
+        .academic-criteria-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px 16px; align-items: center; }
+        .academic-criteria-grid strong { font-size: 16px; }
+        .academic-criteria-grid label { font-weight: 600; color: #333; }
 
         /* --- MODAL OVERLAY STYLES --- */
         .modal-overlay {
@@ -206,6 +209,40 @@
                         <button class="btn-confirm" id="btn-update-riot-api-key">Confirm</button>
                     </div>
                     <p id="riot-api-key-status" class="status-text"></p>
+                </div>
+
+                <div class="settings-card" id="academic-requirements-section" style="display: none;">
+                    <h3>Academic Requirements</h3>
+                    <p style="margin-top: 0; color: #555;">Set the GPA and CGPA rule that applicants must satisfy during registration. Leave a threshold blank to disable that rule.</p>
+
+                    <div class="academic-criteria-grid">
+                        <strong>Metric</strong>
+                        <strong>Comparator</strong>
+                        <strong>Threshold</strong>
+
+                        <label for="gpa-comparator">GPA</label>
+                        <select id="gpa-comparator" class="comparator-select">
+                            <option value=">=">≥ (greater than or equal to)</option>
+                            <option value="<=">≤ (less than or equal to)</option>
+                            <option value=">">&gt; (greater than)</option>
+                            <option value="<">&lt; (less than)</option>
+                        </select>
+                        <input type="number" id="gpa-threshold" class="value-input" min="0" max="5" step="0.01" placeholder="e.g. 2.50">
+
+                        <label for="cgpa-comparator">CGPA</label>
+                        <select id="cgpa-comparator" class="comparator-select">
+                            <option value=">=">≥ (greater than or equal to)</option>
+                            <option value="<=">≤ (less than or equal to)</option>
+                            <option value=">">&gt; (greater than)</option>
+                            <option value="<">&lt; (less than)</option>
+                        </select>
+                        <input type="number" id="cgpa-threshold" class="value-input" min="0" max="5" step="0.01" placeholder="e.g. 2.75">
+                    </div>
+
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button class="btn-confirm" id="btn-save-academic-requirements">Save Academic Requirements</button>
+                    </div>
+                    <p id="academic-requirements-status" class="status-text"></p>
                 </div>
 
                 <div class="settings-card" id="coach-benchmark-section" style="display: none;">

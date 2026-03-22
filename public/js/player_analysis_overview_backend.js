@@ -633,6 +633,14 @@
           document.getElementById("schoolId") && (document.getElementById("schoolId").textContent = `School ID: ${player.schoolId}`);
           document.getElementById("course") && (document.getElementById("course").textContent = `Course: ${player.course}`);
           document.getElementById("year") && (document.getElementById("year").textContent = `Year Level: ${player.yearLevel}`);
+
+          document.dispatchEvent(new CustomEvent("playeranalysis:player-changed", {
+            detail: {
+              userId: player.userId,
+              primaryRole: player.primaryRole || '',
+              primaryRoleId: player.primaryRoleId || null
+            }
+          }));
         };
 
         // Helper to trigger all data fetches once PUUID is known
