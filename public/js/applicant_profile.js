@@ -580,36 +580,65 @@ document.addEventListener("DOMContentLoaded", async function () {
      * Helper Functions: fetchMatchDetails} puuid 
      */
     async function fetchMatchIds(puuid) {
-      const queueId = 420; // Possible CAP2: 440 for Ranked Flex
+      const queueId = 420;
 
       try {
         const response = await fetch(`/riot/matches/${puuid}/${queueId}`);
         const data = await response.json();
+        const matchIds = data.matches;
 
-        // Extract the array of match IDs
-        const matches = data.matches;
+        const userId = parseInt(state.currentApplicant.userId, 10);
 
-        // Kick off all fetches at once
-        const detailPromises = matches.map(matchId => {
+        // Step 1: Fetch ALL match details first
+        const detailPromises = matchIds.map(async matchId => {
           console.log(`Fetching details for matchId: ${matchId}`);
-          fetchMatchDetails(matchId);
-
+          const matchData = await fetchMatchDetails(matchId);
+          return { matchId, matchData };
         });
 
-        // Fetch and upload Match Participants to DB
-        const participantPromises = uploadMatchParticipants(matches);
+        const matchesWithData = await Promise.all(detailPromises);
+        const validMatches = matchesWithData.filter(({ matchData }) => matchData != null);
 
-        // Wait for all to finish
-        const allDetails = await Promise.all(detailPromises, participantPromises);
+        // Step 2: Save matches to DB FIRST and WAIT for it fully
+        // Pass full matchData objects, not just IDs
+        await saveMatches(userId, validMatches.map(({ matchData }) => matchData));
+        console.log(`[SAVE MATCHES] ✓ Matches inserted, now uploading participants...`);
 
-        console.log("All match details:", allDetails);
+        // Step 3: Only THEN upload participants
+        await uploadMatchParticipants(validMatches);
+
+        console.log("All match details fetched and participants uploaded.");
       } catch (err) {
-        console.error("Error:", err);
+        console.error("Error in fetchMatchIds:", err);
       }
     }
 
-    // 3. TODO: Store multiple matches
-    // `/matches/:userId/store-multiple`
+    /**
+     * 3. TODO: Store multiple matches
+     * @param {*} userId 
+     * @param {*} matches 
+     */
+    async function saveMatches(userId, matches) {
+      try {
+        const response = await fetch(`/riot/matches/${userId}/store-multiple`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matches }) // must be array of full matchData objects
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(`Server error ${response.status}: ${JSON.stringify(err)}`);
+        }
+
+        const result = await response.json();
+        console.log(`[SAVE MATCHES] Result:`, result);
+        return result;
+      } catch (err) {
+        console.error('[SAVE MATCHES] Failed:', err);
+        throw err; // re-throw so fetchMatchIds catches it and stops before participants
+      }
+    }
 
     // 4. Fetch Match Details from Riot
     async function fetchMatchDetails(matchId) {
@@ -641,7 +670,7 @@ document.addEventListener("DOMContentLoaded", async function () {
      */
     async function uploadMatchParticipants(matches) {
       console.log(`uploadMatchParticipants(${matches})`);
-      
+
       try {
         const response = await fetch('/riot/participants/batch', {
           method: 'POST',
