@@ -41,4 +41,7 @@ router.get('/evaluate/:userId', applicant_listController.getEvaluationByApplican
 // Reject applicant
 router.post('/reject', applicant_listController.rejectApplicant);
 
+// Get ALL applicants + their stats specifically for the PDF Report
+router.get('/report_data', applicant_listController.getReportData);
+
 module.exports = router;

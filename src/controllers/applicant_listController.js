@@ -326,3 +326,43 @@ exports.getEvaluationByApplicant = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Database error while fetching evaluation.' });
     }
 };
+
+// Get ALL applicants + their stats specifically for the PDF Report
+exports.getReportData = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                u.userId, u.firstname, u.lastname, p.gameName, p.tagLine, p.primaryRoleId,
+                m.metricName, ps.metricValue
+            FROM users u
+            JOIN players p ON u.userId = p.userId
+            JOIN applications a ON u.userId = p.userId
+            LEFT JOIN playerStatistics ps ON ps.userId = u.userId
+            LEFT JOIN metrics m ON ps.metricId = m.metricId
+            WHERE a.periodId = (SELECT MAX(periodId) FROM application_periods)
+              AND a.status = 'Pending'
+        `;
+        const [rows] = await mySqlPool.query(query);
+        
+        // Group the flat SQL rows into structured objects per applicant
+        const applicantsMap = {};
+        rows.forEach(row => {
+            if (!applicantsMap[row.userId]) {
+                applicantsMap[row.userId] = {
+                    userId: row.userId,
+                    riotId: `${row.gameName}#${row.tagLine}`,
+                    roleId: row.primaryRoleId,
+                    stats: {}
+                };
+            }
+            if (row.metricName) {
+                applicantsMap[row.userId].stats[row.metricName] = row.metricValue;
+            }
+        });
+        
+        res.json({ success: true, applicants: Object.values(applicantsMap) });
+    } catch (error) {
+        console.error("Error fetching report data:", error);
+        res.status(500).json({ success: false, message: 'Database error' });
+    }
+};
