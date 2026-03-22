@@ -27,11 +27,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let tournamentResultChart = null;
     const termCharts = [null, null, null];
 
-    const termDateRanges = {
+    const defaultTermDateRanges = {
         'Term 3': { start: '2025-05-01', end: '2025-08-31' },
         'Term 1': { start: '2025-09-01', end: '2025-12-31' },
         'Term 2': { start: '2026-01-01', end: '2026-04-30' }
     };
+
+    const configuredTermDateRanges =
+        window.TeamForgeReportsConfig && window.TeamForgeReportsConfig.termDateRanges;
+
+    const hasValidConfiguredTerms = configuredTermDateRanges
+        && typeof configuredTermDateRanges === 'object'
+        && ['Term 1', 'Term 2', 'Term 3'].every((term) => {
+            const entry = configuredTermDateRanges[term];
+            return entry && typeof entry.start === 'string' && typeof entry.end === 'string';
+        });
+
+    const termDateRanges = hasValidConfiguredTerms
+        ? configuredTermDateRanges
+        : defaultTermDateRanges;
 
     const formatDateLabel = (dateValue) => {
         if (!dateValue) return '';
@@ -180,6 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
         termBreakdownModal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('term-modal-open');
     };
+
+    const waitForNextPaint = () => new Promise((resolve) => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(resolve);
+        });
+    });
 
     const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
         if (!tournamentRangeSummary) return;
@@ -363,6 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const originalLabel = saveTermReportBtn.textContent;
             const originalSaveDisplay = saveTermReportBtn.style.display;
             const originalCloseDisplay = closeTermBreakdownBtn ? closeTermBreakdownBtn.style.display : '';
+            const termSelectDisplays = termSelectElements.map((selectEl) => ({
+                element: selectEl,
+                display: selectEl.style.display
+            }));
             saveTermReportBtn.disabled = true;
             saveTermReportBtn.textContent = 'Saving...';
 
@@ -372,11 +396,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (closeTermBreakdownBtn) {
                     closeTermBreakdownBtn.style.display = 'none';
                 }
+                termSelectDisplays.forEach(({ element }) => {
+                    element.style.display = 'none';
+                });
+
+                // Let the browser apply the hidden states before capture.
+                await waitForNextPaint();
 
                 const canvas = await html2canvas(target, {
                     useCORS: true,
                     backgroundColor: '#ffffff',
-                    scale: 2
+                    scale: 2,
+                    ignoreElements: (element) => {
+                        if (!element) return false;
+                        if (element.id === 'saveTermReportBtn') return true;
+                        if (element.id === 'closeTermBreakdownBtn') return true;
+                        if (element.classList && element.classList.contains('term-select')) return true;
+                        return false;
+                    }
                 });
 
                 const link = document.createElement('a');
@@ -392,6 +429,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (closeTermBreakdownBtn) {
                     closeTermBreakdownBtn.style.display = originalCloseDisplay;
                 }
+                termSelectDisplays.forEach(({ element, display }) => {
+                    element.style.display = display;
+                });
                 saveTermReportBtn.disabled = false;
                 saveTermReportBtn.textContent = originalLabel;
             }
