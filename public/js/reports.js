@@ -6,6 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const tournamentRangeSummary = document.getElementById('tournamentRangeSummary');
     const tournamentResultLegend = document.getElementById('tournament-result-legend');
     const printReportBtn = document.getElementById('printReportBtn');
+    const openTermBreakdownBtn = document.getElementById('openTermBreakdownBtn');
+    const termBreakdownModal = document.getElementById('termBreakdownModal');
+    const closeTermBreakdownBtn = document.getElementById('closeTermBreakdownBtn');
+    const saveTermReportBtn = document.getElementById('saveTermReportBtn');
+    const termSelectElements = Array.from(document.querySelectorAll('.term-select'));
+    const termSummaryElements = [
+        document.getElementById('termSummary1'),
+        document.getElementById('termSummary2'),
+        document.getElementById('termSummary3')
+    ];
+    const termChartCanvasIds = ['termPieChart1', 'termPieChart2', 'termPieChart3'];
 
     const tournamentResultColors = {
         Wins: '#128b0d',
@@ -14,6 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allTournamentRows = [];
     let tournamentResultChart = null;
+    const termCharts = [null, null, null];
+
+    const termDateRanges = {
+        'Term 3': { start: '2025-05-01', end: '2025-08-31' },
+        'Term 1': { start: '2025-09-01', end: '2025-12-31' },
+        'Term 2': { start: '2026-01-01', end: '2026-04-30' }
+    };
 
     const formatDateLabel = (dateValue) => {
         if (!dateValue) return '';
@@ -68,6 +86,99 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    };
+
+    const getTermStats = (termName) => {
+        const termRange = termDateRanges[termName];
+        if (!termRange) {
+            return { wins: 0, losses: 0, total: 0 };
+        }
+
+        const startDate = normalizeDateOnly(`${termRange.start}T00:00:00`);
+        const endDate = normalizeDateOnly(`${termRange.end}T00:00:00`);
+        if (!startDate || !endDate) {
+            return { wins: 0, losses: 0, total: 0 };
+        }
+
+        const rowsInTerm = allTournamentRows.filter((row) => {
+            const rowDate = normalizeDateOnly(row.tournamentDate);
+            if (!rowDate) return false;
+            return rowDate >= startDate && rowDate <= endDate;
+        });
+
+        let wins = 0;
+        let losses = 0;
+
+        rowsInTerm.forEach((row) => {
+            const normalized = String(row.result || '').trim().toUpperCase();
+            if (normalized === 'W') wins += 1;
+            if (normalized === 'L') losses += 1;
+        });
+
+        return { wins, losses, total: rowsInTerm.length };
+    };
+
+    const renderTermChart = (chartIndex, termName) => {
+        const canvasId = termChartCanvasIds[chartIndex];
+        const canvasEl = document.getElementById(canvasId);
+        const summaryEl = termSummaryElements[chartIndex];
+
+        if (!canvasEl || !summaryEl) return;
+
+        const { wins, losses, total } = getTermStats(termName);
+
+        if (termCharts[chartIndex]) {
+            termCharts[chartIndex].destroy();
+        }
+
+        termCharts[chartIndex] = new Chart(canvasEl, {
+            type: 'pie',
+            data: {
+                labels: ['Wins', 'Losses'],
+                datasets: [{
+                    data: [wins, losses],
+                    backgroundColor: [tournamentResultColors.Wins, tournamentResultColors.Losses],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.label}: ${ctx.parsed}`
+                        }
+                    }
+                }
+            }
+        });
+
+        summaryEl.textContent = `${termName}: Wins ${wins}, Losses ${losses}, Tournaments ${total}.`;
+    };
+
+    const renderAllTermCharts = () => {
+        termSelectElements.forEach((selectEl, idx) => {
+            renderTermChart(idx, selectEl.value || 'Term 1');
+        });
+    };
+
+    const openTermModal = () => {
+        if (!termBreakdownModal) return;
+        termBreakdownModal.classList.add('show');
+        termBreakdownModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('term-modal-open');
+        renderAllTermCharts();
+    };
+
+    const closeTermModal = () => {
+        if (!termBreakdownModal) return;
+        termBreakdownModal.classList.remove('show');
+        termBreakdownModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('term-modal-open');
     };
 
     const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
@@ -133,11 +244,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             allTournamentRows = data.data;
             applyTournamentRange();
+            renderAllTermCharts();
         } catch (err) {
             console.error('Error loading tournament report:', err);
             if (tournamentRangeSummary) {
                 tournamentRangeSummary.textContent = 'Failed to load tournament report data.';
             }
+
+            termSummaryElements.forEach((summaryEl) => {
+                if (!summaryEl) return;
+                summaryEl.textContent = 'Failed to load tournament report data.';
+            });
         }
     };
 
@@ -203,6 +320,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (printReportBtn) {
         printReportBtn.addEventListener('click', downloadCurrentViewScreenshot);
+    }
+
+    if (openTermBreakdownBtn) {
+        openTermBreakdownBtn.addEventListener('click', openTermModal);
+    }
+
+    if (closeTermBreakdownBtn) {
+        closeTermBreakdownBtn.addEventListener('click', closeTermModal);
+    }
+
+    if (termBreakdownModal) {
+        termBreakdownModal.addEventListener('click', (event) => {
+            if (event.target.matches('[data-close-term-modal]')) {
+                closeTermModal();
+            }
+        });
+    }
+
+    termSelectElements.forEach((selectEl, idx) => {
+        selectEl.addEventListener('change', () => {
+            renderTermChart(idx, selectEl.value || 'Term 1');
+        });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && termBreakdownModal && termBreakdownModal.classList.contains('show')) {
+            closeTermModal();
+        }
+    });
+
+    if (saveTermReportBtn) {
+        saveTermReportBtn.addEventListener('click', async () => {
+            if (typeof html2canvas !== 'function') {
+                alert('Screenshot tool is not available right now.');
+                return;
+            }
+
+            const target = document.querySelector('.term-modal-content');
+            if (!target) return;
+
+            const originalLabel = saveTermReportBtn.textContent;
+            const originalSaveDisplay = saveTermReportBtn.style.display;
+            const originalCloseDisplay = closeTermBreakdownBtn ? closeTermBreakdownBtn.style.display : '';
+            saveTermReportBtn.disabled = true;
+            saveTermReportBtn.textContent = 'Saving...';
+
+            try {
+                // Hide controls so they do not appear in the saved screenshot.
+                saveTermReportBtn.style.display = 'none';
+                if (closeTermBreakdownBtn) {
+                    closeTermBreakdownBtn.style.display = 'none';
+                }
+
+                const canvas = await html2canvas(target, {
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    scale: 2
+                });
+
+                const link = document.createElement('a');
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                link.download = `term-report-${timestamp}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                console.error('Failed to save term report screenshot:', error);
+                alert('Failed to save report. Please try again.');
+            } finally {
+                saveTermReportBtn.style.display = originalSaveDisplay;
+                if (closeTermBreakdownBtn) {
+                    closeTermBreakdownBtn.style.display = originalCloseDisplay;
+                }
+                saveTermReportBtn.disabled = false;
+                saveTermReportBtn.textContent = originalLabel;
+            }
+        });
     }
 
     loadTournamentReport();
