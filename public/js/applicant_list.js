@@ -7,6 +7,23 @@ const roleMap = {
     5: 'Support'
 };
 
+// Mapping of role IDs to image filenames (used in player analysis)
+const roleImgMap = {
+    1: '/images/top_lane.png',
+    2: '/images/jungle.png',
+    3: '/images/mid_lane.png',
+    4: '/images/bottom_lane.png',
+    5: '/images/support.png'
+};
+
+// Helper to get rank image path from CommunityDragon CDN (ignore division numbers/roman numerals)
+function getRankImg(rank) {
+    if (!rank) return '';
+    // Remove roman numerals and numbers (e.g., 'Diamond III' -> 'diamond')
+    const mainRank = String(rank).toLowerCase().replace(/\s*(i{1,3}|iv|v|vi{0,3}|\d+)$/i, '').trim();
+    return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/${mainRank}.png`;
+}
+
 // Global variables to hold our data and current view
 let allApplicantsData = [];
 let currentStatusView = 'Pending';
@@ -61,20 +78,28 @@ function renderApplicantList() {
     if (applicantsTable) applicantsTable.style.display = 'table';
 
     // Map data to your exact table rows
-    applicantsBody.innerHTML = filteredApplicants.map(applicant => `
+    applicantsBody.innerHTML = filteredApplicants.map(applicant => {
+        // Role logos
+        const primaryRoleLogo = roleImgMap[applicant.primaryRoleId] ? `<img src="${roleImgMap[applicant.primaryRoleId]}" alt="${roleMap[applicant.primaryRoleId]}" class="role-logo">` : '';
+        const secondaryRoleLogo = roleImgMap[applicant.secondaryRoleId] ? `<img src="${roleImgMap[applicant.secondaryRoleId]}" alt="${roleMap[applicant.secondaryRoleId]}" class="role-logo">` : '';
+        // Rank logos
+        const peakRankLogo = applicant.peakRank ? `<img src="${getRankImg(applicant.peakRank)}" alt="${escapeHtml(applicant.peakRank)}" class="rank-logo">` : '';
+        const currentRankLogo = applicant.currentRank ? `<img src="${getRankImg(applicant.currentRank)}" alt="${escapeHtml(applicant.currentRank)}" class="rank-logo">` : '';
+        return `
         <tr class="clickable-row" data-user-id="${applicant.userId}">
             <td>${escapeHtml(applicant.firstname)}</td>
             <td>${escapeHtml(applicant.lastname === 'undefined' ? '-' : applicant.lastname || '-')}</td>
             <td>${escapeHtml(applicant.gameName)}#${escapeHtml(applicant.tagLine)}</td>
-            <td>${roleMap[applicant.primaryRoleId] || 'Unknown'}</td>
-            <td>${roleMap[applicant.secondaryRoleId] || 'Unknown' !== '-' ? roleMap[applicant.secondaryRoleId] || 'Unknown' : '-'}</td>
-            <td>${escapeHtml(applicant.peakRank)}</td>
-            <td>${escapeHtml(applicant.currentRank)}</td>
+            <td>${primaryRoleLogo}<span class="role-label">${roleMap[applicant.primaryRoleId] || 'Unknown'}</span></td>
+            <td>${secondaryRoleLogo}<span class="role-label">${applicant.secondaryRoleId ? roleMap[applicant.secondaryRoleId] || 'Unknown' : '-'}</span></td>
+            <td>${peakRankLogo}<span class="rank-label">${escapeHtml(applicant.peakRank)}</span></td>
+            <td>${currentRankLogo}<span class="rank-label">${escapeHtml(applicant.currentRank)}</span></td>
             <td>${applicant.lastGPA ? parseFloat(applicant.lastGPA).toFixed(2) : '-'}</td>
             <td>${applicant.CGPA ? parseFloat(applicant.CGPA).toFixed(2) : '-'}</td>
             <td><span class="status ${(applicant.applicationStatus || 'Pending').toLowerCase()}">${escapeHtml(applicant.applicationStatus || 'Pending')}</span></td>
         </tr>
-    `).join('');
+        `;
+    }).join('');
 
     // Reattach the profile click listeners to the new rows
     applicantsBody.querySelectorAll('.clickable-row').forEach((row) => {

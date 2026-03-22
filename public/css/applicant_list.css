@@ -1,3 +1,14 @@
+/* Role and Rank Logo Styles for Applicant List */
+.role-logo, .rank-logo {
+    height: 24px;
+    width: 24px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+.role-label, .rank-label {
+    vertical-align: middle;
+}
 body {
     margin: 0;
     display: block;
@@ -150,13 +161,17 @@ body {
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    background: #2f3136;
-    padding: 30px;
+    background: var(--gunmetal);
     box-sizing: border-box;
     overflow-x: auto;
     border-radius: 16px;
     border: 1px solid #202225;
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+.coach-main-content .container {
+    padding: 30px;
+    background-color: #2f3136;
 }
 
 .applicant-header {
@@ -213,7 +228,7 @@ table {
 
 th {
     background-color: #202225;
-    color: #b9bbbe;
+    color: var(--porcelain);
     padding: 12px;
     text-align: left;
     font-weight: 600;

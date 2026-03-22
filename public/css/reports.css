@@ -49,6 +49,8 @@
     width: 100px;
     height: 100px;
     margin-right: 10px;
+    text-decoration: none;
+    color: var(--porcelain);
 }
 
 .manager-brand img {
