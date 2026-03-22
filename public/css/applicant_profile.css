@@ -112,8 +112,8 @@ body {
 
 /* --- Left Box Elements --- */
 .applicant-select {
-    color: var(--porcelain);
-    font-size: 28px;
+    color: #ffffff;
+    font-size: 24px;
     font-weight: bold;
     border: none;
     background: transparent;
@@ -125,6 +125,12 @@ body {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+}
+
+.applicant-select option {
+    background-color: #2f3136;
+    color: #dcddde;
+    font-size: 16px;
 }
 
 .real-name {
