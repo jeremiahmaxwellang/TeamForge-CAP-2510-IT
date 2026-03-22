@@ -891,7 +891,25 @@ VALUES
 (12, 'February Rift Cup', '2026-02-07', '2026-02-08', 'W'),
 (13, 'March Midseason Clash', '2026-03-07', '2026-03-08', 'N/A'),
 (14, 'April Academy Cup', '2026-04-04', '2026-04-05', 'W'),
-(15, 'Spring Crown Finals', '2026-04-18', '2026-04-19', 'L');
+(15, 'Spring Crown Finals', '2026-04-18', '2026-04-19', 'L'),
+-- Period 1 additions (4W, 1L)
+(16, 'May Thunderstrike', '2025-05-24', '2025-05-25', 'W'),
+(17, 'June Rift Showdown', '2025-06-14', '2025-06-15', 'W'),
+(18, 'July Clash Series', '2025-07-05', '2025-07-06', 'W'),
+(19, 'July Lightning Cup', '2025-07-26', '2025-07-27', 'W'),
+(20, 'August Rift Qualifier', '2025-08-16', '2025-08-17', 'L'),
+-- Period 2 additions (2W, 2L, 1N/A)
+(21, 'September Rift Challenge', '2025-09-20', '2025-09-21', 'W'),
+(22, 'October Clash Invitational', '2025-10-18', '2025-10-19', 'L'),
+(23, 'November Open Cup', '2025-11-08', '2025-11-09', 'W'),
+(24, 'November Nexus Brawl', '2025-11-29', '2025-11-30', 'L'),
+(25, 'December Year-End Series', '2025-12-20', '2025-12-21', 'N/A'),
+-- Period 3 additions (1W, 4L)
+(26, 'February Rift Trials', '2026-01-31', '2026-02-01', 'L'),
+(27, 'February Crown Series', '2026-02-21', '2026-02-22', 'L'),
+(28, 'March Gauntlet Cup', '2026-03-21', '2026-03-22', 'L'),
+(29, 'April Rift Revival', '2026-04-11', '2026-04-12', 'W'),
+(30, 'April Final Showdown', '2026-04-25', '2026-04-26', 'L');
 
 -- Period 1: May 2025 to August 2025
 -- Tournament 1: veteran core with two substitutes
@@ -1049,3 +1067,155 @@ VALUES
 (15, 17, 5, 'N'),
 (15, 13, 1, 'Y'),
 (15, 6, 5, 'Y');
+
+-- Period 1 additions
+-- Tournament 16 (W): main starters with jungle reserve
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(16, 4, 1, 'N'),
+(16, 7, 2, 'N'),
+(16, 3, 3, 'N'),
+(16, 5, 4, 'N'),
+(16, 6, 5, 'N'),
+(16, 8, 2, 'Y');
+
+-- Tournament 17 (W): veteran top with mid and support subs
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(17, 4, 1, 'N'),
+(17, 7, 2, 'N'),
+(17, 15, 3, 'N'),
+(17, 5, 4, 'N'),
+(17, 17, 5, 'N'),
+(17, 13, 1, 'Y');
+
+-- Tournament 18 (W): top sub leads with veteran core
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(18, 13, 1, 'N'),
+(18, 7, 2, 'N'),
+(18, 3, 3, 'N'),
+(18, 5, 4, 'N'),
+(18, 6, 5, 'N'),
+(18, 4, 1, 'Y');
+
+-- Tournament 19 (W): alternate jungler with veteran carries
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(19, 4, 1, 'N'),
+(19, 14, 2, 'N'),
+(19, 3, 3, 'N'),
+(19, 16, 4, 'N'),
+(19, 17, 5, 'N'),
+(19, 7, 2, 'Y');
+
+-- Tournament 20 (L): development roster, no substitutes
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(20, 13, 1, 'N'),
+(20, 9, 2, 'N'),
+(20, 15, 3, 'N'),
+(20, 16, 4, 'N'),
+(20, 6, 5, 'N');
+
+-- Period 2 additions
+-- Tournament 21 (W): veteran top with alternate jungler
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(21, 4, 1, 'N'),
+(21, 8, 2, 'N'),
+(21, 3, 3, 'N'),
+(21, 5, 4, 'N'),
+(21, 17, 5, 'N'),
+(21, 13, 1, 'Y');
+
+-- Tournament 22 (L): academy lineup with jungle sub
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(22, 13, 1, 'N'),
+(22, 7, 2, 'N'),
+(22, 15, 3, 'N'),
+(22, 16, 4, 'N'),
+(22, 6, 5, 'N'),
+(22, 9, 2, 'Y');
+
+-- Tournament 23 (W): veteran core with blueprint jungler
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(23, 4, 1, 'N'),
+(23, 14, 2, 'N'),
+(23, 3, 3, 'N'),
+(23, 5, 4, 'N'),
+(23, 17, 5, 'N');
+
+-- Tournament 24 (L): academy starters with veteran top reserve
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(24, 13, 1, 'N'),
+(24, 9, 2, 'N'),
+(24, 15, 3, 'N'),
+(24, 16, 4, 'N'),
+(24, 6, 5, 'N'),
+(24, 4, 1, 'Y');
+
+-- Tournament 25 (N/A): full roster with two substitutes
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(25, 4, 1, 'N'),
+(25, 8, 2, 'N'),
+(25, 3, 3, 'N'),
+(25, 5, 4, 'N'),
+(25, 17, 5, 'N'),
+(25, 7, 2, 'Y'),
+(25, 6, 5, 'Y');
+
+-- Period 3 additions
+-- Tournament 26 (L): veteran top with alternate ADC
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(26, 4, 1, 'N'),
+(26, 7, 2, 'N'),
+(26, 3, 3, 'N'),
+(26, 16, 4, 'N'),
+(26, 17, 5, 'N'),
+(26, 13, 1, 'Y');
+
+-- Tournament 27 (L): academy lineup, no substitutes
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(27, 13, 1, 'N'),
+(27, 9, 2, 'N'),
+(27, 15, 3, 'N'),
+(27, 5, 4, 'N'),
+(27, 6, 5, 'N');
+
+-- Tournament 28 (L): veteran top with blueprint jungler and jungle sub
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(28, 4, 1, 'N'),
+(28, 14, 2, 'N'),
+(28, 3, 3, 'N'),
+(28, 16, 4, 'N'),
+(28, 17, 5, 'N'),
+(28, 7, 2, 'Y');
+
+-- Tournament 29 (W): academy starters with veteran top reserve
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(29, 13, 1, 'N'),
+(29, 8, 2, 'N'),
+(29, 15, 3, 'N'),
+(29, 5, 4, 'N'),
+(29, 6, 5, 'N'),
+(29, 4, 1, 'Y');
+
+-- Tournament 30 (L): veteran core with two substitutes
+INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+VALUES
+(30, 4, 1, 'N'),
+(30, 7, 2, 'N'),
+(30, 3, 3, 'N'),
+(30, 16, 4, 'N'),
+(30, 6, 5, 'N'),
+(30, 9, 2, 'Y'),
+(30, 17, 5, 'Y');
