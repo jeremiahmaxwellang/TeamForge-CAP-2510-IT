@@ -34,7 +34,52 @@
         <div class="content-wrapper">
 
             <div class="sidebar">
-                <ul></ul>
+                <ul>
+                    <li>
+                        <a href="#">
+                            <img src="/images/announcement_logo.png" alt="Announcement Icon"> 
+                            Announcement
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="#">
+                            <img src="/images/scheduling_logo.png" alt="Scheduling Icon"> 
+                            Scheduling
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="#">
+                            <img src="/images/attendance_logo.png" alt="Attendance Icon"> 
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/player_analysis">
+                            <img src="/images/player_analysis_logo.png" alt="Player Performance Analysis Icon"> 
+                            Player Performance<br>Analysis
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/applicant_list">
+                            <img src="/images/player_analysis_logo.png" alt="Applicant List Icon">
+                            Applicant List
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/tournament">
+                            <img src="/images/player_analysis_logo.png" alt="Tournament Management Icon">
+                            Tournament Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/settings">
+                            <img src="/images/settings_logo.png" alt="Settings Icon"> 
+                            Settings
+                        </a>
+                    </li>
+                </ul>
             </div>
 
             <div class="main-content">
@@ -51,7 +96,7 @@
                                 <option>Loading...</option>
                             </select>
                             <i class="fas fa-caret-down"
-                                style="font-size: 20px; margin-left: -20px; pointer-events: none; color: #333;"></i>
+                                style="font-size: 20px; margin-left: -20px; pointer-events: none; color: #b9bbbe;"></i>
                         </div>
 
                         <div id="app-name" class="real-name">Loading Real Name...</div>
@@ -216,8 +261,7 @@
 
                             <label style="font-weight:bold; display:block; margin-top:20px;">Comments from the
                                 Coach:</label>
-                            <textarea id="eval-comment"
-                                style="width:100%; height:100px; margin-top:5px; padding:10px; border:1px solid #ccc; border-radius:5px; resize:none;"
+                            <textarea id="eval-comment" class="eval-comment"
                                 placeholder="Enter a comment here"></textarea>
 
                             <div style="text-align:right; margin-top:15px;">
@@ -242,9 +286,7 @@
                     </div>
 
                     <div class="interview-wrapper">
-                        <span class="card-header"
-                            style="text-align:center; font-size:24px; margin-bottom:30px; border-bottom:none;">Applicant
-                            Interview</span>
+                        <span class="card-header"> Applicant Interview</span>
                         <div class="interview-grid">
                             <div class="interview-questions">
                                 <div class="question-block">
