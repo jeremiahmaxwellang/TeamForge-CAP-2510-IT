@@ -112,7 +112,7 @@ window.initChampionTab = function (userId) {
         formatted.forEach((champ, index) => {
           const championNameSafe = escapeHtml(champ.championName);
           const roleSafe = escapeHtml(champ.role);
-          const patchSafe = formatPatch(champ.lastPatch);
+          const patchSafe = formatPatch(champ.gameVersion);
           const iconUrl = getChampionIconUrl(champ.championName);
           const laneIconPath = getLaneIconPath(champ.role);
           

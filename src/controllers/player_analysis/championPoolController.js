@@ -10,7 +10,11 @@ exports.getChampionPool = async (req, res) => {
     try {
         const playerId = req.params.id;
         const sql = `
-        SELECT mp.championName, mp.championId, COUNT(*) AS games, 
+        WITH latest_version AS (
+            SELECT MAX(gameVersion) AS game_version FROM matches
+        )
+        SELECT mp.championName, mp.championId, lv.game_version,
+        COUNT(*) AS games, 
         CASE 
             WHEN mp.teamPosition = 'BOT' THEN 'ADC'
             WHEN mp.teamPosition = 'UTILITY' THEN 'SUPPORT'
@@ -28,8 +32,9 @@ exports.getChampionPool = async (req, res) => {
         FROM matches m
         JOIN matchParticipants mp ON m.matchId = mp.matchId
         JOIN players p ON p.puuid = mp.puuid
+        JOIN latest_version lv
         WHERE m.userId = ?
-        GROUP BY mp.championName, mp.championId, champ_role
+        GROUP BY mp.championName, mp.championId, champ_role, lv.game_version
         ORDER BY games DESC,  mp.championName;
         `;
         const [results] = await db.query(sql, [playerId]);
@@ -45,7 +50,7 @@ exports.getChampionPool = async (req, res) => {
 // ============== SUMMARY TAB ==============
 
 // Total unique champs
-exports.getTotalChampions = async(req, res) => {
+exports.getTotalChampions = async (req, res) => {
     try {
         const playerId = req.params.id;
         const sql = `

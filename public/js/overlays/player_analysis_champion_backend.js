@@ -19,6 +19,7 @@
       role: champ.champ_role,
       lastPatch: champ.lastPatch || "Unknown",
       games: champ.games,
+      gameVersion: champ.game_version || "N/A",
       winrate: champ.winrate || "N/A",
       avgKills: champ.avg_kills,
       avgDeaths: champ.avg_deaths,
