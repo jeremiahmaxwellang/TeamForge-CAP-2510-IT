@@ -542,7 +542,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       <table class="comparison-table" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 15px;">
         <thead>
           <tr style="border-bottom: 2px solid #ddd;">
-            <th style="padding: 10px; width: 33%; font-size: 14px; color:#333;">${p1Name} <br><span style="font-size:11px; color:#00f2c3;">(${p1RoleStr})</span></th>
+            <th style="padding: 10px; width: 33%; font-size: 14px; color:#ddd;">${p1Name} <br><span style="font-size:11px; color:#00f2c3;">(${p1RoleStr})</span></th>
             <th style="padding: 10px; width: 34%; color:#333;">Metric</th>
             <th style="padding: 10px; width: 33%; font-size: 14px; color:#00f2c3;">${p2Name} <br><span style="font-size:11px; color:#888;">(${p2Role})</span></th>
           </tr>
