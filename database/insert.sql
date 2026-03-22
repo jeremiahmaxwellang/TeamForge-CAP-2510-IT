@@ -486,9 +486,9 @@ INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
 -- SCRIMS
 -- -----------------------------------------------------
 
-INSERT INTO scrims(scrimId, name, date, videoLink, length)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
 VALUES 
-(1, 'Viridis Arcus vs. Annihilation Scrim', '2026-02-23', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:11');
+(1, 'Viridis Arcus vs. Annihilation Scrim', '2026-02-23', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:11', 'evaluated');
 
 -- Insert scrim players for scrimId = 1
 INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
@@ -503,9 +503,9 @@ INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingComm
 VALUES
 (1, 4, 'Flexible with a variety of champions but barely communicates with team', 3, 2, 4, 2);
 
-INSERT INTO scrims(scrimId, name, date, videoLink, length)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
 VALUES 
-(2, 'Viridis Arcus vs. Punk Rockers', '2026-02-24', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '29:55');
+(2, 'Viridis Arcus vs. Punk Rockers', '2026-02-24', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '29:55', 'evaluated');
 
 -- Insert scrim players for scrimId = 2
 INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
@@ -521,9 +521,9 @@ VALUES
 (2, 4, 'Communication has improved since last scrim', 4, 5, 4, 2);
 
 -- SCRIM 3 
-INSERT INTO scrims(scrimId, name, date, videoLink, length)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
 VALUES 
-(3, 'Viridis Arcus vs. Sesame Street', '2026-03-04', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:02');
+(3, 'Viridis Arcus vs. Sesame Street', '2026-03-04', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:02', 'unevaluated');
 
 -- Insert scrim players for scrimId = 3
 INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win)
