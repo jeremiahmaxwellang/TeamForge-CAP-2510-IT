@@ -10,10 +10,10 @@ teamforge123!!
 Trebis Detablan
 
 [Riot_ID]
-Kialos#akali
+빵돌이#0904
 
 [Discord]
-Kialos#akali
+빵돌이#0904
 
 [GPA]
 3.3
@@ -22,7 +22,7 @@ Kialos#akali
 3.0
 
 [Year_Level]
-4th Year
+2nd Year
 
 [Current_Rank]
 Diamond IV
@@ -31,10 +31,10 @@ Diamond IV
 Master
 
 [Primary_Role]
-Mid
+Top
 
 [Secondary_Role]
-Top
+AD Carry
 
 ======== LOGIN ==========
 [Email]
@@ -42,3 +42,13 @@ trebis_detablan@dlsu.edu.ph
 
 [Password]
 teamforge123!!
+
+===== NEXT SCENARIO: COACH LOGIN =======
+[Email]
+charles_duelas@dlsu.edu.ph
+
+[Password]
+teamForge123!!
+
+[New_Password]
+teamForge123!!

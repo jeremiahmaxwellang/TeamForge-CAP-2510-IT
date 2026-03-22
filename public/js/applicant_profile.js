@@ -43,7 +43,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     currentApplicant: null,
     benchmarkData: null,
     selectedRoleId: null,
-    comparisonTarget: 'benchmark' // ADDED
+    comparisonTarget: 'benchmark',
+    benchmarks: []
   };
 
   // DOM Elements Map (Fixed IDs to match HTML)
@@ -170,7 +171,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
 
       const pStats = statsResp?.playerStats ?? null;
-      const benchmarks = Array.isArray(benchResp) ? benchResp : (benchResp?.benchmarks ?? []);
+      const benchmarks = Array.isArray(benchResp)
+        ? benchResp
+        : (benchResp?.benchmarks ?? []);
+
+      state.benchmarks = benchmarks;
 
       if (statsResp?.success && pStats) {
         UI.kda.textContent = `${pStats.KDA ?? pStats.kda ?? '--'} KDA`;
@@ -203,8 +208,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           p2Role = `Compared as ${getRoleName(roleId || 1)}`;
         }
 
-        drawComparisonChart(pStats, p2Stats, benchmarks, isBenchmark);
-        drawStatsTable(pStats, p2Stats, benchmarks, roleId, isBenchmark, p2Name, p2Role);
+        drawComparisonChart(pStats, p2Stats, state.benchmarks, isBenchmark);
+        drawStatsTable(pStats, p2Stats, state.benchmarks, roleId, isBenchmark, p2Name, p2Role);
 
       } else {
         UI.kda.textContent = "-- KDA";
@@ -467,12 +472,26 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function calculateRadarScore(playerValue, statId, benchmarks) {
     const normalizedId = statId.toLowerCase().replace(/\s/g, '');
-    const dbMatch = benchmarks.find(b => b.metricName && b.metricName.toLowerCase().replace(/\s/g, '') === normalizedId);
-    let maxScale = (dbMatch && Number(dbMatch.benchmarkValue) > 0) ? Number(dbMatch.benchmarkValue) * 1.25 : (FALLBACK_SCALES[statId] || 10);
+
+    const dbMatch = benchmarks.find(b => {
+      if (!b.metricName) return false;
+      // Strip "average" prefix from DB metric name before comparing
+      // e.g. "averagekda" → "kda" matches axis id "kda"
+      const normalized = b.metricName.toLowerCase().replace(/\s/g, '').replace(/^average/, '');
+      return normalized === normalizedId;
+    });
+
+    let maxScale = (dbMatch && Number(dbMatch.benchmarkValue) > 0)
+      ? Number(dbMatch.benchmarkValue) * 1.5
+      : (FALLBACK_SCALES[statId] || 10);
+
     return Math.min((Number(playerValue) / maxScale) * 10, 10);
   }
 
   function drawComparisonChart(p1Stats, p2Stats, benchmarks, isBenchmark) {
+    // console.log('[CHART] benchmarks received:', benchmarks);
+    // console.log('[CHART] first benchmark metricName:', benchmarks[0]?.metricName);
+    // e.g. logs "averageKDA" — does NOT match axis id "KDA"
     const roleId = state.selectedRoleId || 1;
     const config = ROLE_CONFIGS[roleId] || ROLE_CONFIGS.default;
 
@@ -483,14 +502,26 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const p2Axes = config.axes.map(a => {
       let val;
+
       if (isBenchmark) {
         const normalizedId = a.id.toLowerCase().replace(/\s/g, '');
-        const dbMatch = benchmarks.find(b => b.metricName && b.metricName.toLowerCase().replace(/\s/g, '') === normalizedId);
-        val = dbMatch ? Number(dbMatch.benchmarkValue) : (FALLBACK_SCALES[a.id] * 0.8);
-      } else {
-        val = p2Stats ? (Number(p2Stats[a.id]) || Number(p2Stats[a.id.replace(/\s/g, '')]) || 0) : 0;
+
+        const dbMatch = benchmarks.find(b => {
+          if (!b.metricName) return false;
+          const normalized = b.metricName.toLowerCase().replace(/\s/g, '').replace(/^average/, '');
+          return normalized === normalizedId;
+        });
+
+        val = dbMatch ? 8 : 6;
+        return { axis: a.label, value: val, originalValue: dbMatch ? Number(dbMatch.benchmarkValue) : 'N/A' };
       }
-      return { axis: a.label, value: calculateRadarScore(val, a.id, benchmarks) };
+      else {
+        // Comparing vs another player — normalize their value normally
+        val = p2Stats
+          ? (Number(p2Stats[a.id]) || Number(p2Stats[a.id.replace(/\s/g, '')]) || 0)
+          : 0;
+        return { axis: a.label, value: calculateRadarScore(val, a.id, benchmarks) };
+      }
     });
 
     UI.chartContainer.innerHTML = "";
@@ -532,7 +563,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const getBench = (benchmarksList, id) => {
       const cleanId = id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const found = benchmarksList.find(b => b.metricName && b.metricName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '') === cleanId);
+      const found = benchmarksList.find(b => {
+        if (!b.metricName) return false;
+        // Strip "average" prefix before comparing
+        const normalized = b.metricName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '').replace(/^average/, '');
+        return normalized === cleanId;
+      });
       return found ? Number(found.benchmarkValue) : (FALLBACK_SCALES[id] * 0.8 || 0);
     };
 
@@ -542,7 +578,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       <table class="comparison-table" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 15px;">
         <thead>
           <tr style="border-bottom: 2px solid #ddd;">
-            <th style="padding: 10px; width: 33%; font-size: 14px; color:#333;">${p1Name} <br><span style="font-size:11px; color:#00f2c3;">(${p1RoleStr})</span></th>
+            <th style="padding: 10px; width: 33%; font-size: 14px; color:#ddd;">${p1Name} <br><span style="font-size:11px; color:#00f2c3;">(${p1RoleStr})</span></th>
             <th style="padding: 10px; width: 34%; color:#333;">Metric</th>
             <th style="padding: 10px; width: 33%; font-size: 14px; color:#00f2c3;">${p2Name} <br><span style="font-size:11px; color:#888;">(${p2Role})</span></th>
           </tr>
@@ -805,19 +841,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // UNUSED FUNCTION: Save Match Details in DB - Aleady done by saveMatches()
-    // async function saveMatchDetails() {
-    //   const userId = parseInt(state.currentApplicant.userId, 10);
-
-    //   try {
-    //     const response = await fetch(`/match/${userId}/store`);
-    //     const data = await response.json();
-
-    //   } catch (err) {
-    //     console.error("Error:", err);
-    //   }
-    // }
-
     /**
      * 5. Fetch and Store Match Statistics
      * @param {*} matches - array of matchIds
@@ -887,6 +910,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     }
 
+    // Accept / Reject Applicant
     if (btnConfirm) btnConfirm.addEventListener('click', () => submitEvaluation('Pending'));
     if (btnAccept) btnAccept.addEventListener('click', () => { if (confirm("Are you sure you want to ACCEPT this applicant?")) submitEvaluation('Accepted'); });
     if (btnReject) btnReject.addEventListener('click', () => { if (confirm("Are you sure you want to REJECT this applicant?")) submitEvaluation('Rejected'); });
