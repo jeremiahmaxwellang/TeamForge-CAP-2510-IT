@@ -316,9 +316,10 @@ body {
 }
 
 .card-header {
+    text-align: center;
     font-weight: bold;
-    font-size: 18px;
-    margin-bottom: 15px;
+    font-size: 24px;
+    margin-bottom: 20px;
     display: block;
     color: var(--porcelain);
     border-bottom: 1px solid #4f545c;
@@ -341,8 +342,8 @@ body {
 }
 
 .interview-wrapper {
-    background: white;
-    color: #333;
+    background: #2f3136;
+    color: var(--porcelain);
     border-radius: 15px;
     padding: 30px;
     margin-bottom: 100px;
@@ -362,18 +363,23 @@ body {
     display: block;
     font-weight: bold;
     margin-bottom: 8px;
-    color: #555;
+    color: #dcddde;
 }
 
 .question-block textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid #4f545c;
     border-radius: 8px;
-    background: #f9f9f9;
+    background: #36393f;
+    color: var(--porcelain);
     resize: vertical;
     min-height: 80px;
     font-family: inherit;
+}
+
+.question-block textarea::placeholder {
+    color: #8e9297;
 }
 
 .vod-box {
