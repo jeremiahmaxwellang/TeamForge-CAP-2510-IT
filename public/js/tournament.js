@@ -6,6 +6,7 @@
 	const state = {
 		players: [],
 		favoriteCandidateIds: new Set(),
+		favoritesByRole: new Map(),
 		tournaments: [],
 		roleById: {},
 		filter: 'All',
@@ -266,17 +267,24 @@
 			const isAssigned = assignedIds.has(player.userId);
 
 			const card = document.createElement('div');
-			card.className = `player-card ${isAssigned ? 'assigned' : ''}`;
+			card.className = `player-card ${isAssigned ? 'assigned' : ''}`.trim();
 			card.draggable = !isAssigned;
 			card.dataset.userId = String(player.userId);
 			card.dataset.name = player.name;
 			card.dataset.primaryRole = player.primaryRole || '';
 			card.dataset.secondaryRole = player.secondaryRole || '';
 
-			const secondaryLabel = player.secondaryRole ? ` / ${player.secondaryRole}` : '';
+			const primaryRole = player.primaryRole || 'N/A';
+			const primaryClass = isFavoriteForRole(player.userId, player.primaryRole) ? ' candidate-role' : '';
+			let badgeHTML = `<span class="role-part${primaryClass}">${primaryRole}</span>`;
+			if (player.secondaryRole) {
+				const secondaryClass = isFavoriteForRole(player.userId, player.secondaryRole) ? ' candidate-role' : '';
+				badgeHTML += ` / <span class="role-part${secondaryClass}">${player.secondaryRole}</span>`;
+			}
+
 			card.innerHTML = `
 				<span>${player.name}</span>
-				<span class="player-role-badge">${player.primaryRole || 'N/A'}${secondaryLabel}</span>
+				<span class="player-role-badge">${badgeHTML}</span>
 			`;
 
 			if (!isAssigned) {
@@ -299,14 +307,28 @@
 		}
 
 		const favoriteIds = new Set();
+		const favoritesByRole = new Map();
 		(data.favorites || []).forEach((favorite) => {
 			const parsedId = Number.parseInt(favorite.userId, 10);
 			if (Number.isInteger(parsedId)) {
 				favoriteIds.add(parsedId);
+				const roleName = state.roleById[Number.parseInt(favorite.roleId, 10)];
+				if (roleName) {
+					if (!favoritesByRole.has(roleName)) {
+						favoritesByRole.set(roleName, new Set());
+					}
+					favoritesByRole.get(roleName).add(parsedId);
+				}
 			}
 		});
 
 		state.favoriteCandidateIds = favoriteIds;
+		state.favoritesByRole = favoritesByRole;
+	};
+
+	const isFavoriteForRole = (userId, roleName) => {
+		const roleSet = state.favoritesByRole.get(roleName);
+		return roleSet ? roleSet.has(userId) : false;
 	};
 
 	const renderResultFilters = () => {
