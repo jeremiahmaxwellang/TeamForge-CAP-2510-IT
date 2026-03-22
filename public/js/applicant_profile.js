@@ -146,38 +146,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     try {
       const target = state.comparisonTarget || 'benchmark';
 
-      const fetches = [
-        fetch('/player_analysis/stats/calculate', {
+      // Run winrate + stats/benchmarks in parallel
+      const [winrateData, statsResp, benchResp] = await Promise.all([
+        fetch(`/player_analysis/players/${userId}/winrate/${roleId}`)
+          .then(r => r.ok ? r.json() : null).catch(() => null),
+
+        // fetch('/player_analysis/stats/calculate', {
+        fetch('/player_analysis/stats/calculate-by-role', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ playerId: userId, roleId: roleId || 1 })
-        }).catch(() => null),
+        }).then(r => r.ok ? r.json() : null).catch(() => null),
 
-        fetch(`/player_analysis/benchmarks/role/${roleId || 1}`).catch(() => null)
-      ];
+        fetch(`/player_analysis/benchmarks/role/${roleId || 1}`)
+          .then(r => r.ok ? r.json() : null).catch(() => null)
+      ]);
 
-      if (target !== 'benchmark') {
-        fetches.push(
-          fetch('/player_analysis/stats/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ playerId: target, roleId: roleId || 1 })
-          }).catch(() => null)
-        );
+      // Winrate from dedicated route (role-specific)
+      if (winrateData?.success && winrateData.winrate !== null) {
+        UI.winrate.textContent = `${winrateData.winrate}% WR`;
+      } else {
+        UI.winrate.textContent = '--% WR';
       }
 
-      const responses = await Promise.all(fetches);
-      const data = responses[0] ? await responses[0].json() : null;
-      const benchData = responses[1] ? await responses[1].json() : null;
-      const targetData = responses[2] ? await responses[2].json() : null;
+      const pStats = statsResp?.playerStats ?? null;
+      const benchmarks = Array.isArray(benchResp) ? benchResp : (benchResp?.benchmarks ?? []);
 
-      const pStats = data?.playerStats ?? null;
-      const benchmarks = Array.isArray(benchData)
-        ? benchData
-        : (benchData?.benchmarks ?? []);
-
-      if (data?.success && pStats) {
-        UI.winrate.textContent = `${pStats.winrate ?? '--'}% WR`;
+      if (statsResp?.success && pStats) {
         UI.kda.textContent = `${pStats.KDA ?? pStats.kda ?? '--'} KDA`;
 
         if (pStats.topChampions?.length > 0) {
@@ -188,61 +183,41 @@ document.addEventListener("DOMContentLoaded", async function () {
           UI.topChamps.innerHTML = "<span>No Champ Data</span>";
         }
 
-        let p2Stats = null;
-        let p2Name = "Expected Stats";
-        let p2Role = "Coach";
-        let isBenchmark = true;
+        // Comparison target
+        let p2Stats = benchmarks, p2Name = "Expected Stats",
+          p2Role = `Expected ${getRoleName(roleId || 1)}`, isBenchmark = true;
 
         if (target !== 'benchmark') {
-          p2Stats = targetData?.playerStats ?? null;
+          const compResp = await fetch('/player_analysis/stats/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId: target, roleId: roleId || 1 })
+          }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+          p2Stats = compResp?.playerStats ?? null;
           isBenchmark = false;
 
           const allPlayers = [...state.allApplicants, ...state.rosterPlayers];
           const targetApp = allPlayers.find(a => (a.userId || a.id) == target);
-
-          p2Name = targetApp
-            ? (targetApp.gameName ? `${targetApp.gameName}#${targetApp.tagLine}` : "Player")
-            : "Other Player";
+          p2Name = targetApp?.gameName ? `${targetApp.gameName}#${targetApp.tagLine}` : "Other Player";
           p2Role = `Compared as ${getRoleName(roleId || 1)}`;
-        } else {
-          p2Stats = benchmarks;
-          p2Role = `Expected ${getRoleName(roleId || 1)}`;
         }
 
         drawComparisonChart(pStats, p2Stats, benchmarks, isBenchmark);
         drawStatsTable(pStats, p2Stats, benchmarks, roleId, isBenchmark, p2Name, p2Role);
 
       } else {
-        throw new Error("No match data returned.");
+        UI.kda.textContent = "-- KDA";
+        if (UI.topChamps) UI.topChamps.innerHTML = "<span>No Data</span>";
+        if (UI.chartContainer) UI.chartContainer.innerHTML =
+          "<div style='text-align:center;padding:40px;color:#888;'>No recent match data available for this role.</div>";
+        if (UI.statsContainer) UI.statsContainer.innerHTML = "";
       }
 
     } catch (e) {
-      console.warn("[APPLICANT] Stats fallback:", e);
+      console.warn("[DISPLAY MATCH STATS] Error:", e);
       UI.winrate.textContent = "--% WR";
       UI.kda.textContent = "-- KDA";
-      if (UI.topChamps) UI.topChamps.innerHTML = "<span>No Data</span>";
-      if (UI.chartContainer) UI.chartContainer.innerHTML =
-        "<div style='text-align:center;padding:40px;color:#888;'>No recent match data available for this role.</div>";
-      if (UI.statsContainer) UI.statsContainer.innerHTML = "";
-    }
-  }
-
-  async function fetchWinrate(puuid) {
-    try {
-      const response = await fetch(`/riot/winrate/${puuid}`);
-
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-      const data = await response.json();
-      console.log('[WINRATE]', data);
-
-      // Update UI
-      UI.winrate.textContent = `${data.winrate}% WR`;
-      return data.winrate;
-
-    } catch (err) {
-      console.error('[WINRATE] Failed to fetch winrate:', err);
-      UI.winrate.textContent = '--% WR';
     }
   }
 
@@ -327,12 +302,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
 
       // Display Match Statistics from DB
-      displayMatchStats(applicant.userId, state.selectedRoleId);
+      await displayMatchStats(state.currentApplicant.userId, state.selectedRoleId);
     }
 
     populateComparisonDropdown(); // ADDED: Refresh dropdown to exclude the current applicant
-    // Fetch Stats
-    fetchStats(applicant.userId, state.selectedRoleId);
+    await loadSavedEvaluation(applicant.userId);
+    // No need for this line
+    // fetchStats(applicant.userId, state.selectedRoleId);
   }
 
   function populateComparisonDropdown() {
@@ -613,6 +589,52 @@ document.addEventListener("DOMContentLoaded", async function () {
   // ==========================================
   // EVENT LISTENERS & HELPERS
   // ==========================================
+  function clearEvaluationForm() {
+    ['gameSense', 'communication', 'champPool'].forEach((groupName) => {
+      document.querySelectorAll(`input[name="${groupName}"]`).forEach((input) => {
+        input.checked = false;
+      });
+    });
+
+    if (UI.commentBox) {
+      UI.commentBox.value = '';
+    }
+  }
+
+  function setCheckedRating(groupName, ratingValue) {
+    if (!ratingValue) return;
+    const target = document.querySelector(`input[name="${groupName}"][value="${ratingValue}"]`);
+    if (target) target.checked = true;
+  }
+
+  async function loadSavedEvaluation(userId) {
+    clearEvaluationForm();
+
+    if (!userId) return;
+
+    try {
+      const resp = await fetch(`/applicant_list/evaluate/${userId}`);
+      if (!resp.ok) return;
+
+      const result = await resp.json();
+      const evalData = result?.evaluation;
+      if (!result?.success || !evalData) return;
+
+      // Prevent stale responses from overwriting a newer applicant switch.
+      if (!state.currentApplicant || String(state.currentApplicant.userId) !== String(userId)) return;
+
+      setCheckedRating('gameSense', evalData.ratingGameSense);
+      setCheckedRating('communication', evalData.ratingCommunication);
+      setCheckedRating('champPool', evalData.ratingChampionPool);
+
+      if (UI.commentBox) {
+        UI.commentBox.value = evalData.comment || '';
+      }
+    } catch (error) {
+      console.warn('[APPLICANT] Failed to load saved evaluation:', error);
+    }
+  }
+
   function setupEventListeners() {
     const btnPrimary = document.getElementById('btn-primary-role');
     const btnSecondary = document.getElementById('btn-secondary-role');
@@ -620,7 +642,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (UI.comparisonSelect) {
       UI.comparisonSelect.addEventListener('change', (e) => {
         state.comparisonTarget = e.target.value;
-        fetchStats(state.currentApplicant.userId, state.selectedRoleId);
+        displayMatchStats(state.currentApplicant.userId, state.selectedRoleId);
+        // fetchStats(state.currentApplicant.userId, state.selectedRoleId);
       });
     }
 
@@ -629,8 +652,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (!state.currentApplicant) return;
         state.selectedRoleId = state.currentApplicant.primaryRoleId;
         btnPrimary.classList.add('active');
+
         if (btnSecondary) btnSecondary.classList.remove('active');
-        fetchStats(state.currentApplicant.userId, state.selectedRoleId);
+        displayMatchStats(state.currentApplicant.userId, state.selectedRoleId);
+        // fetchStats(state.currentApplicant.userId, state.selectedRoleId);
       });
     }
 
@@ -639,8 +664,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (!state.currentApplicant || !state.currentApplicant.secondaryRoleId) return;
         state.selectedRoleId = state.currentApplicant.secondaryRoleId;
         btnSecondary.classList.add('active');
+
         if (btnPrimary) btnPrimary.classList.remove('active');
-        fetchStats(state.currentApplicant.userId, state.selectedRoleId);
+        displayMatchStats(state.currentApplicant.userId, state.selectedRoleId);
+        // fetchStats(state.currentApplicant.userId, state.selectedRoleId);
       });
     }
 
@@ -851,6 +878,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const result = await resp.json();
         if (result.success) {
           alert(`Evaluation saved! Applicant status is now: ${finalStatus}`);
+          await loadSavedEvaluation(state.currentApplicant.userId);
           if (finalStatus === 'Accepted' || finalStatus === 'Rejected') window.location.href = '/applicant_list';
         } else alert("Failed to save: " + result.message);
       } catch (error) {

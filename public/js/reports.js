@@ -1,4 +1,305 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const tournamentStartDateInput = document.getElementById('tournamentStartDate');
+    const tournamentEndDateInput = document.getElementById('tournamentEndDate');
+    const applyTournamentRangeBtn = document.getElementById('applyTournamentRange');
+    const resetTournamentRangeBtn = document.getElementById('resetTournamentRange');
+    const tournamentRangeSummary = document.getElementById('tournamentRangeSummary');
+    const tournamentResultLegend = document.getElementById('tournament-result-legend');
+    const printReportBtn = document.getElementById('printReportBtn');
+
+    const tournamentResultColors = {
+        Wins: '#128b0d',
+        Losses: '#841a14'
+    };
+
+    let allTournamentRows = [];
+    let tournamentResultChart = null;
+
+    const formatDateLabel = (dateValue) => {
+        if (!dateValue) return '';
+        const parsed = new Date(`${dateValue}T00:00:00`);
+        if (Number.isNaN(parsed.getTime())) return '';
+        return parsed.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+
+    const normalizeDateOnly = (dateValue) => {
+        const parsed = new Date(dateValue);
+        if (Number.isNaN(parsed.getTime())) return null;
+        return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    };
+
+    const renderTournamentLegend = () => {
+        if (!tournamentResultLegend) return;
+
+        tournamentResultLegend.innerHTML = ['Wins', 'Losses'].map((label) => `
+            <div class="legend-item">
+                <div class="legend-dot" style="background:${tournamentResultColors[label]}"></div>${label}
+            </div>
+        `).join('');
+    };
+
+    const renderTournamentChart = (wins, losses) => {
+        const chartEl = document.getElementById('tournamentResultChart');
+        if (!chartEl) return;
+
+        if (tournamentResultChart) {
+            tournamentResultChart.destroy();
+        }
+
+        tournamentResultChart = new Chart(chartEl, {
+            type: 'pie',
+            data: {
+                labels: ['Wins', 'Losses'],
+                datasets: [{
+                    data: [wins, losses],
+                    backgroundColor: [tournamentResultColors.Wins, tournamentResultColors.Losses],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.label}: ${ctx.parsed}`
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
+        if (!tournamentRangeSummary) return;
+
+        const rangeLabel = startDate && endDate
+            ? `${formatDateLabel(startDate)} to ${formatDateLabel(endDate)}`
+            : 'all tournaments';
+
+        tournamentRangeSummary.textContent = `Range: ${rangeLabel}. Wins: ${wins}, Losses: ${losses}, Total tournaments: ${total}.`;
+    };
+
+    const applyTournamentRange = () => {
+        const startValue = tournamentStartDateInput ? tournamentStartDateInput.value : '';
+        const endValue = tournamentEndDateInput ? tournamentEndDateInput.value : '';
+
+        if ((startValue && !endValue) || (!startValue && endValue)) {
+            alert('Please select both start and end dates.');
+            return;
+        }
+
+        if (startValue && endValue && startValue > endValue) {
+            alert('Start date must be before or equal to end date.');
+            return;
+        }
+
+        const startDate = startValue ? normalizeDateOnly(`${startValue}T00:00:00`) : null;
+        const endDate = endValue ? normalizeDateOnly(`${endValue}T00:00:00`) : null;
+
+        const filteredRows = allTournamentRows.filter((row) => {
+            const rowDate = normalizeDateOnly(row.tournamentDate);
+            if (!rowDate) return false;
+
+            if (startDate && rowDate < startDate) return false;
+            if (endDate && rowDate > endDate) return false;
+            return true;
+        });
+
+        let wins = 0;
+        let losses = 0;
+
+        filteredRows.forEach((row) => {
+            const normalized = String(row.result || '').trim().toUpperCase();
+            if (normalized === 'W') wins += 1;
+            if (normalized === 'L') losses += 1;
+        });
+
+        renderTournamentLegend();
+        renderTournamentChart(wins, losses);
+        updateTournamentSummary(wins, losses, filteredRows.length, startValue, endValue);
+    };
+
+    const loadTournamentReport = async () => {
+        if (!applyTournamentRangeBtn || !resetTournamentRangeBtn) return;
+
+        try {
+            const response = await fetch('/reports/tournament_results');
+            const data = await response.json();
+
+            if (!response.ok || !data.success || !Array.isArray(data.data)) {
+                throw new Error(data.message || 'Failed to load tournament report');
+            }
+
+            allTournamentRows = data.data;
+            applyTournamentRange();
+        } catch (err) {
+            console.error('Error loading tournament report:', err);
+            if (tournamentRangeSummary) {
+                tournamentRangeSummary.textContent = 'Failed to load tournament report data.';
+            }
+        }
+    };
+
+    if (applyTournamentRangeBtn) {
+        applyTournamentRangeBtn.addEventListener('click', applyTournamentRange);
+    }
+
+    if (resetTournamentRangeBtn) {
+        resetTournamentRangeBtn.addEventListener('click', () => {
+            if (tournamentStartDateInput) tournamentStartDateInput.value = '';
+            if (tournamentEndDateInput) tournamentEndDateInput.value = '';
+            applyTournamentRange();
+        });
+    }
+
+    const downloadCurrentViewScreenshot = async () => {
+        if (typeof html2canvas !== 'function') {
+            alert('Screenshot tool is not available right now.');
+            return;
+        }
+
+        if (!printReportBtn) return;
+
+        const originalLabel = printReportBtn.textContent;
+        printReportBtn.disabled = true;
+        printReportBtn.textContent = 'Preparing...';
+
+        try {
+            const target = document.querySelector('.reports-shell') || document.body;
+            const originalDisplay = printReportBtn.style.display;
+
+            // Hide floating button so it does not appear in the exported report image.
+            printReportBtn.style.display = 'none';
+
+            const canvas = await html2canvas(target, {
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                width: target.scrollWidth,
+                height: target.scrollHeight,
+                scrollX: 0,
+                scrollY: -window.scrollY,
+                windowWidth: target.scrollWidth,
+                windowHeight: target.scrollHeight,
+                scale: 2
+            });
+
+            printReportBtn.style.display = originalDisplay;
+
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `reports-screenshot-${timestamp}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (error) {
+            console.error('Failed to capture screenshot:', error);
+            alert('Failed to capture screenshot. Please try again.');
+        } finally {
+            printReportBtn.style.display = '';
+            printReportBtn.disabled = false;
+            printReportBtn.textContent = originalLabel;
+        }
+    };
+
+    if (printReportBtn) {
+        printReportBtn.addEventListener('click', downloadCurrentViewScreenshot);
+    }
+
+    loadTournamentReport();
+
+    fetch('/reports/best_performing_applicants')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.getElementById('best-performing-table-body');
+            if (!tbody) return;
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align:center;">No applicant match data yet.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map((applicant, idx) => {
+                const winrate = Number.parseFloat(applicant.winrate);
+                const formattedWinrate = Number.isFinite(winrate) ? `${winrate.toFixed(1)}%` : '0.0%';
+                const applicantName = applicant.applicantName || 'Applicant';
+                const roleApplied = applicant.roleApplied || 'N/A';
+
+                return `
+                    <tr>
+                        <td class="rank-num">${idx + 1}</td>
+                        <td>${applicantName}</td>
+                        <td><span class="wr-badge">${formattedWinrate}</span></td>
+                        <td>${roleApplied}</td>
+                    </tr>
+                `;
+            }).join('');
+        })
+        .catch(err => {
+            console.error('Error loading best-performing applicants:', err);
+            const tbody = document.getElementById('best-performing-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center;">Failed to load applicant performance report.</td>
+                </tr>
+            `;
+        });
+
+    fetch('/reports/best_communication_applicants')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.getElementById('best-communication-table-body');
+            if (!tbody) return;
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align:center;">No communication evaluations yet.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map((applicant, idx) => {
+                const comms = Number.parseFloat(applicant.communicationRating);
+                const roundedComms = Number.isFinite(comms)
+                    ? Math.max(1, Math.min(5, Math.round(comms)))
+                    : 0;
+                const applicantName = applicant.applicantName || 'Applicant';
+                const roleApplied = applicant.roleApplied || 'N/A';
+
+                const commsClass = roundedComms >= 1 && roundedComms <= 5
+                    ? `comms-${roundedComms}`
+                    : '';
+
+                const ratingHtml = commsClass
+                    ? `<span class="${commsClass}">${roundedComms}</span>`
+                    : `<span>${roundedComms}</span>`;
+
+                return `
+                    <tr>
+                        <td class="rank-num">${idx + 1}</td>
+                        <td>${applicantName}</td>
+                        <td>${ratingHtml}</td>
+                        <td>${roleApplied}</td>
+                    </tr>
+                `;
+            }).join('');
+        })
+        .catch(err => {
+            console.error('Error loading best communication applicants:', err);
+            const tbody = document.getElementById('best-communication-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center;">Failed to load communication report.</td>
+                </tr>
+            `;
+        });
 
     fetch('/reports/applicant_roles')
         .then(r => r.json())
@@ -99,6 +400,41 @@ document.addEventListener('DOMContentLoaded', () => {
           <td class="${p.players_left <= 1 ? 'players-left-zero' : ''}">${p.players_left}</td>
         </tr>
       `).join('');
+
+            // Build recommendation based on player count after semester losses
+            const allRoles = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
+            const criticalRoles = [];   // 0 players left
+            const lowRoles = [];        // 1 player left
+            const missingRoles = [];    // role has no players at all (not in data)
+
+            allRoles.forEach(role => {
+                const entry = data.find(p => p.displayedRole === role);
+                if (!entry) {
+                    missingRoles.push(role);
+                } else if (Number(entry.players_left) === 0) {
+                    criticalRoles.push(role);
+                } else if (Number(entry.players_left) === 1) {
+                    lowRoles.push(role);
+                }
+            });
+
+            const recEl = document.getElementById('recommended-action-text');
+            if (!recEl) return;
+
+            const urgentRoles = [...new Set([...missingRoles, ...criticalRoles])];
+            const parts = [];
+
+            if (urgentRoles.length > 0) {
+                parts.push(`Urgently recruit ${urgentRoles.join(', ')} player${urgentRoles.length > 1 ? 's' : ''} — no remaining players after this semester.`);
+            }
+            if (lowRoles.length > 0) {
+                parts.push(`Consider recruiting backup ${lowRoles.join(', ')} player${lowRoles.length > 1 ? 's' : ''} — only 1 player remaining per role.`);
+            }
+            if (parts.length === 0) {
+                recEl.textContent = 'All roles are sufficiently staffed for next semester. No immediate recruitment needed.';
+            } else {
+                recEl.textContent = parts.join(' ');
+            }
         })
         .catch(err => console.error('Error loading current players:', err));
 

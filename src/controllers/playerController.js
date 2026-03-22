@@ -22,7 +22,7 @@ async function isBenchmarksTableEmpty() {
  */
 async function insertDefaultMetrics() {
   const metrics = [
-    { metricId: 1,  metricName: "averageAdcProximityAt15",      metricDescription: "Average Proximity Time to ADC by 15 minutes" },
+    { metricId: 1,  metricName: "averageAdcProximityAt15",     metricDescription: "Average Proximity Time to ADC by 15 minutes" },
     { metricId: 2,  metricName: "averageAssists",              metricDescription: "Average Assists per game" },
     { metricId: 3,  metricName: "averageCsDiffAt15",           metricDescription: "Average CS Difference at 15 minutes" },
     { metricId: 4,  metricName: "averageCsPerMinute",          metricDescription: "Average Creep Score per Minute" },
@@ -88,9 +88,9 @@ async function insertDefaultMetrics() {
 async function seedBenchmarks() {
   try {
     console.log("[BENCHMARKS] Starting seed process...");
-    
+
     const isEmpty = await isBenchmarksTableEmpty();
-    
+
     if (isEmpty) {
       console.log("[BENCHMARKS] Table is empty, inserting default benchmarks...");
       const insertedCount = await insertDefaultBenchmarks();
@@ -166,8 +166,8 @@ exports.updatePuuid = async (req, res) => {
       WHERE userId = ?;
     `;
     const [result] = await db.query(sql, [puuid, playerId]);
-     
-    res.json({ success: true, affectedRows: result.affectedRows }); 
+
+    res.json({ success: true, affectedRows: result.affectedRows });
     console.log("PUUID update result:", result);
 
   } catch (err) {
@@ -374,6 +374,45 @@ exports.storePlayerStatistic = async (req, res) => {
   }
 };
 
+exports.getWinrateByRole = async (req, res) => {
+  const { id, roleId } = req.params;
+
+  try {
+    const sql = `
+      SELECT
+        mp.teamPosition,
+        COUNT(*) AS games,
+        SUM(CASE WHEN mp.win = 'W' THEN 1 ELSE 0 END) AS wins,
+        ROUND(SUM(CASE WHEN mp.win = 'W' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS winrate
+      FROM matchParticipants mp
+      JOIN matches m ON mp.matchId = m.matchId
+      JOIN leagueRoles lr ON lr.roleId = ?
+      WHERE m.userId = ?
+        AND mp.puuid = (SELECT puuid FROM players WHERE userId = ?)
+        AND mp.teamPosition = lr.teamPosition
+      GROUP BY mp.teamPosition
+    `;
+
+    const [rows] = await db.query(sql, [roleId, id, id]);
+
+    if (!rows || rows.length === 0) {
+      return res.json({ success: true, winrate: null, games: 0, message: "No matches found for this role." });
+    }
+
+    res.json({
+      success: true,
+      teamPosition: rows[0].teamPosition,
+      games: rows[0].games,
+      wins: rows[0].wins,
+      winrate: rows[0].winrate
+    });
+
+  } catch (err) {
+    console.error('[WINRATE BY ROLE]', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // ============ BENCHMARKS FUNCTIONS ============
 
 /**
@@ -382,17 +421,17 @@ exports.storePlayerStatistic = async (req, res) => {
 exports.checkBenchmarkStatus = async (req, res) => {
   try {
     const isEmpty = await isBenchmarksTableEmpty();
-    
+
     if (isEmpty) {
-      res.json({ 
-        status: 'empty', 
+      res.json({
+        status: 'empty',
         message: 'Benchmarks table is empty',
         isEmpty: true
       });
     } else {
       const [rows] = await db.query('SELECT COUNT(*) as count FROM benchmarks');
-      res.json({ 
-        status: 'populated', 
+      res.json({
+        status: 'populated',
         message: 'Benchmarks table contains data',
         isEmpty: false,
         benchmarkCount: rows[0].count
@@ -411,10 +450,10 @@ exports.initializeBenchmarks = async (req, res) => {
   try {
     console.log('[BENCHMARKS] Initialize request received');
     const result = await seedBenchmarks();
-    
+
     console.log('[BENCHMARKS] Seed result:', result);
-    
-    res.json({ 
+
+    res.json({
       success: true,
       message: result.message || 'Benchmarks initialized successfully',
       insertedCount: result.insertedCount,
@@ -423,9 +462,9 @@ exports.initializeBenchmarks = async (req, res) => {
   } catch (err) {
     console.error('[BENCHMARKS] Error initializing:', err.message);
     console.error('[BENCHMARKS] Full error:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: err.message 
+      error: err.message
     });
   }
 };
@@ -451,16 +490,16 @@ exports.getBenchmarksByRole = async (req, res) => {
     );
 
     if (benchmarks.length === 0) {
-      return res.json({ 
+      return res.json({
         message: 'No benchmarks found for this role',
         benchmarks: []
       });
     }
 
-    res.json({ 
+    res.json({
       roleId: parseInt(roleId),
       benchmarkCount: benchmarks.length,
-      benchmarks 
+      benchmarks
     });
   } catch (err) {
     console.error('[BENCHMARKS] Error fetching benchmarks:', err.message);
@@ -481,9 +520,9 @@ exports.getAllBenchmarks = async (req, res) => {
        ORDER BY b.roleId ASC, b.benchmarkId ASC`
     );
 
-    res.json({ 
+    res.json({
       totalBenchmarks: benchmarks.length,
-      benchmarks 
+      benchmarks
     });
   } catch (err) {
     console.error('[BENCHMARKS] Error fetching all benchmarks:', err.message);
@@ -504,8 +543,8 @@ exports.updateBenchmark = async (req, res) => {
     }
 
     if (benchmarkValue === undefined || !comparator) {
-      return res.status(400).json({ 
-        error: 'benchmarkValue and comparator are required' 
+      return res.status(400).json({
+        error: 'benchmarkValue and comparator are required'
       });
     }
 
@@ -521,7 +560,7 @@ exports.updateBenchmark = async (req, res) => {
       return res.status(404).json({ error: 'Benchmark not found' });
     }
 
-    res.json({ 
+    res.json({
       success: true,
       message: 'Benchmark updated successfully',
       affectedRows: result.affectedRows
@@ -539,7 +578,7 @@ exports.clearBenchmarks = async (req, res) => {
   try {
     const [result] = await db.query('DELETE FROM benchmarks');
 
-    res.json({ 
+    res.json({
       success: true,
       message: 'All benchmarks deleted',
       deletedRows: result.affectedRows
@@ -598,7 +637,7 @@ exports.comparePlayerToBenchmarks = async (req, res) => {
     const metGuidelines = comparison.filter(c => c.meetsStandard).length;
     const performancePercentage = (metGuidelines / comparison.length * 100).toFixed(1);
 
-    res.json({ 
+    res.json({
       roleId,
       benchmarkComparison: comparison,
       summary: {
@@ -660,13 +699,13 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
     const [secondaryMatches] =
       roleInfo.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
         ? await db.query(
-            `SELECT mp.* FROM matchParticipants mp
+          `SELECT mp.* FROM matchParticipants mp
              JOIN matches m ON mp.matchId = m.matchId
              WHERE mp.puuid = ? AND mp.teamPosition = ?
              ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
              LIMIT 15`,
-            [roleInfo.puuid, roleInfo.secondaryTeamPosition]
-          )
+          [roleInfo.puuid, roleInfo.secondaryTeamPosition]
+        )
         : [[]];
 
     const deduped = new Map();
@@ -688,6 +727,113 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
     }
 
     // Calculate aggregate stats from all matches
+    const playerStats = calculateAggregateStats(matchParticipants);
+
+    // Fetch benchmarks for the role
+    const [benchmarks] = await db.query(
+      `SELECT b.benchmarkId, m.metricName, b.benchmarkValue, b.comparator
+       FROM benchmarks b
+       LEFT JOIN metrics m ON b.metricId = m.metricId
+       WHERE b.roleId = ?
+       ORDER BY b.benchmarkId ASC`,
+      [roleId]
+    );
+
+    if (benchmarks.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No benchmarks found for this role',
+        playerStats,
+        benchmarkComparison: []
+      });
+    }
+
+    // Compare player stats against benchmarks
+    const comparison = benchmarks.map(benchmark => {
+      const playerValue = playerStats[benchmark.metricName];
+      const meetsStandard = evaluateComparison(playerValue, benchmark.benchmarkValue, benchmark.comparator);
+
+      return {
+        benchmarkId: benchmark.benchmarkId,
+        metricName: benchmark.metricName,
+        benchmarkValue: parseFloat(benchmark.benchmarkValue),
+        playerValue: playerValue !== undefined ? parseFloat(playerValue).toFixed(2) : 'N/A',
+        comparator: benchmark.comparator,
+        meetsStandard,
+        status: meetsStandard ? '✓' : '✗'
+      };
+    });
+
+    // Calculate overall performance percentage
+    const metGuidelines = comparison.filter(c => c.meetsStandard).length;
+    const performancePercentage = (metGuidelines / comparison.length * 100).toFixed(1);
+
+    // Saving to playerstatistics table
+    await saveCalculatedStats(playerId, roleId, playerStats);
+
+    res.json({
+      success: true,
+      playerId,
+      roleId,
+      matchCount: matchParticipants.length,
+      playerStats: playerStats,
+      benchmarkComparison: comparison,
+      summary: {
+        metGuidelines,
+        totalGuidelines: comparison.length,
+        performancePercentage: `${performancePercentage}%`
+      }
+    });
+  } catch (err) {
+    console.error('[BENCHMARKS] Error calculating player stats:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/**
+ * Calculate player stats based on role
+ */
+exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
+  try {
+    const { playerId, roleId } = req.body;
+
+    if (!playerId) return res.status(400).json({ error: 'playerId is required' });
+    if (!roleId) return res.status(400).json({ error: 'roleId is required' });
+
+    // ✅ Fetch the teamPosition for the REQUESTED roleId, not always primary
+    const [roleRows] = await db.query(
+      `SELECT p.puuid, lr.teamPosition AS requestedTeamPosition
+       FROM players p
+       JOIN leagueRoles lr ON lr.roleId = ?
+       WHERE p.userId = ?
+       LIMIT 1`,
+      [roleId, playerId]   // ← use roleId directly here
+    );
+
+    const roleInfo = roleRows[0];
+    if (!roleInfo || !roleInfo.puuid) {
+      return res.status(404).json({ error: 'Player role or PUUID not found' });
+    }
+
+    // ✅ Only query matches for the requested role's teamPosition
+    const [matchParticipants] = await db.query(
+      `SELECT mp.* FROM matchParticipants mp
+       JOIN matches m ON mp.matchId = m.matchId
+       WHERE mp.puuid = ? AND mp.teamPosition = ?
+       ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
+       LIMIT 15`,
+      [roleInfo.puuid, roleInfo.requestedTeamPosition]
+    );
+
+    if (matchParticipants.length === 0) {
+      return res.json({
+        success: true,
+        message: 'Player has no match data for this role',
+        playerStats: {},
+        benchmarkComparison: []
+      });
+    }
+
     const playerStats = calculateAggregateStats(matchParticipants);
 
     // Fetch benchmarks for the role
@@ -822,6 +968,23 @@ function calculateAggregateStats(matchParticipants) {
     'Team Elder Dragon Kills': (totals.teamElderDragonKills / count).toFixed(2)
   };
 
+  const champCount = {};
+  matchParticipants.forEach(p => {
+    if (p.championName) {
+      champCount[p.championName] = (champCount[p.championName] || 0) + 1;
+    }
+  });
+
+  playerStats.topChampions = Object.entries(champCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name]) => name);
+
+  // winrate
+  const wins = matchParticipants.filter(p => p.win === 'Win').length; // adjust value if needed
+  playerStats.winrate = ((wins / count) * 100).toFixed(1);
+
+
   return playerStats;
 }
 
@@ -900,7 +1063,7 @@ async function saveCalculatedStats(userId, roleId, stats) {
   try {
     // 1. Fetch the list of valid metrics from your DB so we know what IDs to use
     const [dbMetrics] = await db.query("SELECT metricId, metricName FROM metrics");
-    
+
     // 2. Create a lookup map (e.g., "averagekills" -> 14)
     const metricLookup = {};
     dbMetrics.forEach(m => {
@@ -944,7 +1107,7 @@ async function saveCalculatedStats(userId, roleId, stats) {
              VALUES (?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
              metricValue = VALUES(metricValue), recordedAt = VALUES(recordedAt)`,
-             [userId, metricId, roleId, Math.round(numericValue), timestamp]
+            [userId, metricId, roleId, Math.round(numericValue), timestamp]
           )
         );
       }
@@ -991,17 +1154,17 @@ exports.getStoredStatsComparison = async (req, res) => {
     const [rows] = await db.query(sql, [userId, roleId]);
 
     if (rows.length === 0) {
-      return res.json({ 
-        success: true, 
+      return res.json({
+        success: true,
         message: 'No stored stats found. Please visit the analysis page to calculate and save stats first.',
-        comparison: [] 
+        comparison: []
       });
     }
 
     // 2. Process the results using your existing helper
     const comparison = rows.map(row => {
       const meetsStandard = evaluateComparison(row.playerValue, row.benchmarkValue, row.comparator);
-      
+
       return {
         metricName: row.metricName,
         playerValue: parseFloat(row.playerValue).toFixed(2),

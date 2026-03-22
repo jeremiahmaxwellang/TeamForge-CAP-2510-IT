@@ -626,6 +626,10 @@ body {
 	cursor: not-allowed;
 }
 
+.role-part.candidate-role {
+	color: #4ade80;
+}
+
 .player-role-badge {
 	font-size: 0.7rem;
 	color: var(--muted);

@@ -113,6 +113,56 @@ VALUES
     'Player',
     'not#applicable',
     'Active'
+),
+(
+    13,
+    'hoshiyo2121@gmail.com',
+    'teamForge123!!',
+    'Haru',
+    'Yoshida',
+    'Player',
+    'Hoshiyo#2121',
+    'Active'
+),
+(
+    14,
+    'theblueprint000@gmail.com',
+    'teamForge123!!',
+    'Nick',
+    'Blueprint',
+    'Player',
+    'The Blueprint#000',
+    'Active'
+),
+(
+    15,
+    'stellar1105@gmail.com',
+    'teamForge123!!',
+    'Stella',
+    'Ramos',
+    'Player',
+    'Stellar#1105',
+    'Active'
+),
+(
+    16,
+    'oneofwunoste@gmail.com',
+    'teamForge123!!',
+    'One',
+    'Wun',
+    'Player',
+    'one of wun#oste',
+    'Active'
+),
+(
+    17,
+    'maple091@gmail.com',
+    'teamForge123!!',
+    'Maple',
+    'Navarro',
+    'Player',
+    'Maple#091',
+    'Active'
 );
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId)
@@ -228,100 +278,210 @@ VALUES
     '2nd Year',
     'F',
     1
-);
-
--- Applicants
-INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (
-    10,
-    'trebis_detablan@dlsu.edu.ph',
-    'teamForge123!!',
-    'Trebis',
-    'Detablan',
-    'Applicant',
-    'Hailrain#hailrain',
-    'Active'
 ),
 (
-    11,
-    'justin_nicolai_lee@dlsu.edu.ph',
-    'teamForge123!!',
-    'Justin',
-    'Lee',
-    'Applicant',
-    'juicetice#_juicetice_',
-    'Active'
-),
-(
-    12,
-    'jeremiahang2004@gmail.com',
-    'teamForge123!!',
-    'Jerry',
-    'Lin',
-    'Applicant',
-    'Coww2#coww2',
-    'Active'
-);
-
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
-VALUES (
-    10,
-    'Kialos',
-    'akali',
-    'Diamond III',
-    'Diamond IV',
-    4,
-    3,
-    '12100001',
-    'BSCS-NIS',
-    3.25,
-    3.30,
+    13,
+    'Hoshiyo',
+    '2121',
+    'Unranked',
+    'Unranked',
+    1,
+    2,
+    '12600013',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
     1
 ),
 (
-    11,
-    'Pr1m3put1n',
-    '3135',
-    'Bronze I',
-    'Silver I',
+    14,
+    'The Blueprint',
+    '000',
+    'Unranked',
+    'Unranked',
     2,
-    3,
-    '12100002',
-    'BSCS-ST',
-    3.10,
-    3.20,
-    2
+    1,
+    '12600014',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
+    1
 ),
 (
-    12,
-    'Cowwrean',
-    'moo',
-    'Diamond III',
-    'Diamond IV',
+    15,
+    'Stellar',
+    '1105',
+    'Unranked',
+    'Unranked',
+    3,
+    5,
+    '12600015',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
+    1
+),
+(
+    16,
+    'one of wun',
+    'oste',
+    'Unranked',
+    'Unranked',
     4,
-    2,
-    '12203653',
-    'BSIT',
-    1.9,
-    2.9,
+    1,
+    '12600016',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
+    1
+),
+(
+    17,
+    'Maple',
+    '091',
+    'Unranked',
+    'Unranked',
+    5,
+    3,
+    '12600017',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
     1
 );
 
 -- -----------------------------------------------------
--- APPLICATION PERIODS (2 weeks each) - change this later for the demo
+-- APPLICATION PERIODS (2 weeks each)
 -- -----------------------------------------------------
 INSERT INTO application_periods (startDate, endDate) VALUES
 ('2025-09-01', '2025-09-13'),
 ('2026-01-26', '2026-02-07'),
-('2026-03-16', '2026-03-28'); -- period 3
+('2026-03-21', '2026-04-04'); -- period 3
 
 -- -----------------------------------------------------
--- APPLICATIONS
+-- APPLICANTS (Bad)
 -- -----------------------------------------------------
+
+-- Top/Mid: zero#6983
+-- Jungle/Support: Zayexium#ACT
+-- Jungle/Jungle: Pr1m3put1n#3135
+-- Mid/Mid: Yishun Resident#walao
+-- Mid/Top: Sou Hiyori#YTTD
+-- ADC/Support: Venzyx#1432
+-- Support/Support: MrBedroom#0000 (Low champ pool: Teemo one-trick)
+
+-- Applicant: zero#6983 (Top/Mid)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (18, 'zero@example.com', 'teamForge123!!', 'Zero', 'Applicant', 'Applicant', 'zero#6983', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (18, 'zero', '6983', 'Platinum I', 'Platinum II', 1, 3, '12100018', 'BSCS-NIS', 3.10, 3.20, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 18, 1, 'Pending');
+
+-- Applicant: Zayexium#ACT (Jungle/Support)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (19, 'zayexium@example.com', 'teamForge123!!', 'Zayexium', 'Applicant', 'Applicant', 'Zayexium#ACT', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (19, 'Zayexium', 'ACT', 'Gold II', 'Gold I', 2, 5, '12100019', 'BSCS-NIS', 2.90, 3.00, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 19, 2, 'Pending');
+
+-- Applicant: Pr1m3put1n#3135 (Jungle/Jungle)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (20, 'pr1m3put1n@example.com', 'teamForge123!!', 'Pr1m3put1n', 'Applicant', 'Applicant', 'Pr1m3put1n#3135', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (20, 'Pr1m3put1n', '3135', 'Diamond IV', 'Diamond IV', 2, 2, '12100020', 'BSCS-NIS', 3.40, 3.50, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 20, 2, 'Pending');
+
+-- Applicant: Yishun Resident#walao (Mid/Mid)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (21, 'yishun@example.com', 'teamForge123!!', 'Yishun', 'Resident', 'Applicant', 'Yishun Resident#walao', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (21, 'Yishun Resident', 'walao', 'Platinum II', 'Platinum III', 3, 3, '12100021', 'BSCS-NIS', 3.00, 3.05, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 21, 3, 'Pending');
+
+-- Applicant: Sou Hiyori#YTTD (Mid/Top)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (22, 'souhiyori@example.com', 'teamForge123!!', 'Sou', 'Hiyori', 'Applicant', 'Sou Hiyori#YTTD', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (22, 'Sou Hiyori', 'YTTD', 'Emerald I', 'Emerald II', 3, 1, '12100022', 'BSCS-NIS', 3.20, 3.25, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 22, 3, 'Pending');
+
+-- Applicant: Venzyx#1432 (ADC/Support)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (23, 'venzyx@example.com', 'teamForge123!!', 'Venzyx', 'Applicant', 'Applicant', 'Venzyx#1432', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (23, 'Venzyx', '1432', 'Diamond II', 'Diamond III', 4, 5, '12100023', 'BSCS-NIS', 3.35, 3.40, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 23, 4, 'Pending');
+
+-- Applicant: MrBedroom#0000 (Support/Support, Teemo one-trick)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (24, 'mrbedroom@example.com', 'teamForge123!!', 'Mr', 'Bedroom', 'Applicant', 'MrBedroom#0000', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (24, 'MrBedroom', '0000', 'Silver I', 'Silver I', 5, 5, '12100024', 'BSCS-NIS', 2.50, 2.60, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 24, 5, 'Pending');
+
+-- -----------------------------------------------------
+-- APPLICATIONS in previous terms
+-- -----------------------------------------------------
+-- Accepted applications in Period 1
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
-(3, 10, 4, 'Pending'), -- period 3
-(3, 11, 2, 'Pending'), -- period 3
-(3, 12, 4, 'Pending'); -- period 3
+(1, 3, 3, 'Accepted'),  -- VA Tartaros (Mid)
+(1, 4, 1, 'Accepted'),  -- Haimehen (Top)
+(1, 5, 4, 'Accepted'),  -- Kalachuchi (ADC)
+(1, 6, 5, 'Accepted'),  -- VA Crowned (Support)
+(1, 7, 2, 'Accepted');  -- 5star (Jungle)
+
+-- Accepted applications in Period 2
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+(2, 8, 2, 'Accepted'),  -- VA Mushi (Jungle)
+(2, 9, 2, 'Accepted'),  -- lancr (Jungle)
+(2, 13, 1, 'Accepted'), -- Hoshiyo (Top)
+(2, 14, 2, 'Accepted'), -- The Blueprint (Jungle)
+(2, 15, 3, 'Accepted'), -- Stellar (Mid)
+(2, 16, 4, 'Accepted'), -- one of wun (ADC)
+(2, 17, 5, 'Accepted'); -- Maple (Support)
+
+-- Rejected Period 1 applications
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+(1, 20, 2, 'Rejected'), -- Pr1m3put1n Jungle
+(1, 21, 3, 'Rejected'), -- Yishun Resident Mid
+(1, 22, 3, 'Rejected'), -- Sou Hiyori Mid
+(1, 23, 4, 'Rejected'), -- Venzyx ADC
+(1, 24, 5, 'Rejected'); -- MrBedroom Support
+
+-- Rejected Period 2 applications
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+(2, 18, 1, 'Rejected'), -- zero#6983 Top
+(2, 19, 2, 'Rejected'), -- Zayexium Jungle
+(2, 20, 2, 'Rejected'), -- Pr1m3put1n Jungle
+(2, 21, 3, 'Rejected'), -- Yishun Resident Mid
+(2, 22, 3, 'Rejected'), -- Sou Hiyori Mid
+(2, 23, 4, 'Rejected'), -- Venzyx ADC
+(2, 24, 5, 'Rejected'); -- MrBedroom Support
+
 
 -- -----------------------------------------------------
 -- METRICS
@@ -548,28 +708,28 @@ VALUES
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
 (1, 4, 1, 'N'),
-(1, 7, 2, 'N'),
+(1, 14, 2, 'N'),
 (1, 3, 3, 'N'),
-(1, 5, 4, 'N'),
+(1, 16, 4, 'N'),
 (1, 6, 5, 'N'),
-(1, 8, 2, 'Y'),
-(1, 9, 5, 'Y');
+(1, 13, 1, 'Y'),
+(1, 17, 5, 'Y');
 
 -- Tournament 2: starters only, no subs
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(2, 4, 1, 'N'),
+(2, 13, 1, 'N'),
 (2, 7, 2, 'N'),
-(2, 3, 3, 'N'),
+(2, 15, 3, 'N'),
 (2, 5, 4, 'N'),
-(2, 6, 5, 'N');
+(2, 17, 5, 'N');
 
 -- Tournament 3: one substitute available
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
 (3, 4, 1, 'N'),
-(3, 7, 2, 'N'),
+(3, 14, 2, 'N'),
 (3, 3, 3, 'N'),
-(3, 5, 4, 'N'),
+(3, 16, 4, 'N'),
 (3, 6, 5, 'N'),
-(3, 9, 2, 'Y');
+(3, 15, 3, 'Y');
