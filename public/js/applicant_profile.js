@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Initialize profile page
   async function init() {
     console.log("[APPLICANT] Initializing Profile...");
-    UI.timerInfo.textContent = 'Ready to fetch recent matches.';
+    setTimerInfoStatus('ready', 'Ready to fetch recent matches.');
 
     // 1. Fetch Applicants
     try {
@@ -681,7 +681,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
     async function clickMatchStatsButton() {
-      UI.timerInfo.textContent = 'Fetching matches...';
+      setTimerInfoStatus('fetching', 'Fetching matches...');
       const gameName = state.currentApplicant.gameName;
       const tagLine = state.currentApplicant.tagLine;
       let puuidString = ""
@@ -703,11 +703,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Display stats
         await displayMatchStats(userId, roleId);
-        UI.timerInfo.textContent = 'Matches fetched.';
+        setTimerInfoStatus('success', 'Matches fetched.');
       } catch (err) {
+        setTimerInfoStatus('error', 'Failed to fetch matches.');
         console.error("Error fetching PUUID:", err);
       }
-
     }
 
     // 1. Update player's puuid in the DB
@@ -895,6 +895,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   function getRoleName(id) {
     const roles = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'ADC', 5: 'Support' };
     return roles[id] || 'Flex';
+  }
+
+  function setTimerInfoStatus(status, message) {
+    const el = UI.timerInfo;
+    el.classList.remove('ready', 'fetching', 'success', 'error');
+    if (status) el.classList.add(status);
+    if (message) el.textContent = message;
   }
 
 });
