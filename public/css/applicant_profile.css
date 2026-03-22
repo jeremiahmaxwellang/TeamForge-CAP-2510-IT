@@ -382,6 +382,23 @@ body {
     color: #8e9297;
 }
 
+.eval-comment {
+    width: 100%;
+    margin-top: 5px;
+    padding: 10px;
+    border: 1px solid #4f545c;
+    border-radius: 5px;
+    resize: none;
+    background: #36393f;
+    color: var(--porcelain);
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.eval-comment::placeholder {
+    color: #8e9297;
+}
+
 .vod-box {
     background: black;
     color: white;
