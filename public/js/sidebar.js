@@ -52,8 +52,34 @@ document.addEventListener("DOMContentLoaded", async () => {
         return links;
     };
 
+    const normalizeRole = (rawRole) => {
+        const role = (rawRole || '').toString().trim().toLowerCase();
+
+        if (role === 'team manager' || role === 'manager') {
+            return 'Team Manager';
+        }
+
+        if (role === 'team coach' || role === 'coach') {
+            return 'Team Coach';
+        }
+
+        if (role === 'player') {
+            return 'Player';
+        }
+
+        return 'Guest';
+    };
+
+    const getCookieValue = (name) => {
+        const cookie = document.cookie
+            .split('; ')
+            .find((row) => row.startsWith(`${name}=`));
+
+        return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+    };
+
     const renderSidebar = (role) => {
-        const links = getLinksForRole(role);
+        const links = getLinksForRole(normalizeRole(role));
         sidebarContainer.innerHTML = `<ul>${links}</ul>`;
     };
 
@@ -72,11 +98,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Ask the server who is logged in
         const res = await fetch('/api/current-role');
         const data = await res.json();
-        const role = data.role; // Will be 'Team Manager', 'Team Coach', or 'Player'
+        const role = data.role;
         renderSidebar(role);
     } catch (error) {
         // Keep sidebar visible even when role endpoint is unavailable.
-        renderSidebar('Player');
+        const roleFromCookie = getCookieValue('userRole');
+        renderSidebar(roleFromCookie || 'Guest');
         console.error("Failed to load dynamic sidebar:", error);
     }
 });
