@@ -4,6 +4,33 @@
     background-color: var(--porcelain);
 }
 
+.print-report-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1200;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    background: #1a1a2e;
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(26, 26, 46, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.print-report-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(26, 26, 46, 0.32);
+}
+
+.print-report-btn:active {
+    transform: translateY(0);
+}
+
 .manager-topbar {
     width: 100%;
     box-sizing: border-box;
@@ -49,6 +76,21 @@
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.logout-btn {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--porcelain);
+    background: #2b2d31;
+    border: 1px solid #5b6069;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background: #3b3f46;
 }
 
 .profile-dropdown-wrap {
@@ -140,6 +182,78 @@ h1.page-title {
     margin: 0 0 18px;
     font-size: 30px;
     color: var(--carbon-black);
+}
+
+.tournament-report-card {
+    margin-bottom: 0;
+}
+
+.reports-top-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.compact-pie-card {
+    min-height: 220px;
+}
+
+.reports-priority-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.tournament-report-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.tournament-report-controls label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.tournament-report-controls input[type='date'] {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #fff;
+}
+
+.tournament-report-controls button {
+    border: none;
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #1a1a2e;
+    color: #fff;
+}
+
+.tournament-report-controls button.secondary {
+    background: #6b7280;
+}
+
+.tournament-report-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#tournamentRangeSummary {
+    margin: 0;
+    font-size: 13px;
+    color: #374151;
 }
 
 .grid {
@@ -235,22 +349,40 @@ tbody td {
     font-weight: 700;
 }
 
+.comms-1,
+.comms-2,
+.comms-3,
+.comms-4,
 .comms-5 {
-    background: #e8b84b;
-    color: #1a1a2e;
     font-weight: 700;
     padding: 4px 12px;
     border-radius: 4px;
     display: inline-block;
 }
 
-.comms-4 {
-    background: #fde68a;
+.comms-1 {
+    background: #b91c1c;
+    color: #fff;
+}
+
+.comms-2 {
+    background: #ea580c;
+    color: #fff;
+}
+
+.comms-3 {
+    background: #facc15;
     color: #1a1a2e;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 4px;
-    display: inline-block;
+}
+
+.comms-4 {
+    background: #84cc16;
+    color: #1a1a2e;
+}
+
+.comms-5 {
+    background: #16a34a;
+    color: #fff;
 }
 
 .chart-wrap {
@@ -318,6 +450,18 @@ tbody td {
     }
 
     .grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .reports-top-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .tournament-report-card {
+        grid-column: span 2;
+    }
+
+    .reports-priority-row {
         grid-template-columns: 1fr 1fr;
     }
 
@@ -395,6 +539,18 @@ tbody td {
         grid-template-columns: 1fr;
     }
 
+    .reports-top-row {
+        grid-template-columns: 1fr;
+    }
+
+    .tournament-report-card {
+        grid-column: span 1;
+    }
+
+    .reports-priority-row {
+        grid-template-columns: 1fr;
+    }
+
     .col-span-2,
     .right-col {
         grid-column: span 1;
@@ -403,5 +559,16 @@ tbody td {
     .chart-wrap {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .tournament-report-controls {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .print-report-btn {
+        right: 14px;
+        bottom: 14px;
+        padding: 9px 16px;
     }
 }

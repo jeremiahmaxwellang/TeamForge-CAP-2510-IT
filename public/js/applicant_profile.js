@@ -306,6 +306,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     populateComparisonDropdown(); // ADDED: Refresh dropdown to exclude the current applicant
+    await loadSavedEvaluation(applicant.userId);
     // No need for this line
     // fetchStats(applicant.userId, state.selectedRoleId);
   }
@@ -588,6 +589,52 @@ document.addEventListener("DOMContentLoaded", async function () {
   // ==========================================
   // EVENT LISTENERS & HELPERS
   // ==========================================
+  function clearEvaluationForm() {
+    ['gameSense', 'communication', 'champPool'].forEach((groupName) => {
+      document.querySelectorAll(`input[name="${groupName}"]`).forEach((input) => {
+        input.checked = false;
+      });
+    });
+
+    if (UI.commentBox) {
+      UI.commentBox.value = '';
+    }
+  }
+
+  function setCheckedRating(groupName, ratingValue) {
+    if (!ratingValue) return;
+    const target = document.querySelector(`input[name="${groupName}"][value="${ratingValue}"]`);
+    if (target) target.checked = true;
+  }
+
+  async function loadSavedEvaluation(userId) {
+    clearEvaluationForm();
+
+    if (!userId) return;
+
+    try {
+      const resp = await fetch(`/applicant_list/evaluate/${userId}`);
+      if (!resp.ok) return;
+
+      const result = await resp.json();
+      const evalData = result?.evaluation;
+      if (!result?.success || !evalData) return;
+
+      // Prevent stale responses from overwriting a newer applicant switch.
+      if (!state.currentApplicant || String(state.currentApplicant.userId) !== String(userId)) return;
+
+      setCheckedRating('gameSense', evalData.ratingGameSense);
+      setCheckedRating('communication', evalData.ratingCommunication);
+      setCheckedRating('champPool', evalData.ratingChampionPool);
+
+      if (UI.commentBox) {
+        UI.commentBox.value = evalData.comment || '';
+      }
+    } catch (error) {
+      console.warn('[APPLICANT] Failed to load saved evaluation:', error);
+    }
+  }
+
   function setupEventListeners() {
     const btnPrimary = document.getElementById('btn-primary-role');
     const btnSecondary = document.getElementById('btn-secondary-role');
@@ -831,6 +878,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const result = await resp.json();
         if (result.success) {
           alert(`Evaluation saved! Applicant status is now: ${finalStatus}`);
+          await loadSavedEvaluation(state.currentApplicant.userId);
           if (finalStatus === 'Accepted' || finalStatus === 'Rejected') window.location.href = '/applicant_list';
         } else alert("Failed to save: " + result.message);
       } catch (error) {

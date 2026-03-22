@@ -134,13 +134,41 @@ exports.saveEvaluation = async (req, res) => {
 
         await connection.beginTransaction();
 
-        // 1. Insert the ratings and notes into our new table
-        const insertEvalQuery = `
-            INSERT INTO applicantEvaluations 
-            (userId, coachId, comment, ratingGameSense, ratingCommunication, ratingChampionPool) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        await connection.query(insertEvalQuery, [userId, coachId, notes, gameSense, communication, champPool]);
+        // 1. Upsert coach evaluation for this applicant so future edits overwrite prior values
+        const [existingEvalRows] = await connection.query(
+            `SELECT evaluationId
+             FROM applicantEvaluations
+             WHERE userId = ? AND coachId = ?
+             ORDER BY evaluationId DESC
+             LIMIT 1`,
+            [userId, coachId]
+        );
+
+        if (existingEvalRows.length > 0) {
+            const updateEvalQuery = `
+                UPDATE applicantEvaluations
+                SET comment = ?,
+                    ratingGameSense = ?,
+                    ratingCommunication = ?,
+                    ratingChampionPool = ?,
+                    evaluatedAt = CURRENT_TIMESTAMP
+                WHERE evaluationId = ?
+            `;
+            await connection.query(updateEvalQuery, [
+                notes,
+                gameSense,
+                communication,
+                champPool,
+                existingEvalRows[0].evaluationId
+            ]);
+        } else {
+            const insertEvalQuery = `
+                INSERT INTO applicantEvaluations
+                (userId, coachId, comment, ratingGameSense, ratingCommunication, ratingChampionPool)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            await connection.query(insertEvalQuery, [userId, coachId, notes, gameSense, communication, champPool]);
+        }
 
         // DONE: USE APPLICATIONS TABLE FOR STATUS
         // 2. Update their final Accept/Reject status in the applications table
@@ -256,5 +284,45 @@ exports.rejectApplicant = async (req, res) => {
     } catch (error) {
         console.error('Error rejecting applicant:', error);
         res.status(500).json({ success: false, message: 'Database error while rejecting applicant.' });
+    }
+};
+
+// Get latest saved evaluation for a specific applicant by the logged-in coach
+exports.getEvaluationByApplicant = async (req, res) => {
+    try {
+        const userId = Number.parseInt(req.params.userId, 10);
+        const coachId = req.cookies && req.cookies.userId;
+
+        if (!userId || !coachId) {
+            return res.status(400).json({ success: false, message: 'Applicant ID and Coach ID are required or your session expired.' });
+        }
+
+        const [rows] = await mySqlPool.query(
+            `SELECT 
+                ae.evaluationId,
+                ae.userId,
+                ae.coachId,
+                ae.comment,
+                ae.ratingGameSense,
+                ae.ratingCommunication,
+                ae.ratingChampionPool,
+                ae.evaluatedAt,
+                a.status AS applicationStatus
+             FROM applicantEvaluations ae
+             LEFT JOIN applications a ON a.userId = ae.userId
+             WHERE ae.userId = ? AND ae.coachId = ?
+             ORDER BY ae.evaluationId DESC
+             LIMIT 1`,
+            [userId, coachId]
+        );
+
+        if (!rows.length) {
+            return res.status(200).json({ success: true, evaluation: null });
+        }
+
+        return res.status(200).json({ success: true, evaluation: rows[0] });
+    } catch (error) {
+        console.error('Error fetching applicant evaluation:', error);
+        return res.status(500).json({ success: false, message: 'Database error while fetching evaluation.' });
     }
 };
