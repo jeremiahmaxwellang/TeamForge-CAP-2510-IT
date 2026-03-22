@@ -212,6 +212,16 @@ tr:last-child td {
   white-space: nowrap;
 }
 
+/* Center specific Scrim Highlights columns */
+.scrim_highlights_table thead th:nth-child(2),
+.scrim_highlights_table thead th:nth-child(3),
+.scrim_highlights_table thead th:nth-child(5),
+.scrim_highlights_table tbody td:nth-child(2),
+.scrim_highlights_table tbody td:nth-child(3),
+.scrim_highlights_table tbody td:nth-child(5) {
+  text-align: center;
+}
+
 /* Center-align Scrims columns: Avg Game Sense, Avg Comms, Avg Champ */
 #scrims-table thead th:nth-child(1),
 #scrims-table thead th:nth-child(2),
