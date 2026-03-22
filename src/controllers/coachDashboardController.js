@@ -78,8 +78,9 @@ exports.getDraft = async (req, res) => {
 // 4. Fetch Team Statistics (Last 15 Games Winrate)
 exports.getTeamStats = async (req, res) => {
     try {
-        const query = `
-            SELECT mp.win 
+        // 1. Get last 15 games for active players
+        const recentGamesQuery = `
+            SELECT mp.win, mp.kda
             FROM matches m
             JOIN matchParticipants mp ON m.matchId = mp.matchId
             JOIN players p ON m.userId = p.userId AND p.puuid = mp.puuid
@@ -88,17 +89,39 @@ exports.getTeamStats = async (req, res) => {
             ORDER BY m.gameCreation DESC
             LIMIT 15
         `;
-        const [recentGames] = await db.query(query);
-        
-        if (recentGames.length === 0) {
-            return res.status(200).json({ success: true, winrate: 0, totalGames: 0 });
+        const [recentGames] = await db.query(recentGamesQuery);
+
+        let winrate = 0, avgKDA = 0, totalGames = 0;
+        if (recentGames.length > 0) {
+            const wins = recentGames.filter(g => g.win === 'True' || g.win === 'true' || g.win === 1 || g.win === true).length;
+            winrate = ((wins / recentGames.length) * 100).toFixed(1);
+            totalGames = recentGames.length;
+            // Calculate average KDA (ignore nulls)
+            const kdaVals = recentGames.map(g => parseFloat(g.kda)).filter(kda => !isNaN(kda));
+            avgKDA = kdaVals.length > 0 ? (kdaVals.reduce((a, b) => a + b, 0) / kdaVals.length).toFixed(2) : 0;
         }
 
-        // The Riot API usually returns 'True'/'False' strings or booleans for the win column
-        const wins = recentGames.filter(g => g.win === 'True' || g.win === 'true' || g.win === 1 || g.win === true).length;
-        const winrate = ((wins / recentGames.length) * 100).toFixed(1);
+        // 2. Get number of scrims played this month
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const firstDay = `${year}-${month}-01`;
+        const nextMonth = now.getMonth() === 11 ? `${year + 1}-01-01` : `${year}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
+        const scrimsQuery = `
+            SELECT COUNT(*) as scrimsThisMonth
+            FROM scrims
+            WHERE date >= ? AND date < ?
+        `;
+        const [scrimsResult] = await db.query(scrimsQuery, [firstDay, nextMonth]);
+        const scrimsThisMonth = scrimsResult[0]?.scrimsThisMonth || 0;
 
-        res.status(200).json({ success: true, winrate: winrate, totalGames: recentGames.length });
+        res.status(200).json({
+            success: true,
+            winrate,
+            totalGames,
+            avgKDA,
+            scrimsThisMonth
+        });
     } catch (error) {
         console.error('Error fetching team stats:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch team stats.' });

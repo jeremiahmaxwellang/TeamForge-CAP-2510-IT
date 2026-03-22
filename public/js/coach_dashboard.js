@@ -194,6 +194,8 @@ async function loadTeamStats() {
         if (data.success) {
             const winrate = data.winrate || 0;
             const totalGames = data.totalGames || 0;
+            const avgKDA = data.avgKDA || 0;
+            const scrimsThisMonth = data.scrimsThisMonth || 0;
             const degrees = (winrate / 100) * 360;
 
             const html = `
@@ -209,13 +211,13 @@ async function loadTeamStats() {
                             </div>
                             <div class="carousel-slide">
                                 <div class="carousel-winrate" style="--winrate-angle: 240deg; --ring-fill: #f72585; --ring-empty: #444;">
-                                    <div class="carousel-winrate-pct">3.2 KDA</div>
+                                    <div class="carousel-winrate-pct">${avgKDA} KDA</div>
                                     <div class="carousel-winrate-sub">Team Average</div>
                                 </div>
                             </div>
                             <div class="carousel-slide">
                                 <div class="carousel-winrate" style="--winrate-angle: 180deg; --ring-fill: #00f2c3; --ring-empty: #444;">
-                                    <div class="carousel-winrate-pct">12 Scrims</div>
+                                    <div class="carousel-winrate-pct">${scrimsThisMonth} Scrims</div>
                                     <div class="carousel-winrate-sub">Played this Month</div>
                                 </div>
                             </div>
