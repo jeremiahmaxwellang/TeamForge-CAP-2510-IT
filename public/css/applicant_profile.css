@@ -112,7 +112,7 @@ body {
 
 /* --- Left Box Elements --- */
 .applicant-select {
-    font-color: -var(--porcelain);
+    color: var(--porcelain);
     font-size: 28px;
     font-weight: bold;
     border: none;
@@ -128,7 +128,7 @@ body {
 }
 
 .real-name {
-    color: -var(--porcelain);
+    color: var(--porcelain);
     margin-bottom: 20px;
     font-size: 16px;
 }
@@ -178,7 +178,7 @@ body {
     font-weight: bold;
     margin-bottom: 12px;
     text-transform: uppercase;
-    color: -var(--porcelain);
+    color: var(--porcelain);
     border-bottom: 1px solid #4f545c;
     padding-bottom: 5px;
 }
@@ -219,7 +219,7 @@ body {
 .rank-text span {
     font-weight: bold;
     font-size: 18px;
-    color: -var(--porcelain);
+    color: var(--porcelain);
 }
 
 .vertical-divider {
@@ -245,7 +245,7 @@ body {
 .info-value {
     font-weight: bold;
     font-size: 15px;
-    color: -var(--porcelain);
+    color: var(--porcelain);
 }
 
 /* --- Stats Bar --- */
@@ -366,7 +366,7 @@ body {
     font-size: 18px;
     margin-bottom: 15px;
     display: block;
-    color: -var(--porcelain);
+    color: var(--porcelain);
     border-bottom: 1px solid #4f545c;
     padding-bottom: 10px;
 }
@@ -383,7 +383,7 @@ body {
     font-size: 13px;
     text-align: left;
     margin-top: 15px;
-    color: -var(--porcelain);
+    color: var(--porcelain);
 }
 
 .interview-wrapper {
