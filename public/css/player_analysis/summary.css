@@ -161,16 +161,18 @@ tr:last-child td {
   text-align: center;
 }
 
-/* champ-table and scrims-table — same color & font styles as overview-table */
+/* champ-table, scrims-table, and scrim highlights table — same color & font styles as overview-table */
 #champ-table,
-#scrims-table {
+#scrims-table,
+.scrim_highlights_table {
   border-collapse: separate;
   border-spacing: 0;
   color: #e2e8f0;
 }
 
 #champ-table thead th,
-#scrims-table thead th {
+#scrims-table thead th,
+.scrim_highlights_table thead th {
   background: #0b1220;
   color: #e2e8f0;
   border-right: 1px solid #334155;
@@ -179,12 +181,14 @@ tr:last-child td {
 }
 
 #champ-table tbody tr,
-#scrims-table tbody tr {
+#scrims-table tbody tr,
+.scrim_highlights_table tbody tr {
   background: #273449;
 }
 
 #champ-table td,
-#scrims-table td {
+#scrims-table td,
+.scrim_highlights_table td {
   color: #e2e8f0;
   border-right: 1px solid #334155;
   border-bottom: 1px solid #334155;
@@ -192,13 +196,20 @@ tr:last-child td {
 }
 
 #champ-table tr > *:last-child,
-#scrims-table tr > *:last-child {
+#scrims-table tr > *:last-child,
+.scrim_highlights_table tr > *:last-child {
   border-right: none;
 }
 
 #champ-table tbody tr:last-child td,
-#scrims-table tbody tr:last-child td {
+#scrims-table tbody tr:last-child td,
+.scrim_highlights_table tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* Keep the 'Games' header in one line for scrim highlights */
+.scrim_highlights_table thead th:last-child {
+  white-space: nowrap;
 }
 
 /* Center-align Scrims columns: Avg Game Sense, Avg Comms, Avg Champ */
