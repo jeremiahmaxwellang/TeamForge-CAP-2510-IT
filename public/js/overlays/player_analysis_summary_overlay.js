@@ -8,6 +8,18 @@ window.initSummaryTab = function (userId) {
     return;
   }
 
+  const getLaneIconPath = (role) => {
+    const roleKey = String(role || "").toLowerCase();
+
+    if (roleKey.includes("top")) return "/images/top_lane.png";
+    if (roleKey.includes("jungle") || roleKey.includes("jg")) return "/images/jungle.png";
+    if (roleKey.includes("mid") || roleKey.includes("middle")) return "/images/mid_lane.png";
+    if (roleKey.includes("bottom") || roleKey.includes("bot") || roleKey.includes("adc")) return "/images/bottom_lane.png";
+    if (roleKey.includes("support") || roleKey.includes("supp")) return "/images/support.png";
+
+    return "/images/support.png";
+  };
+
   // Player Data
   let [playerRoles] = [];
 
@@ -47,6 +59,8 @@ window.initSummaryTab = function (userId) {
 
       items.forEach((item) => {
         const row = document.createElement("tr");
+        const roleSafe = item.champ_role || "Unknown";
+        const laneIconPath = getLaneIconPath(roleSafe);
 
         const tempWinrate = item.wins / item.games * 100;
         const winrate = parseFloat(tempWinrate.toFixed(2));
@@ -54,16 +68,8 @@ window.initSummaryTab = function (userId) {
         row.innerHTML = `
               <td>
                   <div class="role-wrap">
-                      <!-- Temp Role icon -->
-                      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                          <rect width="28" height="28" rx="3" fill="#e8ecf2" />
-                          <path d="M14 6 L10 10 L10 16 L14 22 L18 16 L18 10 Z" fill="#c8a84b"
-                              opacity="0.85" />
-                          <path d="M14 8 L11.5 11 L11.5 15.5 L14 19 L16.5 15.5 L16.5 11 Z"
-                              fill="#e8c55a" />
-                          <path d="M14 10 L12.5 12 L12.5 15 L14 17 L15.5 15 L15.5 12 Z" fill="#c8a84b" />
-                      </svg>
-                      <span class="role-name">${item.champ_role}</span>
+                <img class="lane-role-icon" src="${laneIconPath}" alt="${roleSafe} lane icon" loading="lazy" />
+                <span class="role-name">${roleSafe}</span>
                   </div>
               </td>
               <td><span class="games-num">${item.games}</span></td>

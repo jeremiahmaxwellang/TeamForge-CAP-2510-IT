@@ -25,9 +25,9 @@ body {
 
 /* Title */
 .panel-title {
-  font-size: 24px;
+  font-size: 36px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: white;
   margin-bottom: 16px;
   letter-spacing: -0.01em;
 }
@@ -42,15 +42,18 @@ body {
 }
 
 .rec-title {
+  background: #0B1220;
   font-size: 24px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 4px;
   margin-bottom: 5px;
 }
 
 .rec-text {
   font-size: 16px;
-  color: #444;
+  color: var(--carbon-black);
 }
 
 /* Grid */
@@ -80,7 +83,7 @@ body {
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: 21px;
   font-weight: 700;
   color: #1a1a1a;
 }
@@ -119,12 +122,57 @@ tr:last-child td {
   border-bottom: none;
 }
 
+/* Match Scrims overlay table colors for the Summary overview table */
+#overview-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #e2e8f0;
+}
+
+#overview-table thead th {
+  background: #0b1220;
+  color: #e2e8f0;
+  border-right: 1px solid #334155;
+  border-bottom: 1px solid #334155;
+  font-size: 16px;
+}
+
+#overview-table tbody tr {
+  background: #273449;
+}
+
+#overview-table td {
+  color: #e2e8f0;
+  border-right: 1px solid #334155;
+  border-bottom: 1px solid #334155;
+  font-size: 16px;
+}
+
+#overview-table tr > *:last-child {
+  border-right: none;
+}
+
+/* Center-align Games (col 2) and Average CSM (col 5) */
+#overview-table thead th:nth-child(2),
+#overview-table thead th:nth-child(5),
+#overview-table tbody td:nth-child(2),
+#overview-table tbody td:nth-child(5) {
+  text-align: center;
+}
+
 /* Role cell */
 .role-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+}
+
+.lane-role-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .role-name {
@@ -163,6 +211,13 @@ tr:last-child td {
   font-size: 14px;
   font-weight: 600;
   color: #1a1a1a;
+}
+
+#overview-table .role-name,
+#overview-table .games-num,
+#overview-table .wr-text,
+#overview-table .kda-text {
+  color: #e2e8f0;
 }
 
 /* Red score */
