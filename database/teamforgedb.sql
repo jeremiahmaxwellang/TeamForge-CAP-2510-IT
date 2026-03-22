@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`benchmarks` (
   `benchmarkId` INT NOT NULL AUTO_INCREMENT,
   `metricId` INT NULL,
   `roleId` INT NULL,
-  `benchmarkValue` DECIMAL(6,2) NULL,
+  `benchmarkValue` DECIMAL(10,2) NULL, 
   `comparator` ENUM('>', '<', '>=', '<=') NULL,
   PRIMARY KEY (`benchmarkId`),
   INDEX `fk_benchmarks_leagueRoles1_idx` (`roleId` ASC) VISIBLE,

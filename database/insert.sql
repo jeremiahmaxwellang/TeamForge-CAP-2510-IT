@@ -586,60 +586,70 @@ INSERT INTO metricRoles (metricId, roleId) VALUES
 
 -- 1. Top
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(4, 1, 7.80, '>='),
-(11, 1, 388.40, '>='),
-(3, 1, -0.30, '>='),
-(25, 1, -31.40, '>='),
-(7, 1, 3.20, '<='),
-(15, 1, 1.70, '>='),
-(13, 1, 0.44, '>='), -- Kill Participation
-(6, 1, 0.21, '>='),  -- Damage to Buildings
-(19, 1, 0.25, '>='); -- Total Damage Taken
+(14, 1, 4.00, '>='),     -- Kills
+(2, 1, 6.00, '>='),      -- Assists
+(12, 1, 2.50, '>='),     -- KDA
+(4, 1, 7.80, '>='),      -- CS/Min
+(11, 1, 388.40, '>='),   -- Gold/Min
+(5, 1, 25.00, '>='),     -- Damage Share %
+(19, 1, 28000.00, '>='), -- Tanking
+(15, 1, 1.70, '>='),     -- Solo Kills
+(7, 1, 3.20, '<=');      -- Deaths
 
 -- 2. Jungle
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(4, 2, 6.80, '>='),
-(13, 2, 0.67, '>='), -- Kill Participation
-(20, 2, 1.60, '>='),
-(3, 2, 0.00, '>'),
-(8, 2, 2.00, '>='),
-(16, 2, 1.00, '>='),
-(17, 2, 1.00, '>='),
-(18, 2, 1.00, '>='),
-(22, 2, 2.00, '>='),
-(9, 2, 4.00, '>=');
+(14, 2, 5.00, '>='),     -- Kills
+(2, 2, 8.00, '>='),      -- Assists
+(12, 2, 3.50, '>='),     -- KDA
+(4, 2, 6.80, '>='),      -- CS/Min
+(11, 2, 410.00, '>='),   -- Gold/Min
+(7, 2, 3.50, '<='),      -- Deaths
+(13, 2, 67.00, '>='),    -- Kill Participation %
+(20, 2, 1.60, '>='),     -- Vision Score/Min
+(8, 2, 2.00, '>='),      -- Dragon Kills
+(16, 2, 1.00, '>='),     -- Team Baron
+(17, 2, 1.00, '>='),     -- Team Elder
+(18, 2, 1.00, '>='),     -- Team Herald
+(22, 2, 2.00, '>='),     -- Void Monster
+(9, 2, 4.00, '>=');      -- Enemy Jungle Control
 
 -- 3. Mid
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(4, 3, 8.60, '>='),
-(11, 3, 400.00, '>='), -- Gold Per Minute (GPM)
-(13, 3, 0.62, '>='),
-(14, 3, 4.00, '>='),
-(7, 3, 3.20, '<='),
-(2, 3, 6.60, '>='),
-(5, 3, 0.25, '>='); -- Damage Share
+(14, 3, 5.50, '>='),     -- Kills
+(2, 3, 6.60, '>='),      -- Assists
+(12, 3, 3.50, '>='),     -- KDA
+(4, 3, 8.60, '>='),      -- CS/Min
+(11, 3, 400.00, '>='),   -- Gold/Min
+(7, 3, 3.20, '<='),      -- Deaths
+(13, 3, 62.00, '>='),    -- Kill Participation %
+(5, 3, 25.00, '>='),     -- Damage Share %
+(15, 3, 1.50, '>=');     -- Solo Kills
 
 -- 4. ADC
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(12, 4, 4.10, '>='),
-(20, 4, 1.00, '>='),
-(4, 4, 8.90, '>='),
-(3, 4, -0.25, '>='),
-(25, 4, -6.75, '>='),
-(10, 4, 7.75, '>='),
-(11, 4, 460.00, '>='),
-(5, 4, 0.25, '>='); -- Damage Share
+(14, 4, 6.00, '>='),     -- Kills
+(2, 4, 6.00, '>='),      -- Assists
+(12, 4, 4.10, '>='),     -- KDA
+(4, 4, 8.90, '>='),      -- CS/Min
+(11, 4, 460.00, '>='),   -- Gold/Min
+(7, 4, 3.50, '<='),      -- Deaths
+(5, 4, 28.00, '>='),     -- Damage Share %
+(20, 4, 1.00, '>=');     -- Vision Score/Min
 
 -- 5. Support
 INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
-(21, 5, 0.43, '>='), -- Vision Score Share
-(20, 5, 3.60, '>='),
-(7, 5, 4.00, '<='),
-(2, 5, 12.60, '>='),
-(13, 5, 0.76, '>='), -- Kill Participation
-(24, 5, 5.00, '>='),
-(23, 5, 5.00, '>='),
-(1, 5, 0.55, '>='); -- Proximity Time to ADC by 15 Minutes
+(14, 5, 1.00, '>='),     -- Kills
+(2, 5, 12.60, '>='),     -- Assists
+(12, 5, 3.20, '>='),     -- KDA
+(4, 5, 1.50, '>='),      -- CS/Min
+(11, 5, 250.00, '>='),   -- Gold/Min
+(7, 5, 4.00, '<='),      -- Deaths
+(13, 5, 76.00, '>='),    -- Kill Participation %
+(21, 5, 43.00, '>='),    -- Vision Score Share %
+(20, 5, 3.60, '>='),     -- Vision Score/Min
+(24, 5, 35.00, '>='),    -- Wards Placed
+(23, 5, 10.00, '>='),    -- Wards Destroyed
+(1, 5, 55.00, '>=');     -- Proximity Time to ADC
 
 
 -- -----------------------------------------------------

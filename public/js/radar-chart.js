@@ -44,8 +44,8 @@ var RadarChart = {
         var container = tooltip.node().parentNode;
         var coords = d3.mouse(container);
 
-        tooltip.select("text").classed('visible', 1).style("fill", cfg.tooltipColor);
-        var padding = 5;
+        tooltip.select("text").classed('visible', 1).style("fill", cfg.tooltipColor).style("font-size", "14px").style("font-weight", "bold");
+        var padding = 8;
         var bbox = tooltip.select("text").text(msg).node().getBBox();
 
         tooltip.select("rect")
@@ -218,6 +218,8 @@ var RadarChart = {
                 var p = getVerticalPosition(i, 0.5);
                 return ((p < 0.1) ? '1em' : ((p > 0.9) ? '0' : '0.5em'));
               })
+              .style('font-size', '13px')
+              .style('font-weight', 'bold')
               .text(function (d) { return d.name; })
               .attr('x', function (d, i) { return d.xOffset + (cfg.w / 2 - radius2) + getHorizontalPosition(i, radius2, cfg.factorLegend); })
               .attr('y', function (d, i) { return d.yOffset + (cfg.h / 2 - radius2) + getVerticalPosition(i, radius2, cfg.factorLegend); });
@@ -325,12 +327,13 @@ var RadarChart = {
                 var stat = player.axes.filter(function (a) { return a.axis === axisName; })[0];
 
                 if (stat) {
-                  // Get the real number
-                  var val = stat.originalValue || stat.value;
+                  // Get the real number AND round it perfectly to 2 decimal places
+                  var val = Number(stat.originalValue || stat.value).toFixed(2);
+                  
                   // Get the player name (or fallback to P1/P2)
                   var name = player.className || ("P" + (i + 1));
 
-                  // Add to our text (e.g. "Faker: 8.5   ")
+                  // Add to our text (e.g. "Faker: 8.50   ")
                   tooltipString += name + ": " + val + "    ";
                 }
               });
