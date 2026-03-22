@@ -3,7 +3,7 @@
 charles_duelas@dlsu.edu.ph
 
 [Password]
-teamforge123!!
+teamForge123!!
 
 [New_Password]
-teamforge123!!
+teamForge123!!
