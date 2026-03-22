@@ -8,6 +8,7 @@ router.get('/current_players', reports_controller.getCurrentPlayers);
 router.get('/applicant_roles', reports_controller.getApplicantRoles);
 router.get('/applicant_statuses', reports_controller.getApplicantStatuses);
 router.get('/applications_total', reports_controller.getApplicationsEachPeriod);
+router.get('/best_performing_applicants', reports_controller.getBestPerformingApplicants);
 
 // Reports
 router.get('/', (req, res) => {

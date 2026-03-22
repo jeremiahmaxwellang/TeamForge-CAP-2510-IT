@@ -48,6 +48,26 @@
         <div class="reports-shell">
           <h1 class="page-title">Reports</h1>
 
+          <section class="card tournament-report-card">
+            <div class="card-title">Tournament Results Report</div>
+            <div class="tournament-report-controls">
+              <label for="tournamentStartDate">Start Date</label>
+              <input type="date" id="tournamentStartDate" />
+              <label for="tournamentEndDate">End Date</label>
+              <input type="date" id="tournamentEndDate" />
+              <button type="button" id="applyTournamentRange">Apply</button>
+              <button type="button" id="resetTournamentRange" class="secondary">Reset</button>
+            </div>
+
+            <div class="tournament-report-body">
+              <div class="chart-wrap">
+                <canvas id="tournamentResultChart"></canvas>
+                <div class="legend" id="tournament-result-legend"></div>
+              </div>
+              <p id="tournamentRangeSummary">Showing all tournaments.</p>
+            </div>
+          </section>
+
           <div class="grid">
             <div class="card col-span-2">
               <div class="card-title">Best Performing Applicants</div>
@@ -60,7 +80,7 @@
                     <th>Role Applied</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="best-performing-table-body">
                   <tr>
                     <td class="rank-num">1</td>
                     <td>Egresados</td>
