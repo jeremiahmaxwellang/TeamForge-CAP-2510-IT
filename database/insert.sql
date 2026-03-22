@@ -113,6 +113,56 @@ VALUES
     'Player',
     'not#applicable',
     'Active'
+),
+(
+    13,
+    'hoshiyo2121@gmail.com',
+    'teamForge123!!',
+    'Haru',
+    'Yoshida',
+    'Player',
+    'Hoshiyo#2121',
+    'Active'
+),
+(
+    14,
+    'theblueprint000@gmail.com',
+    'teamForge123!!',
+    'Nick',
+    'Blueprint',
+    'Player',
+    'The Blueprint#000',
+    'Active'
+),
+(
+    15,
+    'stellar1105@gmail.com',
+    'teamForge123!!',
+    'Stella',
+    'Ramos',
+    'Player',
+    'Stellar#1105',
+    'Active'
+),
+(
+    16,
+    'oneofwunoste@gmail.com',
+    'teamForge123!!',
+    'One',
+    'Wun',
+    'Player',
+    'one of wun#oste',
+    'Active'
+),
+(
+    17,
+    'maple091@gmail.com',
+    'teamForge123!!',
+    'Maple',
+    'Navarro',
+    'Player',
+    'Maple#091',
+    'Active'
 );
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId)
@@ -226,6 +276,86 @@ VALUES
     '2.1',
     '1.9',
     '2nd Year',
+    'F',
+    1
+),
+(
+    13,
+    'Hoshiyo',
+    '2121',
+    'Unranked',
+    'Unranked',
+    1,
+    2,
+    '12600013',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
+    1
+),
+(
+    14,
+    'The Blueprint',
+    '000',
+    'Unranked',
+    'Unranked',
+    2,
+    1,
+    '12600014',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
+    1
+),
+(
+    15,
+    'Stellar',
+    '1105',
+    'Unranked',
+    'Unranked',
+    3,
+    5,
+    '12600015',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
+    1
+),
+(
+    16,
+    'one of wun',
+    'oste',
+    'Unranked',
+    'Unranked',
+    4,
+    1,
+    '12600016',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
+    'F',
+    1
+),
+(
+    17,
+    'Maple',
+    '091',
+    'Unranked',
+    'Unranked',
+    5,
+    3,
+    '12600017',
+    'N/A',
+    '0.0',
+    '0.0',
+    'N/A',
     'F',
     1
 );
@@ -548,28 +678,28 @@ VALUES
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
 (1, 4, 1, 'N'),
-(1, 7, 2, 'N'),
+(1, 14, 2, 'N'),
 (1, 3, 3, 'N'),
-(1, 5, 4, 'N'),
+(1, 16, 4, 'N'),
 (1, 6, 5, 'N'),
-(1, 8, 2, 'Y'),
-(1, 9, 5, 'Y');
+(1, 13, 1, 'Y'),
+(1, 17, 5, 'Y');
 
 -- Tournament 2: starters only, no subs
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
-(2, 4, 1, 'N'),
+(2, 13, 1, 'N'),
 (2, 7, 2, 'N'),
-(2, 3, 3, 'N'),
+(2, 15, 3, 'N'),
 (2, 5, 4, 'N'),
-(2, 6, 5, 'N');
+(2, 17, 5, 'N');
 
 -- Tournament 3: one substitute available
 INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
 VALUES
 (3, 4, 1, 'N'),
-(3, 7, 2, 'N'),
+(3, 14, 2, 'N'),
 (3, 3, 3, 'N'),
-(3, 5, 4, 'N'),
+(3, 16, 4, 'N'),
 (3, 6, 5, 'N'),
-(3, 9, 2, 'Y');
+(3, 15, 3, 'Y');
