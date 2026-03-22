@@ -286,3 +286,43 @@ exports.rejectApplicant = async (req, res) => {
         res.status(500).json({ success: false, message: 'Database error while rejecting applicant.' });
     }
 };
+
+// Get latest saved evaluation for a specific applicant by the logged-in coach
+exports.getEvaluationByApplicant = async (req, res) => {
+    try {
+        const userId = Number.parseInt(req.params.userId, 10);
+        const coachId = req.cookies && req.cookies.userId;
+
+        if (!userId || !coachId) {
+            return res.status(400).json({ success: false, message: 'Applicant ID and Coach ID are required or your session expired.' });
+        }
+
+        const [rows] = await mySqlPool.query(
+            `SELECT 
+                ae.evaluationId,
+                ae.userId,
+                ae.coachId,
+                ae.comment,
+                ae.ratingGameSense,
+                ae.ratingCommunication,
+                ae.ratingChampionPool,
+                ae.evaluatedAt,
+                a.status AS applicationStatus
+             FROM applicantEvaluations ae
+             LEFT JOIN applications a ON a.userId = ae.userId
+             WHERE ae.userId = ? AND ae.coachId = ?
+             ORDER BY ae.evaluationId DESC
+             LIMIT 1`,
+            [userId, coachId]
+        );
+
+        if (!rows.length) {
+            return res.status(200).json({ success: true, evaluation: null });
+        }
+
+        return res.status(200).json({ success: true, evaluation: rows[0] });
+    } catch (error) {
+        console.error('Error fetching applicant evaluation:', error);
+        return res.status(500).json({ success: false, message: 'Database error while fetching evaluation.' });
+    }
+};
