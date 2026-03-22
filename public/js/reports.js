@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('termSummary2'),
         document.getElementById('termSummary3')
     ];
+    const termResultDetailElements = [
+        document.getElementById('termResultDetails1'),
+        document.getElementById('termResultDetails2'),
+        document.getElementById('termResultDetails3')
+    ];
     const termChartCanvasIds = ['termPieChart1', 'termPieChart2', 'termPieChart3'];
 
     const tournamentResultColors = {
@@ -28,9 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const termCharts = [null, null, null];
 
     const defaultTermDateRanges = {
-        'Term 3': { start: '2025-05-01', end: '2025-08-31' },
-        'Term 1': { start: '2025-09-01', end: '2025-12-31' },
-        'Term 2': { start: '2026-01-01', end: '2026-04-30' }
+        'Term 1': { start: '2025-05-01', end: '2025-08-31' },
+        'Term 2': { start: '2025-09-01', end: '2025-12-31' },
+        'Term 3': { start: '2026-01-01', end: '2026-04-30' }
     };
 
     const configuredTermDateRanges =
@@ -47,10 +52,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ? configuredTermDateRanges
         : defaultTermDateRanges;
 
+    const parseDateValue = (dateValue) => {
+        if (!dateValue) return null;
+        if (dateValue instanceof Date) {
+            return Number.isNaN(dateValue.getTime()) ? null : dateValue;
+        }
+
+        const rawValue = String(dateValue).trim();
+        if (!rawValue) return null;
+
+        // Support both YYYY-MM-DD and full datetime strings from API/DB.
+        const normalized = rawValue.includes('T')
+            ? rawValue
+            : `${rawValue.slice(0, 10)}T00:00:00`;
+
+        const parsed = new Date(normalized);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    };
+
     const formatDateLabel = (dateValue) => {
-        if (!dateValue) return '';
-        const parsed = new Date(`${dateValue}T00:00:00`);
-        if (Number.isNaN(parsed.getTime())) return '';
+        const parsed = parseDateValue(dateValue);
+        if (!parsed) return '';
         return parsed.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     };
 
@@ -58,6 +80,94 @@ document.addEventListener('DOMContentLoaded', () => {
         const parsed = new Date(dateValue);
         if (Number.isNaN(parsed.getTime())) return null;
         return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    };
+
+    const escapeHtml = (value) => String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const normalizeResultLabel = (resultValue) => {
+        const normalized = String(resultValue || '').trim().toUpperCase();
+        if (normalized === 'W') return 'Win';
+        if (normalized === 'L') return 'Loss';
+        return normalized || 'N/A';
+    };
+
+    const countWinLoss = (rows) => {
+        let wins = 0;
+        let losses = 0;
+
+        rows.forEach((row) => {
+            const normalized = String(row.result || '').trim().toUpperCase();
+            if (normalized === 'W') wins += 1;
+            if (normalized === 'L') losses += 1;
+        });
+
+        return { wins, losses };
+    };
+
+    const renderTournamentDetailsList = (targetEl, rows, emptyMessage) => {
+        if (!targetEl) return;
+
+        if (!Array.isArray(rows) || rows.length === 0) {
+            targetEl.innerHTML = `<p class="tournament-empty-msg">${escapeHtml(emptyMessage)}</p>`;
+            return;
+        }
+
+        const sortedRows = [...rows].sort((a, b) => {
+            const dateA = parseDateValue(a.tournamentDate);
+            const dateB = parseDateValue(b.tournamentDate);
+
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB.getTime() - dateA.getTime();
+        });
+
+        targetEl.innerHTML = `
+            <ul class="tournament-detail-list">
+                ${sortedRows.map((row) => {
+            const title = String(row.name || row.tournamentName || row.title || 'Untitled Tournament').trim() || 'Untitled Tournament';
+            const dateLabel = formatDateLabel(row.tournamentDate) || 'Unknown date';
+            const resultLabel = normalizeResultLabel(row.result);
+
+            return `
+                        <li class="tournament-detail-item">
+                            <div class="tournament-detail-title">${escapeHtml(title)}</div>
+                            <p class="tournament-detail-meta">Date: ${escapeHtml(dateLabel)}</p>
+                            <p class="tournament-detail-meta">Result: ${escapeHtml(resultLabel)}</p>
+                        </li>
+                    `;
+        }).join('')}
+            </ul>
+        `;
+    };
+
+    const getRowsInDateRange = (startDate, endDate) => allTournamentRows.filter((row) => {
+        const rowDate = normalizeDateOnly(row.tournamentDate);
+        if (!rowDate) return false;
+
+        if (startDate && rowDate < startDate) return false;
+        if (endDate && rowDate > endDate) return false;
+        return true;
+    });
+
+    const getRowsInTerm = (termName) => {
+        const termRange = termDateRanges[termName];
+        if (!termRange) {
+            return [];
+        }
+
+        const startDate = normalizeDateOnly(`${termRange.start}T00:00:00`);
+        const endDate = normalizeDateOnly(`${termRange.end}T00:00:00`);
+        if (!startDate || !endDate) {
+            return [];
+        }
+
+        return getRowsInDateRange(startDate, endDate);
     };
 
     const renderTournamentLegend = () => {
@@ -103,31 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getTermStats = (termName) => {
-        const termRange = termDateRanges[termName];
-        if (!termRange) {
-            return { wins: 0, losses: 0, total: 0 };
-        }
-
-        const startDate = normalizeDateOnly(`${termRange.start}T00:00:00`);
-        const endDate = normalizeDateOnly(`${termRange.end}T00:00:00`);
-        if (!startDate || !endDate) {
-            return { wins: 0, losses: 0, total: 0 };
-        }
-
-        const rowsInTerm = allTournamentRows.filter((row) => {
-            const rowDate = normalizeDateOnly(row.tournamentDate);
-            if (!rowDate) return false;
-            return rowDate >= startDate && rowDate <= endDate;
-        });
-
-        let wins = 0;
-        let losses = 0;
-
-        rowsInTerm.forEach((row) => {
-            const normalized = String(row.result || '').trim().toUpperCase();
-            if (normalized === 'W') wins += 1;
-            if (normalized === 'L') losses += 1;
-        });
+        const rowsInTerm = getRowsInTerm(termName);
+        const { wins, losses } = countWinLoss(rowsInTerm);
 
         return { wins, losses, total: rowsInTerm.length };
     };
@@ -139,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!canvasEl || !summaryEl) return;
 
+        const rowsInTerm = getRowsInTerm(termName);
         const { wins, losses, total } = getTermStats(termName);
 
         if (termCharts[chartIndex]) {
@@ -172,6 +260,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         summaryEl.textContent = `${termName}: Wins ${wins}, Losses ${losses}, Tournaments ${total}.`;
+        renderTournamentDetailsList(
+            termResultDetailElements[chartIndex],
+            rowsInTerm,
+            `No tournaments recorded for ${termName}.`
+        );
     };
 
     const renderAllTermCharts = () => {
@@ -228,23 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const startDate = startValue ? normalizeDateOnly(`${startValue}T00:00:00`) : null;
         const endDate = endValue ? normalizeDateOnly(`${endValue}T00:00:00`) : null;
 
-        const filteredRows = allTournamentRows.filter((row) => {
-            const rowDate = normalizeDateOnly(row.tournamentDate);
-            if (!rowDate) return false;
-
-            if (startDate && rowDate < startDate) return false;
-            if (endDate && rowDate > endDate) return false;
-            return true;
-        });
-
-        let wins = 0;
-        let losses = 0;
-
-        filteredRows.forEach((row) => {
-            const normalized = String(row.result || '').trim().toUpperCase();
-            if (normalized === 'W') wins += 1;
-            if (normalized === 'L') losses += 1;
-        });
+        const filteredRows = getRowsInDateRange(startDate, endDate);
+        const { wins, losses } = countWinLoss(filteredRows);
 
         renderTournamentLegend();
         renderTournamentChart(wins, losses);
@@ -274,6 +352,10 @@ document.addEventListener('DOMContentLoaded', () => {
             termSummaryElements.forEach((summaryEl) => {
                 if (!summaryEl) return;
                 summaryEl.textContent = 'Failed to load tournament report data.';
+            });
+            termResultDetailElements.forEach((detailEl) => {
+                if (!detailEl) return;
+                detailEl.innerHTML = '<p class="tournament-empty-msg">Failed to load tournament report data.</p>';
             });
         }
     };
@@ -377,12 +459,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const hasJsPdf = window.jspdf && typeof window.jspdf.jsPDF === 'function';
+            if (!hasJsPdf) {
+                alert('PDF export tool is not available right now.');
+                return;
+            }
+
             const target = document.querySelector('.term-modal-content');
             if (!target) return;
 
             const originalLabel = saveTermReportBtn.textContent;
             const originalSaveDisplay = saveTermReportBtn.style.display;
             const originalCloseDisplay = closeTermBreakdownBtn ? closeTermBreakdownBtn.style.display : '';
+            const originalTargetMaxHeight = target.style.maxHeight;
+            const originalTargetOverflow = target.style.overflow;
+            const originalTargetScrollTop = target.scrollTop;
             const termSelectDisplays = termSelectElements.map((selectEl) => ({
                 element: selectEl,
                 display: selectEl.style.display
@@ -400,12 +491,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     element.style.display = 'none';
                 });
 
+                // Expand modal content so html2canvas captures full report, not only visible viewport.
+                target.style.maxHeight = 'none';
+                target.style.overflow = 'visible';
+                target.scrollTop = 0;
+
                 // Let the browser apply the hidden states before capture.
                 await waitForNextPaint();
 
                 const canvas = await html2canvas(target, {
                     useCORS: true,
                     backgroundColor: '#ffffff',
+                    width: target.scrollWidth,
+                    height: target.scrollHeight,
+                    windowWidth: target.scrollWidth,
+                    windowHeight: target.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0,
                     scale: 2,
                     ignoreElements: (element) => {
                         if (!element) return false;
@@ -416,11 +518,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                const link = document.createElement('a');
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                link.download = `term-report-${timestamp}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                const imageData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imageWidthMm = canvas.width * 0.264583;
+                const imageHeightMm = canvas.height * 0.264583;
+                const ratio = Math.min(pageWidth / imageWidthMm, pageHeight / imageHeightMm);
+                const renderWidth = imageWidthMm * ratio;
+                const renderHeight = imageHeightMm * ratio;
+                const offsetX = (pageWidth - renderWidth) / 2;
+                const offsetY = (pageHeight - renderHeight) / 2;
+
+                pdf.addImage(imageData, 'PNG', offsetX, offsetY, renderWidth, renderHeight, undefined, 'FAST');
+                pdf.save('End_of_Year_Tournament_Results_Report.pdf');
             } catch (error) {
                 console.error('Failed to save term report screenshot:', error);
                 alert('Failed to save report. Please try again.');
@@ -429,6 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (closeTermBreakdownBtn) {
                     closeTermBreakdownBtn.style.display = originalCloseDisplay;
                 }
+                target.style.maxHeight = originalTargetMaxHeight;
+                target.style.overflow = originalTargetOverflow;
+                target.scrollTop = originalTargetScrollTop;
                 termSelectDisplays.forEach(({ element, display }) => {
                     element.style.display = display;
                 });
