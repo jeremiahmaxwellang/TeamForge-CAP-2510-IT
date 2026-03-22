@@ -105,6 +105,43 @@
   font-size: 20px;
 }
 
+.scrim-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scrim-filter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 5px;
+  padding-bottom: 10px;
+}
+
+.scrim-filter-label {
+  color: var(--scrims-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.scrim-filter-select {
+  background-color: #0f172a;
+  color: var(--scrims-text);
+  border: 1px solid var(--scrims-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 140px;
+}
+
+.scrim-filter-select:focus {
+  outline: 1px solid var(--scrims-accent);
+  border-color: var(--scrims-accent);
+}
+
 .scrim-table {
   width: 100%;
   border-collapse: separate;

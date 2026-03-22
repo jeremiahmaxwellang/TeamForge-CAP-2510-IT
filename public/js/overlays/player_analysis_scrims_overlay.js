@@ -59,15 +59,68 @@ window.initScrimsTab = function (userId) {
       const dropdownBtn = document.getElementById("scrimsDropdownBtn");
       const dropdownContent = document.getElementById("scrimsDropdownContent");
       const scrimIdInput = document.getElementById("scrimIdInput");
+      const statusFilter = document.getElementById("scrimStatusFilter");
+      const tableBody = document.querySelector(".scrim-table tbody");
+      let allScrims = [];
+
+      function normalizeStatus(value) {
+        return String(value || "unevaluated").toLowerCase();
+      }
+
+      function renderScrimRows(filterValue) {
+        const selectedFilter = filterValue || "all";
+        const filteredScrims = selectedFilter === "all"
+          ? allScrims
+          : allScrims.filter((scrim) => normalizeStatus(scrim.status) === selectedFilter);
+
+        tableBody.innerHTML = "";
+
+        if (filteredScrims.length === 0) {
+          const emptyRow = document.createElement("tr");
+          emptyRow.classList.add("scrim-empty-row");
+          emptyRow.innerHTML = `<td colspan="8">No ${selectedFilter === "all" ? "scrims" : `${selectedFilter} scrims`} found.</td>`;
+          tableBody.appendChild(emptyRow);
+          return;
+        }
+
+        filteredScrims.forEach((scrim, index) => {
+          const row = document.createElement("tr");
+
+          if (scrim.win === "W") row.classList.add("scrim-win");
+          else if (scrim.win === "L") row.classList.add("scrim-loss");
+
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${scrim.name}</td>
+            <td>${formatScrimDate(scrim.date)}</td>
+            <td>${scrim.length}</td>
+            <td>${scrim.playerDisplay || scrim.playerId || ""}</td>
+            <td>${scrim.win || ""}</td>
+            <td>${normalizeStatus(scrim.status)}</td>
+            <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
+          `;
+
+          row.addEventListener("click", () => {
+            [...tableBody.rows].forEach(r => r.classList.remove("scrim-selected"));
+            row.classList.add("scrim-selected");
+
+            row.setAttribute("data-scrim-id", scrim.scrimId);
+            dropdownBtn.textContent = scrim.name;
+            scrimIdInput.value = scrim.scrimId;
+            updateEvaluation(scrim.scrimId);
+          });
+
+          tableBody.appendChild(row);
+        });
+      }
 
       // Load existing scrims
       Backend.fetchScrims(userId)
         .then((scrims) => {
-          const tableBody = document.querySelector(".scrim-table tbody");
+          allScrims = scrims;
+          dropdownContent.innerHTML = "";
 
-          tableBody.innerHTML = "";
-
-          scrims.forEach((scrim, index) => {
+          scrims.forEach((scrim) => {
             // ======= SCRIMS DROPDOWN =======
             const link = document.createElement("a");
             link.href = "#";
@@ -86,36 +139,9 @@ window.initScrimsTab = function (userId) {
             });
 
             dropdownContent.appendChild(link);
-
-            // ======= SCRIMS TABLE =======
-            const row = document.createElement("tr");
-
-            if(scrim.win === "W") row.classList.add("scrim-win");
-            else if(scrim.win === "L") row.classList.add("scrim-loss");
-
-            row.innerHTML = `
-              <td>${index + 1}</td>
-              <td>${scrim.name}</td>
-              <td>${formatScrimDate(scrim.date)}</td>
-              <td>${scrim.length}</td>
-              <td>${scrim.playerDisplay || scrim.playerId || ""}</td>
-              <td>${scrim.win || ""}</td>
-              <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
-            `;
-
-            row.addEventListener("click", () => {
-              [...tableBody.rows].forEach(r => r.classList.remove("scrim-selected"));
-              row.classList.add("scrim-selected");
-
-              row.setAttribute("data-scrim-id", scrim.scrimId);
-              dropdownBtn.textContent = scrim.name;
-              scrimIdInput.value = scrim.scrimId;
-              updateEvaluation(scrim.scrimId);
-              
-            });
-
-            tableBody.appendChild(row);
           });
+
+          renderScrimRows(statusFilter ? statusFilter.value : "all");
 
           console.log("[SCRIMS] ✓ Table populated with scrim data");
 
@@ -133,6 +159,12 @@ window.initScrimsTab = function (userId) {
           e.preventDefault(); 
           dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block"; 
         });
+
+        if (statusFilter) {
+          statusFilter.addEventListener("change", () => {
+            renderScrimRows(statusFilter.value);
+          });
+        }
 
         // ========= Times Played Table =========
         Backend.fetchTimesPlayed(userId)
@@ -228,6 +260,13 @@ window.initScrimsTab = function (userId) {
           document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
           document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
           document.getElementById("coachComment").value = evalData.comment || "";
+        }
+
+        const selectedScrimId = Number(scrimId);
+        const updatedScrim = allScrims.find((item) => Number(item.scrimId) === selectedScrimId);
+        if (updatedScrim) {
+          updatedScrim.status = "evaluated";
+          renderScrimRows(statusFilter ? statusFilter.value : "all");
         }
       } else {
         alert("Error: " + result.error);
