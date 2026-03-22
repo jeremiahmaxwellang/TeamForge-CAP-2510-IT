@@ -656,53 +656,230 @@ INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
 -- SCRIMS
 -- -----------------------------------------------------
 
+-- Scrim 1
 INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES 
-(1, 'Viridis Arcus vs. Annihilation Scrim', '2026-02-23', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:11', 'evaluated');
+VALUES (1, 'Viridis Arcus vs. Annihilation Scrim', '2026-02-23', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:11', 'evaluated');
 
--- Insert scrim players for scrimId = 1
 INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES
-(1, 4, 1, 'W'),
-(1, 7, 2, 'W'),
-(1, 3, 3, 'W'),
-(1, 5, 4, 'W'),
-(1, 6, 5, 'W');
+VALUES (1, 4, 1, 'W'), (1, 7, 2, 'W'), (1, 3, 3, 'W'), (1, 5, 4, 'W'), (1, 6, 5, 'W');
 
 INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(1, 4, 'Flexible with a variety of champions but barely communicates with team', 3, 2, 4, 2);
+(1, 7, 'Barely spoke in teamfights', 3, 1, 3, 2),
+(1, 4, 'Top laner gave good calls', 3, 4, 3, 2),
+(1, 3, 'Mid laner average comms', 3, 3, 3, 2),
+(1, 5, 'ADC vocal early, quiet late', 3, 2, 4, 2),
+(1, 6, 'Support steady comms', 3, 4, 3, 2);
 
+-- Scrim 2
 INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES 
-(2, 'Viridis Arcus vs. Punk Rockers', '2026-02-24', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '29:55', 'evaluated');
+VALUES (2, 'Viridis Arcus vs. Justice League', '2026-02-24', 'https://www.youtube.com/watch?v=scrim2', '28:45', 'evaluated');
 
--- Insert scrim players for scrimId = 2
 INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES
-(2, 4, 1, 'L'),
-(2, 7, 2, 'L'),
-(2, 3, 3, 'L'),
-(2, 5, 4, 'L'),
-(2, 6, 5, 'L');
+VALUES (2, 13, 1, 'L'), (2, 7, 2, 'L'), (2, 14, 3, 'L'), (2, 9, 4, 'L'), (2, 17, 5, 'L');
 
 INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(2, 4, 'Communication has improved since last scrim', 4, 5, 4, 2);
+(2, 7, 'Quiet in comms', 3, 2, 3, 2),
+(2, 13, 'Top laner weak comms', 2, 2, 2, 2),
+(2, 14, 'Mid laner strong comms', 4, 5, 4, 2),
+(2, 9, 'ADC average', 3, 3, 3, 2),
+(2, 17, 'Support vocal', 4, 4, 4, 2);
 
--- SCRIM 3 
+-- Scrim 3
 INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES 
-(3, 'Viridis Arcus vs. Sesame Street', '2026-03-04', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:02', 'unevaluated');
+VALUES (3, 'Viridis Arcus vs. Avengers', '2026-02-25', 'https://www.youtube.com/watch?v=scrim3', '32:10', 'evaluated');
 
--- Insert scrim players for scrimId = 3
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, teamId, win)
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (3, 4, 1, 'W'), (3, 7, 2, 'W'), (3, 15, 3, 'W'), (3, 5, 4, 'W'), (3, 6, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(3, 4, 1, '1', 'L'),
-(3, 8, 2, '1', 'L'),
-(3, 3, 3, '1', 'L'),
-(3, 5, 4, '1', 'L'),
-(3, 6, 5, '1', 'L');
+(3, 7, 'Minimal communication', 3, 1, 3, 2),
+(3, 4, 'Top laner silent this game', 3, 2, 3, 2),
+(3, 15, 'Mid laner strong comms', 4, 5, 4, 2),
+(3, 5, 'ADC average comms', 3, 3, 3, 2),
+(3, 6, 'Support weak comms', 2, 2, 2, 2);
+
+-- Scrim 4
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (4, 'Viridis Arcus vs. X-Men', '2026-02-26', 'https://www.youtube.com/watch?v=scrim4', '29:55', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (4, 13, 1, 'L'), (4, 7, 2, 'L'), (4, 3, 3, 'L'), (4, 16, 4, 'L'), (4, 6, 5, 'L');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(4, 7, 'Silent during fights', 2, 2, 2, 2),
+(4, 13, 'Top laner improved comms', 3, 3, 3, 2),
+(4, 3, 'Mid laner steady', 3, 4, 3, 2),
+(4, 16, 'ADC poor comms', 2, 1, 2, 2),
+(4, 6, 'Support strong comms', 4, 5, 4, 2);
+
+-- Scrim 5
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (5, 'Viridis Arcus vs. Fantastic Four', '2026-02-27', 'https://www.youtube.com/watch?v=scrim5', '31:20', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (5, 4, 1, 'W'), (5, 7, 2, 'W'), (5, 14, 3, 'W'), (5, 9, 4, 'W'), (5, 17, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(5, 7, 'Some comms but inconsistent', 3, 1, 3, 2),
+(5, 4, 'Top laner vocal', 4, 4, 4, 2),
+(5, 14, 'Mid laner weak comms', 2, 2, 2, 2),
+(5, 9, 'ADC average', 3, 3, 3, 2),
+(5, 17, 'Support strong', 4, 5, 4, 2);
+
+-- Scrim 6
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (6, 'Viridis Arcus vs. Guardians of the Galaxy', '2026-02-28', 'https://www.youtube.com/watch?v=scrim6', '27:40', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (6, 13, 1, 'L'), (6, 7, 2, 'L'), (6, 15, 3, 'L'), (6, 5, 4, 'L'), (6, 6, 5, 'L');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(6, 7, 'Barely spoke', 2, 2, 2, 2),
+(6, 13, 'Top laner average', 3, 3, 3, 2),
+(6, 15, 'Mid laner vocal', 4, 4, 4, 2),
+(6, 5, 'ADC weak comms', 2, 2, 2, 2),
+(6, 6, 'Support average', 3, 3, 3, 2);
+
+-- Scrim 7
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (7, 'Viridis Arcus vs. Teen Titans', '2026-03-01', 'https://www.youtube.com/watch?v=scrim7', '33:00', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (7, 4, 1, 'W'), (7, 7, 2, 'W'), (7, 3, 3, 'W'), (7, 16, 4, 'W'), (7, 17, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(7, 7, 'Minimal comms again', 3, 2, 3, 2),
+(7, 4, 'Top laner strong', 4, 5, 4, 2),
+(7, 3, 'Mid laner average', 3, 3, 3, 2),
+(7, 16, 'ADC poor comms', 2, 1, 2, 2),
+(7, 17, 'Support steady', 3, 4, 3, 2);
+
+-- Scrim 8
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (8, 'Viridis Arcus vs. Watchmen', '2026-03-02', 'https://www.youtube.com/watch?v=scrim8', '30:15', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (8, 13, 1, 'L'), (8, 7, 2, 'L'), (8, 14, 3, 'L'), (8, 9, 4, 'L'), (8, 6, 5, 'L');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(8, 7, 'Silent', 2, 1, 2, 2),
+(8, 13, 'Top laner weak', 2, 2, 2, 2),
+(8, 14, 'Mid laner strong', 4, 5, 4, 2),
+(8, 9, 'ADC average', 3, 3, 3, 2),
+(8, 6, 'Support vocal', 4, 4, 4, 2);
+
+-- Scrim 9
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (9, 'Viridis Arcus vs. Incredibles', '2026-03-03', 'https://www.youtube.com/watch?v=scrim9', '29:30', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (9, 4, 1, 'W'), (9, 7, 2, 'W'), (9, 15, 3, 'W'), (9, 5, 4, 'W'), (9, 17, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(9, 7, 'Some comms but weak', 3, 2, 3, 2),
+(9, 4, 'Top laner average', 3, 3, 3, 2),
+(9, 15, 'Mid laner strong', 4, 4, 4, 2),
+(9, 5, 'ADC weak', 2, 2, 2, 2),
+(9, 17, 'Support strong', 4, 5, 4, 2);
+
+-- Scrim 10
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (10, 'Viridis Arcus vs. Defenders', '2026-03-04', 'https://www.youtube.com/watch?v=scrim10', '28:55', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (10, 13, 1, 'L'), (10, 7, 2, 'L'), (10, 3, 3, 'L'), (10, 16, 4, 'L'), (10, 6, 5, 'L');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(10, 7, 'Silent again', 2, 1, 2, 2),
+(10, 13, 'Top laner vocal', 4, 4, 4, 2),
+(10, 3, 'Mid laner average', 3, 3, 3, 2),
+(10, 16, 'ADC strong', 4, 5, 4, 2),
+(10, 6, 'Support weak', 2, 2, 2, 2);
+
+
+
+
+
+-- Scrim 11 (The Blueprint game 1)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (11, 'Scrim 11', '2026-03-10', 'https://youtu.be/scrim11', '31:40', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (11, 4, 1, 'W'), (11, 14, 2, 'W'), (11, 3, 3, 'W'), (11, 5, 4, 'W'), (11, 6, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES (11, 14, 'Solid comms, clear calls', 3, 3, 3, 2);
+
+-- Scrim 12 (The Blueprint game 2)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (12, 'Scrim 12', '2026-03-11', 'https://youtu.be/scrim12', '30:20', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (12, 4, 1, 'L'), (12, 14, 2, 'L'), (12, 3, 3, 'L'), (12, 5, 4, 'L'), (12, 6, 5, 'L');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES (12, 14, 'Good communication, steady shotcalling', 3, 4, 3, 2);
+
+-- Scrim 13 (The Blueprint game 3)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (13, 'Scrim 13', '2026-03-12', 'https://youtu.be/scrim13', '29:50', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (13, 4, 1, 'W'), (13, 14, 2, 'W'), (13, 3, 3, 'W'), (13, 5, 4, 'W'), (13, 6, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES (13, 14, 'Communicated rotations well', 3, 3, 3, 2);
+
+-- Scrim 14 (The Blueprint game 4)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (14, 'Scrim 14', '2026-03-13', 'https://youtu.be/scrim14', '32:05', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (14, 4, 1, 'L'), (14, 14, 2, 'L'), (14, 3, 3, 'L'), (14, 5, 4, 'L'), (14, 6, 5, 'L');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES (14, 14, 'Strong comms, decisive calls', 4, 4, 3, 2);
+
+-- Scrim 15 (The Blueprint game 5)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (15, 'Scrim 15', '2026-03-14', 'https://youtu.be/scrim15', '30:40', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (15, 4, 1, 'W'), (15, 14, 2, 'W'), (15, 3, 3, 'W'), (15, 5, 4, 'W'), (15, 6, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES (15, 14, 'Clear communication, good synergy', 3, 3, 3, 2);
+
+-- Scrim 16 (The Blueprint game 6)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (16, 'Scrim 16', '2026-03-15', 'https://youtu.be/scrim16', '31:15', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (16, 4, 1, 'L'), (16, 14, 2, 'L'), (16, 3, 3, 'L'), (16, 5, 4, 'L'), (16, 6, 5, 'L');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES (16, 14, 'Good comms, steady', 3, 4, 3, 2);
+
+-- Scrim 17 (The Blueprint game 7)
+INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
+VALUES (17, 'Scrim 17', '2026-03-16', 'https://youtu.be/scrim17', '29:35', 'evaluated');
+
+INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
+VALUES (17, 4, 1, 'W'), (17, 14, 2, 'W'), (17, 3, 3, 'W'), (17, 5, 4, 'W'), (17, 6, 5, 'W');
+
+INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES (17, 14, 'Strong comms, very vocal', 4, 4, 3, 2);
+
 
 -- -----------------------------------------------------
 -- TOURNAMENTS
