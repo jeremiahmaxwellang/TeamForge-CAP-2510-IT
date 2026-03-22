@@ -4,7 +4,7 @@
  */
 document.addEventListener("DOMContentLoaded", async function () {
 
-  const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests';
+  const RANK_ICON_BASE_URL = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/';
 
   // function to extract rank tier from rank string (e.g. "Gold IV" -> "gold")
   const validRankTiers = new Set([
@@ -32,8 +32,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Maps rank string to corresponding icon URL
   function getRankIconUrl(rankValue) {
     const tier = getRankTier(rankValue);
-    const filename = tier === 'emerald' ? 'emerald_tft.svg' : `${tier}.png`;
-    return `${RANK_ICON_BASE_URL}/${filename}`;
+    return `${RANK_ICON_BASE_URL}${tier}.png`;
   }
 
   // State Management
