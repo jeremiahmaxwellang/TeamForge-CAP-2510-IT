@@ -1,10 +1,11 @@
 (function () {
 	const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
-	const FILTER_ROLES = ['All', ...ROLE_ORDER];
+	const FILTER_ROLES = ['Candidates', 'All', ...ROLE_ORDER];
 	const RESULT_FILTERS = ['All', 'W', 'L', 'N/A'];
 
 	const state = {
 		players: [],
+		favoriteCandidateIds: new Set(),
 		tournaments: [],
 		roleById: {},
 		filter: 'All',
@@ -253,6 +254,10 @@
 		playersGrid.innerHTML = '';
 
 		const filtered = state.players.filter((player) => {
+			if (state.filter === 'Candidates') {
+				return state.favoriteCandidateIds.has(player.userId);
+			}
+
 			if (state.filter === 'All') return true;
 			return player.primaryRole === state.filter || player.secondaryRole === state.filter;
 		});
@@ -283,6 +288,25 @@
 
 			playersGrid.appendChild(card);
 		});
+	};
+
+	const loadFavoriteCandidates = async () => {
+		const response = await fetch('/player_analysis/candidate-favorites');
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(data.error || 'Failed to load candidates');
+		}
+
+		const favoriteIds = new Set();
+		(data.favorites || []).forEach((favorite) => {
+			const parsedId = Number.parseInt(favorite.userId, 10);
+			if (Number.isInteger(parsedId)) {
+				favoriteIds.add(parsedId);
+			}
+		});
+
+		state.favoriteCandidateIds = favoriteIds;
 	};
 
 	const renderResultFilters = () => {
@@ -643,6 +667,7 @@
 		try {
 			renderResultFilters();
 			await loadPlayers();
+			await loadFavoriteCandidates();
 			await loadTournaments();
 		} catch (error) {
 			console.error(error);

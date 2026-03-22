@@ -182,6 +182,12 @@ router.post('/login', async (req, res) => {
         if (rows.length > 0) {
             const user = rows[0];
 
+            // Block deactivated accounts from logging in
+            if (user.status === 'Deactivated') {
+                clearAuthCookies(res);
+                return res.status(403).send('Your account has been deactivated. Please contact the team manager.');
+            }
+
             // Check if first login
             if (user.firstLogin) {
                 setAuthCookies(res, user);

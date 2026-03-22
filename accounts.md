@@ -1,55 +1,58 @@
 TEAM MANAGER
 jeremiah_ang@dlsu.edu.ph
-1234
+teamForge123!!
 
 TEAM COACH
 charles_duelas@dlsu.edu.ph
-1234
+teamForge123!!
 
 ============== JUNGLE PLAYERS ==============
 
 JUNGLER
 5starprod@gmail.com
-1234
+teamForge123!!
 
 JUNGLER
 mushimiko@gmail.com
-1234
+teamForge123!!
 
 JUNGLER SUB
 lancr1226@gmail.com
-1234
+teamForge123!!
 
 ============== TOP & MID PLAYERS ==============
 
 TOP Laner
 haimehen@gmail.com
-1234
+teamForge123!!
 
 MID Laner
 tartaros@gmail.com
-1234
+teamForge123!!
 
 ============== BOT PLAYERS ==============
 
 ADC
 kalachuchi@gmail.com
-1234
+teamForge123!!
 
 SUPPORT
 vacrowned@gmail.com
-1234
+teamForge123!!
 
 SUPPORT
 maria_santos@gmail.com
-1234
+teamForge123!!
 
 ============== APPLICANTS ==============
 trebis_detablan@dlsu.edu.ph
-hashed_password_1
+teamForge123!!
 
 justin_nicolai_lee@dlsu.edu.ph
-hashed_password_2
+teamForge123!!
 
 jeremiahang2004@gmail.com
-hashed_password_2
+teamForge123!!
+
+============== DEFAULT PASSWORDS ==============
+teamForge123!!

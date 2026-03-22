@@ -175,6 +175,171 @@ exports.updatePuuid = async (req, res) => {
   }
 };
 
+// Get favorite candidates for a specific role (scoped to logged-in coach)
+exports.getCandidateFavoritesByRole = async (req, res) => {
+  try {
+    const userRole = req.cookies?.userRole;
+    const coachId = Number.parseInt(req.cookies?.userId, 10);
+    const roleId = Number.parseInt(req.params.roleId, 10);
+
+    if (userRole !== 'Team Coach') {
+      return res.status(403).json({ error: 'Only Team Coach can access candidate favorites.' });
+    }
+
+    if (!Number.isInteger(coachId)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!Number.isInteger(roleId)) {
+      return res.status(400).json({ error: 'roleId must be a valid integer' });
+    }
+
+    const sql = `
+      SELECT cf.candidateUserId AS userId, cf.roleId, cf.createdAt,
+             u.firstname, u.lastname
+      FROM candidateFavorites cf
+      JOIN users u ON u.userId = cf.candidateUserId
+      WHERE cf.coachId = ? AND cf.roleId = ?
+      ORDER BY cf.createdAt ASC
+    `;
+
+    const [rows] = await db.query(sql, [coachId, roleId]);
+
+    res.json({
+      roleId,
+      limit: 2,
+      count: rows.length,
+      favorites: rows
+    });
+  } catch (err) {
+    console.error('[CANDIDATE FAVORITES] Error fetching favorites:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get all favorite candidates for logged-in coach
+exports.getCandidateFavorites = async (req, res) => {
+  try {
+    const userRole = req.cookies?.userRole;
+    const coachId = Number.parseInt(req.cookies?.userId, 10);
+
+    if (userRole !== 'Team Coach') {
+      return res.status(403).json({ error: 'Only Team Coach can access candidates.' });
+    }
+
+    if (!Number.isInteger(coachId)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const [rows] = await db.query(
+      `SELECT cf.candidateUserId AS userId, cf.roleId, cf.createdAt,
+              u.firstname, u.lastname
+       FROM candidateFavorites cf
+       JOIN users u ON u.userId = cf.candidateUserId
+       WHERE cf.coachId = ?
+       ORDER BY cf.createdAt ASC`,
+      [coachId]
+    );
+
+    res.json({
+      limitPerRole: 2,
+      count: rows.length,
+      favorites: rows
+    });
+  } catch (err) {
+    console.error('[CANDIDATE FAVORITES] Error fetching all favorites:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Toggle candidate favorite for a role (max 2 favorites per role, per coach)
+exports.toggleCandidateFavorite = async (req, res) => {
+  try {
+    const userRole = req.cookies?.userRole;
+    const coachId = Number.parseInt(req.cookies?.userId, 10);
+    const candidateUserId = Number.parseInt(req.body?.candidateUserId, 10);
+    const roleId = Number.parseInt(req.body?.roleId, 10);
+
+    if (userRole !== 'Team Coach') {
+      return res.status(403).json({ error: 'Only Team Coach can update candidates.' });
+    }
+
+    if (!Number.isInteger(coachId)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!Number.isInteger(candidateUserId) || !Number.isInteger(roleId)) {
+      return res.status(400).json({ error: 'candidateUserId and roleId must be valid integers' });
+    }
+
+    const [existing] = await db.query(
+      `SELECT candidateUserId
+       FROM candidateFavorites
+       WHERE coachId = ? AND candidateUserId = ? AND roleId = ?
+       LIMIT 1`,
+      [coachId, candidateUserId, roleId]
+    );
+
+    if (existing.length > 0) {
+      await db.query(
+        `DELETE FROM candidateFavorites
+         WHERE coachId = ? AND candidateUserId = ? AND roleId = ?`,
+        [coachId, candidateUserId, roleId]
+      );
+
+      const [countRows] = await db.query(
+        `SELECT COUNT(*) AS count
+         FROM candidateFavorites
+         WHERE coachId = ? AND roleId = ?`,
+        [coachId, roleId]
+      );
+
+      return res.json({
+        success: true,
+        action: 'removed',
+        roleId,
+        count: Number(countRows[0].count) || 0,
+        limit: 2
+      });
+    }
+
+    const [countRows] = await db.query(
+      `SELECT COUNT(*) AS count
+       FROM candidateFavorites
+       WHERE coachId = ? AND roleId = ?`,
+      [coachId, roleId]
+    );
+
+    const currentCount = Number(countRows[0].count) || 0;
+    if (currentCount >= 2) {
+      return res.status(409).json({
+        success: false,
+        error: 'Only 2 favorites are allowed for this role.',
+        roleId,
+        count: currentCount,
+        limit: 2
+      });
+    }
+
+    await db.query(
+      `INSERT INTO candidateFavorites (coachId, candidateUserId, roleId, createdAt)
+       VALUES (?, ?, ?, NOW())`,
+      [coachId, candidateUserId, roleId]
+    );
+
+    res.json({
+      success: true,
+      action: 'added',
+      roleId,
+      count: currentCount + 1,
+      limit: 2
+    });
+  } catch (err) {
+    console.error('[CANDIDATE FAVORITES] Error toggling favorite:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 /**
  * Store a player statistic into playerStatistics table.
  * Expects body: { userId, roleId, metricId, metricValue }

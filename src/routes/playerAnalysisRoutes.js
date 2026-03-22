@@ -16,7 +16,7 @@ const scrimsController          = require('../controllers/player_analysis/scrims
 // GET all players
 router.get('/players', playerController.getAllPlayers);
 
-// GET /players/:id [fetch player by ID]
+// GET /player_analysis/players/:id [fetch player by ID]
 router.get('/players/:id', playerController.getPlayerById);
 
 // Update puuid
@@ -121,6 +121,11 @@ router.post('/stats/store', playerController.storePlayerStatistic);
 
 // Compare stored stats (from playerStatistics table) to benchmarks
 router.get('/stats/stored-comparison', playerController.getStoredStatsComparison);
+
+// Candidate favorites (max 2 per role, per coach)
+router.get('/candidate-favorites', playerController.getCandidateFavorites);
+router.get('/candidate-favorites/:roleId', playerController.getCandidateFavoritesByRole);
+router.post('/candidate-favorites/toggle', playerController.toggleCandidateFavorite);
 
 
 // ============ HTML ROUTES ============

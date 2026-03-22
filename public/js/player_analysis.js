@@ -9,6 +9,187 @@ document.addEventListener('DOMContentLoaded', function() {
     const evaluationButton = document.getElementById('evaluationButton');
     const overlayContainer = document.getElementById('overlay-container');
     const tabButtons = [overviewButton, comparisonButton, vodsButton, championButton, evaluationButton];
+    const favoriteBtn = document.getElementById('candidateFavoriteBtn');
+    const favoriteMessage = document.getElementById('candidateFavoriteMessage');
+    const candidateFavoriteWrap = document.querySelector('.candidate-favorite-wrap');
+    let candidateControlsEnabled = false;
+    let favoriteRequestInFlight = false;
+
+    async function initializeCandidateControlsVisibility() {
+        if (!candidateFavoriteWrap) return;
+
+        try {
+            const response = await fetch('/api/user/profile');
+            const payload = await response.json();
+
+            if (!response.ok) {
+                candidateFavoriteWrap.style.display = 'none';
+                candidateControlsEnabled = false;
+                return;
+            }
+
+            const role = String(payload.role || payload.position || '').trim();
+            if (role === 'Team Coach') {
+                candidateFavoriteWrap.style.display = '';
+                candidateControlsEnabled = true;
+                await updateFavoriteButtonState();
+                return;
+            }
+
+            candidateFavoriteWrap.style.display = 'none';
+            candidateControlsEnabled = false;
+        } catch (err) {
+            console.error('[CANDIDATE FAVORITES] Failed to resolve current user role:', err);
+            candidateFavoriteWrap.style.display = 'none';
+            candidateControlsEnabled = false;
+        }
+    }
+
+    function getSelectedPlayerMeta() {
+        const selectedBtn = document.getElementById('player-dropdown-btn');
+        if (!selectedBtn) return null;
+
+        const userId = Number.parseInt(selectedBtn.getAttribute('data-player-id'), 10);
+        const primaryRole = (selectedBtn.getAttribute('data-primary-role-name') || '').trim();
+        const primaryRoleId = Number.parseInt(selectedBtn.getAttribute('data-primary-role-id'), 10);
+
+        if (!Number.isInteger(userId) || !primaryRole || !Number.isInteger(primaryRoleId)) {
+            return null;
+        }
+
+        return {
+            userId,
+            primaryRoleId,
+            primaryRole,
+            name: selectedBtn.textContent ? selectedBtn.textContent.trim() : `Player ${userId}`
+        };
+    }
+
+    async function fetchRoleFavorites(roleId) {
+        const response = await fetch(`/player_analysis/candidate-favorites/${roleId}`);
+        const payload = await response.json();
+
+        if (!response.ok) {
+            throw new Error(payload.error || 'Failed to fetch candidate favorites');
+        }
+
+        return payload;
+    }
+
+    async function updateFavoriteButtonState() {
+        if (!favoriteBtn || !favoriteMessage || !candidateControlsEnabled) return;
+
+        const selected = getSelectedPlayerMeta();
+        if (!selected) {
+            favoriteBtn.textContent = '☆';
+            favoriteBtn.setAttribute('aria-pressed', 'false');
+            favoriteBtn.style.color = '#6b7280';
+            favoriteBtn.style.borderColor = '#d3d6dc';
+            favoriteBtn.disabled = true;
+            favoriteBtn.style.opacity = '0.65';
+            favoriteBtn.style.cursor = 'not-allowed';
+            favoriteMessage.textContent = 'Select a player to mark as a candidate.';
+            favoriteMessage.style.color = '#5f6673';
+            return;
+        }
+
+        try {
+            const favoritesPayload = await fetchRoleFavorites(selected.primaryRoleId);
+            const roleFavorites = Array.isArray(favoritesPayload.favorites) ? favoritesPayload.favorites : [];
+            const isFavorite = roleFavorites.some((entry) => Number(entry.userId) === selected.userId);
+        const limitReached = roleFavorites.length >= 2;
+
+        favoriteBtn.textContent = isFavorite ? '★' : '☆';
+        favoriteBtn.setAttribute('aria-pressed', String(isFavorite));
+        favoriteBtn.style.color = isFavorite ? '#f59e0b' : '#6b7280';
+        favoriteBtn.style.borderColor = isFavorite ? '#f59e0b' : '#d3d6dc';
+        favoriteBtn.disabled = favoriteRequestInFlight || (!isFavorite && limitReached);
+        favoriteBtn.style.opacity = favoriteBtn.disabled ? '0.65' : '1';
+        favoriteBtn.style.cursor = favoriteBtn.disabled ? 'not-allowed' : 'pointer';
+
+        if (!isFavorite && limitReached) {
+            favoriteMessage.textContent = `${selected.primaryRole}: 2/2 candidates selected. Remove one to add another candidate.`;
+            favoriteMessage.style.color = '#b45309';
+            return;
+        }
+
+        favoriteMessage.style.color = '#5f6673';
+        favoriteMessage.textContent = `${selected.primaryRole}: ${roleFavorites.length}/2 candidates selected.`;
+        } catch (err) {
+            console.error('[CANDIDATE FAVORITES] Failed to update favorite button state:', err);
+            favoriteBtn.textContent = '☆';
+            favoriteBtn.setAttribute('aria-pressed', 'false');
+            favoriteBtn.style.color = '#6b7280';
+            favoriteBtn.style.borderColor = '#d3d6dc';
+            favoriteBtn.disabled = true;
+            favoriteBtn.style.opacity = '0.65';
+            favoriteBtn.style.cursor = 'not-allowed';
+            favoriteMessage.style.color = '#b91c1c';
+            favoriteMessage.textContent = 'Unable to load candidate favorites right now.';
+        }
+    }
+
+    async function toggleCandidateFavorite() {
+        if (!candidateControlsEnabled) {
+            return;
+        }
+
+        const selected = getSelectedPlayerMeta();
+        if (!selected) {
+            alert('Please select a player first.');
+            return;
+        }
+
+        if (favoriteRequestInFlight) {
+            return;
+        }
+
+        favoriteRequestInFlight = true;
+        favoriteBtn.disabled = true;
+        favoriteBtn.style.opacity = '0.65';
+        favoriteBtn.style.cursor = 'not-allowed';
+
+        try {
+            const response = await fetch('/player_analysis/candidate-favorites/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    candidateUserId: selected.userId,
+                    roleId: selected.primaryRoleId
+                })
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 409) {
+                    favoriteMessage.style.color = '#b45309';
+                    favoriteMessage.textContent = `${selected.primaryRole}: 2/2 candidates selected. Remove one to add another candidate.`;
+                    return;
+                }
+                throw new Error(payload.error || 'Failed to update candidate.');
+            }
+        } catch (err) {
+            console.error('[CANDIDATE FAVORITES] Failed to toggle candidate favorite:', err);
+            favoriteMessage.style.color = '#b91c1c';
+            favoriteMessage.textContent = 'Unable to update candidate favorite right now.';
+            return;
+        } finally {
+            favoriteRequestInFlight = false;
+        }
+
+        await updateFavoriteButtonState();
+    }
+
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', toggleCandidateFavorite);
+    }
+
+    document.addEventListener('playeranalysis:player-changed', () => {
+        if (!candidateControlsEnabled) return;
+        updateFavoriteButtonState();
+    });
+    initializeCandidateControlsVisibility();
 
     function closeOverlay() {
         const overlay = overlayContainer.querySelector('.overlay');

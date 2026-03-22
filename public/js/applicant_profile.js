@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     studentGpa: document.getElementById('student-gpa'),
     studentCgpa: document.getElementById('student-cgpa'),
 
+    timerInfo: document.getElementById('timerInfo'),
     winrate: document.getElementById('stat-winrate'),
     kda: document.getElementById('stat-kda'),
     topChamps: document.getElementById('top-champs-container'),
@@ -81,8 +82,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   await init();
 
+  // Initialize profile page
   async function init() {
     console.log("[APPLICANT] Initializing Profile...");
+    UI.timerInfo.textContent = 'Ready to fetch recent matches.';
 
     // 1. Fetch Applicants
     try {
@@ -128,6 +131,119 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     setupEventListeners();
+  }
+
+
+  // ==========================================
+  // DISPLAY MATCH STATISTICS HELPERS
+  // ==========================================
+
+  async function displayMatchStats(userId, roleId) {
+    UI.winrate.textContent = "Loading...";
+    UI.kda.textContent = "Loading...";
+    if (UI.topChamps) UI.topChamps.innerHTML = "<span>Loading...</span>";
+
+    try {
+      const target = state.comparisonTarget || 'benchmark';
+
+      const fetches = [
+        fetch('/player_analysis/stats/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: userId, roleId: roleId || 1 })
+        }).catch(() => null),
+
+        fetch(`/player_analysis/benchmarks/role/${roleId || 1}`).catch(() => null)
+      ];
+
+      if (target !== 'benchmark') {
+        fetches.push(
+          fetch('/player_analysis/stats/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId: target, roleId: roleId || 1 })
+          }).catch(() => null)
+        );
+      }
+
+      const responses = await Promise.all(fetches);
+      const data = responses[0] ? await responses[0].json() : null;
+      const benchData = responses[1] ? await responses[1].json() : null;
+      const targetData = responses[2] ? await responses[2].json() : null;
+
+      const pStats = data?.playerStats ?? null;
+      const benchmarks = Array.isArray(benchData)
+        ? benchData
+        : (benchData?.benchmarks ?? []);
+
+      if (data?.success && pStats) {
+        UI.winrate.textContent = `${pStats.winrate ?? '--'}% WR`;
+        UI.kda.textContent = `${pStats.KDA ?? pStats.kda ?? '--'} KDA`;
+
+        if (pStats.topChampions?.length > 0) {
+          UI.topChamps.innerHTML = pStats.topChampions
+            .map(c => `<span style="background:#444; padding:3px 10px; border-radius:6px;">${c}</span>`)
+            .join('');
+        } else {
+          UI.topChamps.innerHTML = "<span>No Champ Data</span>";
+        }
+
+        let p2Stats = null;
+        let p2Name = "Expected Stats";
+        let p2Role = "Coach";
+        let isBenchmark = true;
+
+        if (target !== 'benchmark') {
+          p2Stats = targetData?.playerStats ?? null;
+          isBenchmark = false;
+
+          const allPlayers = [...state.allApplicants, ...state.rosterPlayers];
+          const targetApp = allPlayers.find(a => (a.userId || a.id) == target);
+
+          p2Name = targetApp
+            ? (targetApp.gameName ? `${targetApp.gameName}#${targetApp.tagLine}` : "Player")
+            : "Other Player";
+          p2Role = `Compared as ${getRoleName(roleId || 1)}`;
+        } else {
+          p2Stats = benchmarks;
+          p2Role = `Expected ${getRoleName(roleId || 1)}`;
+        }
+
+        drawComparisonChart(pStats, p2Stats, benchmarks, isBenchmark);
+        drawStatsTable(pStats, p2Stats, benchmarks, roleId, isBenchmark, p2Name, p2Role);
+
+      } else {
+        throw new Error("No match data returned.");
+      }
+
+    } catch (e) {
+      console.warn("[APPLICANT] Stats fallback:", e);
+      UI.winrate.textContent = "--% WR";
+      UI.kda.textContent = "-- KDA";
+      if (UI.topChamps) UI.topChamps.innerHTML = "<span>No Data</span>";
+      if (UI.chartContainer) UI.chartContainer.innerHTML =
+        "<div style='text-align:center;padding:40px;color:#888;'>No recent match data available for this role.</div>";
+      if (UI.statsContainer) UI.statsContainer.innerHTML = "";
+    }
+  }
+
+  async function fetchWinrate(puuid) {
+    try {
+      const response = await fetch(`/riot/winrate/${puuid}`);
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+      const data = await response.json();
+      console.log('[WINRATE]', data);
+
+      // Update UI
+      UI.winrate.textContent = `${data.winrate}% WR`;
+      return data.winrate;
+
+    } catch (err) {
+      console.error('[WINRATE] Failed to fetch winrate:', err);
+      UI.winrate.textContent = '--% WR';
+    }
   }
 
   // ==========================================
@@ -209,6 +325,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         btnSecondary.style.opacity = '1';
         btnSecondary.style.cursor = 'pointer';
       }
+
+      // Display Match Statistics from DB
+      displayMatchStats(applicant.userId, state.selectedRoleId);
     }
 
     populateComparisonDropdown(); // ADDED: Refresh dropdown to exclude the current applicant
@@ -528,11 +647,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     UI.btnPrev.addEventListener('click', () => loadProfile(state.currentIndex > 0 ? state.currentIndex - 1 : state.allApplicants.length - 1));
     UI.btnNext.addEventListener('click', () => loadProfile(state.currentIndex < state.allApplicants.length - 1 ? state.currentIndex + 1 : 0));
 
-    // =============== Fetch Match Statistics ===============
+    // ==========================================
+    // FETCH AND STORE MATCH STATISTICS
+    // ==========================================
 
     document.getElementById('fetchMatchStatsBtn').onclick = clickMatchStatsButton;
 
     async function clickMatchStatsButton() {
+      UI.timerInfo.textContent = 'Fetching matches...';
       const gameName = state.currentApplicant.gameName;
       const tagLine = state.currentApplicant.tagLine;
       let puuidString = ""
@@ -545,11 +667,16 @@ document.addEventListener("DOMContentLoaded", async function () {
         puuidString = data.puuid;
 
         const userId = parseInt(state.currentApplicant.userId, 10);
+        const roleId = parseInt(state.selectedRoleId, 10);
         console.log(`player number ${userId}, puuid: ${puuidString}`);
 
-        updatePuuid(userId, puuidString);
+        await updatePuuid(userId, puuidString);
 
-        fetchMatchIds(puuidString);
+        await fetchMatchIds(puuidString);
+
+        // Display stats
+        await displayMatchStats(userId, roleId);
+        UI.timerInfo.textContent = 'Matches fetched.';
       } catch (err) {
         console.error("Error fetching PUUID:", err);
       }
@@ -580,36 +707,65 @@ document.addEventListener("DOMContentLoaded", async function () {
      * Helper Functions: fetchMatchDetails} puuid 
      */
     async function fetchMatchIds(puuid) {
-      const queueId = 420; // Possible CAP2: 440 for Ranked Flex
+      const queueId = 420;
 
       try {
         const response = await fetch(`/riot/matches/${puuid}/${queueId}`);
         const data = await response.json();
+        const matchIds = data.matches;
 
-        // Extract the array of match IDs
-        const matches = data.matches;
+        const userId = parseInt(state.currentApplicant.userId, 10);
 
-        // Kick off all fetches at once
-        const detailPromises = matches.map(matchId => {
+        // Step 1: Fetch ALL match details first
+        const detailPromises = matchIds.map(async matchId => {
           console.log(`Fetching details for matchId: ${matchId}`);
-          fetchMatchDetails(matchId);
-
+          const matchData = await fetchMatchDetails(matchId);
+          return { matchId, matchData };
         });
 
-        // Fetch and upload Match Participants to DB
-        const participantPromises = uploadMatchParticipants(matches);
+        const matchesWithData = await Promise.all(detailPromises);
+        const validMatches = matchesWithData.filter(({ matchData }) => matchData != null);
 
-        // Wait for all to finish
-        const allDetails = await Promise.all(detailPromises, participantPromises);
+        // Step 2: Save matches to DB FIRST and WAIT for it fully
+        // Pass full matchData objects, not just IDs
+        await saveMatches(userId, validMatches.map(({ matchData }) => matchData));
+        console.log(`[SAVE MATCHES] ✓ Matches inserted, now uploading participants...`);
 
-        console.log("All match details:", allDetails);
+        // Step 3: Only THEN upload participants
+        await uploadMatchParticipants(validMatches);
+
+        console.log("All match details fetched and participants uploaded.");
       } catch (err) {
-        console.error("Error:", err);
+        console.error("Error in fetchMatchIds:", err);
       }
     }
 
-    // 3. TODO: Store multiple matches
-    // `/matches/:userId/store-multiple`
+    /**
+     * 3. Store multiple matches
+     * @param {*} userId 
+     * @param {*} matches 
+     */
+    async function saveMatches(userId, matches) {
+      try {
+        const response = await fetch(`/riot/matches/${userId}/store-multiple`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matches }) // must be array of full matchData objects
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(`Server error ${response.status}: ${JSON.stringify(err)}`);
+        }
+
+        const result = await response.json();
+        console.log(`[SAVE MATCHES] Result:`, result);
+        return result;
+      } catch (err) {
+        console.error('[SAVE MATCHES] Failed:', err);
+        throw err; // re-throw so fetchMatchIds catches it and stops before participants
+      }
+    }
 
     // 4. Fetch Match Details from Riot
     async function fetchMatchDetails(matchId) {
@@ -622,26 +778,26 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // 5. TODO: Save Match Details in DB
-    async function saveMatchDetails() {
-      const userId = parseInt(state.currentApplicant.userId, 10);
+    // UNUSED FUNCTION: Save Match Details in DB - Aleady done by saveMatches()
+    // async function saveMatchDetails() {
+    //   const userId = parseInt(state.currentApplicant.userId, 10);
 
-      try {
-        const response = await fetch(`/match/${userId}/store`);
-        const data = await response.json();
+    //   try {
+    //     const response = await fetch(`/match/${userId}/store`);
+    //     const data = await response.json();
 
-      } catch (err) {
-        console.error("Error:", err);
-      }
-    }
+    //   } catch (err) {
+    //     console.error("Error:", err);
+    //   }
+    // }
 
     /**
-     * 6. TODO: Fetch Match Statistics
+     * 5. Fetch and Store Match Statistics
      * @param {*} matches - array of matchIds
      */
     async function uploadMatchParticipants(matches) {
-      console.log(`uploadMatchParticipants(${matches})`);
-      
+      // console.log(`uploadMatchParticipants(${matches})`);
+
       try {
         const response = await fetch('/riot/participants/batch', {
           method: 'POST',
@@ -660,7 +816,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.error('Error uploading participants:', err);
       }
     }
-
 
 
 

@@ -334,6 +334,27 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `teamforgedb`.`academicRequirements`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`academicRequirements` (
+  `requirementId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `metricKey` VARCHAR(20) NOT NULL,
+  `comparator` ENUM('>', '<', '>=', '<=') NOT NULL,
+  `threshold` DECIMAL(4,2) NOT NULL,
+  `updatedBy` INT UNSIGNED NULL,
+  `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`requirementId`),
+  UNIQUE INDEX `uq_academicRequirements_metricKey` (`metricKey` ASC) VISIBLE,
+  INDEX `fk_academicRequirements_users1_idx` (`updatedBy` ASC) VISIBLE,
+  CONSTRAINT `fk_academicRequirements_users1`
+    FOREIGN KEY (`updatedBy`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `teamforgedb`.`teamDetails`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`teamDetails` (
@@ -382,6 +403,36 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`playerStatistics` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_playerStatistics_leagueRoles1`
+    FOREIGN KEY (`roleId`)
+    REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`candidateFavorites`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`candidateFavorites` (
+  `favoriteId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `coachId` INT UNSIGNED NOT NULL,
+  `candidateUserId` INT UNSIGNED NOT NULL,
+  `roleId` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`favoriteId`),
+  UNIQUE INDEX `uq_candidateFavorites_coach_candidate_role` (`coachId` ASC, `candidateUserId` ASC, `roleId` ASC) VISIBLE,
+  INDEX `idx_candidateFavorites_coach_role` (`coachId` ASC, `roleId` ASC) VISIBLE,
+  CONSTRAINT `fk_candidateFavorites_users1`
+    FOREIGN KEY (`coachId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_candidateFavorites_players1`
+    FOREIGN KEY (`candidateUserId`)
+    REFERENCES `teamforgedb`.`players` (`userId`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_candidateFavorites_leagueRoles1`
     FOREIGN KEY (`roleId`)
     REFERENCES `teamforgedb`.`leagueRoles` (`roleId`)
     ON DELETE NO ACTION
