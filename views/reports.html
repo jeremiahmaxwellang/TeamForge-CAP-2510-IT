@@ -48,25 +48,67 @@
         <div class="reports-shell">
           <h1 class="page-title">Reports</h1>
 
-          <section class="card tournament-report-card">
-            <div class="card-title">Tournament Results Report</div>
-            <div class="tournament-report-controls">
-              <label for="tournamentStartDate">Start Date</label>
-              <input type="date" id="tournamentStartDate" />
-              <label for="tournamentEndDate">End Date</label>
-              <input type="date" id="tournamentEndDate" />
-              <button type="button" id="applyTournamentRange">Apply</button>
-              <button type="button" id="resetTournamentRange" class="secondary">Reset</button>
+          <div class="reports-top-row">
+            <section class="card tournament-report-card">
+              <div class="card-title">Tournament Results Report</div>
+              <div class="tournament-report-controls">
+                <label for="tournamentStartDate">Start Date</label>
+                <input type="date" id="tournamentStartDate" />
+                <label for="tournamentEndDate">End Date</label>
+                <input type="date" id="tournamentEndDate" />
+                <button type="button" id="applyTournamentRange">Apply</button>
+                <button type="button" id="resetTournamentRange" class="secondary">Reset</button>
+              </div>
+
+              <div class="tournament-report-body">
+                <div class="chart-wrap">
+                  <canvas id="tournamentResultChart"></canvas>
+                  <div class="legend" id="tournament-result-legend"></div>
+                </div>
+                <p id="tournamentRangeSummary">Showing all tournaments.</p>
+              </div>
+            </section>
+
+            <section class="card compact-pie-card">
+              <div class="card-title">Percentage by Role</div>
+              <div class="chart-wrap">
+                <canvas id="roleChart"></canvas>
+                <div class="legend" id="role-legend"></div>
+              </div>
+            </section>
+
+            <section class="card compact-pie-card">
+              <div class="card-title" id="status-report-label">Percentage of Accepted Applicants</div>
+              <div class="chart-wrap">
+                <canvas id="acceptChart"></canvas>
+                <div class="legend" id="status-legend"></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="reports-priority-row">
+            <div class="card">
+              <div class="card-title">Number of Applications</div>
+              <table class="apps-table" id="applications-table">
+                <thead>
+                  <tr>
+                    <th>Recruitment Period</th>
+                    <th>No. of Applicants</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="2" style="text-align:center;">None found</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            <div class="tournament-report-body">
-              <div class="chart-wrap">
-                <canvas id="tournamentResultChart"></canvas>
-                <div class="legend" id="tournament-result-legend"></div>
-              </div>
-              <p id="tournamentRangeSummary">Showing all tournaments.</p>
+            <div class="rec-box">
+              <div class="card-title">Recommended Action</div>
+              <p>Prioritize recruiting Top, Mid, and AD Carry players for next semester.</p>
             </div>
-          </section>
+          </div>
 
           <div class="grid">
             <div class="card col-span-2">
@@ -101,14 +143,6 @@
                   </tr>
                 </tbody>
               </table>
-            </div>
-
-            <div class="card">
-              <div class="card-title">Percentage by Role</div>
-              <div class="chart-wrap">
-                <canvas id="roleChart"></canvas>
-                <div class="legend" id="role-legend"></div>
-              </div>
             </div>
 
             <div class="card col-span-2">
@@ -157,38 +191,6 @@
               </table>
             </div>
 
-            <div class="right-col">
-              <div class="card">
-                <div class="card-title" id="status-report-label">Percentage of Accepted Applicants</div>
-                <div class="chart-wrap">
-                  <canvas id="acceptChart"></canvas>
-                  <div class="legend" id="status-legend"></div>
-                </div>
-              </div>
-
-              <div class="card">
-                <div class="card-title">Number of Applications</div>
-                <table class="apps-table" id="applications-table">
-                  <thead>
-                    <tr>
-                      <th>Recruitment Period</th>
-                      <th>No. of Applicants</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colspan="2" style="text-align:center;">None found</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="rec-box">
-                <div class="card-title">Recommended Action</div>
-                <p>Prioritize recruiting Top, Mid, and AD Carry players for next semester.</p>
-              </div>
-            </div>
-
             <div class="card col-span-2">
               <div class="card-title">Applicants with the best communication</div>
               <table>
@@ -200,7 +202,7 @@
                     <th>Role Applied</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="best-communication-table-body">
                   <tr>
                     <td class="rank-num">1</td>
                     <td>Egresados</td>

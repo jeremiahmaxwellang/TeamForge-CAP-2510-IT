@@ -196,6 +196,58 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
 
+    fetch('/reports/best_communication_applicants')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.getElementById('best-communication-table-body');
+            if (!tbody) return;
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align:center;">No communication evaluations yet.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map((applicant, idx) => {
+                const comms = Number.parseFloat(applicant.communicationRating);
+                const roundedComms = Number.isFinite(comms)
+                    ? Math.max(1, Math.min(5, Math.round(comms)))
+                    : 0;
+                const applicantName = applicant.applicantName || 'Applicant';
+                const roleApplied = applicant.roleApplied || 'N/A';
+
+                const commsClass = roundedComms >= 1 && roundedComms <= 5
+                    ? `comms-${roundedComms}`
+                    : '';
+
+                const ratingHtml = commsClass
+                    ? `<span class="${commsClass}">${roundedComms}</span>`
+                    : `<span>${roundedComms}</span>`;
+
+                return `
+                    <tr>
+                        <td class="rank-num">${idx + 1}</td>
+                        <td>${applicantName}</td>
+                        <td>${ratingHtml}</td>
+                        <td>${roleApplied}</td>
+                    </tr>
+                `;
+            }).join('');
+        })
+        .catch(err => {
+            console.error('Error loading best communication applicants:', err);
+            const tbody = document.getElementById('best-communication-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center;">Failed to load communication report.</td>
+                </tr>
+            `;
+        });
+
     fetch('/reports/applicant_roles')
         .then(r => r.json())
         .then(data => {

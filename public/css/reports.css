@@ -143,6 +143,24 @@ h1.page-title {
 }
 
 .tournament-report-card {
+    margin-bottom: 0;
+}
+
+.reports-top-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.compact-pie-card {
+    min-height: 220px;
+}
+
+.reports-priority-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
     margin-bottom: 16px;
 }
 
@@ -289,22 +307,40 @@ tbody td {
     font-weight: 700;
 }
 
+.comms-1,
+.comms-2,
+.comms-3,
+.comms-4,
 .comms-5 {
-    background: #e8b84b;
-    color: #1a1a2e;
     font-weight: 700;
     padding: 4px 12px;
     border-radius: 4px;
     display: inline-block;
 }
 
-.comms-4 {
-    background: #fde68a;
+.comms-1 {
+    background: #b91c1c;
+    color: #fff;
+}
+
+.comms-2 {
+    background: #ea580c;
+    color: #fff;
+}
+
+.comms-3 {
+    background: #facc15;
     color: #1a1a2e;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 4px;
-    display: inline-block;
+}
+
+.comms-4 {
+    background: #84cc16;
+    color: #1a1a2e;
+}
+
+.comms-5 {
+    background: #16a34a;
+    color: #fff;
 }
 
 .chart-wrap {
@@ -372,6 +408,18 @@ tbody td {
     }
 
     .grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .reports-top-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .tournament-report-card {
+        grid-column: span 2;
+    }
+
+    .reports-priority-row {
         grid-template-columns: 1fr 1fr;
     }
 
@@ -446,6 +494,18 @@ tbody td {
     }
 
     .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .reports-top-row {
+        grid-template-columns: 1fr;
+    }
+
+    .tournament-report-card {
+        grid-column: span 1;
+    }
+
+    .reports-priority-row {
         grid-template-columns: 1fr;
     }
 

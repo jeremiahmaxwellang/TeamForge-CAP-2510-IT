@@ -195,3 +195,43 @@ exports.getBestPerformingApplicants = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+
+// Get applicants ranked by latest submitted communication rating from evaluations
+exports.getBestCommunicationApplicants = async (req, res) => {
+
+    try {
+
+        const [rows] = await db.query(
+            `SELECT
+                u.userId,
+                COALESCE(
+                    NULLIF(TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, ''))), ''),
+                    CONCAT(COALESCE(p.gameName, 'Applicant'), '#', COALESCE(p.tagLine, ''))
+                ) AS applicantName,
+                l.displayedRole AS roleApplied,
+                COALESCE(aeLatest.ratingCommunication, 0) AS communicationRating,
+                COALESCE(aeSummary.evaluationsCount, 0) AS evaluationsCount
+            FROM users u
+            JOIN players p ON p.userId = u.userId
+            JOIN leagueRoles l ON l.roleId = p.primaryRoleId
+            LEFT JOIN (
+                SELECT
+                    userId,
+                    MAX(evaluationId) AS latestEvaluationId,
+                    COUNT(*) AS evaluationsCount
+                FROM applicantEvaluations
+                WHERE ratingCommunication BETWEEN 1 AND 5
+                GROUP BY userId
+            ) aeSummary ON aeSummary.userId = u.userId
+            LEFT JOIN applicantEvaluations aeLatest ON aeLatest.evaluationId = aeSummary.latestEvaluationId
+            WHERE u.position = 'Applicant' OR aeSummary.latestEvaluationId IS NOT NULL
+            ORDER BY communicationRating DESC, evaluationsCount DESC, applicantName ASC;
+        `);
+
+        res.json(rows);
+
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}

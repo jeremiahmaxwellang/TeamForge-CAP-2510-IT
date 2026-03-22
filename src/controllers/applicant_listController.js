@@ -134,13 +134,41 @@ exports.saveEvaluation = async (req, res) => {
 
         await connection.beginTransaction();
 
-        // 1. Insert the ratings and notes into our new table
-        const insertEvalQuery = `
-            INSERT INTO applicantEvaluations 
-            (userId, coachId, comment, ratingGameSense, ratingCommunication, ratingChampionPool) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        await connection.query(insertEvalQuery, [userId, coachId, notes, gameSense, communication, champPool]);
+        // 1. Upsert coach evaluation for this applicant so future edits overwrite prior values
+        const [existingEvalRows] = await connection.query(
+            `SELECT evaluationId
+             FROM applicantEvaluations
+             WHERE userId = ? AND coachId = ?
+             ORDER BY evaluationId DESC
+             LIMIT 1`,
+            [userId, coachId]
+        );
+
+        if (existingEvalRows.length > 0) {
+            const updateEvalQuery = `
+                UPDATE applicantEvaluations
+                SET comment = ?,
+                    ratingGameSense = ?,
+                    ratingCommunication = ?,
+                    ratingChampionPool = ?,
+                    evaluatedAt = CURRENT_TIMESTAMP
+                WHERE evaluationId = ?
+            `;
+            await connection.query(updateEvalQuery, [
+                notes,
+                gameSense,
+                communication,
+                champPool,
+                existingEvalRows[0].evaluationId
+            ]);
+        } else {
+            const insertEvalQuery = `
+                INSERT INTO applicantEvaluations
+                (userId, coachId, comment, ratingGameSense, ratingCommunication, ratingChampionPool)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            await connection.query(insertEvalQuery, [userId, coachId, notes, gameSense, communication, champPool]);
+        }
 
         // DONE: USE APPLICATIONS TABLE FOR STATUS
         // 2. Update their final Accept/Reject status in the applications table
