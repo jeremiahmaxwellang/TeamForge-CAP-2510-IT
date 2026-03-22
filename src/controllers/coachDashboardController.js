@@ -78,99 +78,45 @@ exports.getDraft = async (req, res) => {
 // 4. Fetch Team Statistics (Last 15 Games Winrate)
 exports.getTeamStats = async (req, res) => {
     try {
-        // 1. Get all active players for the coach's team
-        const teamPlayersQuery = `
-            SELECT p.userId, p.puuid, p.teamId
+        // 1. Get all active players
+        const allPlayersQuery = `
+            SELECT p.userId, p.puuid
             FROM players p
             JOIN users u ON p.userId = u.userId
-            WHERE u.position = 'Player' AND u.status = 'Active' AND p.teamId IS NOT NULL
+            WHERE u.position = 'Player' AND u.status = 'Active'
         `;
-        const [teamPlayers] = await db.query(teamPlayersQuery);
-        if (!teamPlayers.length) {
+        const [allPlayers] = await db.query(allPlayersQuery);
+        if (!allPlayers.length) {
             return res.status(200).json({ success: true, winrate: 0, totalGames: 0, avgKDA: 0, scrimsThisMonth: 0 });
         }
-        const teamId = teamPlayers[0].teamId;
-        const puuidList = teamPlayers.map(p => `'${p.puuid}'`).join(",");
+        const puuidList = allPlayers.map(p => `'${p.puuid}'`).join(",");
 
-        // 2. Get last 15 matches where any team player participated (for winrate)
-        const recentMatchesQuery = `
-            SELECT mp.matchId, mp.win
-            FROM matchParticipants mp
-            WHERE mp.puuid IN (${puuidList})
-            ORDER BY mp.matchId DESC
-            LIMIT 150
-        `;
-        const [allTeamPlays] = await db.query(recentMatchesQuery);
-        // Group by matchId
-        const matchMap = {};
-        allTeamPlays.forEach(row => {
-            if (!matchMap[row.matchId]) matchMap[row.matchId] = [];
-            matchMap[row.matchId].push(row);
-        });
-        const recentGames = Object.values(matchMap).slice(0, 15);
+        // 2. Calculate average winrate for all players (last 15 matches per player)
+        let totalGames = 0;
+        let totalWins = 0;
+        let allKdaVals = [];
 
-        // Calculate winrate
-        let winrate = 0, totalGames = 0;
-        if (recentGames.length > 0) {
-            let matchWins = 0;
-            recentGames.forEach(gameArr => {
-                const winsArr = gameArr.map(g => g.win === 'True' || g.win === 'true' || g.win === '1' || g.win === 1 || g.win === true);
-                const winCount = winsArr.filter(Boolean).length;
-                const lossCount = winsArr.length - winCount;
-                if (winCount > lossCount) matchWins++;
-            });
-            winrate = ((matchWins / recentGames.length) * 100).toFixed(1);
-            totalGames = recentGames.length;
+        for (const player of allPlayers) {
+            // Get last 15 matches for this player
+            const playerMatchesQuery = `
+                SELECT win, kda
+                FROM matchParticipants
+                WHERE puuid = ?
+                ORDER BY matchId DESC
+                LIMIT 15
+            `;
+            const [matches] = await db.query(playerMatchesQuery, [player.puuid]);
+            totalGames += matches.length;
+            totalWins += matches.filter(m => m.win === 'W' || m.win === 'w').length;
+            // Collect KDA values
+            allKdaVals = allKdaVals.concat(matches.map(m => parseFloat(m.kda)).filter(kda => !isNaN(kda)));
         }
+        
+        const winrate = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+        console.log(`Total Games: ${totalGames}, Total Wins: ${totalWins}, Winrate: ${winrate.toFixed(2)}%`);
+        const avgKDA = allKdaVals.length > 0 ? (allKdaVals.reduce((a, b) => a + b, 0) / allKdaVals.length).toFixed(2) : 0;
 
-        // 3. Get last 15 matches for team KDA (separately, in case logic changes)
-        const recentKdaQuery = `
-            SELECT mp.kda
-            FROM matchParticipants mp
-            WHERE mp.puuid IN (${puuidList})
-            ORDER BY mp.matchId DESC
-            LIMIT 150
-        `;
-        const [allKdaPlays] = await db.query(recentKdaQuery);
-        // Group by matchId
-        const kdaMatchMap = {};
-        allKdaPlays.forEach(row => {
-            if (!kdaMatchMap[row.matchId]) kdaMatchMap[row.matchId] = [];
-            kdaMatchMap[row.matchId].push(row);
-        });
-        const recentKdaGames = Object.values(kdaMatchMap).slice(0, 15);
-
-        // Calculate average KDA
-        let avgKDA = 0;
-        let kdaVals = [];
-        if (recentKdaGames.length > 0) {
-            recentKdaGames.forEach(gameArr => {
-                const kdas = gameArr.map(g => parseFloat(g.kda)).filter(kda => !isNaN(kda));
-                kdaVals = kdaVals.concat(kdas);
-            });
-            avgKDA = kdaVals.length > 0 ? (kdaVals.reduce((a, b) => a + b, 0) / kdaVals.length).toFixed(2) : 0;
-        }
-
-        let winrate = 0, avgKDA = 0, totalGames = 0;
-        if (recentGames.length > 0) {
-            let matchWins = 0;
-            let kdaVals = [];
-            recentGames.forEach(g => {
-                // winList: comma-separated list of win values for team players in this match
-                const winsArr = g.winList.split(',').map(val => val === 'True' || val === 'true' || val === '1' || val === 1 || val === true);
-                const winCount = winsArr.filter(Boolean).length;
-                const lossCount = winsArr.length - winCount;
-                if (winCount > lossCount) matchWins++;
-                // kdaList: comma-separated list of kda values for team players in this match
-                const kdas = g.kdaList.split(',').map(val => parseFloat(val)).filter(kda => !isNaN(kda));
-                kdaVals = kdaVals.concat(kdas);
-            });
-            winrate = ((matchWins / recentGames.length) * 100).toFixed(1);
-            totalGames = recentGames.length;
-            avgKDA = kdaVals.length > 0 ? (kdaVals.reduce((a, b) => a + b, 0) / kdaVals.length).toFixed(2) : 0;
-        }
-
-        // 2. Get number of scrims played this month
+        // 3. Get number of scrims played this month (unchanged)
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');

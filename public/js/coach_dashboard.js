@@ -192,7 +192,7 @@ async function loadTeamStats() {
         const data = await res.json();
 
         if (data.success) {
-            const winrate = data.winrate || 0;
+            const winrate = parseFloat(data.winrate) || 0;
             const totalGames = data.totalGames || 0;
             const avgKDA = data.avgKDA || 0;
             const scrimsThisMonth = data.scrimsThisMonth || 0;
@@ -209,7 +209,7 @@ async function loadTeamStats() {
                         <div class="carousel-track" id="stats-track">
                             <div class="carousel-slide">
                                 <div class="carousel-winrate" style="--winrate-angle: ${degrees}deg; --ring-fill: #28b5ff; --ring-empty: #444;">
-                                    <div class="carousel-winrate-pct">${winrate}% WR</div>
+                                    <div class="carousel-winrate-pct">${winrate.toFixed(1)}% WR</div>
                                     <div class="carousel-winrate-sub">Last ${totalGames} Games</div>
                                 </div>
                             </div>
