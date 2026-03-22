@@ -3,10 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sidebarContainer = document.querySelector('.sidebar') || 
                              document.querySelector('.coach-sidebar') || 
                              document.querySelector('.manager-sidebar');
-                             
-    if (!sidebarContainer) return;
-
-    const scope = sidebarContainer.dataset.roleScope || '';
+    const scope = sidebarContainer ? (sidebarContainer.dataset.roleScope || '') : '';
 
     // Helper function to build a list item. It checks the current URL to highlight the active tab!
     const currentPath = window.location.pathname;
@@ -78,18 +75,61 @@ document.addEventListener("DOMContentLoaded", async () => {
         return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
     };
 
+    const getDashboardPathForRole = (role) => {
+        const normalizedRole = normalizeRole(role);
+
+        if (normalizedRole === 'Team Manager') {
+            return '/manager_dashboard.html';
+        }
+
+        if (normalizedRole === 'Team Coach') {
+            return '/coach_dashboard.html';
+        }
+
+        if (normalizedRole === 'Player') {
+            return '/player_dashboard.html';
+        }
+
+        const rawRole = (role || '').toString().trim().toLowerCase();
+        if (rawRole === 'applicant') {
+            return '/applicant_dashboard';
+        }
+
+        return '/';
+    };
+
+    const wireBrandRedirect = (role) => {
+        const dashboardPath = getDashboardPathForRole(role);
+        const brandElements = document.querySelectorAll('.logo, .manager-brand');
+
+        brandElements.forEach((brand) => {
+            if (brand.tagName.toLowerCase() === 'a') {
+                brand.setAttribute('href', dashboardPath);
+                return;
+            }
+
+            brand.style.cursor = 'pointer';
+            brand.addEventListener('click', () => {
+                window.location.href = dashboardPath;
+            });
+        });
+    };
+
     const renderSidebar = (role) => {
+        if (!sidebarContainer) return;
         const links = getLinksForRole(normalizeRole(role));
         sidebarContainer.innerHTML = `<ul>${links}</ul>`;
     };
 
     // Fast path: some pages explicitly state which role sidebar to render.
     if (scope === 'coach-only' || sidebarContainer.classList.contains('coach-sidebar')) {
+        wireBrandRedirect('Team Coach');
         renderSidebar('Team Coach');
         return;
     }
 
     if (scope === 'manager-only' || sidebarContainer.classList.contains('manager-sidebar')) {
+        wireBrandRedirect('Team Manager');
         renderSidebar('Team Manager');
         return;
     }
@@ -99,10 +139,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const res = await fetch('/api/current-role');
         const data = await res.json();
         const role = data.role;
+        wireBrandRedirect(role);
         renderSidebar(role);
     } catch (error) {
         // Keep sidebar visible even when role endpoint is unavailable.
         const roleFromCookie = getCookieValue('userRole');
+        wireBrandRedirect(roleFromCookie || 'Guest');
         renderSidebar(roleFromCookie || 'Guest');
         console.error("Failed to load dynamic sidebar:", error);
     }
