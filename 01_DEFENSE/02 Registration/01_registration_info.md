@@ -10,7 +10,10 @@ teamforge123!!
 Trebis Detablan
 
 [Riot_ID]
-Sou Hiyori#YTTD
+Kialos#akali
+
+[Discord]
+Kialos#akali
 
 [GPA]
 3.3
@@ -32,3 +35,10 @@ Mid
 
 [Secondary_Role]
 Top
+
+======== LOGIN ==========
+[Email]
+trebis_detablan@dlsu.edu.ph
+
+[Password]
+teamforge123!!
