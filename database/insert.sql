@@ -360,85 +360,8 @@ VALUES
     1
 );
 
--- Applicants
-INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
-VALUES (
-    10,
-    'trebis_detablan@dlsu.edu.ph',
-    'teamForge123!!',
-    'Trebis',
-    'Detablan',
-    'Applicant',
-    'Hailrain#hailrain',
-    'Active'
-),
-(
-    11,
-    'justin_nicolai_lee@dlsu.edu.ph',
-    'teamForge123!!',
-    'Justin',
-    'Lee',
-    'Applicant',
-    'juicetice#_juicetice_',
-    'Active'
-),
-(
-    12,
-    'jeremiahang2004@gmail.com',
-    'teamForge123!!',
-    'Jerry',
-    'Lin',
-    'Applicant',
-    'Coww2#coww2',
-    'Active'
-);
-
-INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
-VALUES (
-    10,
-    'Kialos',
-    'akali',
-    'Diamond III',
-    'Diamond IV',
-    4,
-    3,
-    '12100001',
-    'BSCS-NIS',
-    3.25,
-    3.30,
-    1
-),
-(
-    11,
-    'Pr1m3put1n',
-    '3135',
-    'Bronze I',
-    'Silver I',
-    2,
-    3,
-    '12100002',
-    'BSCS-ST',
-    3.10,
-    3.20,
-    2
-),
-(
-    12,
-    'Cowwrean',
-    'moo',
-    'Diamond III',
-    'Diamond IV',
-    4,
-    2,
-    '12203653',
-    'BSIT',
-    1.9,
-    2.9,
-    1
-);
-
 -- -----------------------------------------------------
--- APPLICATION PERIODS (2 weeks each) - change this later for the demo
+-- APPLICATION PERIODS (2 weeks each)
 -- -----------------------------------------------------
 INSERT INTO application_periods (startDate, endDate) VALUES
 ('2025-09-01', '2025-09-13'),
@@ -446,12 +369,119 @@ INSERT INTO application_periods (startDate, endDate) VALUES
 ('2026-03-21', '2026-04-04'); -- period 3
 
 -- -----------------------------------------------------
--- APPLICATIONS
+-- APPLICANTS (Bad)
 -- -----------------------------------------------------
+
+-- Top/Mid: zero#6983
+-- Jungle/Support: Zayexium#ACT
+-- Jungle/Jungle: Pr1m3put1n#3135
+-- Mid/Mid: Yishun Resident#walao
+-- Mid/Top: Sou Hiyori#YTTD
+-- ADC/Support: Venzyx#1432
+-- Support/Support: MrBedroom#0000 (Low champ pool: Teemo one-trick)
+
+-- Applicant: zero#6983 (Top/Mid)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (18, 'zero@example.com', 'teamForge123!!', 'Zero', 'Applicant', 'Applicant', 'zero#6983', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (18, 'zero', '6983', 'Platinum I', 'Platinum II', 1, 3, '12100018', 'BSCS-NIS', 3.10, 3.20, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 18, 1, 'Pending');
+
+-- Applicant: Zayexium#ACT (Jungle/Support)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (19, 'zayexium@example.com', 'teamForge123!!', 'Zayexium', 'Applicant', 'Applicant', 'Zayexium#ACT', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (19, 'Zayexium', 'ACT', 'Gold II', 'Gold I', 2, 5, '12100019', 'BSCS-NIS', 2.90, 3.00, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 19, 2, 'Pending');
+
+-- Applicant: Pr1m3put1n#3135 (Jungle/Jungle)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (20, 'pr1m3put1n@example.com', 'teamForge123!!', 'Pr1m3put1n', 'Applicant', 'Applicant', 'Pr1m3put1n#3135', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (20, 'Pr1m3put1n', '3135', 'Diamond IV', 'Diamond IV', 2, 2, '12100020', 'BSCS-NIS', 3.40, 3.50, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 20, 2, 'Pending');
+
+-- Applicant: Yishun Resident#walao (Mid/Mid)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (21, 'yishun@example.com', 'teamForge123!!', 'Yishun', 'Resident', 'Applicant', 'Yishun Resident#walao', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (21, 'Yishun Resident', 'walao', 'Platinum II', 'Platinum III', 3, 3, '12100021', 'BSCS-NIS', 3.00, 3.05, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 21, 3, 'Pending');
+
+-- Applicant: Sou Hiyori#YTTD (Mid/Top)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (22, 'souhiyori@example.com', 'teamForge123!!', 'Sou', 'Hiyori', 'Applicant', 'Sou Hiyori#YTTD', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (22, 'Sou Hiyori', 'YTTD', 'Emerald I', 'Emerald II', 3, 1, '12100022', 'BSCS-NIS', 3.20, 3.25, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 22, 3, 'Pending');
+
+-- Applicant: Venzyx#1432 (ADC/Support)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (23, 'venzyx@example.com', 'teamForge123!!', 'Venzyx', 'Applicant', 'Applicant', 'Venzyx#1432', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (23, 'Venzyx', '1432', 'Diamond II', 'Diamond III', 4, 5, '12100023', 'BSCS-NIS', 3.35, 3.40, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 23, 4, 'Pending');
+
+-- Applicant: MrBedroom#0000 (Support/Support, Teemo one-trick)
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES (24, 'mrbedroom@example.com', 'teamForge123!!', 'Mr', 'Bedroom', 'Applicant', 'MrBedroom#0000', 'Active');
+
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId)
+VALUES (24, 'MrBedroom', '0000', 'Silver I', 'Silver I', 5, 5, '12100024', 'BSCS-NIS', 2.50, 2.60, 1);
+
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES (3, 24, 5, 'Pending');
+
+-- -----------------------------------------------------
+-- APPLICATIONS in previous terms
+-- -----------------------------------------------------
+-- Accepted applications in Period 1
 INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
-(3, 10, 4, 'Pending'), -- period 3
-(3, 11, 2, 'Pending'), -- period 3
-(3, 12, 4, 'Pending'); -- period 3
+(1, 3, 3, 'Accepted'),  -- VA Tartaros (Mid)
+(1, 4, 1, 'Accepted'),  -- Haimehen (Top)
+(1, 5, 4, 'Accepted'),  -- Kalachuchi (ADC)
+(1, 6, 5, 'Accepted'),  -- VA Crowned (Support)
+(1, 7, 2, 'Accepted');  -- 5star (Jungle)
+
+-- Accepted applications in Period 2
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+(2, 8, 2, 'Accepted'),  -- VA Mushi (Jungle)
+(2, 9, 2, 'Accepted'),  -- lancr (Jungle)
+(2, 13, 1, 'Accepted'), -- Hoshiyo (Top)
+(2, 14, 2, 'Accepted'), -- The Blueprint (Jungle)
+(2, 15, 3, 'Accepted'), -- Stellar (Mid)
+(2, 16, 4, 'Accepted'), -- one of wun (ADC)
+(2, 17, 5, 'Accepted'); -- Maple (Support)
+
+-- Rejected Period 1 applications
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+(1, 20, 2, 'Rejected'), -- Pr1m3put1n Jungle
+(1, 21, 3, 'Rejected'), -- Yishun Resident Mid
+(1, 22, 3, 'Rejected'), -- Sou Hiyori Mid
+(1, 23, 4, 'Rejected'), -- Venzyx ADC
+(1, 24, 5, 'Rejected'); -- MrBedroom Support
+
+-- Rejected Period 2 applications
+INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+(2, 18, 1, 'Rejected'), -- zero#6983 Top
+(2, 19, 2, 'Rejected'), -- Zayexium Jungle
+(2, 20, 2, 'Rejected'), -- Pr1m3put1n Jungle
+(2, 21, 3, 'Rejected'), -- Yishun Resident Mid
+(2, 22, 3, 'Rejected'), -- Sou Hiyori Mid
+(2, 23, 4, 'Rejected'), -- Venzyx ADC
+(2, 24, 5, 'Rejected'); -- MrBedroom Support
+
 
 -- -----------------------------------------------------
 -- METRICS
