@@ -188,9 +188,15 @@ async function loadTeamStats() {
         const data = await res.json();
 
         if (data.success) {
-            const winrate = data.winrate || 0;
+            const winrate = parseFloat(data.winrate) || 0;
             const totalGames = data.totalGames || 0;
+            const avgKDA = data.avgKDA || 0;
+            const scrimsThisMonth = data.scrimsThisMonth || 0;
             const degrees = (winrate / 100) * 360;
+
+            // For KDA, map 0-5 KDA to 0-360deg (clamp if higher)
+            const maxKDA = 5;
+            const kdaAngle = Math.min((parseFloat(avgKDA) / maxKDA) * 360, 360);
 
             const html = `
                 <div class="carousel-container">
@@ -199,19 +205,19 @@ async function loadTeamStats() {
                         <div class="carousel-track" id="stats-track">
                             <div class="carousel-slide">
                                 <div class="carousel-winrate" style="--winrate-angle: ${degrees}deg; --ring-fill: #28b5ff; --ring-empty: #444;">
-                                    <div class="carousel-winrate-pct">${winrate}% WR</div>
+                                    <div class="carousel-winrate-pct">${winrate.toFixed(1)}% WR</div>
                                     <div class="carousel-winrate-sub">Last ${totalGames} Games</div>
                                 </div>
                             </div>
                             <div class="carousel-slide">
-                                <div class="carousel-winrate" style="--winrate-angle: 240deg; --ring-fill: #f72585; --ring-empty: #444;">
-                                    <div class="carousel-winrate-pct">3.2 KDA</div>
+                                <div class="carousel-winrate" style="--winrate-angle: ${kdaAngle}deg; --ring-fill: #f72585; --ring-empty: #444;">
+                                    <div class="carousel-winrate-pct">${avgKDA} KDA</div>
                                     <div class="carousel-winrate-sub">Team Average</div>
                                 </div>
                             </div>
                             <div class="carousel-slide">
                                 <div class="carousel-winrate" style="--winrate-angle: 180deg; --ring-fill: #00f2c3; --ring-empty: #444;">
-                                    <div class="carousel-winrate-pct">12 Scrims</div>
+                                    <div class="carousel-winrate-pct">${scrimsThisMonth} Scrims</div>
                                     <div class="carousel-winrate-sub">Played this Month</div>
                                 </div>
                             </div>

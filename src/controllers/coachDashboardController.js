@@ -78,27 +78,65 @@ exports.getDraft = async (req, res) => {
 // 4. Fetch Team Statistics (Last 15 Games Winrate)
 exports.getTeamStats = async (req, res) => {
     try {
-        const query = `
-            SELECT mp.win 
-            FROM matches m
-            JOIN matchParticipants mp ON m.matchId = mp.matchId
-            JOIN players p ON m.userId = p.userId AND p.puuid = mp.puuid
+        // 1. Get all active players
+        const allPlayersQuery = `
+            SELECT p.userId, p.puuid
+            FROM players p
             JOIN users u ON p.userId = u.userId
             WHERE u.position = 'Player' AND u.status = 'Active'
-            ORDER BY m.gameCreation DESC
-            LIMIT 15
         `;
-        const [recentGames] = await db.query(query);
-        
-        if (recentGames.length === 0) {
-            return res.status(200).json({ success: true, winrate: 0, totalGames: 0 });
+        const [allPlayers] = await db.query(allPlayersQuery);
+        if (!allPlayers.length) {
+            return res.status(200).json({ success: true, winrate: 0, totalGames: 0, avgKDA: 0, scrimsThisMonth: 0 });
         }
+        const puuidList = allPlayers.map(p => `'${p.puuid}'`).join(",");
 
-        // The Riot API usually returns 'True'/'False' strings or booleans for the win column
-        const wins = recentGames.filter(g => g.win === 'True' || g.win === 'true' || g.win === 1 || g.win === true).length;
-        const winrate = ((wins / recentGames.length) * 100).toFixed(1);
+        // 2. Calculate average winrate for all players (last 15 matches per player)
+        let totalGames = 0;
+        let totalWins = 0;
+        let allKdaVals = [];
 
-        res.status(200).json({ success: true, winrate: winrate, totalGames: recentGames.length });
+        for (const player of allPlayers) {
+            // Get last 15 matches for this player
+            const playerMatchesQuery = `
+                SELECT win, kda
+                FROM matchParticipants
+                WHERE puuid = ?
+                ORDER BY matchId DESC
+                LIMIT 15
+            `;
+            const [matches] = await db.query(playerMatchesQuery, [player.puuid]);
+            totalGames += matches.length;
+            totalWins += matches.filter(m => m.win === 'W' || m.win === 'w').length;
+            // Collect KDA values
+            allKdaVals = allKdaVals.concat(matches.map(m => parseFloat(m.kda)).filter(kda => !isNaN(kda)));
+        }
+        
+        const winrate = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+        console.log(`Total Games: ${totalGames}, Total Wins: ${totalWins}, Winrate: ${winrate.toFixed(2)}%`);
+        const avgKDA = allKdaVals.length > 0 ? (allKdaVals.reduce((a, b) => a + b, 0) / allKdaVals.length).toFixed(2) : 0;
+
+        // 3. Get number of scrims played this month (unchanged)
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const firstDay = `${year}-${month}-01`;
+        const nextMonth = now.getMonth() === 11 ? `${year + 1}-01-01` : `${year}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
+        const scrimsQuery = `
+            SELECT COUNT(*) as scrimsThisMonth
+            FROM scrims
+            WHERE date >= ? AND date < ?
+        `;
+        const [scrimsResult] = await db.query(scrimsQuery, [firstDay, nextMonth]);
+        const scrimsThisMonth = scrimsResult[0]?.scrimsThisMonth || 0;
+
+        res.status(200).json({
+            success: true,
+            winrate,
+            totalGames,
+            avgKDA,
+            scrimsThisMonth
+        });
     } catch (error) {
         console.error('Error fetching team stats:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch team stats.' });
