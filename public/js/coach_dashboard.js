@@ -33,36 +33,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function promptRiotApiKeyOnFirstLoginToday() {
-    // Only prompt if no Riot API key is configured (e.g. after a fresh DB upload).
-    // Use sessionStorage to avoid re-prompting on every navigation within the same session.
+    const today = new Date().toISOString().slice(0, 10);
+    let coachIdentity = 'coach';
+
     try {
-        const res = await fetch('/settings/api/riot-api-key');
-        if (!res.ok) return;
-
-        const data = await res.json();
-
-        if (data.hasKey) {
-            // A key is already set — clear any stale "no-key" session flag and do nothing.
-            sessionStorage.removeItem('riotApiKeyMissingPromptShown');
-            return;
-        }
-
-        // No key configured. Show the prompt once per session.
-        if (sessionStorage.getItem('riotApiKeyMissingPromptShown')) {
-            return;
-        }
-
-        sessionStorage.setItem('riotApiKeyMissingPromptShown', '1');
-
-        const shouldOpenSettings = window.confirm(
-            'No Riot API key is configured.\nWould you like to add one now?\n\nSelect OK for Yes or Cancel for No.'
-        );
-
-        if (shouldOpenSettings) {
-            window.location.href = '/settings';
+        const response = await fetch('/api/user/profile');
+        if (response.ok) {
+            const profile = await response.json();
+            const profileName = `${profile.firstname || ''} ${profile.lastname || ''}`.trim();
+            coachIdentity = profileName || profile.name || 'coach';
         }
     } catch (error) {
-        console.error('Unable to check Riot API key status:', error);
+        console.error('Unable to resolve coach identity for Riot API prompt:', error);
+    }
+
+    const normalizedIdentity = String(coachIdentity)
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
+
+    const promptSeenKey = `coachRiotApiPromptSeen:${normalizedIdentity}:${today}`;
+
+    if (localStorage.getItem(promptSeenKey)) {
+        return;
+    }
+
+    // Mark as seen before showing the dialog so it only appears once per day.
+    localStorage.setItem(promptSeenKey, '1');
+
+    const shouldOpenSettings = window.confirm(
+        'Would you like to add a Riot API key now?\n\nSelect OK for Yes or Cancel for No.'
+    );
+
+    if (shouldOpenSettings) {
+        window.location.href = '/settings';
     }
 }
 
