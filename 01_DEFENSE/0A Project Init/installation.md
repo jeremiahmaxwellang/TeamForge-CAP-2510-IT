@@ -1,16 +1,3 @@
-## Description
-TeamForge is a Decision Support System for Collegiate League of Legends Esports Teams
-
-## Getting Started
-
-### Dependencies
-
-* NodeJS v22 or higher
-Download here: [https://nodejs.org/en/download](https://nodejs.org/en/download)
-
-* MySQL Server and Workbench
-Download here: [https://dev.mysql.com/downloads/installer/](https://dev.mysql.com/downloads/installer/)
-
 ### Installation
 
 * Download ZIP of main branch on GitHub
@@ -48,23 +35,3 @@ node src/index.js
 ```
 localhost:3000
 ```
-
-## Help
-
-Ensure port 3000 is free on your device before running the server
-
-## Authors
-Jeremiah Maxwell Ang
-[@jeremiahmaxwellang](https://github.com/jeremiahmaxwellang)
-
-Trebis Detablan
-[@hailrain](https://github.com/trebisdetablan)
-
-Charles Kevin Duelas
-[@Duelly01](https://github.com/Duelly01)
-
-Justin Nicolai Lee
-[@juicetice](https://github.com/juiceticedlsu)
-
-## Acknowledgments
-* Sir Liandro Tabora
