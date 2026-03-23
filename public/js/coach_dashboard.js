@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function promptRiotApiKeyOnFirstLoginToday() {
-    // Only prompt if no Riot API key is configured (e.g. after a fresh DB upload).
-    // Use sessionStorage to avoid re-prompting on every navigation within the same session.
+    // Prompt whenever no Riot API key is configured.
+    // This avoids stale client-side suppression after DB resets/uploads.
     try {
         const res = await fetch('/settings/api/riot-api-key');
         if (!res.ok) return;
@@ -42,17 +42,8 @@ async function promptRiotApiKeyOnFirstLoginToday() {
         const data = await res.json();
 
         if (data.hasKey) {
-            // A key is already set — clear any stale "no-key" session flag and do nothing.
-            sessionStorage.removeItem('riotApiKeyMissingPromptShown');
             return;
         }
-
-        // No key configured. Show the prompt once per session.
-        if (sessionStorage.getItem('riotApiKeyMissingPromptShown')) {
-            return;
-        }
-
-        sessionStorage.setItem('riotApiKeyMissingPromptShown', '1');
 
         const shouldOpenSettings = window.confirm(
             'No Riot API key is configured.\nWould you like to add one now?\n\nSelect OK for Yes or Cancel for No.'
