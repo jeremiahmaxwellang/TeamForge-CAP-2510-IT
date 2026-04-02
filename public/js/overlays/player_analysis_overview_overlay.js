@@ -213,7 +213,7 @@
       }
     }, 1000);
 
-    fetchBtn.addEventListener("click", function (e) {
+    fetchBtn.addEventListener("click", async function (e) {
       e.preventDefault();
 
       const now = Date.now();
@@ -228,47 +228,77 @@
         return;
       }
 
-      // Proceed with fetch from Riot API
       console.log("[FETCH BUTTON] Fetching fresh match statistics from Riot API...");
       const btn = document.getElementById("player-dropdown-btn");
-      const puuid = btn?.getAttribute("data-puuid");
+      let puuid = btn?.getAttribute("data-puuid");
+      const userId = btn?.getAttribute("data-player-id") || (PA.cache ? PA.cache.currentPlayerId : null);
 
-      if (!puuid) {
-        console.error("[FETCH BUTTON] No player PUUID found");
+      if (!userId) {
+        console.error("[FETCH BUTTON] No player ID found");
         setFetchStatus("Unable to fetch stats: missing player data.", "#dc3545");
         return;
       }
 
-      // Update last fetch time
+      // Update last fetch time & lock the button
       lastFetchTime = Date.now();
       localStorage.setItem("lastMatchStatsFetchTime", lastFetchTime.toString());
-
-      // Disable button and show timer
       updateButtonState();
       startButtonCooldown();
-      setFetchStatus("Fetching match stats from Riot API...", "#007bff");
 
-      // Fetch fresh data from Riot API (not from database)
-      const primaryTeamPosition = btn?.getAttribute("data-primary-team-position");
-      const secondaryTeamPosition = btn?.getAttribute("data-secondary-team-position");
-      const selectedTeamPosition = state.currentRoleView === "secondary"
-        ? (secondaryTeamPosition || primaryTeamPosition || null)
-        : (primaryTeamPosition || null);
+      try {
+        // --- 1. FETCH NEW PUUID ---
+        setFetchStatus("Refreshing player PUUID...", "#007bff");
+        
+        // Grab the player's current GameName and TagLine from our backend
+        const playersRes = await fetch("/player_analysis/players");
+        const players = await playersRes.json();
+        const currentPlayer = players.find(p => p.userId == userId);
 
-      api.fetchRecentMatches(puuid, state.currentQueueId, selectedTeamPosition)
-        .then(() => {
-          return api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition);
-        })
-        .then(() => {
-          if (document.querySelector("#overlay-container .winrate") && window.PlayerAnalysis?.cache?.winrateData) {
-            requestAnimationFrame(() => api.updateWinrateDisplay(window.PlayerAnalysis.cache.winrateData));
-          }
-          setFetchStatus("Match stats updated.", "#28a745");
-        })
-        .catch((err) => {
-          console.error("[FETCH BUTTON] Error fetching recent matches:", err);
-          setFetchStatus("Failed to fetch match stats. Try again later.", "#dc3545");
-        });
+        if (currentPlayer && currentPlayer.gameName && currentPlayer.tagLine) {
+            // Hit Riot API for fresh PUUID
+            const riotRes = await fetch(`/riot/puuid/${currentPlayer.gameName}/${currentPlayer.tagLine}`);
+            if (riotRes.ok) {
+                const riotData = await riotRes.json();
+                puuid = riotData.puuid;
+
+                // Save fresh PUUID to our Database
+                await fetch(`/player_analysis/players/${userId}/puuid`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ puuid: puuid }),
+                });
+
+                // Update the DOM and cache so the match-fetcher uses the new one
+                btn.setAttribute("data-puuid", puuid);
+                if (PA.cache) PA.cache.currentPuuid = puuid;
+            }
+        }
+
+        if (!puuid) throw new Error("Could not resolve a valid PUUID.");
+
+        // --- 2. FETCH MATCHES ---
+        setFetchStatus("Fetching match stats from Riot API...", "#007bff");
+
+        const primaryTeamPosition = btn?.getAttribute("data-primary-team-position");
+        const secondaryTeamPosition = btn?.getAttribute("data-secondary-team-position");
+        const selectedTeamPosition = state.currentRoleView === "secondary"
+          ? (secondaryTeamPosition || primaryTeamPosition || null)
+          : (primaryTeamPosition || null);
+
+        await api.fetchRecentMatches(puuid, state.currentQueueId, selectedTeamPosition);
+        await api.fetchWinrate(puuid, state.currentQueueId, selectedTeamPosition);
+        
+        if (document.querySelector("#overlay-container .winrate") && window.PlayerAnalysis?.cache?.winrateData) {
+          requestAnimationFrame(() => api.updateWinrateDisplay(window.PlayerAnalysis.cache.winrateData));
+        }
+        
+        setFetchStatus("Match stats updated successfully!", "#28a745");
+        setTimeout(() => setFetchStatus(""), 3000);
+        
+      } catch (err) {
+        console.error("[FETCH BUTTON] Error fetching recent matches:", err);
+        setFetchStatus("Failed to fetch match stats. Try again later.", "#dc3545");
+      }
     });
 
     function startButtonCooldown() {
