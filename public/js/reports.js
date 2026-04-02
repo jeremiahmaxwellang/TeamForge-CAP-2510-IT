@@ -951,16 +951,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 
-                // Draw Header
+                 // ── HEADER WITH LOGO ─────────────────────────────────────
+                const logoUrl = getCurrentTeamLogoUrl();
+
+                // Helper to draw the rest of the PDF after logo loads
+                const drawPdf = (logoDataUrl) => {
+                let headerY = 20;
+
+                // Draw logo if available
+                if (logoDataUrl) {
+                    try {
+                    doc.addImage(logoDataUrl, 'PNG', 14, 10, 18, 18); // x, y, width, height
+                    headerY = 15; // vertically center text alongside logo
+                    } catch (e) {
+                    console.warn('[PDF] Could not add logo:', e);
+                    }
+                }
+
+                // Team name — offset right if logo is present
+                const textX = logoDataUrl ? 36 : 14;
                 doc.setFontSize(22);
-                doc.setTextColor(31, 119, 180); // TeamForge Blue
-                doc.text("Viridis Arcus", 14, 20);
+                doc.setTextColor(31, 119, 180);
+                doc.text("Viridis Arcus", textX, headerY);
                 
                 doc.setFontSize(14);
                 doc.setTextColor(50, 50, 50);
-                doc.text("Hierarchical Applicant Evaluation Report", 14, 28);
+                doc.text("Hierarchical Applicant Evaluation Report", textX, headerY + 8);
                 
-                let startY = 38;
+                // Divider line under header
+                doc.setDrawColor(200, 200, 200);
+                doc.line(14, 32, 196, 32);
+
+                let startY = 40;
 
                 // 4. Generate a sorted table for each role
                 for (let roleId = 1; roleId <= 5; roleId++) {
@@ -1025,6 +1047,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 5. Download the PDF
                 doc.save("Viridis_Arcus_Applicant_Report.pdf");
+
+                };
+
+                // Convert logo URL to base64 so jsPDF can embed it
+                if (logoUrl) {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    drawPdf(canvas.toDataURL('image/png'));
+                };
+                img.onerror = () => {
+                    console.warn('[PDF] Logo failed to load, generating without logo.');
+                    drawPdf(null);
+                };
+                img.src = logoUrl;
+                } else {
+                drawPdf(null);
+                }
 
             } catch (error) {
                 console.error("PDF Generation Error:", error);
