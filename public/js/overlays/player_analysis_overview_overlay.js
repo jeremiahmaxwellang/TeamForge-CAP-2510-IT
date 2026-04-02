@@ -216,6 +216,8 @@
     fetchBtn.addEventListener("click", async function (e) {
       e.preventDefault();
 
+      const PA = window.PlayerAnalysis;
+
       const now = Date.now();
       const timeSinceLastFetch = lastFetchTime ? now - lastFetchTime : null;
 
