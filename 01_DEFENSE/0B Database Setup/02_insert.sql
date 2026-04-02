@@ -1,8 +1,8 @@
 USE teamforgedb;
 
 -- Team Details
-INSERT INTO teamDetails(teamName)
-VALUES ('Viridis Arcus');
+INSERT INTO teamDetails(teamName, teamIcon)
+VALUES ('Viridis Arcus', 'VA_logo.png');
 
 -- League Roles
 INSERT INTO leagueRoles(roleId, displayedRole, role, teamPosition)

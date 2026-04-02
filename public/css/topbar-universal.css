@@ -1,0 +1,101 @@
+.manager-topbar,
+.coach-topbar,
+.topbar,
+.header_container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--carbon-black);
+    color: var(--porcelain);
+    padding: 10px 20px;
+}
+
+.manager-brand,
+.coach-brand,
+.topbar .logo,
+.topbar .header_logo,
+.header_container .logo {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.manager-brand img,
+.coach-brand img,
+.topbar .logo img,
+.topbar .header_logo img,
+.header_container .logo img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-left: 20px;
+    margin-right: 10px;
+}
+
+.manager-brand-title,
+.coach-brand-title,
+.header_title {
+    font-family: var(--font-road-rage);
+    font-size: 48px;
+    margin-left: 30px;
+    color: var(--porcelain);
+}
+
+.manager-team-name,
+.coach-team-name,
+.team-name {
+    font-size: 36px;
+    color: var(--porcelain);
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.js-team-identity {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.js-team-logo-inline {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    flex-shrink: 0;
+}
+
+.js-team-name-text {
+    line-height: 1.1;
+}
+
+@media (max-width: 900px) {
+    .manager-brand img,
+    .coach-brand img,
+    .topbar .logo img,
+    .topbar .header_logo img,
+    .header_container .logo img {
+        width: 72px;
+        height: 72px;
+        margin-left: 8px;
+    }
+
+    .manager-brand-title,
+    .coach-brand-title,
+    .header_title {
+        font-size: 36px;
+        margin-left: 12px;
+    }
+
+    .manager-team-name,
+    .coach-team-name,
+    .team-name {
+        font-size: 20px;
+        margin-right: 12px;
+    }
+
+    .js-team-logo-inline {
+        width: 34px;
+        height: 34px;
+    }
+}

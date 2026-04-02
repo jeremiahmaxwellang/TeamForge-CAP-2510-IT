@@ -17,6 +17,8 @@ router.get('/', (req, res) => {
 
 router.post('/api/profile/password', settingsController.changePassword);
 router.post('/api/profile/photo', settingsController.changeProfilePhoto);
+router.get('/api/team-details', settingsController.getTeamDetails);
+router.post('/api/team-details', settingsController.updateTeamDetails);
 router.get('/api/riot-api-key', settingsController.getRiotApiKeyStatus);
 router.post('/api/riot-api-key', settingsController.updateRiotApiKey);
 router.get('/api/academic-requirements', requireCoachOnly, settingsController.getAcademicRequirements);

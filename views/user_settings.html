@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>User Settings</title>
 	<link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/topbar-universal.css">
 	<style>
 		/* Inherit core dashboard styles */
 		.coach-page { width: 100%; min-height: 100vh; background-color: var(--porcelain); display: flex; flex-direction: column;}
@@ -196,6 +197,25 @@
                     <p id="password-status" class="status-text"></p>
                 </div>
 
+                <div class="settings-card" id="team-settings-section" style="display: none;">
+                    <h3>Team Settings</h3>
+                    <p style="margin-top: 0; color: #555;">Update your team name and logo. Changes are reflected in the top bar across all users.</p>
+
+                    <div class="settings-form-row single">
+                        <input type="text" id="team-name-input" maxlength="45" placeholder="Enter team name">
+                    </div>
+
+                    <div class="settings-form-row single" style="align-items: center;">
+                        <img src="/uploads/team-logos/VA_logo.png" alt="Current Team Logo" id="team-logo-preview" style="width: 90px; height: 90px; object-fit: cover; border-radius: 12px; border: 1px solid #ccc; margin-bottom: 8px;">
+                        <input type="file" id="team-logo-input" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+                    </div>
+
+                    <div style="text-align: right;">
+                        <button class="btn-confirm" id="btn-save-team-settings">Save Team Settings</button>
+                    </div>
+                    <p id="team-settings-status" class="status-text"></p>
+                </div>
+
                 <div class="settings-card" id="riot-api-key-section" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <h3 style="margin: 0;">Riot API Key</h3>
@@ -277,25 +297,9 @@
 			</div>
 		</div>
 	</div>
-
-    <script>
-        // Profile Dropdown Logic
-        const profileBtn = document.getElementById('profileDropdownBtn');
-        const profileMenu = document.getElementById('profileDropdownMenu');
-        if (profileBtn && profileMenu) {
-            profileBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isShowing = profileMenu.style.display === 'block';
-                profileMenu.style.display = isShowing ? 'none' : 'block';
-                profileBtn.style.borderColor = isShowing ? 'transparent' : '#00f2c3';
-            });
-            document.addEventListener('click', () => {
-                profileMenu.style.display = 'none';
-                profileBtn.style.borderColor = 'transparent';
-            });
-        }
-    </script>
     <script src="/js/current_user_photo.js"></script>
+    <script src="/js/team_branding.js"></script>
+    <script src="/js/userDropdown.js"></script>
     <script src="/js/sidebar.js"></script>
     <script src="/js/settings.js"></script>
 </body>

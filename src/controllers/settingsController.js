@@ -3,6 +3,9 @@ const path = require('path');
 const riotApiKeyService = require('../services/riotApiKeyService');
 const academicRequirementsService = require('../services/academicRequirementsService');
 
+const DEFAULT_TEAM_NAME = 'Viridis Arcus';
+const DEFAULT_TEAM_LOGO_FILE = 'VA_logo.png';
+
 async function getAuthenticatedUser(req) {
     const userId = req.cookies && req.cookies.userId;
     if (!userId) return null;
@@ -35,6 +38,141 @@ async function ensureRiotApiKeyManager(req, res) {
 
     return user;
 }
+
+async function ensureManager(req, res) {
+    const user = await getAuthenticatedUser(req);
+    if (!user || user.position !== 'Team Manager') {
+        res.status(403).json({ success: false, message: 'Only Team Managers can manage team settings.' });
+        return null;
+    }
+
+    return user;
+}
+
+async function ensureTeamDetailsRow() {
+    const [rows] = await db.query(
+        'SELECT teamName, teamIcon FROM teamDetails LIMIT 1'
+    );
+
+    if (!rows.length) {
+        await db.query(
+            'INSERT INTO teamDetails (teamName, teamIcon) VALUES (?, ?)',
+            [DEFAULT_TEAM_NAME, DEFAULT_TEAM_LOGO_FILE]
+        );
+
+        return {
+            teamName: DEFAULT_TEAM_NAME,
+            teamIcon: DEFAULT_TEAM_LOGO_FILE
+        };
+    }
+
+    const teamName = rows[0].teamName || DEFAULT_TEAM_NAME;
+    const teamIcon = rows[0].teamIcon || DEFAULT_TEAM_LOGO_FILE;
+
+    if (!rows[0].teamIcon || !rows[0].teamName) {
+        await db.query(
+            'UPDATE teamDetails SET teamName = ?, teamIcon = ? WHERE teamName = ?',
+            [teamName, teamIcon, rows[0].teamName]
+        );
+    }
+
+    return {
+        teamName,
+        teamIcon
+    };
+}
+
+function resolveTeamLogoUrl(teamIcon) {
+    return `/uploads/team-logos/${teamIcon || DEFAULT_TEAM_LOGO_FILE}`;
+}
+
+exports.getTeamDetails = async (req, res) => {
+    try {
+        const user = await getAuthenticatedUser(req);
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Not logged in.' });
+        }
+
+        const teamDetails = await ensureTeamDetailsRow();
+
+        return res.status(200).json({
+            success: true,
+            teamName: teamDetails.teamName,
+            teamIcon: teamDetails.teamIcon,
+            teamLogoUrl: resolveTeamLogoUrl(teamDetails.teamIcon)
+        });
+    } catch (error) {
+        console.error('Error fetching team details:', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch team details.' });
+    }
+};
+
+exports.updateTeamDetails = async (req, res) => {
+    try {
+        const manager = await ensureManager(req, res);
+        if (!manager) return;
+
+        await ensureTeamDetailsRow();
+
+        const [rows] = await db.query(
+            'SELECT teamName, teamIcon FROM teamDetails LIMIT 1'
+        );
+
+        const currentTeamName = rows.length ? (rows[0].teamName || DEFAULT_TEAM_NAME) : DEFAULT_TEAM_NAME;
+        const currentTeamIcon = rows.length ? (rows[0].teamIcon || DEFAULT_TEAM_LOGO_FILE) : DEFAULT_TEAM_LOGO_FILE;
+
+        const requestedTeamName = String(req.body?.teamName || '').trim();
+        const nextTeamName = requestedTeamName || currentTeamName;
+
+        if (nextTeamName.length > 45) {
+            return res.status(400).json({ success: false, message: 'Team name must not exceed 45 characters.' });
+        }
+
+        const uploadedTeamLogo = req.files && req.files.teamLogo;
+        let nextTeamIcon = currentTeamIcon;
+
+        if (uploadedTeamLogo) {
+            const allowedMimeTypes = ['image/png', 'image/jpeg'];
+            if (!allowedMimeTypes.includes(uploadedTeamLogo.mimetype)) {
+                return res.status(400).json({ success: false, message: 'Only PNG and JPEG files are allowed.' });
+            }
+
+            const ext = path.extname(uploadedTeamLogo.name || '').toLowerCase();
+            const safeExt = ext === '.png' || ext === '.jpg' || ext === '.jpeg'
+                ? ext
+                : (uploadedTeamLogo.mimetype === 'image/png' ? '.png' : '.jpg');
+            const storedTeamLogoFileName = `team_${Date.now()}_${Math.round(Math.random() * 1e9)}${safeExt}`;
+            const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'team-logos', storedTeamLogoFileName);
+
+            await uploadedTeamLogo.mv(uploadPath);
+            nextTeamIcon = storedTeamLogoFileName;
+        }
+
+        if (rows.length) {
+            await db.query(
+                'UPDATE teamDetails SET teamName = ?, teamIcon = ? WHERE teamName = ?',
+                [nextTeamName, nextTeamIcon, rows[0].teamName]
+            );
+        } else {
+            await db.query(
+                'INSERT INTO teamDetails (teamName, teamIcon) VALUES (?, ?)',
+                [nextTeamName, nextTeamIcon]
+            );
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Team settings updated successfully.',
+            teamName: nextTeamName,
+            teamIcon: nextTeamIcon,
+            teamLogoUrl: resolveTeamLogoUrl(nextTeamIcon),
+            updatedBy: manager.userId
+        });
+    } catch (error) {
+        console.error('Error updating team details:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update team settings.' });
+    }
+};
 
 // 0. Update password for the currently logged-in user
 exports.changePassword = async (req, res) => {

@@ -30,6 +30,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cgpaThresholdInput = document.getElementById('cgpa-threshold');
     const btnSaveAcademicRequirements = document.getElementById('btn-save-academic-requirements');
     const academicRequirementsStatus = document.getElementById('academic-requirements-status');
+    const teamSettingsSection = document.getElementById('team-settings-section');
+    const teamNameInput = document.getElementById('team-name-input');
+    const teamLogoInput = document.getElementById('team-logo-input');
+    const teamLogoPreview = document.getElementById('team-logo-preview');
+    const btnSaveTeamSettings = document.getElementById('btn-save-team-settings');
+    const teamSettingsStatus = document.getElementById('team-settings-status');
     
     // New Button Variables
     const editActionButtons = document.getElementById('edit-action-buttons');
@@ -41,6 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const roleSelect = document.getElementById('roleSelect');
     const container = document.getElementById('benchmark-rows-container');
     const saveBtn = document.getElementById('saveBenchmarksBtn');
+    let localPhotoPreviewUrl = '';
 
     function setStatus(el, message, isSuccess) {
         if (!el) return;
@@ -53,6 +60,75 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!photoUrl) return;
         if (topbarProfilePhoto) topbarProfilePhoto.src = photoUrl;
         if (settingsProfilePhoto) settingsProfilePhoto.src = photoUrl;
+    }
+
+    function clearLocalPhotoPreview() {
+        if (localPhotoPreviewUrl) {
+            URL.revokeObjectURL(localPhotoPreviewUrl);
+            localPhotoPreviewUrl = '';
+        }
+    }
+
+    function applyTeamBranding(teamName, teamLogoUrl) {
+        const resolvedTeamName = (teamName || '').trim() || 'Viridis Arcus';
+        const resolvedTeamLogoUrl = (teamLogoUrl || '').trim() || '/uploads/team-logos/VA_logo.png';
+
+        document.querySelectorAll('.manager-team-name, .coach-team-name, .team-name').forEach((el) => {
+            el.classList.add('js-team-identity');
+
+            const existingDisplayName = el.textContent.trim() || 'Viridis Arcus';
+
+            if (!el.querySelector('.js-team-logo-inline') && !el.querySelector('.js-team-name-text')) {
+                el.textContent = '';
+            }
+
+            let logoEl = el.querySelector('.js-team-logo-inline');
+            if (!logoEl) {
+                logoEl = document.createElement('img');
+                logoEl.className = 'js-team-logo-inline';
+                logoEl.alt = 'Team Logo';
+                el.prepend(logoEl);
+            }
+
+            let textEl = el.querySelector('.js-team-name-text');
+            if (!textEl) {
+                textEl = document.createElement('span');
+                textEl.className = 'js-team-name-text';
+                textEl.textContent = existingDisplayName;
+                el.appendChild(textEl);
+            }
+
+            textEl.textContent = resolvedTeamName;
+            logoEl.onerror = () => {
+                logoEl.src = '/uploads/team-logos/VA_logo.png';
+            };
+            logoEl.src = resolvedTeamLogoUrl;
+        });
+    }
+
+    async function loadTeamSettings() {
+        if (!teamSettingsSection) return;
+
+        setStatus(teamSettingsStatus, 'Loading team settings...', true);
+
+        try {
+            const response = await fetch('/settings/api/team-details');
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                setStatus(teamSettingsStatus, result.message || 'Failed to load team settings.', false);
+                return;
+            }
+
+            if (teamNameInput) teamNameInput.value = result.teamName || 'Viridis Arcus';
+            if (teamLogoPreview) teamLogoPreview.src = result.teamLogoUrl || '/uploads/team-logos/VA_logo.png';
+            applyTeamBranding(result.teamName, result.teamLogoUrl);
+
+            setStatus(teamSettingsStatus, 'Team settings loaded.', true);
+        } catch (error) {
+            console.error('Failed to load team settings:', error);
+            setStatus(teamSettingsStatus, 'Network error while loading team settings.', false);
+        }
     }
 
     function populateAcademicRequirements(requirements) {
@@ -149,6 +225,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if ((userRole === 'Team Manager' || userRole === 'Team Coach') && riotApiKeySection) {
                 riotApiKeySection.style.display = 'block';
                 loadRiotApiKeyStatus();
+            }
+
+            if (userRole === 'Team Manager' && teamSettingsSection) {
+                teamSettingsSection.style.display = 'block';
+                loadTeamSettings();
             }
 
             // Reveal the benchmark section ONLY if they are the Team Coach
@@ -360,6 +441,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- CHANGE PROFILE PHOTO ---
+    if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', () => {
+            const hasFile = profilePhotoInput.files && profilePhotoInput.files.length;
+            if (!hasFile) {
+                clearLocalPhotoPreview();
+                return;
+            }
+
+            const file = profilePhotoInput.files[0];
+            const allowedMimeTypes = ['image/png', 'image/jpeg'];
+            if (!allowedMimeTypes.includes(file.type)) {
+                setStatus(photoStatus, 'Only PNG and JPEG files are allowed.', false);
+                profilePhotoInput.value = '';
+                clearLocalPhotoPreview();
+                return;
+            }
+
+            clearLocalPhotoPreview();
+            localPhotoPreviewUrl = URL.createObjectURL(file);
+
+            if (settingsProfilePhoto) {
+                settingsProfilePhoto.src = localPhotoPreviewUrl;
+            }
+
+            setStatus(photoStatus, 'Preview ready. Click "Change Profile Photo" to save.', true);
+        });
+    }
+
     if (btnSavePhoto) {
         btnSavePhoto.addEventListener('click', async () => {
             if (!profilePhotoInput || !profilePhotoInput.files || !profilePhotoInput.files.length) {
@@ -389,6 +498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 applyProfilePhoto(result.profilePhotoUrl);
                 profilePhotoInput.value = '';
+                clearLocalPhotoPreview();
                 setStatus(photoStatus, 'Profile photo updated successfully.', true);
             } catch (error) {
                 console.error('Failed to upload profile photo:', error);
@@ -484,6 +594,58 @@ document.addEventListener('DOMContentLoaded', async () => {
             } finally {
                 btnUpdateRiotApiKey.disabled = false;
                 btnUpdateRiotApiKey.textContent = 'Confirm';
+            }
+        });
+    }
+
+    if (btnSaveTeamSettings) {
+        btnSaveTeamSettings.addEventListener('click', async () => {
+            const requestedTeamName = teamNameInput ? teamNameInput.value.trim() : '';
+            const selectedLogo = teamLogoInput && teamLogoInput.files && teamLogoInput.files.length
+                ? teamLogoInput.files[0]
+                : null;
+
+            if (!requestedTeamName && !selectedLogo) {
+                setStatus(teamSettingsStatus, 'Update the team name or select a logo before saving.', false);
+                return;
+            }
+
+            const formData = new FormData();
+            if (requestedTeamName) {
+                formData.append('teamName', requestedTeamName);
+            }
+            if (selectedLogo) {
+                formData.append('teamLogo', selectedLogo);
+            }
+
+            btnSaveTeamSettings.disabled = true;
+            btnSaveTeamSettings.textContent = 'Saving...';
+            setStatus(teamSettingsStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/team-details', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    setStatus(teamSettingsStatus, result.message || 'Failed to update team settings.', false);
+                    return;
+                }
+
+                if (teamNameInput) teamNameInput.value = result.teamName || 'Viridis Arcus';
+                if (teamLogoPreview) teamLogoPreview.src = result.teamLogoUrl || '/uploads/team-logos/VA_logo.png';
+                if (teamLogoInput) teamLogoInput.value = '';
+
+                applyTeamBranding(result.teamName, result.teamLogoUrl);
+                setStatus(teamSettingsStatus, 'Team settings updated successfully.', true);
+            } catch (error) {
+                console.error('Failed to update team settings:', error);
+                setStatus(teamSettingsStatus, 'Network error while saving team settings.', false);
+            } finally {
+                btnSaveTeamSettings.disabled = false;
+                btnSaveTeamSettings.textContent = 'Save Team Settings';
             }
         });
     }
