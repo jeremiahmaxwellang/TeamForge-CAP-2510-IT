@@ -294,6 +294,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const waitForImageLoad = (imgEl) => new Promise((resolve) => {
+        if (!imgEl) {
+            resolve();
+            return;
+        }
+
+        if (imgEl.complete && imgEl.naturalWidth > 0) {
+            resolve();
+            return;
+        }
+
+        const finalize = () => {
+            imgEl.removeEventListener('load', finalize);
+            imgEl.removeEventListener('error', finalize);
+            resolve();
+        };
+
+        imgEl.addEventListener('load', finalize, { once: true });
+        imgEl.addEventListener('error', finalize, { once: true });
+    });
+
+    const getCurrentTeamLogoUrl = () => {
+        const inlineLogo = document.querySelector('.manager-team-name .js-team-logo-inline');
+        if (inlineLogo && inlineLogo.src) {
+            return inlineLogo.src;
+        }
+
+        const brandLogo = document.querySelector('.manager-brand img');
+        if (brandLogo && brandLogo.src) {
+            return brandLogo.src;
+        }
+
+        return '/uploads/team-logos/VA_logo.png';
+    };
+
     const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
         if (!tournamentRangeSummary) return;
 
@@ -474,6 +509,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const originalTargetMaxHeight = target.style.maxHeight;
             const originalTargetOverflow = target.style.overflow;
             const originalTargetScrollTop = target.scrollTop;
+            let exportHeader = null;
+            let exportFooter = null;
             const termSelectDisplays = termSelectElements.map((selectEl) => ({
                 element: selectEl,
                 display: selectEl.style.display
@@ -491,10 +528,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     element.style.display = 'none';
                 });
 
+                const logoUrl = getCurrentTeamLogoUrl();
+                exportHeader = document.createElement('div');
+                exportHeader.style.display = 'flex';
+                exportHeader.style.alignItems = 'center';
+                exportHeader.style.justifyContent = 'flex-start';
+                exportHeader.style.padding = '4px 0 16px';
+
+                const exportLogo = document.createElement('img');
+                exportLogo.src = logoUrl;
+                exportLogo.alt = 'Team Logo';
+                exportLogo.style.width = '72px';
+                exportLogo.style.height = '72px';
+                exportLogo.style.objectFit = 'contain';
+                exportHeader.appendChild(exportLogo);
+
+                exportFooter = document.createElement('p');
+                exportFooter.textContent = 'powered by TeamForge';
+                exportFooter.style.margin = '18px 0 0';
+                exportFooter.style.textAlign = 'center';
+                exportFooter.style.fontSize = '14px';
+                exportFooter.style.fontWeight = '600';
+                exportFooter.style.color = '#1f2937';
+
+                target.insertBefore(exportHeader, target.firstChild);
+                target.appendChild(exportFooter);
+
                 // Expand modal content so html2canvas captures full report, not only visible viewport.
                 target.style.maxHeight = 'none';
                 target.style.overflow = 'visible';
                 target.scrollTop = 0;
+
+                await waitForImageLoad(exportLogo);
 
                 // Let the browser apply the hidden states before capture.
                 await waitForNextPaint();
@@ -542,6 +607,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Failed to save term report screenshot:', error);
                 alert('Failed to save report. Please try again.');
             } finally {
+                if (exportHeader && exportHeader.parentNode) {
+                    exportHeader.parentNode.removeChild(exportHeader);
+                }
+                if (exportFooter && exportFooter.parentNode) {
+                    exportFooter.parentNode.removeChild(exportFooter);
+                }
                 saveTermReportBtn.style.display = originalSaveDisplay;
                 if (closeTermBreakdownBtn) {
                     closeTermBreakdownBtn.style.display = originalCloseDisplay;
