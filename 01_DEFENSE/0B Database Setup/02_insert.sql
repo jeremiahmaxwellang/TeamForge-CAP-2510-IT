@@ -158,8 +158,8 @@ VALUES
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId, puuid)
 VALUES 
-(3,'VA Tartaros','VA1','Diamond III','Grandmaster',3,2,'12304219','BSCS-SE','3.4','3.3','3rd Year','F',1,'N2-iuvucfmRJerfci8j_vRKCkPmIIASsZbaAQXBRF-15bRXRkpblPsClPN_NmMR0HTHpNHB39FnX3g'),
-(4,'Haimehen','41yk','Diamond IV','Master',1,3,'12445678','BSCS-NIS','3.5','3.2','2nd Year','F',2,'I0djZ9aexojTQI4075UMfkpmyKdURb9RnMWrW4QtoiZRplLW9kPum89jrfHhaINpfp4fitGyQYrNXQ'),
+(3,'VA Tartaros','VA1','Diamond III','Grandmaster',3,2,'12304219','BSCS-SE','3.4','3.3','3rd Year','F',1,NULL),
+(4,'Haimehen','41yk','Diamond IV','Master',1,3,'12445678','BSCS-NIS','3.5','3.2','2nd Year','F',2,NULL),
 (
     5,
     'Kalachuchi',
@@ -175,7 +175,7 @@ VALUES
     '4th Year',
     'F',
     1,
-    'cn63r0SUUAyKN9qZIvd5r5gcPjZXQDDO7ElQV6wdfLQp-8EnuC4nTOZpJxUyyThKaFn8IG-9KLJdTw'
+    NULL
 ),
 (
     6,
@@ -192,7 +192,7 @@ VALUES
     '3rd Year',
     'F',
     2,
-    'u2hTq3YNVQQqmR1fGeL-4kELFn4ZyA5WjgtlyiLOMIXkR9kNt_xPtCa4tVN8Gx0owU0HxZ07GkSOtA'
+    NULL
 
 ),
 (
@@ -210,7 +210,7 @@ VALUES
     '4th Year',
     'F',
     1,
-    'Zxd5FABKyBOnH_7JEAPB4MAbeWxrFTDRjq9edeoV_qjnXJzIrAZvCuTGNgSH6fNjy-hzcsVR5AmiLg'
+    NULL
 ),
 (
     8,
@@ -227,10 +227,10 @@ VALUES
     '2nd Year',
     'T',
     2,
-    'iK5b3pF25xiShD7D6Mpt0XFl_5ViaIGD-MUwnSGuGGZYwK0F0Def15mC5kXN0gvXIokMiFhHzAJkzw'
+    NULL
 ),
-(9,'lancr','1226','Emerald I','Diamond II',2,4,'12367890','BSIT','2.1','1.9','2nd Year','F',1, 'amex8caGJkZvk5y2wEI7jSx4tT4jzwlwER2t-At8KviSqneSIpJBpd5WmQwGV9EKlhz6Bv8_gyFrSg'),
-(13,'Hoshiyo','2121','Challenger','Challenger',1,2,'12600013','BSND','3.0','3.2','4th Year','F',1,'UXbl7UZjH0MMEyRWrzsjVBlY_mZT4tD4kic08AvNOprS4TEndMHLi5_3R_FODQB0kLAie60P7JRTzg'),
+(9,'lancr','1226','Emerald I','Diamond II',2,4,'12367890','BSIT','2.1','1.9','2nd Year','F',1, NULL),
+(13,'Hoshiyo','2121','Challenger','Challenger',1,2,'12600013','BSND','3.0','3.2','4th Year','F',1,NULL),
 (
     14,
     'The Blueprint',
@@ -246,7 +246,7 @@ VALUES
     '2nd Year',
     'F',
     1,
-    '8EiEJLcAwfFKva62VgrSIY330JVSXYHktPJAkkL-vssg8XeMUiDxXzPh7AU5cm4mVzD3vLoFOGO20Q'
+    NULL
 ),
 (
     15,
@@ -263,7 +263,7 @@ VALUES
     '4th Year',
     'F',
     1,
-    'aUAEjz4R6f18rXGvtHP3FWJ034Sv0ZGjcnIftLig-dvDgK0wHiy9SeEqwrASovrBcmm4o5bV1Q-tbA'
+    NULL
 ),
 (
     16,
@@ -280,7 +280,7 @@ VALUES
     '2nd Year',
     'F',
     1,
-    '4NB_H-hv7NKLhhe2GaRIXEEQOojs1Omw9zelLl_MjOuXPefjdBOruAY8cFw4nqbWdnb7ITHf7uKErA'
+    NULL
 ),
 (17,'Maple','091','Challenger','Challenger',5,3,
     '12600017',
@@ -290,7 +290,7 @@ VALUES
     '4th Year',
     'F',
     1,
-    'xpWKUsd6nX2syvLOWMQqfIc5l-V9YaAnqReZJbkLwIRDMDtXQrNw_AAjfUT02fKgDrQd2RuA6YWLdg'
+    NULL
 );
 
 -- -----------------------------------------------------
@@ -325,13 +325,13 @@ VALUES
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel, puuid)
 VALUES
-(18, 'zero', '6983', 'Diamond I', 'Diamond II', 1, 3, '12100018', 'BSCS-NIS', 3.10, 3.20, 1, '1st Year', 'qyRF2jFMCzmTaF3Nos4ZijIVlBapi2ADNw_PuBemABVPn1_pxFMOY6iPS71DKlA-duRZPNp1pvxXrw'),
-(19, 'Zayexium', 'ACT', 'Diamond IV', 'Master', 2, 5, '12100019', 'BSCS-NIS', 2.90, 3.00, 1, '4th Year', 'xALL8hF_j1a1DXSkYePB_o9uyNMD5ncC_tqvzNZjmgvIbiwJzDPjo7O2kY_B3fhzyHdHVfKHTuavvg'),
-(20, 'Pr1m3put1n', '3135', 'Challenger', 'Challenger', 2, 2, '12100020', 'BSCS-NIS', 3.40, 3.50, 1, '4th Year', 'kOV5vlHE4nO4QPDE5l5jBgP9SSnjsZcvQlqUehjyIqXoK6UPy3N4phpalc_Bg1bqaaFVA4jiqeqQlg'),
-(21, 'Yishun Resident', 'walao', 'Diamond II', 'Diamond III', 3, 3, '12100021', 'BSCS-NIS', 3.00, 3.05, 1, '2nd Year', 'Y3slOHc0IzIbVE4Q3We4pF6v_jhbPJVa6OBjb9qlvjBcuGV1TetRfz1exPeX76VclOHyTO2OIaGRKw'),
-(22, 'Sou Hiyori', 'YTTD', 'Challenger', 'Challenger', 3, 1, '12100022', 'BSCS-NIS', 3.20, 3.25, 1, '1st Year', 'PTnjhEwV0zdp87EfKzdLk49DJJFMs4Iid-F-xjmuabujDGA9UzKYpHjHlFs2ReUi5eDdJXg8_3FkrA'),
-(23, 'Venzyx', '1432', 'Diamond II', 'Diamond III', 4, 5, '12100023', 'BSCS-NIS', 3.35, 3.40, 1, '3rd Year', 'iTRCDSXDeoIw7T_LudCnua9p27pYA6XPrfyN4jImkCWVViUvdl3a4clvZoWOR8Zkj1eibg9_MHqw-w'),
-(24, 'MrBedroom', '0000', 'Diamond I', 'Challenger', 5, 5, '12100024', 'BSCS-NIS', 2.50, 2.60, 1, '2nd Year', 'U0LTpFRqukFksCIZiZvDZhMgUGJWqLkF36szON6mSuVrQKAsZUX1Pz1LBdERDFtcA-iiU4ESfdEjiQ');
+(18, 'zero', '6983', 'Diamond I', 'Diamond II', 1, 3, '12100018', 'BSCS-NIS', 3.10, 3.20, 1, '1st Year', NULL),
+(19, 'Zayexium', 'ACT', 'Diamond IV', 'Master', 2, 5, '12100019', 'BSCS-NIS', 2.90, 3.00, 1, '4th Year', NULL),
+(20, 'Pr1m3put1n', '3135', 'Challenger', 'Challenger', 2, 2, '12100020', 'BSCS-NIS', 3.40, 3.50, 1, '4th Year', NULL),
+(21, 'Yishun Resident', 'walao', 'Diamond II', 'Diamond III', 3, 3, '12100021', 'BSCS-NIS', 3.00, 3.05, 1, '2nd Year', NULL),
+(22, 'Sou Hiyori', 'YTTD', 'Challenger', 'Challenger', 3, 1, '12100022', 'BSCS-NIS', 3.20, 3.25, 1, '1st Year', NULL),
+(23, 'Venzyx', '1432', 'Diamond II', 'Diamond III', 4, 5, '12100023', 'BSCS-NIS', 3.35, 3.40, 1, '3rd Year', NULL),
+(24, 'MrBedroom', '0000', 'Diamond I', 'Challenger', 5, 5, '12100024', 'BSCS-NIS', 2.50, 2.60, 1, '2nd Year', NULL);
 
 INSERT INTO applications (periodId, userId, primaryRoleId, status) 
 VALUES
