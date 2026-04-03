@@ -533,6 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 exportHeader.style.display = 'flex';
                 exportHeader.style.alignItems = 'center';
                 exportHeader.style.justifyContent = 'flex-start';
+                exportHeader.style.gap = '12px';
                 exportHeader.style.padding = '4px 0 16px';
 
                 const exportLogo = document.createElement('img');
@@ -541,7 +542,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 exportLogo.style.width = '72px';
                 exportLogo.style.height = '72px';
                 exportLogo.style.objectFit = 'contain';
+
+                const headerTextWrapper = document.createElement('div');
+                headerTextWrapper.style.display = 'flex';
+                headerTextWrapper.style.flexDirection = 'column';
+                headerTextWrapper.style.justifyContent = 'center';
+
+                const teamNameHeading = document.createElement('h1');
+                teamNameHeading.textContent = 'Viridis Arcus';
+                teamNameHeading.style.margin = '0';
+                teamNameHeading.style.fontSize = '20px';
+                teamNameHeading.style.color = '#1f77b4';
+
+                const reportTitleHeading = document.createElement('p');
+                reportTitleHeading.textContent = 'Team Tournament Breakdown Report';
+                reportTitleHeading.style.margin = '4px 0 0';
+                reportTitleHeading.style.fontSize = '14px';
+                reportTitleHeading.style.color = '#323232';
+
+                headerTextWrapper.appendChild(teamNameHeading);
+                headerTextWrapper.appendChild(reportTitleHeading);
+
                 exportHeader.appendChild(exportLogo);
+                exportHeader.appendChild(headerTextWrapper);
 
                 exportFooter = document.createElement('p');
                 exportFooter.textContent = 'powered by TeamForge';
