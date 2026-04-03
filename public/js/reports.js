@@ -1027,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 doc.setFontSize(14);
                 doc.setTextColor(50, 50, 50);
-                doc.text("Hierarchical Applicant Evaluation Report", textX, headerY + 8);
+                doc.text("Applicant Performance Report", textX, headerY + 8);
                 
                 // Right-side logos (DLSU and TeamForge)
                 const logoRightX = 160;
