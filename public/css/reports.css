@@ -259,14 +259,17 @@ h1.page-title {
 }
 
 .secondary-action-btn {
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
-    color: #1a1a2e;
-    background: #f8fafc;
+    padding: 8px 16px; 
+    background-color: #1f77b4; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold; 
+    font-size: 13px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease;
 }
