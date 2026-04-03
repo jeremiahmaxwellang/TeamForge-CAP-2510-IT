@@ -566,6 +566,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 exportHeader.appendChild(exportLogo);
                 exportHeader.appendChild(headerTextWrapper);
 
+                // Add right-side logos (DLSU and TeamForge)
+                const rightLogosWrapper = document.createElement('div');
+                rightLogosWrapper.style.display = 'flex';
+                rightLogosWrapper.style.gap = '8px';
+                rightLogosWrapper.style.marginLeft = 'auto'; // Push to right
+                rightLogosWrapper.style.alignItems = 'center';
+
+                const dlsuLogoImg = document.createElement('img');
+                dlsuLogoImg.src = '/images/dlsu_logo.png';
+                dlsuLogoImg.alt = 'DLSU Logo';
+                dlsuLogoImg.style.width = '60px';
+                dlsuLogoImg.style.height = '60px';
+                dlsuLogoImg.style.objectFit = 'contain';
+
+                const teamforgeLogoImg = document.createElement('img');
+                teamforgeLogoImg.src = '/images/teamforge_logo.png';
+                teamforgeLogoImg.alt = 'TeamForge Logo';
+                teamforgeLogoImg.style.width = '60px';
+                teamforgeLogoImg.style.height = '60px';
+                teamforgeLogoImg.style.objectFit = 'contain';
+
+                rightLogosWrapper.appendChild(dlsuLogoImg);
+                rightLogosWrapper.appendChild(teamforgeLogoImg);
+
+                exportHeader.appendChild(rightLogosWrapper);
+
                 exportFooter = document.createElement('p');
                 exportFooter.textContent = 'powered by TeamForge';
                 exportFooter.style.margin = '18px 0 0';
@@ -583,6 +609,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.scrollTop = 0;
 
                 await waitForImageLoad(exportLogo);
+                await waitForImageLoad(dlsuLogoImg);
+                await waitForImageLoad(teamforgeLogoImg);
 
                 // Let the browser apply the hidden states before capture.
                 await waitForNextPaint();
@@ -1001,6 +1029,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 doc.setTextColor(50, 50, 50);
                 doc.text("Hierarchical Applicant Evaluation Report", textX, headerY + 8);
                 
+                // Right-side logos (DLSU and TeamForge)
+                const logoRightX = 160;
+                const logoSize = 12;
+                const logoSpacing = 15;
+                
+                // Load and add DLSU logo (top right)
+                if (typeof dlsuLogoBase64 !== 'undefined' && dlsuLogoBase64) {
+                    try {
+                        doc.addImage(dlsuLogoBase64, 'PNG', logoRightX, 10, logoSize, logoSize);
+                    } catch (e) {
+                        console.warn('[PDF] Could not add DLSU logo:', e);
+                    }
+                }
+                
+                // Load and add TeamForge logo (bottom right)
+                if (typeof teamforgeLogoBase64 !== 'undefined' && teamforgeLogoBase64) {
+                    try {
+                        doc.addImage(teamforgeLogoBase64, 'PNG', logoRightX + logoSpacing, 10, logoSize, logoSize);
+                    } catch (e) {
+                        console.warn('[PDF] Could not add TeamForge logo:', e);
+                    }
+                }
+
                 // Divider line under header
                 doc.setDrawColor(200, 200, 200);
                 doc.line(14, 32, 196, 32);
@@ -1073,25 +1124,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 };
 
-                // Convert logo URL to base64 so jsPDF can embed it
-                if (logoUrl) {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                    drawPdf(canvas.toDataURL('image/png'));
+                // Load team logo and additional logos (DLSU, TeamForge)
+                let teamLogoBase64 = null;
+                let dlsuLogoBase64 = null;
+                let teamforgeLogoBase64 = null;
+                let logosLoaded = 0;
+                const requiredLogos = 3; // We need to load 3 logos
+
+                const loadImage = (imageUrl) => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            canvas.getContext('2d').drawImage(img, 0, 0);
+                            resolve(canvas.toDataURL('image/png'));
+                        };
+                        img.onerror = () => {
+                            console.warn('[PDF] Image failed to load:', imageUrl);
+                            resolve(null);
+                        };
+                        img.src = imageUrl;
+                    });
                 };
-                img.onerror = () => {
-                    console.warn('[PDF] Logo failed to load, generating without logo.');
+
+                // Load all logos in parallel
+                Promise.all([
+                    loadImage(logoUrl),
+                    loadImage('/images/dlsu_logo.png'),
+                    loadImage('/images/teamforge_logo.png')
+                ]).then(([teamBase64, dlsuBase64, teamforgeBase64]) => {
+                    dlsuLogoBase64 = dlsuBase64;
+                    teamforgeLogoBase64 = teamforgeBase64;
+                    drawPdf(teamBase64);
+                }).catch(err => {
+                    console.error('[PDF] Error loading logos:', err);
                     drawPdf(null);
-                };
-                img.src = logoUrl;
-                } else {
-                drawPdf(null);
-                }
+                });
 
             } catch (error) {
                 console.error("PDF Generation Error:", error);
