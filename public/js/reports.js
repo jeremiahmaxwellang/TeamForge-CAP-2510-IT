@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dlsuLogoImg.style.objectFit = 'contain';
 
                 const teamforgeLogoImg = document.createElement('img');
-                teamforgeLogoImg.src = '/images/teamforge_logo.png';
+                teamforgeLogoImg.src = '/images/teamforge_logo_white.png';
                 teamforgeLogoImg.alt = 'TeamForge Logo';
                 teamforgeLogoImg.style.width = '60px';
                 teamforgeLogoImg.style.height = '60px';
@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Promise.all([
                     loadImage(logoUrl),
                     loadImage('/images/dlsu_logo.png'),
-                    loadImage('/images/teamforge_logo.png')
+                    loadImage('/images/teamforge_logo_white.png')
                 ]).then(([teamBase64, dlsuBase64, teamforgeBase64]) => {
                     dlsuLogoBase64 = dlsuBase64;
                     teamforgeLogoBase64 = teamforgeBase64;
