@@ -1,15 +1,24 @@
 {
   "name": "teamforge-cap-2510-it",
   "version": "1.0.0",
+  "description": "TeamForge is a Decision Support System for Collegiate League of Legends Esports Teams",
+  "keywords": [],
+  "homepage": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT#readme",
+  "bugs": {
+    "url": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "TeamForge is a Decision Support System for Collegiate League of Legends Esports Teams",
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -24,14 +33,5 @@
     "nodemailer": "^8.0.2",
     "path": "^0.12.7",
     "router": "^2.2.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT/issues"
-  },
-  "homepage": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT#readme",
-  "type": "commonjs"
+  }
 }
