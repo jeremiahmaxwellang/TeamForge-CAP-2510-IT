@@ -5,36 +5,57 @@ TeamForge is a Decision Support System for Collegiate League of Legends Esports 
 
 ### Dependencies
 
-* NodeJS v22 or higher
+#### 1. NodeJS v24 or higher
 Download here: [https://nodejs.org/en/download](https://nodejs.org/en/download)
 
 [Note] In the installer, make sure to click check on:
-`[] Automatically install the necessary tools`
+```
+[] Automatically install the necessary tools
+```
 
 NodeJS Installation Tutorial:
 [https://www.youtube.com/watch?v=7pbQ4ZKPBiU](https://www.youtube.com/watch?v=7pbQ4ZKPBiU)
 
-* MySQL Server and Workbench
+#### 2. MySQL Server and Workbench
 Download here: [https://dev.mysql.com/downloads/installer/](https://dev.mysql.com/downloads/installer/)
 
 ### Installation
 
-* Download ZIP of main branch on GitHub
+#### 1. Download ZIP of main branch on GitHub
 * Extract to desired folder (ex: C:\Users\Me\Downloads)
 * On command prompt, change directory to the path of the project folder. Example command below:
 ```
 cd Downloads/TeamForge-CAP-2510-IT
 ``` 
 
+#### 2. npm init -y
 * Use the package manager [npm] to initialize the folder as a NodeJS project.
 
 ```
 npm init -y
 ```
 
+#### 3. Install Node Libraries
 * Use [npm] to install the required Node libraries
 ```
 npm install express dotenv hbs path express-fileupload express-session cookie-parser nodemailer
+```
+
+#### 4. Set up environment variables
+In the src folder, create a .env file with the following contents:
+
+```
+API_KEY=EXAMPLE-API-KEY
+
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=EXAMPLE_PASSWORD
+DB_NAME=teamforgedb
+DB_PORT=3306
+
+DISCORD_WEBHOOK_URL="EXAMPLE"
+EMAIL_USER="example@gmail.com"
+EMAIL_PASS="example"
 ```
 
 ### Executing program
