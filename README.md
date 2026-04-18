@@ -62,6 +62,9 @@ SECRET_ID=SAMPLE-GOOGLE-SECRET-ID
 REDIRECT=http://localhost:3000/redirect
 ```
 
+* Google Cloud credentials tutorial:
+[https://www.youtube.com/watch?v=2byT7fYT8UE](https://www.youtube.com/watch?v=2byT7fYT8UE)
+
 ### Executing program
 
 * Go to command prompt
