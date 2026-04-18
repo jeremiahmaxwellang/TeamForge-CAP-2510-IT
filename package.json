@@ -26,6 +26,7 @@
     "express": "^5.2.1",
     "express-fileupload": "^1.5.2",
     "express-session": "^1.19.0",
+    "googleapis": "^171.4.0",
     "hbs": "^4.2.0",
     "https": "^1.0.0",
     "mongoose": "^9.1.6",

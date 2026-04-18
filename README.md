@@ -38,7 +38,7 @@ npm init -y
 #### 3. Install Node Libraries
 * Use [npm] to install the required Node libraries
 ```
-npm install express dotenv hbs path express-fileupload express-session cookie-parser nodemailer
+npm install express dotenv hbs path express-fileupload express-session cookie-parser nodemailer googleapis
 ```
 
 #### 4. Set up environment variables
