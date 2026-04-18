@@ -56,6 +56,10 @@ DB_PORT=3306
 DISCORD_WEBHOOK_URL="EXAMPLE"
 EMAIL_USER="example@gmail.com"
 EMAIL_PASS="example"
+
+CLIENT_ID=sampleclientid.apps.googleusercontent.com
+SECRET_ID=SAMPLE-GOOGLE-SECRET-ID
+REDIRECT=http://localhost:3000/redirect
 ```
 
 ### Executing program

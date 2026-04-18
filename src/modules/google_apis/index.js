@@ -1,8 +1,10 @@
 // ACCESS THROUGH BROWSER: localhost:3000
 // temp index file for oauth google integration
-// node src/modules/oauth/index.js
+// node src/modules/google_apis/index.js
 
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+// require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+
 const express = require('express');
 const { google } = require('googleapis');
 
@@ -18,46 +20,41 @@ const app = express();
  * 2. Authorized redirect URIs
  * http://localhost:3000/redirect
  */
-const oauth2Client = new google.auth.OAuth2(process.env.CLIENT_ID, process.env.SECRET, process.env.REDIRECT);
+const oauth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.SECRET,
+    process.env.REDIRECT
+);
 
+
+// Sign in with Google
 app.get('/', (req, res) => {
-    // const url = oauth2Client.generateAuthUrl({
-    //     scope: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
-    //     access_type: 'online',
-    //     include_granted_scopes: 'true',
-    //     response_type: 'code',
-    //     state: 'there',
-    //     client_id: process.env.CLIENT_ID
-    //     redirect_uri: 'http://localhost:3000/redirect'
-    // });
-
     // Read Only
-    // Error: Missing required parameter: redirect_uri
     const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',
-        scope: 'https://www.googleapis.com/auth/calendar.readonly',
-
-        redirect_uri: process.env.REDIRECT,
-        client_id: process.env.CLIENT_ID
+        scope: [
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/userinfo.email'
+        ],
+        include_granted_scopes: true
 
     });
+
     res.redirect(url);
 
 });
 
-app.get('/redirect', (req, res) => {
+app.get('/redirect', async (req, res) => {
     const code = req.query.code;
-    oauth2Client.getToken((code, (err, tokens) => {
-        if (err) {
-            console.error(`Couldn't get token`, err);
-            res.send('Error');
-            return;
-        }
+    try {
+        const { tokens } = await oauth2Client.getToken(code); // get tokens
         oauth2Client.setCredentials(tokens);
         res.send('Successfully logged in');
-
-    }))
-})
+    } catch (err) {
+        console.error('Error retrieving access token', err);
+        res.send('Error');
+    }
+});
 
 app.get('/calendars', (req, res) => {
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -77,7 +74,7 @@ app.get('/events', (req, res) => {
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
     calendar.events.list({
         calendarId,
-        timeMin: (new Date()).toString(),
+        timeMin: new Date().toISOString(), // must be ISO string
         maxResults: 15,
         singleEvents: true,
         orderBy: 'startTime'
