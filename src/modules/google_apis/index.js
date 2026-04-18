@@ -27,7 +27,12 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 
-// Sign in with Google
+/**
+ * Route to Sign in with Google
+ * 
+ * Error when using a non-DLSU account: TeamForge is restricted to users within its organization
+ * Try: configuring Google Cloud project so that it allows emails outside the organization
+ */
 app.get('/', (req, res) => {
     // Read Only
     const url = oauth2Client.generateAuthUrl({
