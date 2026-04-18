@@ -4,4 +4,4 @@ public/uploads/profile-photos/*
 !public/uploads/profile-photos/defaultusericon.png
 public/uploads/team-logos/*
 !public/uploads/team-logos/VA_logo.png
-src/modules/home/credentials.json
+src/modules/google_apis/credentials.json
