@@ -8,21 +8,95 @@
 
 const express = require('express');
 const path = require('path');
-const mySqlPool = require('../config/database'); // your MySQL pool
+const { google } = require('googleapis');
+const mySqlPool = require('../config/database');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+
 const router = express.Router();
 
+// ── GOOGLE OAUTH ──────────────────────────────────────────
+const oauth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.SECRET_ID,
+    process.env.REDIRECT
+);
+
+// GET /google — redirect to Google consent screen
+router.get('/google', (req, res) => {
+    const url = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: [
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/userinfo.profile'
+        ],
+        include_granted_scopes: true
+    });
+    res.redirect(url);
+});
+
+// GET /google/redirect — Google callback
+router.get('/google/redirect', async (req, res) => {
+    const code = req.query.code;
+    if (!code) return res.redirect('/?error=no_code');
+
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+        const { data: googleUser } = await oauth2.userinfo.get();
+
+        const [rows] = await mySqlPool.query(
+            'SELECT * FROM users WHERE email = ?', [googleUser.email]
+        );
+
+        if (!rows.length)                    return res.redirect('/?error=not_registered');
+        if (rows[0].status === 'Deactivated') return res.redirect('/?error=deactivated');
+
+        const user = rows[0];
+        setAuthCookies(res, user);
+        console.log(user);
+        return redirectByRole(res, user);
+
+    } catch (err) {
+        console.error('[GOOGLE LOGIN]', err);
+        return res.redirect('/?error=oauth_failed');
+    }
+});
+
+// ── GOOGLE CALENDAR | TODO: Move to calendar_routes.js ───────────────────────────────────────
+router.get('/google/calendars', (req, res) => {
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+    calendar.calendarList.list({}, (err, response) => {
+        if (err) { console.error(err); return res.status(500).end('Error'); }
+        res.json(response.data.items);
+    });
+});
+
+router.get('/google/events', (req, res) => {
+    const calendarId = req.query.calendar ?? 'primary';
+    const calendar   = google.calendar({ version: 'v3', auth: oauth2Client });
+    calendar.events.list({
+        calendarId,
+        timeMin:      new Date().toISOString(),
+        maxResults:   100,
+        singleEvents: true,
+        orderBy:      'startTime'
+    }, (err, response) => {
+        if (err) { console.error(err); return res.status(500).end('Error'); }
+        res.json(response.data.items);
+    });
+});
+
+// ── HELPERS ───────────────────────────────────────────────
 function setAuthCookies(res, user) {
     res.cookie('userRole', user.position, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
+        httpOnly: true, sameSite: 'lax', secure: false,
         maxAge: 8 * 60 * 60 * 1000
     });
-
     res.cookie('userId', String(user.userId), {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
+        httpOnly: true, sameSite: 'lax', secure: false,
         maxAge: 8 * 60 * 60 * 1000
     });
 }
@@ -30,6 +104,46 @@ function setAuthCookies(res, user) {
 function clearAuthCookies(res) {
     res.clearCookie('userRole');
     res.clearCookie('userId');
+}
+
+function redirectByRole(res, user) {
+    // First login -> force password change
+    if (user.firstLogin) {
+        return res.redirect('/change_password');
+    }
+
+    switch (user.position) {
+        case 'Team Manager': return res.redirect('/manager_dashboard.html');
+        case 'Team Coach':   return res.redirect('/coach_dashboard.html');
+        case 'Player':       return res.redirect('/player_analysis');
+        case 'Applicant':    return res.redirect('/applicant_dashboard');
+        default:
+            clearAuthCookies(res);
+            return res.redirect('/?error=unknown_role');
+    }
+}
+
+function redirectByRoleJson(res, user) {
+    const userPayload = {
+        firstname: user.firstname,
+        lastname:  user.lastname,
+        email:     user.email,
+        position:  user.position
+    };
+
+    if (user.firstLogin) {
+        return res.json({ redirect: '/change_password', user: userPayload });
+    }
+
+    switch (user.position) {
+        case 'Team Manager': return res.json({ redirect: '/manager_dashboard.html', user: userPayload });
+        case 'Team Coach':   return res.json({ redirect: '/coach_dashboard.html',   user: userPayload });
+        case 'Player':       return res.json({ redirect: '/player_analysis',         user: userPayload });
+        case 'Applicant':    return res.json({ redirect: '/applicant_dashboard',     user: userPayload });
+        default:
+            clearAuthCookies(res);
+            return res.status(400).send('Role not recognized');
+    }
 }
 
 async function requireCoachRole(req, res, next) {
