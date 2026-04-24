@@ -12,13 +12,13 @@
             const currentPeriod = await loadCurrentPeriod();
             if (currentPeriod) {
                 console.log("Active recruitment period:", currentPeriod);
-                signupText.innerHTML =        
-                `<p><div>Applying to the team? </div> <a href="/signup">Click here!</a></p>`
+                signupText.innerHTML =
+                    `<p><div>Applying to the team? </div> <a href="/signup">Click here!</a></p>`
             } else {
                 console.log("No active recruitment period.");
-                
-                signupText.innerHTML =        
-                `<p>
+
+                signupText.innerHTML =
+                    `<p>
                     <div>Applying to the team?</div> 
                     <div>______________________________</div>
                     <div>Please wait for us to announce</div>
@@ -45,12 +45,20 @@
             <input type="password" id="password" placeholder="Enter your password" required>
 
             <button type="submit">Continue</button>
+
+            <p><button type="button" class="google-button" id="google-button">Sign in with Google</button></p>
+
+            <script>
+                document.getElementById('google-button').addEventListener('click', () => {
+                    window.location.href = '/google';
+                });
+            </script>
         </form>
 
 
         <p class="signup-text" id="signup-text"></p>
 
-        
+
 
     </div>
 

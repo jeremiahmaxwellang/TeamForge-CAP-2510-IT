@@ -1,14 +1,9 @@
-// ACCESS THROUGH BROWSER: localhost:3000
-// temp index file for oauth google integration
-// node src/modules/google_apis/index.js
-
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
-// require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
-
 const express = require('express');
 const { google } = require('googleapis');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
-const app = express();
+const router = express.Router();
+
 /**
  * Note:
  * On Google Cloud OAuth Client ID,
@@ -29,11 +24,9 @@ const oauth2Client = new google.auth.OAuth2(
 
 /**
  * Route to Sign in with Google
- * 
- * Error when using a non-DLSU account: TeamForge is restricted to users within its organization
- * Try: configuring Google Cloud project so that it allows emails outside the organization
+ * /google
  */
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
     // Read Only
     const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',
@@ -49,7 +42,8 @@ app.get('/', (req, res) => {
 
 });
 
-app.get('/redirect', async (req, res) => {
+// http://localhost:3000/google/redirect
+router.get('/redirect', async (req, res) => {
     const code = req.query.code;
     try {
         const { tokens } = await oauth2Client.getToken(code); // get tokens
@@ -61,8 +55,8 @@ app.get('/redirect', async (req, res) => {
     }
 });
 
-// http://localhost:3000/calendars
-app.get('/calendars', (req, res) => {
+// http://localhost:3000/google/calendars
+router.get('/calendars', (req, res) => {
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
     calendar.calendarList.list({}, (err, response) => {
         if (err) {
@@ -75,8 +69,8 @@ app.get('/calendars', (req, res) => {
     });
 })
 
-// http://localhost:3000/events
-app.get('/events', (req, res) => {
+// http://localhost:3000/google/events
+router.get('/events', (req, res) => {
     const calendarId = req.query.calendar ?? 'primary';
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
     calendar.events.list({
@@ -96,4 +90,4 @@ app.get('/events', (req, res) => {
     })
 })
 
-app.listen(3000, () => console.log('Server running at 3000'));
+module.exports = router;

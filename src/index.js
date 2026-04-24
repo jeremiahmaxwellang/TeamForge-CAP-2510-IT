@@ -119,6 +119,8 @@ app.use(express.static(path.join(process.cwd(), './public')));
 global.viewsPath = path.join(process.cwd(), 'views');
 
 // Routes 
+app.use('/google', require('./modules/google_apis/google_routes')); // googleapi routes
+// app.use('/google', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/google_apis/google_routes')); // googleapi routes
 app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
 
 app.use("/", require("./routes/authRoutes")); // login routes

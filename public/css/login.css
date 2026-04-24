@@ -52,7 +52,7 @@ body {
     text-decoration: underline;
 }
 
-.login-box button {
+.login-box button, .google-button {
     width: 70%;
     padding: 12px;
     background: black;
@@ -61,6 +61,14 @@ body {
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
+}
+
+.login-box .google-button {
+    background: #236df5;
+}
+
+.login-box .google-button:hover {
+    background: #86aef8;
 }
 
 .login-box button:hover {
