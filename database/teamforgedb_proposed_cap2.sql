@@ -498,37 +498,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
   `eventId` INT UNSIGNED NOT NULL,
   `userId` INT UNSIGNED NOT NULL,
   `player_role` INT NULL,
-  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL,
-  `notes` LONGTEXT NULL,
-  PRIMARY KEY (`eventId`, `userId`),
-  INDEX `fk_event_attendees_users2_idx` (`userId` ASC) VISIBLE,
-  INDEX `fk_event_attendees_leagueroles2_idx` (`player_role` ASC) VISIBLE,
-  CONSTRAINT `fk_event_attendees_events1`
-    FOREIGN KEY (`eventId`)
-    REFERENCES `teamforgedb`.`events` (`eventId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_event_attendees_users2`
-    FOREIGN KEY (`userId`)
-    REFERENCES `teamforgedb`.`users` (`userId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_event_attendees_leagueroles2`
-    FOREIGN KEY (`player_role`)
-    REFERENCES `teamforgedb`.`leagueroles` (`roleId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `teamforgedb`.`event_attendees`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
-  `eventId` INT UNSIGNED NOT NULL,
-  `userId` INT UNSIGNED NOT NULL,
-  `player_role` INT NULL,
-  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL,
+  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL COMMENT 'attendance status\nENUM(\'Present\', \'Late\', \'Absent\', \'Excused\')',
   `notes` LONGTEXT NULL,
   PRIMARY KEY (`eventId`, `userId`),
   INDEX `fk_event_attendees_users2_idx` (`userId` ASC) VISIBLE,
