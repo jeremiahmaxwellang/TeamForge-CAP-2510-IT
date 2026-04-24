@@ -329,6 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return '/uploads/team-logos/VA_logo.png';
     };
 
+    /* ===============================
+        TOURNAMENTS
+       =============================== */ 
     const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
         if (!tournamentRangeSummary) return;
 

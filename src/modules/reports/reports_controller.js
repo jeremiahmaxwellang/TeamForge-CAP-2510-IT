@@ -3,7 +3,12 @@
  * - contains the SQL Query for inserting/fetching scrim info
  */
 
-const db = require("../config/database");
+const db = require("../../config/database");
+
+// 1. Serve the HTML page
+exports.getReportsPage = (req, res) => {
+    res.sendFile('reports.html', { root: './src/modules/reports' }); // Adjust root if your html is somewhere else
+};
 
 // Get current players
 exports.getCurrentPlayers = async (req, res) => {
@@ -237,31 +242,51 @@ exports.getBestCommunicationApplicants = async (req, res) => {
 }
 
 // Get tournament result records for reports (Manager/Coach safe)
+// exports.getTournamentResultsReport = async (req, res) => {
+
+//     try {
+
+//         const [rows] = await db.query(
+//             `SELECT
+//                 t.tournamentId,
+//                 t.name,
+//                 t.startDate AS tournamentDate,
+//                 t.win AS result
+//             FROM tournaments t
+//             ORDER BY t.tournamentId DESC`
+//         );
+
+//         return res.status(200).json({
+//             success: true,
+//             data: rows
+//         });
+
+//     } catch (err) {
+//         console.error('Error:', err);
+//         return res.status(500).json({
+//             success: false,
+//             message: 'Error fetching tournament report data',
+//             error: err.message
+//         });
+//     }
+// }
+
+// GET Tournaments
+// changed to cap2 events table
 exports.getTournamentResultsReport = async (req, res) => {
-
     try {
-
-        const [rows] = await db.query(
-            `SELECT
-                t.tournamentId,
-                t.name,
-                t.startDate AS tournamentDate,
-                t.win AS result
-            FROM tournaments t
-            ORDER BY t.tournamentId DESC`
+        const [rows] = await mySqlPool.query(
+            'SELECT * FROM events WHERE type = ?',
+            ['Tournament']
         );
 
-        return res.status(200).json({
-            success: true,
-            data: rows
-        });
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'No tournaments found' });
+        }
 
+        res.json(rows);
     } catch (err) {
-        console.error('Error:', err);
-        return res.status(500).json({
-            success: false,
-            message: 'Error fetching tournament report data',
-            error: err.message
-        });
+        console.error('Error fetching tournaments:', err);
+        res.status(500).json({ error: 'Server error' });
     }
-}
+};

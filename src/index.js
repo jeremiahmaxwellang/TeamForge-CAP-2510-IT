@@ -122,6 +122,8 @@ global.viewsPath = path.join(process.cwd(), 'views');
 app.use('/google', require('./modules/google_apis/google_routes')); // googleapi routes
 // app.use('/google', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/google_apis/google_routes')); // googleapi routes
 app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
+app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes')); // announcement routes
+app.use('/reports', requireAnyRole(['Team Manager', 'Team Coach']), require('./modules/reports/reports_routes'));
 
 app.use("/", require("./routes/authRoutes")); // login routes
 app.use('/recruitment', require("./routes/recruitmentRoutes")); // recruitment routes
@@ -138,8 +140,6 @@ app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRo
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
 app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane
 app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./routes/settingsRoutes')); // user settings
-
-app.use('/reports', requireAnyRole(['Team Manager', 'Team Coach']), require('./routes/reportsRoutes'));
 
 app.get('/api/user/profile', async (req, res) => {
     try {
