@@ -452,6 +452,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`events` (
   `eventId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title_summary` TEXT NOT NULL COMMENT 'Title of the event.',
+  `organizer_id` INT UNSIGNED NULL COMMENT 'The userId of the event creator',
   `type` ENUM('Scrim', 'Tournament', 'Meeting', 'Other') NOT NULL COMMENT 'type ENUM(\'Scrim\', \'Tournament\', \'Meeting\', \'Other\')',
   `location` TEXT NULL,
   `start_date` DATE NULL,
