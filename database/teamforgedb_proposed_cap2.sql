@@ -501,6 +501,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
   `player_role` INT NULL,
   `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL COMMENT 'attendance status\nENUM(\'Present\', \'Late\', \'Absent\', \'Excused\')',
   `notes` LONGTEXT NULL,
+  `is_sub` ENUM('Y', 'N') NULL DEFAULT 'N',
   PRIMARY KEY (`eventId`, `userId`),
   INDEX `fk_event_attendees_users2_idx` (`userId` ASC) VISIBLE,
   INDEX `fk_event_attendees_leagueroles2_idx` (`player_role` ASC) VISIBLE,

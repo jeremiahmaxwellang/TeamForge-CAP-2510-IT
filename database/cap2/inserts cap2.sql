@@ -616,7 +616,8 @@ VALUES
 (18, 6, 'Support steady comms', 3, 4, 3, 2);
 
 -- Scrim 2 (eventId = 19) – Blueprint good
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (19, 14, 'Excellent shotcalling, clear comms', 5, 5, 4, 2),
 (19, 13, 'Top laner weak comms', 2, 2, 2, 2),
 (19, 15, 'Mid laner strong comms', 4, 4, 4, 2),
@@ -624,7 +625,8 @@ INSERT INTO player_evaluations VALUES
 (19, 17, 'Support vocal', 4, 4, 4, 2);
 
 -- Scrim 3 (eventId = 20) – 5star bad
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (20, 7, 'Minimal communication, lacked presence', 2, 1, 2, 2),
 (20, 4, 'Top laner silent this game', 3, 2, 3, 2),
 (20, 15, 'Mid laner strong comms', 4, 5, 4, 2),
@@ -632,7 +634,8 @@ INSERT INTO player_evaluations VALUES
 (20, 6, 'Support weak comms', 2, 2, 2, 2);
 
 -- Scrim 4 (eventId = 21) – Blueprint good
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (21, 14, 'Strong comms, decisive calls', 4, 5, 4, 2),
 (21, 13, 'Top laner improved comms', 3, 3, 3, 2),
 (21, 3, 'Mid laner steady', 3, 4, 3, 2),
@@ -640,7 +643,8 @@ INSERT INTO player_evaluations VALUES
 (21, 6, 'Support strong comms', 4, 5, 4, 2);
 
 -- Scrim 5 (eventId = 22) – both present
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (22, 7, 'Some comms but inconsistent', 3, 2, 3, 2),
 (22, 14, 'Clear communication, good synergy', 4, 4, 4, 2),
 (22, 4, 'Top laner vocal', 4, 4, 4, 2),
@@ -648,7 +652,8 @@ INSERT INTO player_evaluations VALUES
 (22, 17, 'Support strong', 4, 5, 4, 2);
 
 -- Scrim 6 (eventId = 23) – 5star bad
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (23, 7, 'Barely spoke, weak comms', 2, 1, 2, 2),
 (23, 13, 'Top laner average', 3, 3, 3, 2),
 (23, 15, 'Mid laner vocal', 4, 4, 4, 2),
@@ -656,7 +661,8 @@ INSERT INTO player_evaluations VALUES
 (23, 6, 'Support average', 3, 3, 3, 2);
 
 -- Scrim 7 (eventId = 24) – Blueprint good
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (24, 14, 'Excellent comms, led rotations well', 5, 5, 4, 2),
 (24, 4, 'Top laner strong', 4, 5, 4, 2),
 (24, 3, 'Mid laner average', 3, 3, 3, 2),
@@ -664,7 +670,8 @@ INSERT INTO player_evaluations VALUES
 (24, 17, 'Support steady', 3, 4, 3, 2);
 
 -- Scrim 8 (eventId = 25) – both present
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (25, 7, 'Silent again, poor coordination', 2, 1, 2, 2),
 (25, 14, 'Good comms, steady shotcalling', 4, 4, 4, 2),
 (25, 13, 'Top laner weak', 2, 2, 2, 2),
@@ -672,7 +679,8 @@ INSERT INTO player_evaluations VALUES
 (25, 6, 'Support vocal', 4, 4, 4, 2);
 
 -- Scrim 9 (eventId = 26) – 5star bad
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (26, 7, 'Some comms but weak', 3, 2, 3, 2),
 (26, 4, 'Top laner average', 3, 3, 3, 2),
 (26, 15, 'Mid laner strong', 4, 4, 4, 2),
@@ -680,7 +688,8 @@ INSERT INTO player_evaluations VALUES
 (26, 17, 'Support strong', 4, 5, 4, 2);
 
 -- Scrim 10 (eventId = 27) – Blueprint good
-INSERT INTO player_evaluations VALUES
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
 (27, 14, 'Strong comms, very vocal', 5, 5, 4, 2),
 (27, 13, 'Top laner vocal', 4, 4, 4, 2),
 (27, 3, 'Mid laner average', 3, 3, 3, 2),
@@ -707,7 +716,8 @@ VALUES
 (37, 'August Rift Qualifier', 'Tournament', 'Online', '2025-08-16', '2025-08-17', 'L', 'completed');
 
 -- Period 2: September 2025 to December 2025
-INSERT INTO events VALUES
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
+VALUES
 (38, 'September Open Series', 'Tournament', 'Online', '2025-09-06', '2025-09-07', 'N/A', 'completed'),
 (39, 'October Rift Rumble', 'Tournament', 'Online', '2025-10-04', '2025-10-05', 'W', 'completed'),
 (40, 'October Nexus Trials', 'Tournament', 'Online', '2025-10-25', '2025-10-26', 'L', 'completed'),
@@ -720,7 +730,8 @@ INSERT INTO events VALUES
 (47, 'December Year-End Series', 'Tournament', 'Online', '2025-12-20', '2025-12-21', 'N/A', 'completed');
 
 -- Period 3: January 2026 to April 2026
-INSERT INTO events VALUES
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
+VALUES
 (48, 'January Season Opener', 'Tournament', 'Online', '2026-01-17', '2026-01-18', 'L', 'completed'),
 (49, 'February Rift Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed'),
 (50, 'March Midseason Clash', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed'),
@@ -745,7 +756,8 @@ VALUES
 (43, 8, 2, 'Excused', 'Y');
 
 -- Tournament 17 → Event 44 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (44, 4, 1, 'Present', 'N'),
 (44, 7, 2, 'Present', 'N'),
 (44, 15, 3, 'Present', 'N'),
@@ -754,7 +766,8 @@ INSERT INTO event_attendees VALUES
 (44, 13, 1, 'Excused', 'Y');
 
 -- Tournament 18 → Event 45 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (45, 13, 1, 'Present', 'N'),
 (45, 7, 2, 'Present', 'N'),
 (45, 3, 3, 'Present', 'N'),
@@ -763,7 +776,8 @@ INSERT INTO event_attendees VALUES
 (45, 4, 1, 'Excused', 'Y');
 
 -- Tournament 19 → Event 46 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (46, 4, 1, 'Present', 'N'),
 (46, 14, 2, 'Present', 'N'),
 (46, 3, 3, 'Present', 'N'),
@@ -772,7 +786,8 @@ INSERT INTO event_attendees VALUES
 (46, 7, 2, 'Excused', 'Y');
 
 -- Tournament 20 → Event 47 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (47, 13, 1, 'Present', 'N'),
 (47, 9, 2, 'Present', 'N'),
 (47, 15, 3, 'Present', 'N'),
@@ -780,7 +795,8 @@ INSERT INTO event_attendees VALUES
 (47, 6, 5, 'Present', 'N');
 
 -- Tournament 21 → Event 48 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (48, 4, 1, 'Present', 'N'),
 (48, 8, 2, 'Present', 'N'),
 (48, 3, 3, 'Present', 'N'),
@@ -789,7 +805,8 @@ INSERT INTO event_attendees VALUES
 (48, 13, 1, 'Excused', 'Y');
 
 -- Tournament 22 → Event 49 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (49, 13, 1, 'Present', 'N'),
 (49, 7, 2, 'Present', 'N'),
 (49, 15, 3, 'Present', 'N'),
@@ -798,7 +815,8 @@ INSERT INTO event_attendees VALUES
 (49, 9, 2, 'Excused', 'Y');
 
 -- Tournament 23 → Event 50 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (50, 4, 1, 'Present', 'N'),
 (50, 14, 2, 'Present', 'N'),
 (50, 3, 3, 'Present', 'N'),
@@ -806,7 +824,8 @@ INSERT INTO event_attendees VALUES
 (50, 17, 5, 'Present', 'N');
 
 -- Tournament 24 → Event 51 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (51, 13, 1, 'Present', 'N'),
 (51, 9, 2, 'Present', 'N'),
 (51, 15, 3, 'Present', 'N'),
@@ -815,7 +834,8 @@ INSERT INTO event_attendees VALUES
 (51, 4, 1, 'Excused', 'Y');
 
 -- Tournament 25 → Event 52 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (52, 4, 1, 'Present', 'N'),
 (52, 8, 2, 'Present', 'N'),
 (52, 3, 3, 'Present', 'N'),
@@ -825,7 +845,8 @@ INSERT INTO event_attendees VALUES
 (52, 6, 5, 'Excused', 'Y');
 
 -- Tournament 26 → Event 53 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (53, 4, 1, 'Present', 'N'),
 (53, 7, 2, 'Present', 'N'),
 (53, 3, 3, 'Present', 'N'),
@@ -834,7 +855,8 @@ INSERT INTO event_attendees VALUES
 (53, 13, 1, 'Excused', 'Y');
 
 -- Tournament 27 → Event 54 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (54, 13, 1, 'Present', 'N'),
 (54, 9, 2, 'Present', 'N'),
 (54, 15, 3, 'Present', 'N'),
@@ -842,7 +864,8 @@ INSERT INTO event_attendees VALUES
 (54, 6, 5, 'Present', 'N');
 
 -- Tournament 28 → Event 55 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (55, 4, 1, 'Present', 'N'),
 (55, 14, 2, 'Present', 'N'),
 (55, 3, 3, 'Present', 'N'),
@@ -851,7 +874,8 @@ INSERT INTO event_attendees VALUES
 (55, 7, 2, 'Excused', 'Y');
 
 -- Tournament 29 → Event 56 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (56, 13, 1, 'Present', 'N'),
 (56, 8, 2, 'Present', 'N'),
 (56, 15, 3, 'Present', 'N'),
@@ -860,7 +884,8 @@ INSERT INTO event_attendees VALUES
 (56, 4, 1, 'Excused', 'Y');
 
 -- Tournament 30 → Event 57 attendees
-INSERT INTO event_attendees VALUES
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+VALUES
 (57, 4, 1, 'Present', 'N'),
 (57, 7, 2, 'Present', 'N'),
 (57, 3, 3, 'Present', 'N'),
