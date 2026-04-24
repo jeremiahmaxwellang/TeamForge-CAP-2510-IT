@@ -58,12 +58,17 @@ EMAIL_USER="example@gmail.com"
 EMAIL_PASS="example"
 
 CLIENT_ID=sampleclientid.apps.googleusercontent.com
-SECRET_ID=SAMPLE-GOOGLE-SECRET-ID
+SECRET_ID=GOCSPX-SAMPLE-GOOGLE-SECRET-ID
 REDIRECT=http://localhost:3000/redirect
 ```
 
 * Google Cloud credentials tutorial:
 [https://www.youtube.com/watch?v=2byT7fYT8UE](https://www.youtube.com/watch?v=2byT7fYT8UE)
+
+Notes:
+* Application type: Web Application
+* When Adding Scopes, search 'Google Calendar API' and select ALL scopes
+* SECRET_ID can be copy-pasted from the 'client_secret' from your created Google Cloud client
 
 ### Executing program
 
