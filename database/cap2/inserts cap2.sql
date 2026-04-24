@@ -287,10 +287,10 @@ VALUES
 -- -----------------------------------------------------
 -- APPLICATION PERIODS (2 weeks each)
 -- -----------------------------------------------------
-INSERT INTO application_periods (startDate, endDate) VALUES
-('2025-09-01', '2025-09-13'),
-('2026-01-26', '2026-02-07'),
-('2026-03-21', '2026-04-04'); -- period 3
+INSERT INTO application_periods (periodId, startDate, endDate) VALUES
+(1, '2025-09-01', '2025-09-13'),
+(2, '2026-01-26', '2026-02-07'),
+(3, '2026-03-21', '2026-04-04'); -- period 3
 
 -- -----------------------------------------------------
 -- APPLICANTS (Bad)
@@ -695,350 +695,176 @@ INSERT INTO player_evaluations VALUES
 -- Period 1: May 2025 to August 2025
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
 VALUES
-(1, 'May Kickoff Clash', 'Tournament', 'Online', '2025-05-17', '2025-05-18', 'W', 'completed'),
-(2, 'June Rift Gauntlet', 'Tournament', 'Online', '2025-06-07', '2025-06-08', 'L', 'completed'),
-(3, 'June Campus Showdown', 'Tournament', 'Campus Arena', '2025-06-28', '2025-06-29', 'N/A', 'completed'),
-(4, 'July Collegiate Cup', 'Tournament', 'Online', '2025-07-19', '2025-07-20', 'W', 'completed'),
-(5, 'August Finals Qualifier', 'Tournament', 'Online', '2025-08-09', '2025-08-10', 'L', 'completed'),
-(16, 'May Thunderstrike', 'Tournament', 'Online', '2025-05-24', '2025-05-25', 'W', 'completed'),
-(17, 'June Rift Showdown', 'Tournament', 'Online', '2025-06-14', '2025-06-15', 'W', 'completed'),
-(18, 'July Clash Series', 'Tournament', 'Online', '2025-07-05', '2025-07-06', 'W', 'completed'),
-(19, 'July Lightning Cup', 'Tournament', 'Online', '2025-07-26', '2025-07-27', 'W', 'completed'),
-(20, 'August Rift Qualifier', 'Tournament', 'Online', '2025-08-16', '2025-08-17', 'L', 'completed');
+(28, 'May Kickoff Clash', 'Tournament', 'Online', '2025-05-17', '2025-05-18', 'W', 'completed'),
+(29, 'June Rift Gauntlet', 'Tournament', 'Online', '2025-06-07', '2025-06-08', 'L', 'completed'),
+(30, 'June Campus Showdown', 'Tournament', 'Campus Arena', '2025-06-28', '2025-06-29', 'N/A', 'completed'),
+(31, 'July Collegiate Cup', 'Tournament', 'Online', '2025-07-19', '2025-07-20', 'W', 'completed'),
+(32, 'August Finals Qualifier', 'Tournament', 'Online', '2025-08-09', '2025-08-10', 'L', 'completed'),
+(33, 'May Thunderstrike', 'Tournament', 'Online', '2025-05-24', '2025-05-25', 'W', 'completed'),
+(34, 'June Rift Showdown', 'Tournament', 'Online', '2025-06-14', '2025-06-15', 'W', 'completed'),
+(35, 'July Clash Series', 'Tournament', 'Online', '2025-07-05', '2025-07-06', 'W', 'completed'),
+(36, 'July Lightning Cup', 'Tournament', 'Online', '2025-07-26', '2025-07-27', 'W', 'completed'),
+(37, 'August Rift Qualifier', 'Tournament', 'Online', '2025-08-16', '2025-08-17', 'L', 'completed');
 
 -- Period 2: September 2025 to December 2025
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
-VALUES
-(6, 'September Open Series', 'Tournament', 'Online', '2025-09-06', '2025-09-07', 'N/A', 'completed'),
-(7, 'October Rift Rumble', 'Tournament', 'Online', '2025-10-04', '2025-10-05', 'W', 'completed'),
-(8, 'October Nexus Trials', 'Tournament', 'Online', '2025-10-25', '2025-10-26', 'L', 'completed'),
-(9, 'November Varsity Cup', 'Tournament', 'Online', '2025-11-15', '2025-11-16', 'W', 'completed'),
-(10, 'December Invitational', 'Tournament', 'Online', '2025-12-06', '2025-12-07', 'N/A', 'completed'),
-(21, 'September Rift Challenge', 'Tournament', 'Online', '2025-09-20', '2025-09-21', 'W', 'completed'),
-(22, 'October Clash Invitational', 'Tournament', 'Online', '2025-10-18', '2025-10-19', 'L', 'completed'),
-(23, 'November Open Cup', 'Tournament', 'Online', '2025-11-08', '2025-11-09', 'W', 'completed'),
-(24, 'November Nexus Brawl', 'Tournament', 'Online', '2025-11-29', '2025-11-30', 'L', 'completed'),
-(25, 'December Year-End Series', 'Tournament', 'Online', '2025-12-20', '2025-12-21', 'N/A', 'completed');
+INSERT INTO events VALUES
+(38, 'September Open Series', 'Tournament', 'Online', '2025-09-06', '2025-09-07', 'N/A', 'completed'),
+(39, 'October Rift Rumble', 'Tournament', 'Online', '2025-10-04', '2025-10-05', 'W', 'completed'),
+(40, 'October Nexus Trials', 'Tournament', 'Online', '2025-10-25', '2025-10-26', 'L', 'completed'),
+(41, 'November Varsity Cup', 'Tournament', 'Online', '2025-11-15', '2025-11-16', 'W', 'completed'),
+(42, 'December Invitational', 'Tournament', 'Online', '2025-12-06', '2025-12-07', 'N/A', 'completed'),
+(43, 'September Rift Challenge', 'Tournament', 'Online', '2025-09-20', '2025-09-21', 'W', 'completed'),
+(44, 'October Clash Invitational', 'Tournament', 'Online', '2025-10-18', '2025-10-19', 'L', 'completed'),
+(45, 'November Open Cup', 'Tournament', 'Online', '2025-11-08', '2025-11-09', 'W', 'completed'),
+(46, 'November Nexus Brawl', 'Tournament', 'Online', '2025-11-29', '2025-11-30', 'L', 'completed'),
+(47, 'December Year-End Series', 'Tournament', 'Online', '2025-12-20', '2025-12-21', 'N/A', 'completed');
 
 -- Period 3: January 2026 to April 2026
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
-VALUES
-(11, 'January Season Opener', 'Tournament', 'Online', '2026-01-17', '2026-01-18', 'L', 'completed'),
-(12, 'February Rift Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed'),
-(13, 'March Midseason Clash', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed'),
-(14, 'April Academy Cup', 'Tournament', 'Online', '2026-04-04', '2026-04-05', 'W', 'completed'),
-(15, 'Spring Crown Finals', 'Tournament', 'Online', '2026-04-18', '2026-04-19', 'L', 'completed'),
-(26, 'February Rift Trials', 'Tournament', 'Online', '2026-01-31', '2026-02-01', 'L', 'completed'),
-(27, 'February Crown Series', 'Tournament', 'Online', '2026-02-21', '2026-02-22', 'L', 'completed'),
-(28, 'March Gauntlet Cup', 'Tournament', 'Online', '2026-03-21', '2026-03-22', 'L', 'completed'),
-(29, 'April Rift Revival', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed'),
-(30, 'April Final Showdown', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed');
+INSERT INTO events VALUES
+(48, 'January Season Opener', 'Tournament', 'Online', '2026-01-17', '2026-01-18', 'L', 'completed'),
+(49, 'February Rift Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed'),
+(50, 'March Midseason Clash', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed'),
+(51, 'April Academy Cup', 'Tournament', 'Online', '2026-04-04', '2026-04-05', 'W', 'completed'),
+(52, 'Spring Crown Finals', 'Tournament', 'Online', '2026-04-18', '2026-04-19', 'L', 'completed'),
+(53, 'February Rift Trials', 'Tournament', 'Online', '2026-01-31', '2026-02-01', 'L', 'completed'),
+(54, 'February Crown Series', 'Tournament', 'Online', '2026-02-21', '2026-02-22', 'L', 'completed'),
+(55, 'March Gauntlet Cup', 'Tournament', 'Online', '2026-03-21', '2026-03-22', 'L', 'completed'),
+(56, 'April Rift Revival', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed'),
+(57, 'April Final Showdown', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed');
 
--- Period 1: May 2025 to August 2025
--- Tournament 1: veteran core with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(1, 4, 1, 'N'),
-(1, 7, 2, 'N'),
-(1, 3, 3, 'N'),
-(1, 5, 4, 'N'),
-(1, 6, 5, 'N'),
-(1, 13, 1, 'Y'),
-(1, 17, 5, 'Y');
 
--- Tournament 2: academy starters with one substitute
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(2, 13, 1, 'N'),
-(2, 8, 2, 'N'),
-(2, 15, 3, 'N'),
-(2, 16, 4, 'N'),
-(2, 17, 5, 'N'),
-(2, 14, 2, 'Y');
 
--- Tournament 3: mixed lineup with mid substitute
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 16 → Event 43 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(3, 4, 1, 'N'),
-(3, 14, 2, 'N'),
-(3, 3, 3, 'N'),
-(3, 16, 4, 'N'),
-(3, 6, 5, 'N'),
-(3, 15, 3, 'Y');
+(43, 4, 1, 'Present', 'N'),
+(43, 7, 2, 'Present', 'N'),
+(43, 3, 3, 'Present', 'N'),
+(43, 5, 4, 'Present', 'N'),
+(43, 6, 5, 'Present', 'N'),
+(43, 8, 2, 'Excused', 'Y');
 
--- Tournament 4: starters only
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(4, 13, 1, 'N'),
-(4, 7, 2, 'N'),
-(4, 15, 3, 'N'),
-(4, 5, 4, 'N'),
-(4, 17, 5, 'N');
+-- Tournament 17 → Event 44 attendees
+INSERT INTO event_attendees VALUES
+(44, 4, 1, 'Present', 'N'),
+(44, 7, 2, 'Present', 'N'),
+(44, 15, 3, 'Present', 'N'),
+(44, 5, 4, 'Present', 'N'),
+(44, 17, 5, 'Present', 'N'),
+(44, 13, 1, 'Excused', 'Y');
 
--- Tournament 5: alternate jungler and support reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(5, 4, 1, 'N'),
-(5, 9, 2, 'N'),
-(5, 3, 3, 'N'),
-(5, 5, 4, 'N'),
-(5, 17, 5, 'N'),
-(5, 8, 2, 'Y');
+-- Tournament 18 → Event 45 attendees
+INSERT INTO event_attendees VALUES
+(45, 13, 1, 'Present', 'N'),
+(45, 7, 2, 'Present', 'N'),
+(45, 3, 3, 'Present', 'N'),
+(45, 5, 4, 'Present', 'N'),
+(45, 6, 5, 'Present', 'N'),
+(45, 4, 1, 'Excused', 'Y');
 
--- Period 2: September 2025 to December 2025
--- Tournament 6: balanced lineup with top and support subs
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(6, 13, 1, 'N'),
-(6, 14, 2, 'N'),
-(6, 15, 3, 'N'),
-(6, 16, 4, 'N'),
-(6, 6, 5, 'N'),
-(6, 4, 1, 'Y'),
-(6, 17, 5, 'Y');
+-- Tournament 19 → Event 46 attendees
+INSERT INTO event_attendees VALUES
+(46, 4, 1, 'Present', 'N'),
+(46, 14, 2, 'Present', 'N'),
+(46, 3, 3, 'Present', 'N'),
+(46, 16, 4, 'Present', 'N'),
+(46, 17, 5, 'Present', 'N'),
+(46, 7, 2, 'Excused', 'Y');
 
--- Tournament 7: returning veterans with ADC reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(7, 4, 1, 'N'),
-(7, 8, 2, 'N'),
-(7, 3, 3, 'N'),
-(7, 16, 4, 'N'),
-(7, 17, 5, 'N'),
-(7, 5, 4, 'Y');
+-- Tournament 20 → Event 47 attendees
+INSERT INTO event_attendees VALUES
+(47, 13, 1, 'Present', 'N'),
+(47, 9, 2, 'Present', 'N'),
+(47, 15, 3, 'Present', 'N'),
+(47, 16, 4, 'Present', 'N'),
+(47, 6, 5, 'Present', 'N');
 
--- Tournament 8: development roster with jungle sub
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(8, 13, 1, 'N'),
-(8, 7, 2, 'N'),
-(8, 15, 3, 'N'),
-(8, 5, 4, 'N'),
-(8, 6, 5, 'N'),
-(8, 14, 2, 'Y');
+-- Tournament 21 → Event 48 attendees
+INSERT INTO event_attendees VALUES
+(48, 4, 1, 'Present', 'N'),
+(48, 8, 2, 'Present', 'N'),
+(48, 3, 3, 'Present', 'N'),
+(48, 5, 4, 'Present', 'N'),
+(48, 17, 5, 'Present', 'N'),
+(48, 13, 1, 'Excused', 'Y');
 
--- Tournament 9: aggressive lineup with two reserves
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(9, 4, 1, 'N'),
-(9, 14, 2, 'N'),
-(9, 3, 3, 'N'),
-(9, 5, 4, 'N'),
-(9, 17, 5, 'N'),
-(9, 9, 2, 'Y'),
-(9, 16, 4, 'Y');
+-- Tournament 22 → Event 49 attendees
+INSERT INTO event_attendees VALUES
+(49, 13, 1, 'Present', 'N'),
+(49, 7, 2, 'Present', 'N'),
+(49, 15, 3, 'Present', 'N'),
+(49, 16, 4, 'Present', 'N'),
+(49, 6, 5, 'Present', 'N'),
+(49, 9, 2, 'Excused', 'Y');
 
--- Tournament 10: late-season lineup with support reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(10, 13, 1, 'N'),
-(10, 9, 2, 'N'),
-(10, 15, 3, 'N'),
-(10, 16, 4, 'N'),
-(10, 6, 5, 'N'),
-(10, 17, 5, 'Y');
+-- Tournament 23 → Event 50 attendees
+INSERT INTO event_attendees VALUES
+(50, 4, 1, 'Present', 'N'),
+(50, 14, 2, 'Present', 'N'),
+(50, 3, 3, 'Present', 'N'),
+(50, 5, 4, 'Present', 'N'),
+(50, 17, 5, 'Present', 'N');
 
--- Period 3: January 2026 to April 2026
--- Tournament 11: veteran starters with top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(11, 4, 1, 'N'),
-(11, 7, 2, 'N'),
-(11, 3, 3, 'N'),
-(11, 16, 4, 'N'),
-(11, 17, 5, 'N'),
-(11, 13, 1, 'Y');
+-- Tournament 24 → Event 51 attendees
+INSERT INTO event_attendees VALUES
+(51, 13, 1, 'Present', 'N'),
+(51, 9, 2, 'Present', 'N'),
+(51, 15, 3, 'Present', 'N'),
+(51, 16, 4, 'Present', 'N'),
+(51, 6, 5, 'Present', 'N'),
+(51, 4, 1, 'Excused', 'Y');
 
--- Tournament 12: flexible lineup with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(12, 13, 1, 'N'),
-(12, 8, 2, 'N'),
-(12, 15, 3, 'N'),
-(12, 5, 4, 'N'),
-(12, 6, 5, 'N'),
-(12, 4, 1, 'Y'),
-(12, 14, 2, 'Y');
+-- Tournament 25 → Event 52 attendees
+INSERT INTO event_attendees VALUES
+(52, 4, 1, 'Present', 'N'),
+(52, 8, 2, 'Present', 'N'),
+(52, 3, 3, 'Present', 'N'),
+(52, 5, 4, 'Present', 'N'),
+(52, 17, 5, 'Present', 'N'),
+(52, 7, 2, 'Excused', 'Y'),
+(52, 6, 5, 'Excused', 'Y');
 
--- Tournament 13: mixed starters with jungle reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(13, 4, 1, 'N'),
-(13, 14, 2, 'N'),
-(13, 3, 3, 'N'),
-(13, 16, 4, 'N'),
-(13, 17, 5, 'N'),
-(13, 7, 2, 'Y');
+-- Tournament 26 → Event 53 attendees
+INSERT INTO event_attendees VALUES
+(53, 4, 1, 'Present', 'N'),
+(53, 7, 2, 'Present', 'N'),
+(53, 3, 3, 'Present', 'N'),
+(53, 16, 4, 'Present', 'N'),
+(53, 17, 5, 'Present', 'N'),
+(53, 13, 1, 'Excused', 'Y');
 
--- Tournament 14: academy starters with top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(14, 13, 1, 'N'),
-(14, 9, 2, 'N'),
-(14, 15, 3, 'N'),
-(14, 5, 4, 'N'),
-(14, 6, 5, 'N'),
-(14, 4, 1, 'Y');
+-- Tournament 27 → Event 54 attendees
+INSERT INTO event_attendees VALUES
+(54, 13, 1, 'Present', 'N'),
+(54, 9, 2, 'Present', 'N'),
+(54, 15, 3, 'Present', 'N'),
+(54, 5, 4, 'Present', 'N'),
+(54, 6, 5, 'Present', 'N');
 
--- Tournament 15: spring finals lineup with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(15, 4, 1, 'N'),
-(15, 8, 2, 'N'),
-(15, 15, 3, 'N'),
-(15, 16, 4, 'N'),
-(15, 17, 5, 'N'),
-(15, 13, 1, 'Y'),
-(15, 6, 5, 'Y');
+-- Tournament 28 → Event 55 attendees
+INSERT INTO event_attendees VALUES
+(55, 4, 1, 'Present', 'N'),
+(55, 14, 2, 'Present', 'N'),
+(55, 3, 3, 'Present', 'N'),
+(55, 16, 4, 'Present', 'N'),
+(55, 17, 5, 'Present', 'N'),
+(55, 7, 2, 'Excused', 'Y');
 
--- Period 1 additions
--- Tournament 16 (W): main starters with jungle reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(16, 4, 1, 'N'),
-(16, 7, 2, 'N'),
-(16, 3, 3, 'N'),
-(16, 5, 4, 'N'),
-(16, 6, 5, 'N'),
-(16, 8, 2, 'Y');
+-- Tournament 29 → Event 56 attendees
+INSERT INTO event_attendees VALUES
+(56, 13, 1, 'Present', 'N'),
+(56, 8, 2, 'Present', 'N'),
+(56, 15, 3, 'Present', 'N'),
+(56, 5, 4, 'Present', 'N'),
+(56, 6, 5, 'Present', 'N'),
+(56, 4, 1, 'Excused', 'Y');
 
--- Tournament 17 (W): veteran top with mid and support subs
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(17, 4, 1, 'N'),
-(17, 7, 2, 'N'),
-(17, 15, 3, 'N'),
-(17, 5, 4, 'N'),
-(17, 17, 5, 'N'),
-(17, 13, 1, 'Y');
-
--- Tournament 18 (W): top sub leads with veteran core
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(18, 13, 1, 'N'),
-(18, 7, 2, 'N'),
-(18, 3, 3, 'N'),
-(18, 5, 4, 'N'),
-(18, 6, 5, 'N'),
-(18, 4, 1, 'Y');
-
--- Tournament 19 (W): alternate jungler with veteran carries
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(19, 4, 1, 'N'),
-(19, 14, 2, 'N'),
-(19, 3, 3, 'N'),
-(19, 16, 4, 'N'),
-(19, 17, 5, 'N'),
-(19, 7, 2, 'Y');
-
--- Tournament 20 (L): development roster, no substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(20, 13, 1, 'N'),
-(20, 9, 2, 'N'),
-(20, 15, 3, 'N'),
-(20, 16, 4, 'N'),
-(20, 6, 5, 'N');
-
--- Period 2 additions
--- Tournament 21 (W): veteran top with alternate jungler
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(21, 4, 1, 'N'),
-(21, 8, 2, 'N'),
-(21, 3, 3, 'N'),
-(21, 5, 4, 'N'),
-(21, 17, 5, 'N'),
-(21, 13, 1, 'Y');
-
--- Tournament 22 (L): academy lineup with jungle sub
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(22, 13, 1, 'N'),
-(22, 7, 2, 'N'),
-(22, 15, 3, 'N'),
-(22, 16, 4, 'N'),
-(22, 6, 5, 'N'),
-(22, 9, 2, 'Y');
-
--- Tournament 23 (W): veteran core with blueprint jungler
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(23, 4, 1, 'N'),
-(23, 14, 2, 'N'),
-(23, 3, 3, 'N'),
-(23, 5, 4, 'N'),
-(23, 17, 5, 'N');
-
--- Tournament 24 (L): academy starters with veteran top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(24, 13, 1, 'N'),
-(24, 9, 2, 'N'),
-(24, 15, 3, 'N'),
-(24, 16, 4, 'N'),
-(24, 6, 5, 'N'),
-(24, 4, 1, 'Y');
-
--- Tournament 25 (N/A): full roster with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(25, 4, 1, 'N'),
-(25, 8, 2, 'N'),
-(25, 3, 3, 'N'),
-(25, 5, 4, 'N'),
-(25, 17, 5, 'N'),
-(25, 7, 2, 'Y'),
-(25, 6, 5, 'Y');
-
--- Period 3 additions
--- Tournament 26 (L): veteran top with alternate ADC
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(26, 4, 1, 'N'),
-(26, 7, 2, 'N'),
-(26, 3, 3, 'N'),
-(26, 16, 4, 'N'),
-(26, 17, 5, 'N'),
-(26, 13, 1, 'Y');
-
--- Tournament 27 (L): academy lineup, no substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(27, 13, 1, 'N'),
-(27, 9, 2, 'N'),
-(27, 15, 3, 'N'),
-(27, 5, 4, 'N'),
-(27, 6, 5, 'N');
-
--- Tournament 28 (L): veteran top with blueprint jungler and jungle sub
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(28, 4, 1, 'N'),
-(28, 14, 2, 'N'),
-(28, 3, 3, 'N'),
-(28, 16, 4, 'N'),
-(28, 17, 5, 'N'),
-(28, 7, 2, 'Y');
-
--- Tournament 29 (W): academy starters with veteran top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(29, 13, 1, 'N'),
-(29, 8, 2, 'N'),
-(29, 15, 3, 'N'),
-(29, 5, 4, 'N'),
-(29, 6, 5, 'N'),
-(29, 4, 1, 'Y');
-
--- Tournament 30 (L): veteran core with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(30, 4, 1, 'N'),
-(30, 7, 2, 'N'),
-(30, 3, 3, 'N'),
-(30, 16, 4, 'N'),
-(30, 6, 5, 'N'),
-(30, 9, 2, 'Y'),
-(30, 17, 5, 'Y');
+-- Tournament 30 → Event 57 attendees
+INSERT INTO event_attendees VALUES
+(57, 4, 1, 'Present', 'N'),
+(57, 7, 2, 'Present', 'N'),
+(57, 3, 3, 'Present', 'N'),
+(57, 16, 4, 'Present', 'N'),
+(57, 6, 5, 'Present', 'N'),
+(57, 9, 2, 'Excused', 'Y'),
+(57, 17, 5, 'Excused', 'Y');
