@@ -47,25 +47,6 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`event_attendees`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`event_attendees` (
-  `eventId` INT UNSIGNED NOT NULL,
-  `userId` INT UNSIGNED NOT NULL,
-  `player_role` INT NULL DEFAULT NULL,
-  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL,
-  `notes` LONGTEXT NULL,
-  PRIMARY KEY (`eventId`, `userId`),
-  CONSTRAINT `fk_event_participants_events`
-    FOREIGN KEY (`eventId`)
-    REFERENCES `teamforgedb`.`events` (`eventId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-USE `teamforgedb` ;
-
--- -----------------------------------------------------
 -- Table `teamforgedb`.`users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
@@ -84,6 +65,50 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 25
 DEFAULT CHARACTER SET = utf8mb3;
 
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`leagueroles`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`leagueroles` (
+  `roleId` INT NOT NULL,
+  `displayedRole` VARCHAR(45) NULL DEFAULT NULL,
+  `role` VARCHAR(45) NULL DEFAULT NULL,
+  `teamPosition` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`roleId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`event_attendees`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`event_attendees` (
+  `eventId` INT UNSIGNED NOT NULL,
+  `userId` INT UNSIGNED NOT NULL,
+  `player_role` INT NULL DEFAULT NULL,
+  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL,
+  `notes` LONGTEXT NULL,
+  PRIMARY KEY (`eventId`, `userId`),
+  INDEX `fk_event_attendees_users1_idx` (`userId` ASC) VISIBLE,
+  INDEX `fk_event_attendees_leagueroles1_idx` (`player_role` ASC) VISIBLE,
+  CONSTRAINT `fk_event_participants_events`
+    FOREIGN KEY (`eventId`)
+    REFERENCES `teamforgedb`.`events` (`eventId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_attendees_users1`
+    FOREIGN KEY (`userId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_attendees_leagueroles1`
+    FOREIGN KEY (`player_role`)
+    REFERENCES `teamforgedb`.`leagueroles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+USE `teamforgedb` ;
 
 -- -----------------------------------------------------
 -- Table `teamforgedb`.`academicrequirements`
@@ -174,19 +199,6 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantanswers` (
   CONSTRAINT `fk_applicantAnswers_users1`
     FOREIGN KEY (`userId`)
     REFERENCES `teamforgedb`.`users` (`userId`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `teamforgedb`.`leagueroles`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`leagueroles` (
-  `roleId` INT NOT NULL,
-  `displayedRole` VARCHAR(45) NULL DEFAULT NULL,
-  `role` VARCHAR(45) NULL DEFAULT NULL,
-  `teamPosition` VARCHAR(45) NULL DEFAULT NULL,
-  PRIMARY KEY (`roleId`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
@@ -356,46 +368,6 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `teamforgedb`.`scrims`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrims` (
-  `scrimId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NULL DEFAULT NULL,
-  `date` DATE NULL DEFAULT NULL,
-  `videoLink` LONGTEXT NULL DEFAULT NULL,
-  `length` VARCHAR(45) NULL DEFAULT NULL,
-  `status` ENUM('evaluated', 'unevaluated') NOT NULL DEFAULT 'unevaluated',
-  PRIMARY KEY (`scrimId`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 18
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `teamforgedb`.`evaluations`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`evaluations` (
-  `scrimId` INT UNSIGNED NOT NULL,
-  `playerId` INT UNSIGNED NOT NULL,
-  `comment` LONGTEXT NULL DEFAULT NULL,
-  `ratingGameSense` INT NULL DEFAULT NULL,
-  `ratingCommunication` INT NULL DEFAULT NULL,
-  `ratingChampionPool` INT NULL DEFAULT NULL,
-  `coachId` INT NULL DEFAULT NULL,
-  `timestamp` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`scrimId`, `playerId`),
-  INDEX `fk_evaluations_players1_idx` (`playerId` ASC) VISIBLE,
-  CONSTRAINT `fk_evaluations_players1`
-    FOREIGN KEY (`playerId`)
-    REFERENCES `teamforgedb`.`players` (`userId`),
-  CONSTRAINT `fk_evaluations_scrims1`
-    FOREIGN KEY (`scrimId`)
-    REFERENCES `teamforgedb`.`scrims` (`scrimId`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
 -- Table `teamforgedb`.`matches`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`matches` (
@@ -520,31 +492,6 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`playerstatistics` (
   CONSTRAINT `fk_playerStatistics_players1`
     FOREIGN KEY (`userId`)
     REFERENCES `teamforgedb`.`players` (`userId`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `teamforgedb`.`scrimplayers`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`scrimplayers` (
-  `scrimId` INT UNSIGNED NOT NULL,
-  `playerId` INT UNSIGNED NOT NULL,
-  `roleId` INT NULL DEFAULT NULL,
-  `teamId` ENUM('1', '2') NULL DEFAULT NULL,
-  `win` ENUM('W', 'L') NULL DEFAULT NULL,
-  PRIMARY KEY (`scrimId`, `playerId`),
-  INDEX `fk_scrimPlayers_players1_idx` (`playerId` ASC) VISIBLE,
-  INDEX `fk_scrimPlayers_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
-  CONSTRAINT `fk_scrimPlayers_leagueRoles1`
-    FOREIGN KEY (`roleId`)
-    REFERENCES `teamforgedb`.`leagueroles` (`roleId`),
-  CONSTRAINT `fk_scrimPlayers_players1`
-    FOREIGN KEY (`playerId`)
-    REFERENCES `teamforgedb`.`players` (`userId`),
-  CONSTRAINT `fk_scrimPlayers_scrims1`
-    FOREIGN KEY (`scrimId`)
-    REFERENCES `teamforgedb`.`scrims` (`scrimId`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
