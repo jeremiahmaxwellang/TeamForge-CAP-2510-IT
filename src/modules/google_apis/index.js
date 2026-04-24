@@ -61,6 +61,7 @@ app.get('/redirect', async (req, res) => {
     }
 });
 
+// http://localhost:3000/calendars
 app.get('/calendars', (req, res) => {
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
     calendar.calendarList.list({}, (err, response) => {
@@ -74,6 +75,7 @@ app.get('/calendars', (req, res) => {
     });
 })
 
+// http://localhost:3000/events
 app.get('/events', (req, res) => {
     const calendarId = req.query.calendar ?? 'primary';
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });

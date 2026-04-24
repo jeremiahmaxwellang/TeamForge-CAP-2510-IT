@@ -42,9 +42,9 @@ npm install express dotenv hbs path express-fileupload express-session cookie-pa
 ```
 
 #### 4. Set up environment variables
-In the src folder, create a .env file with the following contents:
+In the `src` folder, create a `.env` file with the following contents:
 
-```
+```env
 API_KEY=EXAMPLE-API-KEY
 
 DB_HOST=localhost
@@ -62,13 +62,28 @@ SECRET_ID=GOCSPX-SAMPLE-GOOGLE-SECRET-ID
 REDIRECT=http://localhost:3000/redirect
 ```
 
-* Google Cloud credentials tutorial:
+#### 5. Google Cloud Setup
+
+Follow this tutorial to set up your credentials:
 [https://www.youtube.com/watch?v=2byT7fYT8UE](https://www.youtube.com/watch?v=2byT7fYT8UE)
 
 Notes:
+
 * Application type: Web Application
-* When Adding Scopes, search 'Google Calendar API' and select ALL scopes
-* SECRET_ID can be copy-pasted from the 'client_secret' from your created Google Cloud client
+* When adding scopes, search for Google Calendar API and select all scopes
+* SECRET_ID should be copy-pasted from the client_secret of your created Google Cloud client
+* Ensure CLIENT_ID, SECRET_ID, and REDIRECT match exactly in both your .env file and Google Cloud Console
+
+##### A. Adding Test Users
+Since TeamForge has not yet completed Google’s verification process, the app is in testing mode. Only developer-approved testers can log in.
+
+To add testers:
+
+1. Go to Google Cloud Console → APIs & Services → OAuth consent screen
+
+2. Scroll down to Test users
+
+3. Add the Gmail addresses of people who should be able to log in during testing
 
 ### Executing program
 
