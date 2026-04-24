@@ -22,7 +22,7 @@ const app = express();
  */
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
-    process.env.SECRET,
+    process.env.SECRET_ID,
     process.env.REDIRECT
 );
 
