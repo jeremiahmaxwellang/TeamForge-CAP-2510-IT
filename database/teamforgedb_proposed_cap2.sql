@@ -5,14 +5,6 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
--- -----------------------------------------------------
 -- Schema teamforgedb
 -- -----------------------------------------------------
 
@@ -20,31 +12,7 @@ CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 -- Schema teamforgedb
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `teamforgedb` DEFAULT CHARACTER SET utf8mb3 ;
-USE `mydb` ;
-
--- -----------------------------------------------------
--- Table `teamforgedb`.`events`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`events` (
-  `eventId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `title_summary` TEXT NOT NULL COMMENT 'Title of the event.',
-  `type` ENUM('Scrim', 'Tournament', 'Meeting') NOT NULL,
-  `location` TEXT NULL,
-  `start_date` DATE NULL,
-  `start_datetime` DATETIME NULL,
-  `start_timezone` VARCHAR(45) NULL,
-  `end_date` DATE NULL,
-  `end_datetime` DATETIME NULL,
-  `end_timezone` VARCHAR(45) NULL,
-  `videoLink` LONGTEXT NULL,
-  `length` VARCHAR(45) NULL,
-  `win` ENUM('W', 'L', 'N/A') NULL,
-  `status` TEXT NULL,
-  PRIMARY KEY (`eventId`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 18
-DEFAULT CHARACTER SET = utf8mb3;
-
+USE `teamforgedb` ;
 
 -- -----------------------------------------------------
 -- Table `teamforgedb`.`users`
@@ -65,50 +33,6 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 25
 DEFAULT CHARACTER SET = utf8mb3;
 
-
--- -----------------------------------------------------
--- Table `teamforgedb`.`leagueroles`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`leagueroles` (
-  `roleId` INT NOT NULL,
-  `displayedRole` VARCHAR(45) NULL DEFAULT NULL,
-  `role` VARCHAR(45) NULL DEFAULT NULL,
-  `teamPosition` VARCHAR(45) NULL DEFAULT NULL,
-  PRIMARY KEY (`roleId`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`event_attendees`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`event_attendees` (
-  `eventId` INT UNSIGNED NOT NULL,
-  `userId` INT UNSIGNED NOT NULL,
-  `player_role` INT NULL DEFAULT NULL,
-  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL,
-  `notes` LONGTEXT NULL,
-  PRIMARY KEY (`eventId`, `userId`),
-  INDEX `fk_event_attendees_users1_idx` (`userId` ASC) VISIBLE,
-  INDEX `fk_event_attendees_leagueroles1_idx` (`player_role` ASC) VISIBLE,
-  CONSTRAINT `fk_event_participants_events`
-    FOREIGN KEY (`eventId`)
-    REFERENCES `teamforgedb`.`events` (`eventId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_event_attendees_users1`
-    FOREIGN KEY (`userId`)
-    REFERENCES `teamforgedb`.`users` (`userId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_event_attendees_leagueroles1`
-    FOREIGN KEY (`player_role`)
-    REFERENCES `teamforgedb`.`leagueroles` (`roleId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-USE `teamforgedb` ;
 
 -- -----------------------------------------------------
 -- Table `teamforgedb`.`academicrequirements`
@@ -199,6 +123,19 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`applicantanswers` (
   CONSTRAINT `fk_applicantAnswers_users1`
     FOREIGN KEY (`userId`)
     REFERENCES `teamforgedb`.`users` (`userId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`leagueroles`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`leagueroles` (
+  `roleId` INT NOT NULL,
+  `displayedRole` VARCHAR(45) NULL DEFAULT NULL,
+  `role` VARCHAR(45) NULL DEFAULT NULL,
+  `teamPosition` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`roleId`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
@@ -509,41 +446,26 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `teamforgedb`.`tournaments`
+-- Table `teamforgedb`.`events`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournaments` (
-  `tournamentId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(100) NULL DEFAULT NULL,
-  `startDate` DATE NULL DEFAULT NULL,
-  `endDate` DATE NULL DEFAULT NULL,
-  `win` ENUM('W', 'L', 'N/A') NULL DEFAULT NULL,
-  PRIMARY KEY (`tournamentId`))
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`events` (
+  `eventId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title_summary` TEXT NOT NULL COMMENT 'Title of the event.',
+  `type` ENUM('Scrim', 'Tournament', 'Meeting') NOT NULL,
+  `location` TEXT NULL,
+  `start_date` DATE NULL,
+  `start_datetime` DATETIME NULL,
+  `start_timezone` VARCHAR(45) NULL,
+  `end_date` DATE NULL,
+  `end_datetime` DATETIME NULL,
+  `end_timezone` VARCHAR(45) NULL,
+  `videoLink` LONGTEXT NULL,
+  `length` VARCHAR(45) NULL,
+  `win` ENUM('W', 'L', 'N/A') NULL,
+  `status` TEXT NULL,
+  PRIMARY KEY (`eventId`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 31
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `teamforgedb`.`tournament_players`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournament_players` (
-  `tournamentId` INT UNSIGNED NOT NULL,
-  `playerId` INT UNSIGNED NOT NULL,
-  `roleId` INT NULL DEFAULT NULL,
-  `isSub` ENUM('Y', 'N') NULL DEFAULT NULL,
-  PRIMARY KEY (`tournamentId`, `playerId`),
-  INDEX `fk_tournament_players_players1_idx` (`playerId` ASC) VISIBLE,
-  INDEX `fk_tournament_players_leagueRoles1_idx` (`roleId` ASC) VISIBLE,
-  CONSTRAINT `fk_tournament_players_leagueRoles1`
-    FOREIGN KEY (`roleId`)
-    REFERENCES `teamforgedb`.`leagueroles` (`roleId`),
-  CONSTRAINT `fk_tournament_players_players1`
-    FOREIGN KEY (`playerId`)
-    REFERENCES `teamforgedb`.`players` (`userId`),
-  CONSTRAINT `fk_tournament_players_tournaments1`
-    FOREIGN KEY (`tournamentId`)
-    REFERENCES `teamforgedb`.`tournaments` (`tournamentId`))
-ENGINE = InnoDB
+AUTO_INCREMENT = 18
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -560,19 +482,73 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`player_evaluations` (
   `coachId` INT NULL DEFAULT NULL,
   `timestamp` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`eventId`, `playerId`),
-  INDEX `fk_evaluations_copy1_event_participants1_idx` (`playerId` ASC) VISIBLE,
   CONSTRAINT `fk_evaluations_copy1_events1`
     FOREIGN KEY (`eventId`)
     REFERENCES `teamforgedb`.`events` (`eventId`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_evaluations_copy1_event_participants1`
-    FOREIGN KEY (`playerId`)
-    REFERENCES `mydb`.`event_attendees` (`userId`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`event_attendees`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
+  `eventId` INT UNSIGNED NOT NULL,
+  `userId` INT UNSIGNED NOT NULL,
+  `player_role` INT NULL,
+  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL,
+  `notes` LONGTEXT NULL,
+  PRIMARY KEY (`eventId`, `userId`),
+  INDEX `fk_event_attendees_users2_idx` (`userId` ASC) VISIBLE,
+  INDEX `fk_event_attendees_leagueroles2_idx` (`player_role` ASC) VISIBLE,
+  CONSTRAINT `fk_event_attendees_events1`
+    FOREIGN KEY (`eventId`)
+    REFERENCES `teamforgedb`.`events` (`eventId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_attendees_users2`
+    FOREIGN KEY (`userId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_attendees_leagueroles2`
+    FOREIGN KEY (`player_role`)
+    REFERENCES `teamforgedb`.`leagueroles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`event_attendees`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
+  `eventId` INT UNSIGNED NOT NULL,
+  `userId` INT UNSIGNED NOT NULL,
+  `player_role` INT NULL,
+  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL,
+  `notes` LONGTEXT NULL,
+  PRIMARY KEY (`eventId`, `userId`),
+  INDEX `fk_event_attendees_users2_idx` (`userId` ASC) VISIBLE,
+  INDEX `fk_event_attendees_leagueroles2_idx` (`player_role` ASC) VISIBLE,
+  CONSTRAINT `fk_event_attendees_events1`
+    FOREIGN KEY (`eventId`)
+    REFERENCES `teamforgedb`.`events` (`eventId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_attendees_users2`
+    FOREIGN KEY (`userId`)
+    REFERENCES `teamforgedb`.`users` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_attendees_leagueroles2`
+    FOREIGN KEY (`player_role`)
+    REFERENCES `teamforgedb`.`leagueroles` (`roleId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
