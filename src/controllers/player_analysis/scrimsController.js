@@ -1,298 +1,300 @@
 /**
  * Scrims Controller
- * - contains the SQL Query for inserting/fetching scrim info
+ * - Refactored to use events, event_attendees, player_evaluations tables
  */
 
 const db = require("../../config/database");
 
-const fetchEval = `
-            SELECT e.*, s.name, p.gameName AS playerName, s.date AS scrimDate
-            FROM evaluations e
-            JOIN scrims s ON e.scrimId = s.scrimId
-            JOIN players p ON e.playerId = p.userId
-            WHERE e.playerId = ? AND e.scrimId = ?
-        `;
+// ── SHARED FETCH EVAL QUERY ───────────────────────────────────────────────────
+const fetchEvalQuery = `
+  SELECT 
+    pe.*,
+    e.title_summary AS name,
+    e.start_datetime AS scrimDate,
+    p.gameName AS playerName
+  FROM player_evaluations pe
+  JOIN events e ON pe.eventId = e.eventId
+  JOIN players p ON pe.playerId = p.userId
+  WHERE pe.playerId = ? AND pe.eventId = ?
+`;
 
-// Get a player's Scrims
+// ── GET SCRIMS ────────────────────────────────────────────────────────────────
 exports.getScrims = async (req, res) => {
+  try {
+    const playerId = req.params.id;
 
-    // TODO: make this fetch all the team players
-    try {
-        const playerId = req.params.id;
-        const sql = `
-            SELECT
-                s.scrimId,
-                s.name,
-                s.date,
-                s.videoLink,
-                s.length,
-                CASE
-                    WHEN EXISTS (
-                        SELECT 1
-                        FROM evaluations e
-                        WHERE e.scrimId = s.scrimId
-                    ) THEN 'evaluated'
-                    ELSE 'unevaluated'
-                END AS status,
-                p.playerId,
-                p.roleId,
-                p.win,
-                CONCAT(pl.gameName, '#', pl.tagLine, ' (', lr.displayedRole, ')') AS playerDisplay
-            FROM scrims s 
-            JOIN scrimPlayers p ON s.scrimId = p.scrimId
-            JOIN players pl ON p.playerId = pl.userId
-            LEFT JOIN leagueRoles lr ON p.roleId = lr.roleId
-            WHERE p.playerId = ?
-            ORDER BY
-                CASE
-                    WHEN EXISTS (
-                        SELECT 1
-                        FROM evaluations e
-                        WHERE e.scrimId = s.scrimId
-                    ) THEN 0
-                    ELSE 1
-                END,
-                s.date DESC
-        `;
+    const sql = `
+      SELECT
+        e.eventId,
+        e.title_summary,
+        e.start_datetime,
+        e.videoLink,
+        e.length,
+        e.win,
+        ea.player_role AS roleId,
+        CASE
+          WHEN EXISTS (
+            SELECT 1 FROM player_evaluations pe
+            WHERE pe.eventId = e.eventId AND pe.playerId = ?
+          ) THEN 'evaluated'
+          ELSE 'unevaluated'
+        END AS status,
+        CONCAT(pl.gameName, '#', pl.tagLine, ' (', lr.displayedRole, ')') AS playerDisplay,
+        -- All attendees for the team column
+        GROUP_CONCAT(
+          CONCAT(pl2.gameName, '#', pl2.tagLine) 
+          ORDER BY pl2.gameName 
+          SEPARATOR ', '
+        ) AS teamDisplay
+      FROM events e
+      JOIN event_attendees ea 
+        ON e.eventId = ea.eventId AND ea.userId = ?
+      JOIN players pl 
+        ON ea.userId = pl.userId
+      LEFT JOIN leagueRoles lr 
+        ON ea.player_role = lr.roleId
+      -- Join all attendees for team display
+      LEFT JOIN event_attendees ea2 
+        ON e.eventId = ea2.eventId
+      LEFT JOIN players pl2 
+        ON ea2.userId = pl2.userId
+      WHERE e.type = 'Scrim'
+      GROUP BY
+        e.eventId, e.title_summary, e.start_datetime,
+        e.videoLink, e.length, e.win,
+        ea.player_role, pl.gameName, pl.tagLine, lr.displayedRole
+      ORDER BY
+        CASE
+          WHEN EXISTS (
+            SELECT 1 FROM player_evaluations pe
+            WHERE pe.eventId = e.eventId AND pe.playerId = ?
+          ) THEN 0
+          ELSE 1
+        END,
+        e.start_datetime DESC
+    `;
 
-        const [rows] = await db.query(sql, [playerId]);
+    const [rows] = await db.query(sql, [playerId, playerId, playerId]);
 
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Scrim not found' });
-        }
-
-        res.json(rows);
-
-    } catch (err) { 
-        console.error("Error fetching scrim:", err); 
-        res.status(500).json({ error: "Internal server error" });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'No scrims found for this player.' });
     }
-}
 
-const fetchTimesPlayed = `
-    SELECT sp2.playerId, 
-    CONCAT(p.gameName , ' (', r.displayedRole, ')') AS gameName, 
-    COUNT(*) AS timesPlayed, 
-    ROUND(AVG(CAST(e.ratingCommunication AS DECIMAL(10,2))), 1) AS averageComms
-    FROM scrimPlayers sp1 -- Currently Selected Player
-	JOIN 
-		scrimPlayers sp2 ON sp1.scrimId = sp2.scrimId
-        AND sp1.playerId <> sp2.playerId
-	JOIN 
-		players p ON sp2.playerId = p.userId
-	JOIN 
-		leagueRoles r ON r.roleId = sp2.roleId
-	LEFT JOIN 
-		evaluations e ON sp1.scrimId = e.scrimId
-        AND e.playerId = sp1.playerId -- only ratings for player 4
-    
-    WHERE sp1.playerId = ?
-    GROUP BY sp2.playerId, CONCAT(p.gameName , ' (', r.displayedRole, ')') 
-    ORDER BY timesPlayed DESC;
-`;
+    res.json(rows);
 
-// Get times played with other players
+  } catch (err) {
+    console.error('[getScrims] Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ── GET TIMES PLAYED ──────────────────────────────────────────────────────────
 exports.getTimesPlayed = async (req, res) => {
+  try {
+    const playerId = req.params.id;
 
-    try {
-        const playerId = req.params.id;
+    const sql = `
+      SELECT
+        ea2.userId AS playerId,
+        CONCAT(p.gameName, ' (', r.displayedRole, ')') AS gameName,
+        COUNT(*) AS timesPlayed,
+        ROUND(
+          AVG(CAST(pe.ratingCommunication AS DECIMAL(10,2))),
+        1) AS averageComms
+      FROM event_attendees ea1
+      JOIN event_attendees ea2
+        ON ea1.eventId = ea2.eventId
+        AND ea1.userId <> ea2.userId
+      JOIN events e
+        ON ea1.eventId = e.eventId AND e.type = 'Scrim'
+      JOIN players p
+        ON ea2.userId = p.userId
+      LEFT JOIN leagueRoles r
+        ON ea2.player_role = r.roleId
+      LEFT JOIN player_evaluations pe
+        ON ea1.eventId = pe.eventId
+        AND pe.playerId = ea1.userId
+      WHERE ea1.userId = ?
+      GROUP BY
+        ea2.userId,
+        CONCAT(p.gameName, ' (', r.displayedRole, ')')
+      ORDER BY timesPlayed DESC
+    `;
 
-        const [rows] = await db.query(fetchTimesPlayed, [playerId]);
+    const [rows] = await db.query(sql, [playerId]);
 
-        console.log(rows);
-
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Scrim not found' });
-        }
-
-        res.json(rows);
-        
-    } catch (err) { 
-        console.error("Error fetching times played:", err); 
-        res.status(500).json({ error: "Internal server error" });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'No teammates found.' });
     }
-}
 
-// Get a player's evaluation
+    res.json(rows);
+
+  } catch (err) {
+    console.error('[getTimesPlayed] Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ── GET EVALUATION ────────────────────────────────────────────────────────────
 exports.getEvaluation = async (req, res) => {
+  try {
+    const { playerId, scrimId: eventId } = req.params;
 
-    try {
-        const playerId = req.params.playerId;
-        const scrimId = req.params.scrimId;
+    const [rows] = await db.query(fetchEvalQuery, [playerId, eventId]);
 
-        const [rows] = await db.query(fetchEval, [playerId, scrimId]);
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Eval not found' });
-        }
-
-        res.json(rows[0]);
-        // console.log("Eval: " + rows[0]);
-    } catch (err) { 
-        console.error("Error fetching evaluation:", err); 
-        res.status(500).json({ error: "Internal server error" });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Evaluation not found.' });
     }
-}
 
-// Create new Evaluation
+    res.json(rows[0]);
+
+  } catch (err) {
+    console.error('[getEvaluation] Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ── CREATE / UPDATE EVALUATION ────────────────────────────────────────────────
 exports.createEvaluation = async (req, res) => {
+  try {
+    const { playerId, scrimId: eventId } = req.params;
+    const { comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId } = req.body;
 
-    try {
-        const playerId = req.params.playerId;
-        const scrimId = req.params.scrimId;
-
-        const { comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId } = req.body;
-
-        if(!playerId || !ratingGameSense || !ratingCommunication || !ratingChampionPool) {
-            return res.status(400).json({error: "Missing required fields"});
-        }
-
-        const sql = `
-            INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-            VALUES
-            (?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                comment = ?,
-                ratingGameSense = ?, 
-                ratingCommunication = ?, 
-                ratingChampionPool = ?, 
-                coachId = ?
-        `;
-
-        await db.query(sql, [
-            scrimId,
-            playerId,
-            comment,
-            ratingGameSense,
-            ratingCommunication,
-            ratingChampionPool,
-            coachId,
-            comment,
-            ratingGameSense,
-            ratingCommunication,
-            ratingChampionPool,
-            coachId
-        ]);
-
-        // Keep scrim status in sync once at least one evaluation exists.
-        await db.query(
-            `UPDATE scrims SET status = 'evaluated' WHERE scrimId = ?`,
-            [scrimId]
-        );
-
-        // Fetch the updated eval
-        const [rows] = await db.query(fetchEval, [playerId, scrimId]); 
-        
-        if (rows.length === 0) { 
-            return res.status(404).json({ message: "Evaluation not found after insert/update" }); 
-        }
-         
-        res.json({ success: true, evaluation: rows[0] }); 
-        console.log("Eval saved:", rows[0]);
-
-    } catch (err) { 
-        console.error("Error saving evaluation:", err); 
-        res.status(500).json({ error: "Internal server error" });
+    if (!playerId || !ratingGameSense || !ratingCommunication || !ratingChampionPool) {
+      return res.status(400).json({ error: 'Missing required fields.' });
     }
-}
 
-// ============== SUMMARY TAB ==============
+    const sql = `
+      INSERT INTO player_evaluations
+        (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        comment             = VALUES(comment),
+        ratingGameSense     = VALUES(ratingGameSense),
+        ratingCommunication = VALUES(ratingCommunication),
+        ratingChampionPool  = VALUES(ratingChampionPool),
+        coachId             = VALUES(coachId)
+    `;
 
-const fetchScrimSummary = `
-    WITH total_scrims AS (
-    SELECT COUNT(DISTINCT sp.scrimId) AS totalScrims,
-        ROUND(AVG(CAST(e.ratingGameSense AS DECIMAL(10,2))), 1) AS averageGameSense,
-        ROUND(AVG(CAST(e.ratingCommunication AS DECIMAL(10,2))), 1) AS averageComms,
-        ROUND(AVG(CAST(e.ratingChampionPool AS DECIMAL(10,2))), 1) AS averageChampionPool
-    FROM scrimPlayers sp
-    JOIN evaluations e ON e.playerId = sp.playerId
-    WHERE sp.playerId = ?
-    )
-    SELECT 
-        ts.totalScrims, 
-        ts.averageGameSense, ts.averageComms, ts.averageChampionPool,
-        sp2.playerId AS teammateId,
-        CONCAT(p.gameName , ' (', r.displayedRole, ')') AS mostPlayedWith,
-        COUNT(DISTINCT sp1.scrimId) AS scrimsTogether
-    FROM scrimPlayers sp1
-    JOIN scrimPlayers sp2 
-    ON sp1.scrimId = sp2.scrimId
-    AND sp1.playerId <> sp2.playerId
-    JOIN players p 
-    ON sp2.playerId = p.userId
-    JOIN leagueRoles r 
-    ON r.roleId = p.primaryRoleId
+    await db.query(sql, [
+      eventId, playerId,
+      comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId
+    ]);
 
-    CROSS JOIN total_scrims ts
-    WHERE sp1.playerId = ?
-    GROUP BY 
-        sp2.playerId, 
-        CONCAT(p.gameName , ' (', r.displayedRole, ')'), 
-        ts.totalScrims
-    ORDER BY scrimsTogether DESC
-    LIMIT 1;
-`;
+    // Return the saved evaluation
+    const [rows] = await db.query(fetchEvalQuery, [playerId, eventId]);
 
-// Get scrims summary
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Evaluation not found after save.' });
+    }
+
+    console.log('[createEvaluation] Saved:', rows[0]);
+    res.json({ success: true, evaluation: rows[0] });
+
+  } catch (err) {
+    console.error('[createEvaluation] Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ── SCRIM SUMMARY ─────────────────────────────────────────────────────────────
 exports.getScrimSummary = async (req, res) => {
+  try {
+    const playerId = req.params.id;
 
-    try {
-        const playerId = req.params.id;
+    const sql = `
+      WITH total_scrims AS (
+        SELECT
+          COUNT(DISTINCT ea.eventId) AS totalScrims,
+          ROUND(AVG(CAST(pe.ratingGameSense     AS DECIMAL(10,2))), 1) AS averageGameSense,
+          ROUND(AVG(CAST(pe.ratingCommunication AS DECIMAL(10,2))), 1) AS averageComms,
+          ROUND(AVG(CAST(pe.ratingChampionPool  AS DECIMAL(10,2))), 1) AS averageChampionPool
+        FROM event_attendees ea
+        JOIN events e ON ea.eventId = e.eventId AND e.type = 'Scrim'
+        JOIN player_evaluations pe
+          ON pe.playerId = ea.userId AND pe.eventId = ea.eventId
+        WHERE ea.userId = ?
+      )
+      SELECT
+        ts.totalScrims,
+        ts.averageGameSense,
+        ts.averageComms,
+        ts.averageChampionPool,
+        ea2.userId AS teammateId,
+        CONCAT(p.gameName, ' (', r.displayedRole, ')') AS mostPlayedWith,
+        COUNT(DISTINCT ea1.eventId) AS scrimsTogether
+      FROM event_attendees ea1
+      JOIN events e
+        ON ea1.eventId = e.eventId AND e.type = 'Scrim'
+      JOIN event_attendees ea2
+        ON ea1.eventId = ea2.eventId AND ea1.userId <> ea2.userId
+      JOIN players p
+        ON ea2.userId = p.userId
+      JOIN leagueRoles r
+        ON r.roleId = p.primaryRoleId
+      CROSS JOIN total_scrims ts
+      WHERE ea1.userId = ?
+      GROUP BY
+        ea2.userId,
+        CONCAT(p.gameName, ' (', r.displayedRole, ')'),
+        ts.totalScrims, ts.averageGameSense,
+        ts.averageComms, ts.averageChampionPool
+      ORDER BY scrimsTogether DESC
+      LIMIT 1
+    `;
 
-        const [rows] = await db.query(fetchScrimSummary, [playerId, playerId]);
+    const [rows] = await db.query(sql, [playerId, playerId]);
 
-        console.log(rows);
-
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Scrim not found' });
-        }
-
-        res.json(rows);
-        
-    } catch (err) { 
-        console.error("Error fetching times played:", err); 
-        res.status(500).json({ error: "Internal server error" });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'No scrim summary found.' });
     }
-}
 
-const commsSummary = `
-SELECT 
-	sp2.playerId AS teammateId,
-    CONCAT(p.gameName , ' (', r.displayedRole, ')') AS teammate,
-    ROUND(AVG(DISTINCT e1.ratingCommunication), 1) AS avg_comms,
-    ROUND(AVG(DISTINCT e2.ratingCommunication), 1) AS teammate_avg_comms
-FROM scrimPlayers sp1
-JOIN scrimPlayers sp2 
-  ON sp1.scrimId = sp2.scrimId
-  AND sp1.playerId <> sp2.playerId
-JOIN players p 
-  ON sp2.playerId = p.userId
-JOIN leagueRoles r 
-  ON r.roleId = p.primaryRoleId
-JOIN evaluations e1 
-	ON e1.playerId = sp1.playerId
-JOIN evaluations e2
-	ON e2.playerId = sp2.playerId
+    res.json(rows);
 
-WHERE sp1.playerId = ?
-GROUP BY 
-	sp2.playerId, 
-	CONCAT(p.gameName , ' (', r.displayedRole, ')')
-ORDER BY avg_comms, teammate_avg_comms DESC
-LIMIT 1;
-`
+  } catch (err) {
+    console.error('[getScrimSummary] Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ── COMMS SUMMARY ─────────────────────────────────────────────────────────────
 exports.getCommsSummary = async (req, res) => {
+  try {
+    const playerId = req.params.id;
 
-    try {
-        const playerId = req.params.id;
+    const sql = `
+      SELECT
+        ea2.userId AS teammateId,
+        CONCAT(p.gameName, ' (', r.displayedRole, ')') AS teammate,
+        ROUND(AVG(pe1.ratingCommunication), 1) AS avg_comms,
+        ROUND(AVG(pe2.ratingCommunication), 1) AS teammate_avg_comms
+      FROM event_attendees ea1
+      JOIN events e
+        ON ea1.eventId = e.eventId AND e.type = 'Scrim'
+      JOIN event_attendees ea2
+        ON ea1.eventId = ea2.eventId AND ea1.userId <> ea2.userId
+      JOIN players p
+        ON ea2.userId = p.userId
+      JOIN leagueRoles r
+        ON r.roleId = p.primaryRoleId
+      LEFT JOIN player_evaluations pe1
+        ON pe1.playerId = ea1.userId AND pe1.eventId = ea1.eventId
+      LEFT JOIN player_evaluations pe2
+        ON pe2.playerId = ea2.userId AND pe2.eventId = ea2.eventId
+      WHERE ea1.userId = ?
+      GROUP BY
+        ea2.userId,
+        CONCAT(p.gameName, ' (', r.displayedRole, ')')
+      ORDER BY avg_comms, teammate_avg_comms DESC
+      LIMIT 1
+    `;
 
-        const [rows] = await db.query(commsSummary, playerId);
+    const [rows] = await db.query(sql, [playerId]);
 
-        console.log(rows);
+    res.json(rows[0] || null);
 
-        res.json(rows[0]);
-        
-    } catch (err) { 
-        console.error("Error fetching comms summary:", err); 
-        res.status(500).json({ error: "Internal server error" });
-    }
-}
+  } catch (err) {
+    console.error('[getCommsSummary] Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
