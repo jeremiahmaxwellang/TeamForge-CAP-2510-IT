@@ -25,6 +25,16 @@ VALUES
     'Team Manager',
     'Cowwrean#cowwrean',
     'Active'
+),
+(
+    25,
+    'justin_nicolai_lee@dlsu.edu.ph',
+    'teamForge123!!',
+    'Justin',
+    'Lee',
+    'Team Manager',
+    'justinlee#1234',
+    'Active'
 );
 
 -- Coach 
