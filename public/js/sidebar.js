@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // 1. UNIVERSAL LINKS (Everyone gets these)
         links += buildLink('/announcements', 'announcement_logo.png', 'Announcements');
-        links += buildLink('#', 'scheduling_logo.png', 'Scheduling');
-        links += buildLink('#', 'attendance_logo.png', 'Attendance');
+        links += buildLink('/calendar', 'calendar_icon.png', 'Calendar');
+        links += buildLink('/attendance', 'attendance_icon.png', 'Attendance');
 
         // 2. MANAGER SPECIFIC
         if (role === 'Team Manager') {
