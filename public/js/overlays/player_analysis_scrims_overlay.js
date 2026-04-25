@@ -1,279 +1,302 @@
-// player_analysis_scrims_overlay.js
-// ONLY: DOM wiring + form handling. Requires EvaluationBackend loaded first.
-
 window.initScrimsTab = function (userId) {
   const Backend = window.ScrimsBackend;
   if (!Backend) {
-    console.error("[SCRIMS] Backend module not loaded.");
+    console.error('[SCRIMS] Backend module not loaded.');
     return;
   }
 
-  function formatScrimDate(value) {
-    if (!value) return "";
+  // ── DATE FORMATTER ────────────────────────────────────
+  function formatEventDate(value) {
+    if (!value) return '';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
-    const dateLine = date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      timeZone: "UTC"
+    const dateLine = date.toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC'
     });
-    const timeLine = date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "UTC"
+    const timeLine = date.toLocaleTimeString('en-US', {
+      hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC'
     });
-    return `${dateLine},<br>${timeLine}`;
+    return `${dateLine}<br>${timeLine}`;
   }
 
-  console.log("[SCRIMS] Tab logic initialized for user:", userId);
-
-  const form = document.getElementById("evalForm");
-  if (!form) {
-    console.error("Eval Form not found in DOM.");
-    return;
+  function normalizeStatus(value) {
+    return String(value || 'unevaluated').toLowerCase();
   }
 
-  const titleEl = document.getElementById("player-evaluation-title");
+  console.log('[SCRIMS] Tab initialized for userId:', userId);
 
-  function getSelectedPlayerName() {
-    const playerBtn = document.getElementById("player-dropdown-btn");
-    const rawName = playerBtn ? playerBtn.textContent.trim() : "";
-    if (!rawName || rawName === "No Player Found") return "";
-    return rawName;
-  }
+  // ── DOM REFS ──────────────────────────────────────────
+  const tableBody  = document.querySelector('.scrim-table tbody');
+  const statusFilter = document.getElementById('scrimStatusFilter');
 
-  function setEvaluationTitle(playerName) {
-    if (!titleEl) return;
-    const name = (playerName || "").trim() || getSelectedPlayerName();
-    titleEl.textContent = name ? `Evaluation: ${name}` : "Evaluation:";
-  }
+  let allEvents = [];
 
-  // Set title immediately when scrims tab is shown, before async fetches finish.
-  setEvaluationTitle();
+  // ── RENDER SCRIM TABLE ROWS ───────────────────────────
+  function renderScrimRows(filterValue) {
+    const selected = filterValue || 'all';
+    const filtered = selected === 'all'
+      ? allEvents
+      : allEvents.filter(e => normalizeStatus(e.status) === selected);
 
-  setupScrims(userId);
+    tableBody.innerHTML = '';
 
-  function setupScrims(userId) {
-      const dropdownBtn = document.getElementById("scrimsDropdownBtn");
-      const dropdownContent = document.getElementById("scrimsDropdownContent");
-      const scrimIdInput = document.getElementById("scrimIdInput");
-      const statusFilter = document.getElementById("scrimStatusFilter");
-      const tableBody = document.querySelector(".scrim-table tbody");
-      let allScrims = [];
+    if (filtered.length === 0) {
+      tableBody.innerHTML = `
+        <tr class="scrim-empty-row">
+          <td colspan="7">No ${selected === 'all' ? 'scrims' : `${selected} scrims`} found.</td>
+        </tr>`;
+      return;
+    }
 
-      function normalizeStatus(value) {
-        return String(value || "unevaluated").toLowerCase();
-      }
+    filtered.forEach((event, index) => {
+      const eventId    = event.eventId;
+      const evalRowId  = `eval-row-${eventId}`;
+      const btnId      = `eval-btn-${eventId}`;
 
-      function renderScrimRows(filterValue) {
-        const selectedFilter = filterValue || "all";
-        const filteredScrims = selectedFilter === "all"
-          ? allScrims
-          : allScrims.filter((scrim) => normalizeStatus(scrim.status) === selectedFilter);
+      // Team display from event_attendees joined data
+      const teamNames = Array.isArray(event.players)
+        ? event.players.map(p => p.gameName).join(', ')
+        : (event.playerDisplay || '—');
 
-        tableBody.innerHTML = "";
+      const wl = event.win || '—';
+      const vodLink = event.videoLink
+        ? `<a href="${event.videoLink}" target="_blank">Link</a>`
+        : '—';
 
-        if (filteredScrims.length === 0) {
-          const emptyRow = document.createElement("tr");
-          emptyRow.classList.add("scrim-empty-row");
-          emptyRow.innerHTML = `<td colspan="8">No ${selectedFilter === "all" ? "scrims" : `${selectedFilter} scrims`} found.</td>`;
-          tableBody.appendChild(emptyRow);
-          return;
-        }
+      // ── SCRIM ROW ──
+      const scrimRow = document.createElement('tr');
+      scrimRow.classList.add('scrim-row');
+      scrimRow.setAttribute('data-event-id', eventId);
+      if (event.win === 'W') scrimRow.classList.add('scrim-win');
+      if (event.win === 'L') scrimRow.classList.add('scrim-loss');
 
-        filteredScrims.forEach((scrim, index) => {
-          const row = document.createElement("tr");
+      scrimRow.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${event.title_summary || '—'}</td>
+        <td>${formatEventDate(event.start_datetime)}</td>
+        <td>${teamNames}</td>
+        <td>${wl}</td>
+        <td>${vodLink}</td>
+        <td>
+          <button class="eval-toggle-btn" id="${btnId}">V</button>
+        </td>
+      `;
 
-          if (scrim.win === "W") row.classList.add("scrim-win");
-          else if (scrim.win === "L") row.classList.add("scrim-loss");
+      // ── INLINE EVAL ROW ──
+      const evalRow = document.createElement('tr');
+      evalRow.classList.add('eval-inline-row', 'hidden');
+      evalRow.id = evalRowId;
+      evalRow.innerHTML = `
+        <td colspan="7">
+          <div class="eval-inline-content">
 
-          row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${scrim.name}</td>
-            <td>${formatScrimDate(scrim.date)}</td>
-            <td>${scrim.length}</td>
-            <td>${scrim.playerDisplay || scrim.playerId || ""}</td>
-            <td>${scrim.win || ""}</td>
-            <td>${normalizeStatus(scrim.status)}</td>
-            <td><a href="${scrim.videoLink}" target="_blank">Watch</a></td>
-          `;
+            <div class="eval-inline-left">
+              <div class="eval-player-title" id="eval-title-${eventId}">
+                Evaluation:
+              </div>
+              <div class="eval-range-hint">
+                <span>1 lowest</span>
+                <span>5 highest</span>
+              </div>
+              <div class="inline-col-labels">
+                <div></div>
+                ${[1,2,3,4,5].map(n => `<div class="inline-col-label">${n}</div>`).join('')}
+              </div>
+              <div class="inline-rating-grid">
+                <div class="rating-label">Game Sense</div>
+                ${[1,2,3,4,5].map(n => `
+                  <div class="radio-group">
+                    <input type="radio" name="gameSense_${eventId}" value="${n}">
+                  </div>`).join('')}
 
-          row.addEventListener("click", () => {
-            [...tableBody.rows].forEach(r => r.classList.remove("scrim-selected"));
-            row.classList.add("scrim-selected");
+                <div class="rating-label">Comms</div>
+                ${[1,2,3,4,5].map(n => `
+                  <div class="radio-group">
+                    <input type="radio" name="communication_${eventId}" value="${n}">
+                  </div>`).join('')}
 
-            row.setAttribute("data-scrim-id", scrim.scrimId);
-            dropdownBtn.textContent = scrim.name;
-            scrimIdInput.value = scrim.scrimId;
-            updateEvaluation(scrim.scrimId);
-          });
+                <div class="rating-label">Champ Pool</div>
+                ${[1,2,3,4,5].map(n => `
+                  <div class="radio-group">
+                    <input type="radio" name="champPool_${eventId}" value="${n}">
+                  </div>`).join('')}
+              </div>
+            </div>
 
-          tableBody.appendChild(row);
-        });
-      }
+            <div class="eval-inline-right">
+              <label>Comments from the Coach:</label>
+              <textarea class="eval-inline-comment"
+                id="comment_${eventId}"
+                placeholder="Enter a comment here"></textarea>
+              <button class="eval-inline-confirm"
+                id="confirm-btn-${eventId}">
+                Confirm
+              </button>
+            </div>
 
-      // Load existing scrims
-      Backend.fetchScrims(userId)
-        .then((scrims) => {
-          allScrims = scrims;
-          dropdownContent.innerHTML = "";
+          </div>
+        </td>
+      `;
 
-          scrims.forEach((scrim) => {
-            // ======= SCRIMS DROPDOWN =======
-            const link = document.createElement("a");
-            link.href = "#";
-            link.textContent = scrim.name;
-            link.setAttribute("data-scrim-id", scrim.scrimId);
+      tableBody.appendChild(scrimRow);
+      tableBody.appendChild(evalRow);
 
-            // Dropdown Item Listener
-            link.addEventListener("click", (e) => {
-              e.preventDefault();
-              const scrimId = link.getAttribute("data-scrim-id");
-              const scrimName = link.textContent;
+      // ── V BUTTON: toggle + load eval ──
+      const toggleBtn = scrimRow.querySelector(`#${btnId}`);
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = evalRow.classList.toggle('hidden');
+        toggleBtn.classList.toggle('active', !isHidden);
 
-              dropdownBtn.textContent = scrimName;
-              scrimIdInput.value = scrim.scrimId;
-              updateEvaluation(scrimIdInput.value);
-            });
-
-            dropdownContent.appendChild(link);
-          });
-
-          renderScrimRows(statusFilter ? statusFilter.value : "all");
-
-          console.log("[SCRIMS] ✓ Table populated with scrim data");
-
-          if (scrims.length > 0) { 
-            const firstScrimId = scrims[0].scrimId; 
-            scrimIdInput.value = firstScrimId;
-            dropdownBtn.textContent = scrims[0].name;
-            updateEvaluation(firstScrimId);
+        // Close all other open eval rows
+        document.querySelectorAll('.eval-inline-row:not(.hidden)').forEach(row => {
+          if (row.id !== evalRowId) {
+            row.classList.add('hidden');
+            const otherId = row.id.replace('eval-row-', '');
+            const otherBtn = document.getElementById(`eval-btn-${otherId}`);
+            if (otherBtn) otherBtn.classList.remove('active');
           }
-        })
-        .catch((err) => console.error("[SCRIMS] ✗ Error loading scrims:", err));
-
-        // Toggle dropdown visibility 
-        dropdownBtn.addEventListener("click", (e) => { 
-          e.preventDefault(); 
-          dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block"; 
         });
 
-        if (statusFilter) {
-          statusFilter.addEventListener("change", () => {
-            renderScrimRows(statusFilter.value);
-          });
+        // Load eval data when opening
+        if (!isHidden) {
+          loadEvaluation(eventId);
         }
+      });
 
-        // ========= Times Played Table =========
-        Backend.fetchTimesPlayed(userId)
-        .then((timesPlayed) => {
-          const tableBody = document.querySelector(".times-played-table tbody");
-
-          tableBody.innerHTML = "";
-
-          timesPlayed.forEach((item) => {
-            const timesPlayedRow = document.createElement("tr");
-
-            timesPlayedRow.classList.add("times-played-row");
-
-            timesPlayedRow.innerHTML = `
-              <td>${item.gameName}</td>
-              <td>${item.timesPlayed}</td>
-              <td>${item.averageComms}</td>
-            `;
-
-            tableBody.appendChild(timesPlayedRow);
-          });
-        })
-        .catch((err) => console.error("[SCRIMS] ✗ Error loading times played:", err));
-  }
-
-  function resetEvaluationForm() {
-    [...document.querySelectorAll('input[name="gameSense"], input[name="communication"], input[name="champPool"]')]
-      .forEach(input => input.checked = false);
-
-    document.getElementById("coachComment").value = "";
-  }
-
-  function updateEvaluation(scrimId) {
-    // Load existing evaluation
-    Backend.fetchEvaluation(userId, scrimId)
-      .then((evalData) => {
-        resetEvaluationForm();
-
-        setEvaluationTitle(evalData.playerName);
-
-        if (evalData.ratingGameSense) {
-          document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
-        }
-        if (evalData.ratingCommunication) {
-          document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
-        }
-        if (evalData.ratingChampionPool) {
-          document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
-        }
-        document.getElementById("coachComment").value = evalData.comment || "";
-        console.log("[EVALUATION] ✓ Form pre-filled with evaluation data");
-      })
-      .catch((err) => {
-        console.error("[EVALUATION] Error loading evaluation:", err);
-
-        resetEvaluationForm();
-        // Keep the immediate non-placeholder title even if fetch fails.
-        setEvaluationTitle();
+      // ── CONFIRM BUTTON: submit eval ──
+      const confirmBtn = evalRow.querySelector(`#confirm-btn-${eventId}`);
+      confirmBtn.addEventListener('click', () => submitEval(eventId));
     });
   }
 
-  // Handle form submission
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const formData = new FormData(this);
+  // ── LOAD EXISTING EVALUATION ──────────────────────────
+  function loadEvaluation(eventId) {
+    Backend.fetchEvaluation(userId, eventId)
+      .then((evalData) => {
+        // Update title with player name if returned
+        const titleEl = document.getElementById(`eval-title-${eventId}`);
+        if (titleEl && evalData.playerName) {
+          titleEl.textContent = `Evaluation: ${evalData.playerName}`;
+        }
 
-    const scrimId = formData.get("scrimIdInput");
-    const ratingGameSense = formData.get("gameSense");
-    const ratingCommunication = formData.get("communication");
-    const ratingChampionPool = formData.get("champPool");
-    const comment = formData.get("comment");
+        // Pre-fill ratings
+        ['gameSense', 'communication', 'champPool'].forEach(field => {
+          // Map field name to evalData key
+          const keyMap = {
+            gameSense:     'ratingGameSense',
+            communication: 'ratingCommunication',
+            champPool:     'ratingChampionPool'
+          };
+          const val = evalData[keyMap[field]];
+          if (val) {
+            const radio = document.querySelector(
+              `input[name="${field}_${eventId}"][value="${val}"]`
+            );
+            if (radio) radio.checked = true;
+          }
+        });
 
-    console.log("[DEBUG] Form values:", { scrimId, ratingGameSense, ratingCommunication, ratingChampionPool, comment });
+        // Pre-fill comment
+        const commentEl = document.getElementById(`comment_${eventId}`);
+        if (commentEl) commentEl.value = evalData.comment || '';
 
-    // TODO: replace with logged-in coach
+        console.log(`[EVAL] ✓ Pre-filled evaluation for eventId ${eventId}`);
+      })
+      .catch(err => {
+        console.warn(`[EVAL] No existing evaluation for eventId ${eventId}:`, err);
+      });
+  }
+
+  // ── SUBMIT EVALUATION ─────────────────────────────────
+  async function submitEval(eventId) {
+    const gameSense     = document.querySelector(`input[name="gameSense_${eventId}"]:checked`)?.value;
+    const communication = document.querySelector(`input[name="communication_${eventId}"]:checked`)?.value;
+    const champPool     = document.querySelector(`input[name="champPool_${eventId}"]:checked`)?.value;
+    const comment       = document.getElementById(`comment_${eventId}`)?.value;
+
+    if (!gameSense || !communication || !champPool) {
+      alert('Please fill in all ratings before confirming.');
+      return;
+    }
+
     const data = {
-      comment: comment,
-      ratingGameSense: parseInt(ratingGameSense, 10),
-      ratingCommunication: parseInt(ratingCommunication, 10),
-      ratingChampionPool: parseInt(ratingChampionPool, 10),
-      coachId: parseInt(2, 10)
+      comment,
+      ratingGameSense:     parseInt(gameSense, 10),
+      ratingCommunication: parseInt(communication, 10),
+      ratingChampionPool:  parseInt(champPool, 10),
+      coachId: 2 // TODO: replace with logged-in coach ID from cookies/session
     };
 
     try {
-      const result = await Backend.saveEvaluation(userId, scrimId, data);
-      
-      if (result.success) {
-        alert("Evaluation saved!");
-        const evalData = result.evaluation;
-        if (evalData) {
-          resetEvaluationForm();
-          document.querySelector(`input[name="gameSense"][value="${evalData.ratingGameSense}"]`).checked = true;
-          document.querySelector(`input[name="communication"][value="${evalData.ratingCommunication}"]`).checked = true;
-          document.querySelector(`input[name="champPool"][value="${evalData.ratingChampionPool}"]`).checked = true;
-          document.getElementById("coachComment").value = evalData.comment || "";
-        }
+      const result = await Backend.saveEvaluation(userId, eventId, data);
 
-        const selectedScrimId = Number(scrimId);
-        const updatedScrim = allScrims.find((item) => Number(item.scrimId) === selectedScrimId);
-        if (updatedScrim) {
-          updatedScrim.status = "evaluated";
-          renderScrimRows(statusFilter ? statusFilter.value : "all");
+      if (result.success) {
+        alert('Evaluation saved!');
+
+        // Mark event as evaluated in local state and re-render
+        const target = allEvents.find(e => Number(e.eventId) === Number(eventId));
+        if (target) {
+          target.status = 'evaluated';
+          renderScrimRows(statusFilter?.value || 'all');
         }
       } else {
-        alert("Error: " + result.error);
+        alert('Error: ' + result.error);
       }
     } catch (err) {
-      console.error("[EVALUATION] ✗ Error submitting evaluation:", err);
-      alert("Failed to save evaluation.");
+      console.error('[EVAL] ✗ Submit failed:', err);
+      alert('Failed to save evaluation.');
     }
-  });
+  }
+
+  // ── LOAD SCRIMS (EVENTS) ──────────────────────────────
+  Backend.fetchScrims(userId)
+    .then((events) => {
+      allEvents = events;
+      renderScrimRows(statusFilter?.value || 'all');
+      console.log('[SCRIMS] ✓ Events loaded:', events.length);
+    })
+    .catch(err => console.error('[SCRIMS] ✗ Error loading events:', err));
+
+  // ── FILTER CHANGE ─────────────────────────────────────
+  if (statusFilter) {
+    statusFilter.addEventListener('change', () => {
+      renderScrimRows(statusFilter.value);
+    });
+  }
+
+  // ── TIMES PLAYED TABLE ────────────────────────────────
+  Backend.fetchTimesPlayed(userId)
+    .then((timesPlayed) => {
+      const timesBody = document.querySelector('.times-played-table tbody');
+      timesBody.innerHTML = '';
+
+      if (!timesPlayed.length) {
+        timesBody.innerHTML = `
+          <tr class="times-played-row">
+            <td colspan="3">No player found.</td>
+          </tr>`;
+        return;
+      }
+
+      timesPlayed.forEach(item => {
+        const row = document.createElement('tr');
+        row.classList.add('times-played-row');
+
+        // Color-code avg comms
+        const comms     = parseFloat(item.averageComms);
+        const commsColor = comms >= 3 ? '#22c55e' : '#ef4444';
+
+        row.innerHTML = `
+          <td>${item.gameName}</td>
+          <td style="text-align:center">${item.timesPlayed}</td>
+          <td style="text-align:center; color:${commsColor}; font-weight:700">
+            ${comms.toFixed(1)}
+          </td>
+        `;
+        timesBody.appendChild(row);
+      });
+
+      console.log('[SCRIMS] ✓ Times played loaded');
+    })
+    .catch(err => console.error('[SCRIMS] ✗ Error loading times played:', err));
 };
