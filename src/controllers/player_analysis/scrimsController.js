@@ -24,7 +24,7 @@ exports.getScrims = async (req, res) => {
     const playerId = req.params.id;
 
     const sql = `
-      SELECT
+    SELECT
         e.eventId,
         e.title_summary,
         e.start_datetime,
@@ -33,43 +33,43 @@ exports.getScrims = async (req, res) => {
         e.win,
         ea.player_role AS roleId,
         CASE
-          WHEN EXISTS (
+        WHEN EXISTS (
             SELECT 1 FROM player_evaluations pe
             WHERE pe.eventId = e.eventId AND pe.playerId = ?
-          ) THEN 'evaluated'
-          ELSE 'unevaluated'
+        ) THEN 'evaluated'
+        ELSE 'unevaluated'
         END AS status,
-        CONCAT(pl.gameName, '#', pl.tagLine, ' (', lr.displayedRole, ')') AS playerDisplay,
-        -- All attendees for the team column
-        GROUP_CONCAT(
-          CONCAT(pl2.gameName, '#', pl2.tagLine) 
-          ORDER BY pl2.gameName 
-          SEPARATOR ', '
+        CONCAT(pl.gameName, ' (', lr.displayedRole, ')') AS playerDisplay,
+        -- All attendees comma-separated for the Team column
+        (
+        SELECT GROUP_CONCAT(
+            CONCAT(pl2.gameName)
+            ORDER BY pl2.gameName
+            SEPARATOR ', '
+        )
+        FROM event_attendees ea2
+        JOIN players pl2 ON ea2.userId = pl2.userId
+        WHERE ea2.eventId = e.eventId
         ) AS teamDisplay
-      FROM events e
-      JOIN event_attendees ea 
+    FROM events e
+    JOIN event_attendees ea
         ON e.eventId = ea.eventId AND ea.userId = ?
-      JOIN players pl 
+    JOIN players pl
         ON ea.userId = pl.userId
-      LEFT JOIN leagueRoles lr 
+    LEFT JOIN leagueRoles lr
         ON ea.player_role = lr.roleId
-      -- Join all attendees for team display
-      LEFT JOIN event_attendees ea2 
-        ON e.eventId = ea2.eventId
-      LEFT JOIN players pl2 
-        ON ea2.userId = pl2.userId
-      WHERE e.type = 'Scrim'
-      GROUP BY
+    WHERE e.type = 'Scrim'
+    GROUP BY
         e.eventId, e.title_summary, e.start_datetime,
         e.videoLink, e.length, e.win,
         ea.player_role, pl.gameName, pl.tagLine, lr.displayedRole
-      ORDER BY
+    ORDER BY
         CASE
-          WHEN EXISTS (
+        WHEN EXISTS (
             SELECT 1 FROM player_evaluations pe
             WHERE pe.eventId = e.eventId AND pe.playerId = ?
-          ) THEN 0
-          ELSE 1
+        ) THEN 0
+        ELSE 1
         END,
         e.start_datetime DESC
     `;

@@ -54,9 +54,7 @@ window.initScrimsTab = function (userId) {
       const btnId      = `eval-btn-${eventId}`;
 
       // Team display from event_attendees joined data
-      const teamNames = Array.isArray(event.players)
-        ? event.players.map(p => p.gameName).join(', ')
-        : (event.playerDisplay || '—');
+      const teamNames = event.teamDisplay || event.playerDisplay || '—';
 
       const wl = event.win || '—';
       const vodLink = event.videoLink
@@ -74,11 +72,11 @@ window.initScrimsTab = function (userId) {
         <td>${index + 1}</td>
         <td>${event.title_summary || '—'}</td>
         <td>${formatEventDate(event.start_datetime)}</td>
-        <td>${teamNames}</td>
+        <td>${teamNames}</td>          <!-- shows all attendees -->
         <td>${wl}</td>
         <td>${vodLink}</td>
         <td>
-          <button class="eval-toggle-btn" id="${btnId}">V</button>
+          <button class="eval-toggle-btn" id="${btnId}">v</button>
         </td>
       `;
 
