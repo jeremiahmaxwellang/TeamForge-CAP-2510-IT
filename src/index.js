@@ -119,6 +119,7 @@ app.use(express.static(path.join(process.cwd(), './public')));
 global.viewsPath = path.join(process.cwd(), 'views');
 
 // Routes 
+app.use('/attendance', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/attendance/attendance_routes')); // attendance routes
 // app.use('/google', require('./modules/google_apis/google_routes')); // googleapi routes
 // app.use('/google', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/google_apis/google_routes')); // googleapi routes
 app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes

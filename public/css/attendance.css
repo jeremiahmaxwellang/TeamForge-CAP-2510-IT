@@ -1,0 +1,245 @@
+:root {
+    --gunmetal: #2f3136;
+    --carbon-black: #202225;
+    --iron-gray: #36393f;
+    --porcelain: #f2f3f5;
+    --font-road-rage: 'Road Rage', sans-serif;
+}
+
+body {
+    margin: 0;
+    display: block;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--gunmetal);
+    color: #ffffff;
+}
+
+/* ── Attendance Header ── */
+.attendance-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.attendance-header h2 {
+    font-size: 36px;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+.attendance-divider {
+    border: none;
+    border-top: 1px solid #45474d;
+    margin: 12px 0 20px;
+}
+
+/* ── Selects ── */
+.attendance-select {
+    background-color: #202225;
+    color: var(--porcelain);
+    border: 1px solid #45474d;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='[w3.org](http://www.w3.org/2000/svg)' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b9bbbe' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.attendance-select:hover,
+.attendance-select:focus {
+    border-color: #7289da;
+    background-color: #2b2d31;
+    outline: none;
+}
+
+.event-select {
+    min-width: 340px;
+}
+
+.event-selector-row {
+    margin-bottom: 20px;
+}
+
+/* ── Table ── */
+.attendance-table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.attendance-table {
+    width: 100%;
+    min-width: 780px;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.attendance-table th {
+    background-color: #202225;
+    color: var(--porcelain);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1px solid #45474d;
+}
+
+.attendance-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #3f4248;
+    color: #f2f3f5;
+    vertical-align: middle;
+}
+
+.attendance-table tr:nth-child(even) {
+    background-color: #2b2d31;
+}
+
+.attendance-table tr:hover {
+    background-color: #3b3f46;
+}
+
+/* ── Participant Cell ── */
+.participant-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.participant-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--porcelain);
+}
+
+.participant-meta {
+    font-size: 12px;
+    color: #b9bbbe;
+}
+
+/* ── Radio Buttons styled as colored checkboxes ── */
+.att-radio {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    border: 2px solid currentColor;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.15s ease;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.att-radio.present  { color: #3ba55c; }
+.att-radio.late     { color: #faa81a; }
+.att-radio.absent   { color: #ed4245; }
+.att-radio.excused  { color: #5865f2; }
+
+.att-radio:checked {
+    background-color: currentColor;
+}
+
+.att-radio:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+}
+
+.att-radio:hover:not(:checked) {
+    background-color: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+/* ── Note Input ── */
+.note-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #45474d;
+    color: #b9bbbe;
+    font-family: inherit;
+    font-size: 13px;
+    font-style: italic;
+    padding: 4px 2px;
+    width: 140px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.note-input:focus {
+    outline: none;
+    border-bottom-color: #7289da;
+    color: var(--porcelain);
+}
+
+.note-input::placeholder {
+    color: #5b6069;
+}
+
+/* ── RSVP Icons ── */
+.rsvp-icon {
+    font-size: 20px;
+    display: inline-block;
+}
+
+.rsvp-yes { filter: hue-rotate(100deg) saturate(1.5); }  /* green tint */
+.rsvp-no  { filter: hue-rotate(320deg) saturate(2);   }  /* red tint   */
+
+/* ── Footer / Save ── */
+.attendance-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.save-btn {
+    background-color: #3ba55c;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.save-btn:hover {
+    background-color: #2d8a4e;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .attendance-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .event-select {
+        min-width: 100%;
+    }
+
+    .note-input {
+        width: 100px;
+    }
+}
