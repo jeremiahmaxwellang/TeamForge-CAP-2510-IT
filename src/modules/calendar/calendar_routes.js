@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const calendarController = require('./calendar_controller');
 
-// Note: I haven't connected these routes to index.js yet
+// Serve the Calendar HTML page
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'calendar.html')); 
+});
 
-// Route to load the webpage
-router.get('/', calendarController.getCalendarPage);
+// API route to create a new event
+router.post('/api/create', calendarController.createEvent);
 
 module.exports = router;
