@@ -204,7 +204,7 @@ const createTournament = async (req, res) => {
 		await connection.beginTransaction();
 
 		const [insertTournamentResult] = await connection.query(
-			`INSERT INTO tournaments (name, startDate, endDate, win) VALUES (?, ?, ?, ?)`,
+			`INSERT INTO events (title_summary, type, start_date, end_date, win) VALUES (?, 'Tournament', ?, ?, ?)`,
 			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult]
 		);
 
@@ -221,7 +221,7 @@ const createTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub)
 				VALUES (?, ?, ?, ?)
 				`,
 				[tournamentId, playerId, roleId, isSub]
@@ -346,7 +346,7 @@ const updateTournament = async (req, res) => {
 		await connection.beginTransaction();
 
 		const [existingRows] = await connection.query(
-			`SELECT tournamentId FROM tournaments WHERE tournamentId = ? LIMIT 1`,
+			`SELECT eventId FROM events WHERE eventId = ? AND type = 'Tournament' LIMIT 1`,
 			[tournamentId]
 		);
 
@@ -360,14 +360,14 @@ const updateTournament = async (req, res) => {
 
 		await connection.query(
 			`
-			UPDATE tournaments
-			SET name = ?, startDate = ?, endDate = ?, win = ?
-			WHERE tournamentId = ?
+			UPDATE events
+			SET title_summary = ?, start_date = ?, end_date = ?, win = ?
+			WHERE eventId = ? AND type = 'Tournament'
 			`,
 			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult, tournamentId]
 		);
 
-		await connection.query(`DELETE FROM tournament_players WHERE tournamentId = ?`, [tournamentId]);
+		await connection.query(`DELETE FROM event_attendees WHERE eventId = ?`, [tournamentId]);
 
 		for (const item of assignments) {
 			const playerId = Number.parseInt(item.playerId, 10);
@@ -380,7 +380,7 @@ const updateTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub)
 				VALUES (?, ?, ?, ?)
 				`,
 				[tournamentId, playerId, roleId, isSub]
@@ -411,21 +411,22 @@ const getTournaments = async (req, res) => {
 	try {
 		const query = `
 			SELECT
-				t.tournamentId,
-				t.name,
-				t.startDate,
+				t.eventId AS tournamentId,
+				t.title_summary AS name,
+				t.start_date AS startDate,
 				t.win,
-				tp.playerId,
-				tp.isSub,
-				tp.roleId,
+				tp.userId AS playerId,
+				tp.is_sub AS isSub,
+				tp.player_role AS roleId,
 				u.firstname,
 				u.lastname,
 				lr.teamPosition AS roleName
-			FROM tournaments t
-			LEFT JOIN tournament_players tp ON tp.tournamentId = t.tournamentId
-			LEFT JOIN users u ON u.userId = tp.playerId
-			LEFT JOIN leagueRoles lr ON lr.roleId = tp.roleId
-			ORDER BY t.tournamentId DESC, tp.isSub ASC, tp.roleId ASC
+			FROM events t
+			LEFT JOIN event_attendees tp ON tp.eventId = t.eventId
+			LEFT JOIN users u ON u.userId = tp.userId
+			LEFT JOIN leagueRoles lr ON lr.roleId = tp.player_role
+            WHERE t.type = 'Tournament'
+			ORDER BY t.eventId DESC, tp.is_sub ASC, tp.player_role ASC
 		`;
 
 		const [rows] = await db.query(query);

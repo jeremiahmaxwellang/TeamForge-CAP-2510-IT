@@ -32717,15 +32717,6 @@ module.exports = router;
 </html>
 </file>
 
-<file path="src/modules/calendar/calendar_controller.js">
-const mySqlPool = require('../../config/database');
-
-// 1. Serve the HTML page
-exports.getCalendarPage = (req, res) => {
-    res.sendFile('calendar.html', { root: './src/modules/calendar' }); // Adjust root if your html is somewhere else
-};
-</file>
-
 <file path="src/modules/calendar/calendar.html">
 <!DOCTYPE html>
 <html lang="en">
@@ -36504,47 +36495,6 @@ module.exports = router;
 </html>
 </file>
 
-<file path="package.json">
-{
-  "name": "teamforge-cap-2510-it",
-  "version": "1.0.0",
-  "description": "TeamForge is a Decision Support System for Collegiate League of Legends Esports Teams",
-  "keywords": [],
-  "homepage": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT#readme",
-  "bugs": {
-    "url": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT.git"
-  },
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server"
-  },
-  "dependencies": {
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-fileupload": "^1.5.2",
-    "express-session": "^1.19.0",
-    "googleapis": "^171.4.0",
-    "hbs": "^4.2.1",
-    "https": "^1.0.0",
-    "mongoose": "^9.1.6",
-    "mysql2": "^3.16.2",
-    "nodemailer": "^8.0.7",
-    "path": "^0.12.7",
-    "router": "^2.2.0"
-  }
-}
-</file>
-
 <file path="public/js/overlays/player_analysis_scrims_overlay.js">
 window.initScrimsTab = function (userId) {
   const Backend = window.ScrimsBackend;
@@ -37161,17 +37111,81 @@ exports.getCommsSummary = async (req, res) => {
 };
 </file>
 
-<file path="src/modules/calendar/calendar_routes.js">
-const express = require('express');
-const router = express.Router();
-const calendarController = require('./calendar_controller');
+<file path="src/modules/calendar/calendar_controller.js">
+const db = require('../../config/database');
 
-// Note: I haven't connected these routes to index.js yet
+// Create Event Logic
+exports.createEvent = async (req, res) => {
+    try {
+        const { 
+            title_summary, 
+            type, 
+            location, 
+            start_date, 
+            start_datetime, 
+            start_timezone, 
+            end_date, 
+            end_datetime, 
+            end_timezone,
+            videoLink,
+            length,
+            win,
+            status 
+        } = req.body;
+        
+        // Grab the user ID from the cookies to know who made it
+        const creator_id = req.cookies && req.cookies.userId ? req.cookies.userId : null;
 
-// Route to load the webpage
-router.get('/', calendarController.getCalendarPage);
+        // Basic validation matching the NOT NULL constraints in your DB
+        if (!title_summary || !type) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Title and Event Type are required.' 
+            });
+        }
 
-module.exports = router;
+        // Insert into the database using your exact schema columns
+        const query = `
+            INSERT INTO events (
+                title_summary, creator_id, type, location, 
+                start_date, start_datetime, start_timezone, 
+                end_date, end_datetime, end_timezone, 
+                videoLink, length, win, status
+            ) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        
+        const [result] = await db.query(query, [
+            title_summary,
+            creator_id,
+            type,
+            location || null,
+            start_date || null,
+            start_datetime || null,
+            start_timezone || null,
+            end_date || null,
+            end_datetime || null,
+            end_timezone || null,
+            videoLink || null,
+            length || null,
+            win || 'N/A',
+            status || null
+        ]);
+
+        res.status(201).json({ 
+            success: true, 
+            message: 'Event created successfully!', 
+            eventId: result.insertId 
+        });
+
+    } catch (error) {
+        console.error('[CALENDAR] Error creating event:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to create event in the database.' 
+        });
+    }
+};
 </file>
 
 <file path="views/login.html">
@@ -39821,6 +39835,47 @@ VALUES
 (57, 17, 5, 'Excused', 'Y');
 </file>
 
+<file path="package.json">
+{
+  "name": "teamforge-cap-2510-it",
+  "version": "1.0.0",
+  "description": "TeamForge is a Decision Support System for Collegiate League of Legends Esports Teams",
+  "keywords": [],
+  "homepage": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT#readme",
+  "bugs": {
+    "url": "https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremiahmaxwellang/TeamForge-CAP-2510-IT.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-fileupload": "^1.5.2",
+    "express-session": "^1.19.0",
+    "googleapis": "^171.4.0",
+    "hbs": "^4.2.1",
+    "https": "^1.0.0",
+    "mongoose": "^9.1.6",
+    "mysql2": "^3.16.2",
+    "nodemailer": "^8.0.7",
+    "path": "^0.12.7",
+    "router": "^2.2.0"
+  }
+}
+</file>
+
 <file path="public/css/reports.css">
 .reports-page {
     width: 100%;
@@ -41668,6 +41723,23 @@ exports.getAnnouncements = async (req, res) => {
 };
 </file>
 
+<file path="src/modules/calendar/calendar_routes.js">
+const express = require('express');
+const router = express.Router();
+const path = require('path');
+const calendarController = require('./calendar_controller');
+
+// Serve the Calendar HTML page
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'calendar.html')); 
+});
+
+// API route to create a new event
+router.post('/api/create', calendarController.createEvent);
+
+module.exports = router;
+</file>
+
 <file path="views/applicant_profile.html">
 <!DOCTYPE html>
 <html lang="en">
@@ -42143,6 +42215,7 @@ app.use('/attendance', requireAnyRole(['Team Manager', 'Team Coach', 'Player']),
 // app.use('/google', require('./modules/google_apis/google_routes')); // googleapi routes
 // app.use('/google', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/google_apis/google_routes')); // googleapi routes
 app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
+app.use('/calendar', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/calendar_routes')); // calendar routes
 app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes')); // announcement routes
 app.use('/reports', requireAnyRole(['Team Manager', 'Team Coach']), require('./modules/reports/reports_routes'));
 
