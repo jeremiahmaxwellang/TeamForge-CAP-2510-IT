@@ -330,7 +330,7 @@ const updateTournament = async (req, res) => {
 		const teamRoleKeys = new Set();
 		const playerIds = new Set();
 		for (const item of assignments) {
-			const assignmentTeam = normalizedType === 'Scrim' && item.team === 'Team 2' ? 'Team 2' : (item.team === 'Sub' ? 'Sub' : 'Team 1');
+			const assignmentTeam = normalizedType === 'Scrim' && (item.team === 'Team 2' || item.team === 'Sub') ? 'Team 2' : (item.team === 'Sub' ? 'Sub' : 'Team 1');
 			const assignmentRole = String(item.role || '').trim();
 			const assignmentPlayerId = Number.parseInt(item.playerId, 10);
 			const teamRoleKey = `${assignmentTeam}:${assignmentRole}`;
