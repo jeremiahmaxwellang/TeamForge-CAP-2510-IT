@@ -45,6 +45,8 @@
 						</header>
 
 						<div class="list-filters">
+							<span class="list-filters-label">Type Filter</span>
+							<div id="typeFilterGroup" class="type-filter-group"></div>
 							<span class="list-filters-label">Result Filter</span>
 							<div id="resultFilterGroup" class="result-filter-group"></div>
 						</div>
@@ -71,6 +73,13 @@
 				<label>
 					<span>Tournament Date</span>
 					<input id="tournamentDateInput" type="date" />
+				</label>
+				<label>
+					<span>Type</span>
+					<select id="tournamentTypeSelect">
+						<option value="Tournament">Tournament</option>
+						<option value="Scrim">Scrim</option>
+					</select>
 				</label>
 				<label>
 					<span>Result</span>

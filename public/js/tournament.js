@@ -2,6 +2,7 @@
 	const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 	const FILTER_ROLES = ['Candidates', 'All', ...ROLE_ORDER];
 	const RESULT_FILTERS = ['All', 'W', 'L', 'N/A'];
+	const TYPE_FILTERS = ['All', 'Tournament', 'Scrim'];
 
 	const state = {
 		players: [],
@@ -11,6 +12,7 @@
 		roleById: {},
 		filter: 'All',
 		resultFilter: 'All',
+		typeFilter: 'All',
 		selectedTournamentId: null,
 		editingTournamentId: null,
 		team1: {
@@ -40,11 +42,13 @@
 	const tournamentNameInput = document.getElementById('tournamentNameInput');
 	const tournamentDateInput = document.getElementById('tournamentDateInput');
 	const tournamentResultSelect = document.getElementById('tournamentResultSelect');
+	const tournamentTypeSelect = document.getElementById('tournamentTypeSelect');
 
 	const team1Roster = document.getElementById('team1Roster');
 	const subRoster = document.getElementById('subRoster');
 	const roleFilterGroup = document.getElementById('roleFilterGroup');
 	const resultFilterGroup = document.getElementById('resultFilterGroup');
+	const typeFilterGroup = document.getElementById('typeFilterGroup');
 	const playersGrid = document.getElementById('playersGrid');
 	const tournamentList = document.getElementById('tournamentList');
 
@@ -141,6 +145,8 @@
 				parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString().slice(0, 10) : '';
 		}
 
+		tournamentTypeSelect.value = tournament.type || 'Tournament';
+
 		const normalizedResult = (tournament.result || '').toUpperCase();
 		tournamentResultSelect.value = RESULT_FILTERS.includes(normalizedResult) ? normalizedResult : 'N/A';
 
@@ -176,6 +182,7 @@
 	const resetModalState = () => {
 		tournamentNameInput.value = '';
 		tournamentDateInput.value = '';
+		tournamentTypeSelect.value = 'Tournament';
 		tournamentResultSelect.value = 'N/A';
 		state.filter = 'All';
 		state.team1 = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
@@ -350,6 +357,25 @@
 		});
 	};
 
+	const renderTypeFilters = () => {
+		if (!typeFilterGroup) return;
+
+		typeFilterGroup.innerHTML = '';
+
+		TYPE_FILTERS.forEach((filterValue) => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = `filter-btn ${state.typeFilter === filterValue ? 'active' : ''}`;
+			button.textContent = filterValue;
+			button.addEventListener('click', () => {
+				state.typeFilter = filterValue;
+				renderTypeFilters();
+				renderTournamentList();
+			});
+			typeFilterGroup.appendChild(button);
+		});
+	};
+
 	const attachRemoveHandlers = () => {
 		document.querySelectorAll('.remove-assignment').forEach((button) => {
 			button.addEventListener('click', () => {
@@ -446,6 +472,7 @@
 	const confirmTournament = async () => {
 		const name = tournamentNameInput.value.trim();
 		const tournamentDate = tournamentDateInput.value;
+		const type = tournamentTypeSelect.value;
 		const result = tournamentResultSelect.value;
 		const isEditMode = Number.isInteger(state.editingTournamentId) && state.editingTournamentId > 0;
 
@@ -481,6 +508,7 @@
 				body: JSON.stringify({
 					name,
 					tournamentDate,
+					type,
 					result,
 					assignments
 				})
@@ -519,8 +547,9 @@
 		}
 
 		const filteredTournaments = state.tournaments.filter((tournament) => {
-			if (state.resultFilter === 'All') return true;
-			return (tournament.result || '').toUpperCase() === state.resultFilter;
+			if (state.resultFilter !== 'All' && (tournament.result || '').toUpperCase() !== state.resultFilter) return false;
+			if (state.typeFilter !== 'All' && tournament.type !== state.typeFilter) return false;
+			return true;
 		});
 
 		if (!filteredTournaments.length) {
@@ -687,6 +716,7 @@
 		document.body.addEventListener('dragover', (event) => event.preventDefault());
 
 		try {
+			renderTypeFilters();
 			renderResultFilters();
 			await loadPlayers();
 			await loadFavoriteCandidates();

@@ -479,6 +479,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournaments` (
   `startDate` DATE NULL,
   `endDate` DATE NULL,
   `win` ENUM('W', 'L', 'N/A') NULL,
+  `type` ENUM('Scrim', 'Tournament') NOT NULL DEFAULT 'Tournament',
   PRIMARY KEY (`tournamentId`))
 ENGINE = InnoDB;
 

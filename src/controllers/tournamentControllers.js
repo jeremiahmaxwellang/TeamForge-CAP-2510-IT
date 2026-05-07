@@ -118,7 +118,7 @@ const createTournament = async (req, res) => {
 	const connection = await db.getConnection();
 
 	try {
-		const { name, tournamentDate, result, assignments } = req.body;
+		const { name, tournamentDate, result, type, assignments } = req.body;
 
 		if (!name || !String(name).trim()) {
 			return res.status(400).send({
@@ -142,6 +142,8 @@ const createTournament = async (req, res) => {
 				message: 'Result must be W, L, or N/A'
 			});
 		}
+
+		const normalizedType = type === 'Scrim' ? 'Scrim' : 'Tournament';
 
 		if (!Array.isArray(assignments) || assignments.length === 0) {
 			return res.status(400).send({
@@ -204,8 +206,8 @@ const createTournament = async (req, res) => {
 		await connection.beginTransaction();
 
 		const [insertTournamentResult] = await connection.query(
-			`INSERT INTO tournaments (name, startDate, endDate, win) VALUES (?, ?, ?, ?)`,
-			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult]
+			`INSERT INTO tournaments (name, startDate, endDate, win, type) VALUES (?, ?, ?, ?, ?)`,
+			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult, normalizedType]
 		);
 
 		const tournamentId = insertTournamentResult.insertId;
@@ -253,7 +255,7 @@ const updateTournament = async (req, res) => {
 
 	try {
 		const tournamentId = Number.parseInt(req.params.tournamentId, 10);
-		const { name, tournamentDate, result, assignments } = req.body;
+		const { name, tournamentDate, result, type, assignments } = req.body;
 
 		if (!Number.isInteger(tournamentId) || tournamentId <= 0) {
 			return res.status(400).send({
@@ -284,6 +286,8 @@ const updateTournament = async (req, res) => {
 				message: 'Result must be W, L, or N/A'
 			});
 		}
+
+		const normalizedType = type === 'Scrim' ? 'Scrim' : 'Tournament';
 
 		if (!Array.isArray(assignments) || assignments.length === 0) {
 			return res.status(400).send({
@@ -361,10 +365,10 @@ const updateTournament = async (req, res) => {
 		await connection.query(
 			`
 			UPDATE tournaments
-			SET name = ?, startDate = ?, endDate = ?, win = ?
+			SET name = ?, startDate = ?, endDate = ?, win = ?, type = ?
 			WHERE tournamentId = ?
 			`,
-			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult, tournamentId]
+			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult, normalizedType, tournamentId]
 		);
 
 		await connection.query(`DELETE FROM tournament_players WHERE tournamentId = ?`, [tournamentId]);
@@ -415,6 +419,7 @@ const getTournaments = async (req, res) => {
 				t.name,
 				t.startDate,
 				t.win,
+				t.type,
 				tp.playerId,
 				tp.isSub,
 				tp.roleId,
@@ -439,6 +444,7 @@ const getTournaments = async (req, res) => {
 					name: row.name,
 					tournamentDate: row.startDate,
 					result: row.win,
+					type: row.type,
 					assignments: []
 				});
 			}
