@@ -41,6 +41,19 @@ npm init -y
 npm install express dotenv hbs path express-fileupload express-session cookie-parser nodemailer googleapis
 ```
 
+##### Optional: Install repomix for converting repository into an XML file
+1. Go to your repo folder where you are at the root.
+2. Type cmd at the top to open cmd at the root already
+
+```
+npm install -g repomix
+```
+
+3. Then in your command line, enter the following to convert the repository into an xml file
+```
+repomix
+```
+
 #### 4. Set up environment variables
 In the `src` folder, create a `.env` file with the following contents:
 

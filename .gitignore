@@ -5,3 +5,4 @@ public/uploads/profile-photos/*
 public/uploads/team-logos/*
 !public/uploads/team-logos/VA_logo.png
 src/modules/google_apis/credentials.json
+repomix-output.xml
