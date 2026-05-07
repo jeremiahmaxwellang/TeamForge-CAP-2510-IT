@@ -156,10 +156,23 @@ const createTournament = async (req, res) => {
 		const validTeamRoles = new Set(teamOneAssignments.map((item) => item.role));
 		const hasAllRoles = ROLE_ORDER.every((role) => validTeamRoles.has(role));
 
+		let teamTwoAssignments = [];
+		if (normalizedType === 'Scrim') {
+			teamTwoAssignments = assignments.filter((item) => item.team === 'Team 2');
+			const validTeamTwoRoles = new Set(teamTwoAssignments.map((item) => item.role));
+			const hasAllTeamTwoRoles = ROLE_ORDER.every((role) => validTeamTwoRoles.has(role));
+			if (!hasAllTeamTwoRoles) {
+				return res.status(400).send({
+					success: false,
+					message: 'Scrims require Team 2 to include Top, Jungle, Mid, ADC, and Support'
+				});
+			}
+		}
+
 		const teamRoleKeys = new Set();
 		const playerIds = new Set();
 		for (const item of assignments) {
-			const assignmentTeam = item.team === 'Sub' ? 'Sub' : 'Team 1';
+			const assignmentTeam = normalizedType === 'Scrim' && item.team === 'Team 2' ? 'Team 2' : (item.team === 'Sub' ? 'Sub' : 'Team 1');
 			const assignmentRole = String(item.role || '').trim();
 			const assignmentPlayerId = Number.parseInt(item.playerId, 10);
 			const teamRoleKey = `${assignmentTeam}:${assignmentRole}`;
@@ -216,6 +229,7 @@ const createTournament = async (req, res) => {
 			const playerId = Number.parseInt(item.playerId, 10);
 			const roleId = normalizeRoleId(item.roleId, item.role);
 			const isSub = item.team === 'Sub' ? 'Y' : 'N';
+			const team = item.team;
 
 			if (!Number.isInteger(playerId) || playerId <= 0) {
 				throw new Error('Invalid player assignment received');
@@ -223,10 +237,10 @@ const createTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-				VALUES (?, ?, ?, ?)
+				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub, team)
+				VALUES (?, ?, ?, ?, ?)
 				`,
-				[tournamentId, playerId, roleId, isSub]
+				[tournamentId, playerId, roleId, isSub, team]
 			);
 		}
 
@@ -300,10 +314,23 @@ const updateTournament = async (req, res) => {
 		const validTeamRoles = new Set(teamOneAssignments.map((item) => item.role));
 		const hasAllRoles = ROLE_ORDER.every((role) => validTeamRoles.has(role));
 
+		let teamTwoAssignments = [];
+		if (normalizedType === 'Scrim') {
+			teamTwoAssignments = assignments.filter((item) => item.team === 'Team 2');
+			const validTeamTwoRoles = new Set(teamTwoAssignments.map((item) => item.role));
+			const hasAllTeamTwoRoles = ROLE_ORDER.every((role) => validTeamTwoRoles.has(role));
+			if (!hasAllTeamTwoRoles) {
+				return res.status(400).send({
+					success: false,
+					message: 'Scrims require Team 2 to include Top, Jungle, Mid, ADC, and Support'
+				});
+			}
+		}
+
 		const teamRoleKeys = new Set();
 		const playerIds = new Set();
 		for (const item of assignments) {
-			const assignmentTeam = item.team === 'Sub' ? 'Sub' : 'Team 1';
+			const assignmentTeam = normalizedType === 'Scrim' && item.team === 'Team 2' ? 'Team 2' : (item.team === 'Sub' ? 'Sub' : 'Team 1');
 			const assignmentRole = String(item.role || '').trim();
 			const assignmentPlayerId = Number.parseInt(item.playerId, 10);
 			const teamRoleKey = `${assignmentTeam}:${assignmentRole}`;
@@ -377,6 +404,7 @@ const updateTournament = async (req, res) => {
 			const playerId = Number.parseInt(item.playerId, 10);
 			const roleId = normalizeRoleId(item.roleId, item.role);
 			const isSub = item.team === 'Sub' ? 'Y' : 'N';
+			const team = item.team;
 
 			if (!Number.isInteger(playerId) || playerId <= 0) {
 				throw new Error('Invalid player assignment received');
@@ -384,10 +412,10 @@ const updateTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-				VALUES (?, ?, ?, ?)
+				INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub, team)
+				VALUES (?, ?, ?, ?, ?)
 				`,
-				[tournamentId, playerId, roleId, isSub]
+				[tournamentId, playerId, roleId, isSub, team]
 			);
 		}
 
@@ -423,6 +451,7 @@ const getTournaments = async (req, res) => {
 				tp.playerId,
 				tp.isSub,
 				tp.roleId,
+				tp.team,
 				u.firstname,
 				u.lastname,
 				lr.teamPosition AS roleName
@@ -454,7 +483,7 @@ const getTournaments = async (req, res) => {
 					playerId: row.playerId,
 					playerName: `${row.firstname || ''} ${row.lastname || ''}`.trim(),
 					roleId: row.roleId,
-					team: row.isSub === 'Y' ? 'Sub' : 'Team 1',
+					team: row.team,
 					role: mapRoleName(row.roleName) || 'Unknown'
 				});
 			}

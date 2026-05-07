@@ -43,6 +43,7 @@
 	const tournamentDateInput = document.getElementById('tournamentDateInput');
 	const tournamentResultSelect = document.getElementById('tournamentResultSelect');
 	const tournamentTypeSelect = document.getElementById('tournamentTypeSelect');
+	const team2Label = document.getElementById('team2Label');
 
 	const team1Roster = document.getElementById('team1Roster');
 	const subRoster = document.getElementById('subRoster');
@@ -146,6 +147,7 @@
 		}
 
 		tournamentTypeSelect.value = tournament.type || 'Tournament';
+		team2Label.textContent = tournament.type === 'Scrim' ? 'Team 2' : 'Sub';
 
 		const normalizedResult = (tournament.result || '').toUpperCase();
 		tournamentResultSelect.value = RESULT_FILTERS.includes(normalizedResult) ? normalizedResult : 'N/A';
@@ -158,7 +160,7 @@
 				...assignment,
 				role: resolvedRole
 			});
-			if (assignment.team === 'Sub') {
+			if (assignment.team === 'Sub' || assignment.team === 'Team 2') {
 				state.sub[resolvedRole] = player;
 				return;
 			}
@@ -184,6 +186,7 @@
 		tournamentDateInput.value = '';
 		tournamentTypeSelect.value = 'Tournament';
 		tournamentResultSelect.value = 'N/A';
+		team2Label.textContent = 'Sub';
 		state.filter = 'All';
 		state.team1 = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
 		state.sub = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
@@ -443,6 +446,7 @@
 
 	const toAssignments = () => {
 		const assignments = [];
+		const isScrim = tournamentTypeSelect.value === 'Scrim';
 
 		ROLE_ORDER.forEach((role) => {
 			const teamPlayer = state.team1[role];
@@ -461,7 +465,7 @@
 					playerId: subPlayer.userId,
 					role,
 					roleId: subPlayer.primaryRole === role ? subPlayer.primaryRoleId : subPlayer.secondaryRoleId,
-					team: 'Sub'
+					team: isScrim ? 'Team 2' : 'Sub'
 				});
 			}
 		});
@@ -490,6 +494,14 @@
 		if (!teamOneFilled) {
 			alert('Team 1 requires Top, Jungle, Mid, ADC, and Support.');
 			return;
+		}
+
+		if (type === 'Scrim') {
+			const teamTwoFilled = ROLE_ORDER.every((role) => state.sub[role]);
+			if (!teamTwoFilled) {
+				alert('Scrims require both Team 1 and Team 2 to have Top, Jungle, Mid, ADC, and Support.');
+				return;
+			}
 		}
 
 		const assignments = toAssignments();
@@ -577,6 +589,7 @@
 						${isSelectedTournament ? 'checked' : ''}
 					/>
 					<h3>${tournament.name}</h3>
+					<span class="tournament-type">${tournament.type || 'Tournament'}</span>
 				</div>
 				<button type="button" class="details-toggle-btn">
 					<span class="toggle-indicator">Show details</span>
@@ -706,6 +719,11 @@
 		closeModalBtn.addEventListener('click', closeModal);
 		cancelModalBtn.addEventListener('click', closeModal);
 		confirmTournamentBtn.addEventListener('click', confirmTournament);
+
+		tournamentTypeSelect.addEventListener('change', () => {
+			const isScrim = tournamentTypeSelect.value === 'Scrim';
+			team2Label.textContent = isScrim ? 'Team 2' : 'Sub';
+		});
 
 		modalOverlay.addEventListener('click', (event) => {
 			if (event.target === modalOverlay) {
