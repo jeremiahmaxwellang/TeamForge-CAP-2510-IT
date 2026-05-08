@@ -479,6 +479,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournaments` (
   `startDate` DATE NULL,
   `endDate` DATE NULL,
   `win` ENUM('W', 'L', 'N/A') NULL,
+  `type` ENUM('Scrim', 'Tournament') NOT NULL DEFAULT 'Tournament',
   PRIMARY KEY (`tournamentId`))
 ENGINE = InnoDB;
 
@@ -491,6 +492,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`tournament_players` (
   `playerId` INT UNSIGNED NOT NULL,
   `roleId` INT NULL,
   `isSub` ENUM('Y', 'N') NULL,
+  `team` ENUM('Team 1', 'Team 2', 'Sub') NOT NULL DEFAULT 'Team 1',
   PRIMARY KEY (`tournamentId`, `playerId`),
   INDEX `fk_tournament_players_players1_idx` (`playerId` ASC) VISIBLE,
   INDEX `fk_tournament_players_leagueRoles1_idx` (`roleId` ASC) VISIBLE,

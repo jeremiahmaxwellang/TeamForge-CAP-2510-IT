@@ -2,6 +2,7 @@
 	const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 	const FILTER_ROLES = ['Candidates', 'All', ...ROLE_ORDER];
 	const RESULT_FILTERS = ['All', 'W', 'L', 'N/A'];
+	const TYPE_FILTERS = ['All', 'Tournament', 'Scrim'];
 
 	const state = {
 		players: [],
@@ -11,6 +12,7 @@
 		roleById: {},
 		filter: 'All',
 		resultFilter: 'All',
+		typeFilter: 'All',
 		selectedTournamentId: null,
 		editingTournamentId: null,
 		team1: {
@@ -40,11 +42,14 @@
 	const tournamentNameInput = document.getElementById('tournamentNameInput');
 	const tournamentDateInput = document.getElementById('tournamentDateInput');
 	const tournamentResultSelect = document.getElementById('tournamentResultSelect');
+	const tournamentTypeSelect = document.getElementById('tournamentTypeSelect');
+	const team2Label = document.getElementById('team2Label');
 
 	const team1Roster = document.getElementById('team1Roster');
 	const subRoster = document.getElementById('subRoster');
 	const roleFilterGroup = document.getElementById('roleFilterGroup');
 	const resultFilterGroup = document.getElementById('resultFilterGroup');
+	const typeFilterGroup = document.getElementById('typeFilterGroup');
 	const playersGrid = document.getElementById('playersGrid');
 	const tournamentList = document.getElementById('tournamentList');
 
@@ -141,6 +146,9 @@
 				parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString().slice(0, 10) : '';
 		}
 
+		tournamentTypeSelect.value = tournament.type || 'Tournament';
+		team2Label.textContent = tournament.type === 'Scrim' ? 'Team 2' : 'Sub';
+
 		const normalizedResult = (tournament.result || '').toUpperCase();
 		tournamentResultSelect.value = RESULT_FILTERS.includes(normalizedResult) ? normalizedResult : 'N/A';
 
@@ -152,7 +160,7 @@
 				...assignment,
 				role: resolvedRole
 			});
-			if (assignment.team === 'Sub') {
+			if (assignment.team === 'Sub' || assignment.team === 'Team 2') {
 				state.sub[resolvedRole] = player;
 				return;
 			}
@@ -176,7 +184,9 @@
 	const resetModalState = () => {
 		tournamentNameInput.value = '';
 		tournamentDateInput.value = '';
+		tournamentTypeSelect.value = 'Tournament';
 		tournamentResultSelect.value = 'N/A';
+		team2Label.textContent = 'Sub';
 		state.filter = 'All';
 		state.team1 = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
 		state.sub = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
@@ -350,6 +360,25 @@
 		});
 	};
 
+	const renderTypeFilters = () => {
+		if (!typeFilterGroup) return;
+
+		typeFilterGroup.innerHTML = '';
+
+		TYPE_FILTERS.forEach((filterValue) => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = `filter-btn ${state.typeFilter === filterValue ? 'active' : ''}`;
+			button.textContent = filterValue;
+			button.addEventListener('click', () => {
+				state.typeFilter = filterValue;
+				renderTypeFilters();
+				renderTournamentList();
+			});
+			typeFilterGroup.appendChild(button);
+		});
+	};
+
 	const attachRemoveHandlers = () => {
 		document.querySelectorAll('.remove-assignment').forEach((button) => {
 			button.addEventListener('click', () => {
@@ -417,6 +446,7 @@
 
 	const toAssignments = () => {
 		const assignments = [];
+		const isScrim = tournamentTypeSelect.value === 'Scrim';
 
 		ROLE_ORDER.forEach((role) => {
 			const teamPlayer = state.team1[role];
@@ -435,7 +465,7 @@
 					playerId: subPlayer.userId,
 					role,
 					roleId: subPlayer.primaryRole === role ? subPlayer.primaryRoleId : subPlayer.secondaryRoleId,
-					team: 'Sub'
+					team: isScrim ? 'Team 2' : 'Sub'
 				});
 			}
 		});
@@ -446,6 +476,7 @@
 	const confirmTournament = async () => {
 		const name = tournamentNameInput.value.trim();
 		const tournamentDate = tournamentDateInput.value;
+		const type = tournamentTypeSelect.value;
 		const result = tournamentResultSelect.value;
 		const isEditMode = Number.isInteger(state.editingTournamentId) && state.editingTournamentId > 0;
 
@@ -465,6 +496,14 @@
 			return;
 		}
 
+		if (type === 'Scrim') {
+			const teamTwoFilled = ROLE_ORDER.every((role) => state.sub[role]);
+			if (!teamTwoFilled) {
+				alert('Scrims require both Team 1 and Team 2 to have Top, Jungle, Mid, ADC, and Support.');
+				return;
+			}
+		}
+
 		const assignments = toAssignments();
 
 		try {
@@ -481,6 +520,7 @@
 				body: JSON.stringify({
 					name,
 					tournamentDate,
+					type,
 					result,
 					assignments
 				})
@@ -519,8 +559,9 @@
 		}
 
 		const filteredTournaments = state.tournaments.filter((tournament) => {
-			if (state.resultFilter === 'All') return true;
-			return (tournament.result || '').toUpperCase() === state.resultFilter;
+			if (state.resultFilter !== 'All' && (tournament.result || '').toUpperCase() !== state.resultFilter) return false;
+			if (state.typeFilter !== 'All' && tournament.type !== state.typeFilter) return false;
+			return true;
 		});
 
 		if (!filteredTournaments.length) {
@@ -548,6 +589,7 @@
 						${isSelectedTournament ? 'checked' : ''}
 					/>
 					<h3>${tournament.name}</h3>
+					<span class="tournament-type">${tournament.type || 'Tournament'}</span>
 				</div>
 				<button type="button" class="details-toggle-btn">
 					<span class="toggle-indicator">Show details</span>
@@ -678,6 +720,11 @@
 		cancelModalBtn.addEventListener('click', closeModal);
 		confirmTournamentBtn.addEventListener('click', confirmTournament);
 
+		tournamentTypeSelect.addEventListener('change', () => {
+			const isScrim = tournamentTypeSelect.value === 'Scrim';
+			team2Label.textContent = isScrim ? 'Team 2' : 'Sub';
+		});
+
 		modalOverlay.addEventListener('click', (event) => {
 			if (event.target === modalOverlay) {
 				closeModal();
@@ -687,6 +734,7 @@
 		document.body.addEventListener('dragover', (event) => event.preventDefault());
 
 		try {
+			renderTypeFilters();
 			renderResultFilters();
 			await loadPlayers();
 			await loadFavoriteCandidates();
