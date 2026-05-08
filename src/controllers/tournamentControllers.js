@@ -219,8 +219,8 @@ const createTournament = async (req, res) => {
 		await connection.beginTransaction();
 
 		const [insertTournamentResult] = await connection.query(
-			`INSERT INTO events (title_summary, type, start_date, end_date, win) VALUES (?, 'Tournament', ?, ?, ?)`,
-			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult]
+			`INSERT INTO events (title_summary, type, start_date, end_date, win, creator_id) VALUES (?, ?, ?, ?, ?, ?)`,
+			[String(name).trim(), normalizedType, normalizedDate, normalizedDate, normalizedResult, req.cookies.userId]
 		);
 
 		const tournamentId = insertTournamentResult.insertId;
@@ -237,8 +237,8 @@ const createTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO event_attendees (eventId, userId, player_role, is_sub)
-				VALUES (?, ?, ?, ?)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team)
+				VALUES (?, ?, ?, ?, ?)
 				`,
 				[tournamentId, playerId, roleId, isSub, team]
 			);
@@ -330,7 +330,7 @@ const updateTournament = async (req, res) => {
 		const teamRoleKeys = new Set();
 		const playerIds = new Set();
 		for (const item of assignments) {
-			const assignmentTeam = normalizedType === 'Scrim' && (item.team === 'Team 2' || item.team === 'Sub') ? 'Team 2' : (item.team === 'Sub' ? 'Sub' : 'Team 1');
+			const assignmentTeam = normalizedType === 'Scrim' && item.team === 'Team 2' ? 'Team 2' : (item.team === 'Sub' ? 'Sub' : 'Team 1');
 			const assignmentRole = String(item.role || '').trim();
 			const assignmentPlayerId = Number.parseInt(item.playerId, 10);
 			const teamRoleKey = `${assignmentTeam}:${assignmentRole}`;
@@ -377,7 +377,7 @@ const updateTournament = async (req, res) => {
 		await connection.beginTransaction();
 
 		const [existingRows] = await connection.query(
-			`SELECT eventId FROM events WHERE eventId = ? AND type = 'Tournament' LIMIT 1`,
+			`SELECT eventId FROM events WHERE eventId = ? AND type IN ('Tournament', 'Scrim') LIMIT 1`,
 			[tournamentId]
 		);
 
@@ -392,8 +392,8 @@ const updateTournament = async (req, res) => {
 		await connection.query(
 			`
 			UPDATE events
-			SET title_summary = ?, start_date = ?, end_date = ?, win = ?
-			WHERE eventId = ? AND type = 'Tournament'
+			SET title_summary = ?, start_date = ?, end_date = ?, win = ?, type = ?
+			WHERE eventId = ? AND type IN ('Tournament', 'Scrim')
 			`,
 			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult, normalizedType, tournamentId]
 		);
@@ -412,8 +412,8 @@ const updateTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO event_attendees (eventId, userId, player_role, is_sub)
-				VALUES (?, ?, ?, ?)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team)
+				VALUES (?, ?, ?, ?, ?)
 				`,
 				[tournamentId, playerId, roleId, isSub, team]
 			);
@@ -447,9 +447,11 @@ const getTournaments = async (req, res) => {
 				t.title_summary AS name,
 				t.start_date AS startDate,
 				t.win,
+				t.type,
 				tp.userId AS playerId,
 				tp.is_sub AS isSub,
 				tp.player_role AS roleId,
+				tp.team,
 				u.firstname,
 				u.lastname,
 				lr.teamPosition AS roleName
@@ -457,7 +459,7 @@ const getTournaments = async (req, res) => {
 			LEFT JOIN event_attendees tp ON tp.eventId = t.eventId
 			LEFT JOIN users u ON u.userId = tp.userId
 			LEFT JOIN leagueRoles lr ON lr.roleId = tp.player_role
-            WHERE t.type = 'Tournament'
+            WHERE t.type IN ('Tournament', 'Scrim')
 			ORDER BY t.eventId DESC, tp.is_sub ASC, tp.player_role ASC
 		`;
 

@@ -546,74 +546,84 @@ INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
 -- EVENTS: SCRIMS
 -- -----------------------------------------------------
 -- Scrim Event 1
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Justice League', 'Scrim', 'Online', '2026-03-01', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Justice League', 'Scrim', 'Online', '2026-03-01', '2026-03-01', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (18, 4, 1, 'Present'), (18, 7, 2, 'Present'), (18, 3, 3, 'Present'), (18, 5, 4, 'Present'), (18, 6, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (18, 4, 1, 'Present', 'N', 'Team 1'), (18, 7, 2, 'Present', 'N', 'Team 1'), (18, 3, 3, 'Present', 'N', 'Team 1'), (18, 5, 4, 'Present', 'N', 'Team 1'), (18, 6, 5, 'Present', 'N', 'Team 1'),
+(18, 13, 1, 'Present', 'N', 'Team 2'), (18, 14, 2, 'Present', 'N', 'Team 2'), (18, 15, 3, 'Present', 'N', 'Team 2'), (18, 9, 4, 'Present', 'N', 'Team 2'), (18, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 2
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Avengers', 'Scrim', 'Online', '2026-03-02', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Avengers', 'Scrim', 'Online', '2026-03-02', '2026-03-02', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (19, 13, 1, 'Present'), (19, 14, 2, 'Present'), (19, 15, 3, 'Present'), (19, 9, 4, 'Present'), (19, 17, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (19, 13, 1, 'Present', 'N', 'Team 1'), (19, 14, 2, 'Present', 'N', 'Team 1'), (19, 15, 3, 'Present', 'N', 'Team 1'), (19, 9, 4, 'Present', 'N', 'Team 1'), (19, 17, 5, 'Present', 'N', 'Team 1'),
+(19, 4, 1, 'Present', 'N', 'Team 2'), (19, 7, 2, 'Present', 'N', 'Team 2'), (19, 3, 3, 'Present', 'N', 'Team 2'), (19, 5, 4, 'Present', 'N', 'Team 2'), (19, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 3
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. X-Men', 'Scrim', 'Online', '2026-03-03', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. X-Men', 'Scrim', 'Online', '2026-03-03', '2026-03-03', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (20, 4, 1, 'Present'), (20, 7, 2, 'Present'), (20, 15, 3, 'Present'), (20, 5, 4, 'Present'), (20, 6, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (20, 4, 1, 'Present', 'N', 'Team 1'), (20, 7, 2, 'Present', 'N', 'Team 1'), (20, 15, 3, 'Present', 'N', 'Team 1'), (20, 5, 4, 'Present', 'N', 'Team 1'), (20, 6, 5, 'Present', 'N', 'Team 1'),
+(20, 13, 1, 'Present', 'N', 'Team 2'), (20, 14, 2, 'Present', 'N', 'Team 2'), (20, 3, 3, 'Present', 'N', 'Team 2'), (20, 9, 4, 'Present', 'N', 'Team 2'), (20, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 4
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Fantastic Four', 'Scrim', 'Online', '2026-03-04', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Fantastic Four', 'Scrim', 'Online', '2026-03-04', '2026-03-04', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (21, 13, 1, 'Present'), (21, 14, 2, 'Present'), (21, 3, 3, 'Present'), (21, 16, 4, 'Present'), (21, 6, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (21, 13, 1, 'Present', 'N', 'Team 1'), (21, 14, 2, 'Present', 'N', 'Team 1'), (21, 3, 3, 'Present', 'N', 'Team 1'), (21, 16, 4, 'Present', 'N', 'Team 1'), (21, 6, 5, 'Present', 'N', 'Team 1'),
+(21, 4, 1, 'Present', 'N', 'Team 2'), (21, 7, 2, 'Present', 'N', 'Team 2'), (21, 15, 3, 'Present', 'N', 'Team 2'), (21, 5, 4, 'Present', 'N', 'Team 2'), (21, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 5
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Guardians of the Galaxy', 'Scrim', 'Online', '2026-03-05', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Guardians of the Galaxy', 'Scrim', 'Online', '2026-03-05', '2026-03-05', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (22, 4, 1, 'Present'), (22, 7, 2, 'Present'), (22, 14, 3, 'Present'), (22, 9, 4, 'Present'), (22, 17, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (22, 4, 1, 'Present', 'N', 'Team 1'), (22, 7, 2, 'Present', 'N', 'Team 1'), (22, 14, 3, 'Present', 'N', 'Team 1'), (22, 9, 4, 'Present', 'N', 'Team 1'), (22, 17, 5, 'Present', 'N', 'Team 1'),
+(22, 13, 1, 'Present', 'N', 'Team 2'), (22, 15, 3, 'Present', 'N', 'Team 2'), (22, 3, 3, 'Present', 'N', 'Team 2'), (22, 5, 4, 'Present', 'N', 'Team 2'), (22, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 6
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Teen Titans', 'Scrim', 'Online', '2026-03-06', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Teen Titans', 'Scrim', 'Online', '2026-03-06', '2026-03-06', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (23, 13, 1, 'Present'), (23, 7, 2, 'Present'), (23, 15, 3, 'Present'), (23, 5, 4, 'Present'), (23, 6, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (23, 13, 1, 'Present', 'N', 'Team 1'), (23, 7, 2, 'Present', 'N', 'Team 1'), (23, 15, 3, 'Present', 'N', 'Team 1'), (23, 5, 4, 'Present', 'N', 'Team 1'), (23, 6, 5, 'Present', 'N', 'Team 1'),
+(23, 4, 1, 'Present', 'N', 'Team 2'), (23, 14, 2, 'Present', 'N', 'Team 2'), (23, 3, 3, 'Present', 'N', 'Team 2'), (23, 9, 4, 'Present', 'N', 'Team 2'), (23, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 7
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Watchmen', 'Scrim', 'Online', '2026-03-07', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Watchmen', 'Scrim', 'Online', '2026-03-07', '2026-03-07', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (24, 4, 1, 'Present'), (24, 14, 2, 'Present'), (24, 3, 3, 'Present'), (24, 16, 4, 'Present'), (24, 17, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (24, 4, 1, 'Present', 'N', 'Team 1'), (24, 14, 2, 'Present', 'N', 'Team 1'), (24, 3, 3, 'Present', 'N', 'Team 1'), (24, 16, 4, 'Present', 'N', 'Team 1'), (24, 17, 5, 'Present', 'N', 'Team 1'),
+(24, 13, 1, 'Present', 'N', 'Team 2'), (24, 7, 2, 'Present', 'N', 'Team 2'), (24, 15, 3, 'Present', 'N', 'Team 2'), (24, 5, 4, 'Present', 'N', 'Team 2'), (24, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 8
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Incredibles', 'Scrim', 'Online', '2026-03-08', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Incredibles', 'Scrim', 'Online', '2026-03-08', '2026-03-08', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (25, 13, 1, 'Present'), (25, 7, 2, 'Present'), (25, 14, 3, 'Present'), (25, 9, 4, 'Present'), (25, 6, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (25, 13, 1, 'Present', 'N', 'Team 1'), (25, 7, 2, 'Present', 'N', 'Team 1'), (25, 14, 3, 'Present', 'N', 'Team 1'), (25, 9, 4, 'Present', 'N', 'Team 1'), (25, 6, 5, 'Present', 'N', 'Team 1'),
+(25, 4, 1, 'Present', 'N', 'Team 2'), (25, 15, 3, 'Present', 'N', 'Team 2'), (25, 3, 3, 'Present', 'N', 'Team 2'), (25, 5, 4, 'Present', 'N', 'Team 2'), (25, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 9
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Defenders', 'Scrim', 'Online', '2026-03-09', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Defenders', 'Scrim', 'Online', '2026-03-09', '2026-03-09', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (26, 4, 1, 'Present'), (26, 7, 2, 'Present'), (26, 15, 3, 'Present'), (26, 5, 4, 'Present'), (26, 17, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (26, 4, 1, 'Present', 'N', 'Team 1'), (26, 7, 2, 'Present', 'N', 'Team 1'), (26, 15, 3, 'Present', 'N', 'Team 1'), (26, 5, 4, 'Present', 'N', 'Team 1'), (26, 17, 5, 'Present', 'N', 'Team 1'),
+(26, 13, 1, 'Present', 'N', 'Team 2'), (26, 14, 2, 'Present', 'N', 'Team 2'), (26, 3, 3, 'Present', 'N', 'Team 2'), (26, 9, 4, 'Present', 'N', 'Team 2'), (26, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 10
-INSERT INTO events (title_summary, type, location, start_date, status)
-VALUES ('Viridis Arcus vs. Dark Avengers', 'Scrim', 'Online', '2026-03-10', 'evaluated');
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES ('Viridis Arcus vs. Dark Avengers', 'Scrim', 'Online', '2026-03-10', '2026-03-10', 'N/A', 'evaluated', 2);
 
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
-VALUES (27, 13, 1, 'Present'), (27, 14, 2, 'Present'), (27, 3, 3, 'Present'), (27, 16, 4, 'Present'), (27, 6, 5, 'Present');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES (27, 13, 1, 'Present', 'N', 'Team 1'), (27, 14, 2, 'Present', 'N', 'Team 1'), (27, 3, 3, 'Present', 'N', 'Team 1'), (27, 16, 4, 'Present', 'N', 'Team 1'), (27, 6, 5, 'Present', 'N', 'Team 1'),
+(27, 4, 1, 'Present', 'N', 'Team 2'), (27, 7, 2, 'Present', 'N', 'Team 2'), (27, 15, 3, 'Present', 'N', 'Team 2'), (27, 5, 4, 'Present', 'N', 'Team 2'), (27, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim 1 (eventId = 18) – 5star bad
 INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
@@ -711,194 +721,194 @@ VALUES
 -- -----------------------------------------------------
 
 -- Period 1: May 2025 to August 2025
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
 VALUES
-(28, 'May Kickoff Clash', 'Tournament', 'Online', '2025-05-17', '2025-05-18', 'W', 'completed'),
-(29, 'June Rift Gauntlet', 'Tournament', 'Online', '2025-06-07', '2025-06-08', 'L', 'completed'),
-(30, 'June Campus Showdown', 'Tournament', 'Campus Arena', '2025-06-28', '2025-06-29', 'N/A', 'completed'),
-(31, 'July Collegiate Cup', 'Tournament', 'Online', '2025-07-19', '2025-07-20', 'W', 'completed'),
-(32, 'August Finals Qualifier', 'Tournament', 'Online', '2025-08-09', '2025-08-10', 'L', 'completed'),
-(33, 'May Thunderstrike', 'Tournament', 'Online', '2025-05-24', '2025-05-25', 'W', 'completed'),
-(34, 'June Rift Showdown', 'Tournament', 'Online', '2025-06-14', '2025-06-15', 'W', 'completed'),
-(35, 'July Clash Series', 'Tournament', 'Online', '2025-07-05', '2025-07-06', 'W', 'completed'),
-(36, 'July Lightning Cup', 'Tournament', 'Online', '2025-07-26', '2025-07-27', 'W', 'completed'),
-(37, 'August Rift Qualifier', 'Tournament', 'Online', '2025-08-16', '2025-08-17', 'L', 'completed');
+(28, 'May Kickoff Clash', 'Tournament', 'Online', '2025-05-17', '2025-05-18', 'W', 'completed', 2),
+(29, 'June Rift Gauntlet', 'Tournament', 'Online', '2025-06-07', '2025-06-08', 'L', 'completed', 2),
+(30, 'June Campus Showdown', 'Tournament', 'Campus Arena', '2025-06-28', '2025-06-29', 'N/A', 'completed', 2),
+(31, 'July Collegiate Cup', 'Tournament', 'Online', '2025-07-19', '2025-07-20', 'W', 'completed', 2),
+(32, 'August Finals Qualifier', 'Tournament', 'Online', '2025-08-09', '2025-08-10', 'L', 'completed', 2),
+(33, 'May Thunderstrike', 'Tournament', 'Online', '2025-05-24', '2025-05-25', 'W', 'completed', 2),
+(34, 'June Rift Showdown', 'Tournament', 'Online', '2025-06-14', '2025-06-15', 'W', 'completed', 2),
+(35, 'July Clash Series', 'Tournament', 'Online', '2025-07-05', '2025-07-06', 'W', 'completed', 2),
+(36, 'July Lightning Cup', 'Tournament', 'Online', '2025-07-26', '2025-07-27', 'W', 'completed', 2),
+(37, 'August Rift Qualifier', 'Tournament', 'Online', '2025-08-16', '2025-08-17', 'L', 'completed', 2);
 
 -- Period 2: September 2025 to December 2025
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
 VALUES
-(38, 'September Open Series', 'Tournament', 'Online', '2025-09-06', '2025-09-07', 'N/A', 'completed'),
-(39, 'October Rift Rumble', 'Tournament', 'Online', '2025-10-04', '2025-10-05', 'W', 'completed'),
-(40, 'October Nexus Trials', 'Tournament', 'Online', '2025-10-25', '2025-10-26', 'L', 'completed'),
-(41, 'November Varsity Cup', 'Tournament', 'Online', '2025-11-15', '2025-11-16', 'W', 'completed'),
-(42, 'December Invitational', 'Tournament', 'Online', '2025-12-06', '2025-12-07', 'N/A', 'completed'),
-(43, 'September Rift Challenge', 'Tournament', 'Online', '2025-09-20', '2025-09-21', 'W', 'completed'),
-(44, 'October Clash Invitational', 'Tournament', 'Online', '2025-10-18', '2025-10-19', 'L', 'completed'),
-(45, 'November Open Cup', 'Tournament', 'Online', '2025-11-08', '2025-11-09', 'W', 'completed'),
-(46, 'November Nexus Brawl', 'Tournament', 'Online', '2025-11-29', '2025-11-30', 'L', 'completed'),
-(47, 'December Year-End Series', 'Tournament', 'Online', '2025-12-20', '2025-12-21', 'N/A', 'completed');
+(38, 'September Open Series', 'Tournament', 'Online', '2025-09-06', '2025-09-07', 'N/A', 'completed', 2),
+(39, 'October Rift Rumble', 'Tournament', 'Online', '2025-10-04', '2025-10-05', 'W', 'completed', 2),
+(40, 'October Nexus Trials', 'Tournament', 'Online', '2025-10-25', '2025-10-26', 'L', 'completed', 2),
+(41, 'November Varsity Cup', 'Tournament', 'Online', '2025-11-15', '2025-11-16', 'W', 'completed', 2),
+(42, 'December Invitational', 'Tournament', 'Online', '2025-12-06', '2025-12-07', 'N/A', 'completed', 2),
+(43, 'September Rift Challenge', 'Tournament', 'Online', '2025-09-20', '2025-09-21', 'W', 'completed', 2),
+(44, 'October Clash Invitational', 'Tournament', 'Online', '2025-10-18', '2025-10-19', 'L', 'completed', 2),
+(45, 'November Open Cup', 'Tournament', 'Online', '2025-11-08', '2025-11-09', 'W', 'completed', 2),
+(46, 'November Nexus Brawl', 'Tournament', 'Online', '2025-11-29', '2025-11-30', 'L', 'completed', 2),
+(47, 'December Year-End Series', 'Tournament', 'Online', '2025-12-20', '2025-12-21', 'N/A', 'completed', 2);
 
 -- Period 3: January 2026 to April 2026
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
 VALUES
-(48, 'January Season Opener', 'Tournament', 'Online', '2026-01-17', '2026-01-18', 'L', 'completed'),
-(49, 'February Rift Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed'),
-(50, 'March Midseason Clash', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed'),
-(51, 'April Academy Cup', 'Tournament', 'Online', '2026-04-04', '2026-04-05', 'W', 'completed'),
-(52, 'Spring Crown Finals', 'Tournament', 'Online', '2026-04-18', '2026-04-19', 'L', 'completed'),
-(53, 'February Rift Trials', 'Tournament', 'Online', '2026-01-31', '2026-02-01', 'L', 'completed'),
-(54, 'February Crown Series', 'Tournament', 'Online', '2026-02-21', '2026-02-22', 'L', 'completed'),
-(55, 'March Gauntlet Cup', 'Tournament', 'Online', '2026-03-21', '2026-03-22', 'L', 'completed'),
-(56, 'April Rift Revival', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed'),
-(57, 'April Final Showdown', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed');
+(48, 'January Season Opener', 'Tournament', 'Online', '2026-01-17', '2026-01-18', 'L', 'completed', 2),
+(49, 'February Rift Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed', 2),
+(50, 'March Midseason Clash', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed', 2),
+(51, 'April Academy Cup', 'Tournament', 'Online', '2026-04-04', '2026-04-05', 'W', 'completed', 2),
+(52, 'Spring Crown Finals', 'Tournament', 'Online', '2026-04-18', '2026-04-19', 'L', 'completed', 2),
+(53, 'February Rift Trials', 'Tournament', 'Online', '2026-01-31', '2026-02-01', 'L', 'completed', 2),
+(54, 'February Crown Series', 'Tournament', 'Online', '2026-02-21', '2026-02-22', 'L', 'completed', 2),
+(55, 'March Gauntlet Cup', 'Tournament', 'Online', '2026-03-21', '2026-03-22', 'L', 'completed', 2),
+(56, 'April Rift Revival', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed', 2),
+(57, 'April Final Showdown', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed', 2);
 
 
 
 -- Tournament 16 → Event 43 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(43, 4, 1, 'Present', 'N'),
-(43, 7, 2, 'Present', 'N'),
-(43, 3, 3, 'Present', 'N'),
-(43, 5, 4, 'Present', 'N'),
-(43, 6, 5, 'Present', 'N'),
-(43, 8, 2, 'Excused', 'Y');
+(43, 4, 1, 'Present', 'N', 'Team 1'),
+(43, 7, 2, 'Present', 'N', 'Team 1'),
+(43, 3, 3, 'Present', 'N', 'Team 1'),
+(43, 5, 4, 'Present', 'N', 'Team 1'),
+(43, 6, 5, 'Present', 'N', 'Team 1'),
+(43, 8, 2, 'Excused', 'Y', 'Sub');
 
 -- Tournament 17 → Event 44 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(44, 4, 1, 'Present', 'N'),
-(44, 7, 2, 'Present', 'N'),
-(44, 15, 3, 'Present', 'N'),
-(44, 5, 4, 'Present', 'N'),
-(44, 17, 5, 'Present', 'N'),
-(44, 13, 1, 'Excused', 'Y');
+(44, 4, 1, 'Present', 'N', 'Team 1'),
+(44, 7, 2, 'Present', 'N', 'Team 1'),
+(44, 15, 3, 'Present', 'N', 'Team 1'),
+(44, 5, 4, 'Present', 'N', 'Team 1'),
+(44, 17, 5, 'Present', 'N', 'Team 1'),
+(44, 13, 1, 'Excused', 'Y', 'Sub');
 
 -- Tournament 18 → Event 45 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(45, 13, 1, 'Present', 'N'),
-(45, 7, 2, 'Present', 'N'),
-(45, 3, 3, 'Present', 'N'),
-(45, 5, 4, 'Present', 'N'),
-(45, 6, 5, 'Present', 'N'),
-(45, 4, 1, 'Excused', 'Y');
+(45, 13, 1, 'Present', 'N', 'Team 1'),
+(45, 7, 2, 'Present', 'N', 'Team 1'),
+(45, 3, 3, 'Present', 'N', 'Team 1'),
+(45, 5, 4, 'Present', 'N', 'Team 1'),
+(45, 6, 5, 'Present', 'N', 'Team 1'),
+(45, 4, 1, 'Excused', 'Y', 'Sub');
 
 -- Tournament 19 → Event 46 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(46, 4, 1, 'Present', 'N'),
-(46, 14, 2, 'Present', 'N'),
-(46, 3, 3, 'Present', 'N'),
-(46, 16, 4, 'Present', 'N'),
-(46, 17, 5, 'Present', 'N'),
-(46, 7, 2, 'Excused', 'Y');
+(46, 4, 1, 'Present', 'N', 'Team 1'),
+(46, 14, 2, 'Present', 'N', 'Team 1'),
+(46, 3, 3, 'Present', 'N', 'Team 1'),
+(46, 16, 4, 'Present', 'N', 'Team 1'),
+(46, 17, 5, 'Present', 'N', 'Team 1'),
+(46, 7, 2, 'Excused', 'Y', 'Sub');
 
 -- Tournament 20 → Event 47 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(47, 13, 1, 'Present', 'N'),
-(47, 9, 2, 'Present', 'N'),
-(47, 15, 3, 'Present', 'N'),
-(47, 16, 4, 'Present', 'N'),
-(47, 6, 5, 'Present', 'N');
+(47, 13, 1, 'Present', 'N', 'Team 1'),
+(47, 9, 2, 'Present', 'N', 'Team 1'),
+(47, 15, 3, 'Present', 'N', 'Team 1'),
+(47, 16, 4, 'Present', 'N', 'Team 1'),
+(47, 6, 5, 'Present', 'N', 'Team 1');
 
 -- Tournament 21 → Event 48 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(48, 4, 1, 'Present', 'N'),
-(48, 8, 2, 'Present', 'N'),
-(48, 3, 3, 'Present', 'N'),
-(48, 5, 4, 'Present', 'N'),
-(48, 17, 5, 'Present', 'N'),
-(48, 13, 1, 'Excused', 'Y');
+(48, 4, 1, 'Present', 'N', 'Team 1'),
+(48, 8, 2, 'Present', 'N', 'Team 1'),
+(48, 3, 3, 'Present', 'N', 'Team 1'),
+(48, 5, 4, 'Present', 'N', 'Team 1'),
+(48, 17, 5, 'Present', 'N', 'Team 1'),
+(48, 13, 1, 'Excused', 'Y', 'Sub');
 
 -- Tournament 22 → Event 49 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(49, 13, 1, 'Present', 'N'),
-(49, 7, 2, 'Present', 'N'),
-(49, 15, 3, 'Present', 'N'),
-(49, 16, 4, 'Present', 'N'),
-(49, 6, 5, 'Present', 'N'),
-(49, 9, 2, 'Excused', 'Y');
+(49, 13, 1, 'Present', 'N', 'Team 1'),
+(49, 7, 2, 'Present', 'N', 'Team 1'),
+(49, 15, 3, 'Present', 'N', 'Team 1'),
+(49, 16, 4, 'Present', 'N', 'Team 1'),
+(49, 6, 5, 'Present', 'N', 'Team 1'),
+(49, 9, 2, 'Excused', 'Y', 'Sub');
 
 -- Tournament 23 → Event 50 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(50, 4, 1, 'Present', 'N'),
-(50, 14, 2, 'Present', 'N'),
-(50, 3, 3, 'Present', 'N'),
-(50, 5, 4, 'Present', 'N'),
-(50, 17, 5, 'Present', 'N');
+(50, 4, 1, 'Present', 'N', 'Team 1'),
+(50, 14, 2, 'Present', 'N', 'Team 1'),
+(50, 3, 3, 'Present', 'N', 'Team 1'),
+(50, 5, 4, 'Present', 'N', 'Team 1'),
+(50, 17, 5, 'Present', 'N', 'Team 1');
 
 -- Tournament 24 → Event 51 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(51, 13, 1, 'Present', 'N'),
-(51, 9, 2, 'Present', 'N'),
-(51, 15, 3, 'Present', 'N'),
-(51, 16, 4, 'Present', 'N'),
-(51, 6, 5, 'Present', 'N'),
-(51, 4, 1, 'Excused', 'Y');
+(51, 13, 1, 'Present', 'N', 'Team 1'),
+(51, 9, 2, 'Present', 'N', 'Team 1'),
+(51, 15, 3, 'Present', 'N', 'Team 1'),
+(51, 16, 4, 'Present', 'N', 'Team 1'),
+(51, 6, 5, 'Present', 'N', 'Team 1'),
+(51, 4, 1, 'Excused', 'Y', 'Sub');
 
 -- Tournament 25 → Event 52 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(52, 4, 1, 'Present', 'N'),
-(52, 8, 2, 'Present', 'N'),
-(52, 3, 3, 'Present', 'N'),
-(52, 5, 4, 'Present', 'N'),
-(52, 17, 5, 'Present', 'N'),
-(52, 7, 2, 'Excused', 'Y'),
-(52, 6, 5, 'Excused', 'Y');
+(52, 4, 1, 'Present', 'N', 'Team 1'),
+(52, 8, 2, 'Present', 'N', 'Team 1'),
+(52, 3, 3, 'Present', 'N', 'Team 1'),
+(52, 5, 4, 'Present', 'N', 'Team 1'),
+(52, 17, 5, 'Present', 'N', 'Team 1'),
+(52, 7, 2, 'Excused', 'Y', 'Sub'),
+(52, 6, 5, 'Excused', 'Y', 'Sub');
 
 -- Tournament 26 → Event 53 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(53, 4, 1, 'Present', 'N'),
-(53, 7, 2, 'Present', 'N'),
-(53, 3, 3, 'Present', 'N'),
-(53, 16, 4, 'Present', 'N'),
-(53, 17, 5, 'Present', 'N'),
-(53, 13, 1, 'Excused', 'Y');
+(53, 4, 1, 'Present', 'N', 'Team 1'),
+(53, 7, 2, 'Present', 'N', 'Team 1'),
+(53, 3, 3, 'Present', 'N', 'Team 1'),
+(53, 16, 4, 'Present', 'N', 'Team 1'),
+(53, 17, 5, 'Present', 'N', 'Team 1'),
+(53, 13, 1, 'Excused', 'Y', 'Sub');
 
 -- Tournament 27 → Event 54 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(54, 13, 1, 'Present', 'N'),
-(54, 9, 2, 'Present', 'N'),
-(54, 15, 3, 'Present', 'N'),
-(54, 5, 4, 'Present', 'N'),
-(54, 6, 5, 'Present', 'N');
+(54, 13, 1, 'Present', 'N', 'Team 1'),
+(54, 9, 2, 'Present', 'N', 'Team 1'),
+(54, 15, 3, 'Present', 'N', 'Team 1'),
+(54, 5, 4, 'Present', 'N', 'Team 1'),
+(54, 6, 5, 'Present', 'N', 'Team 1');
 
 -- Tournament 28 → Event 55 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(55, 4, 1, 'Present', 'N'),
-(55, 14, 2, 'Present', 'N'),
-(55, 3, 3, 'Present', 'N'),
-(55, 16, 4, 'Present', 'N'),
-(55, 17, 5, 'Present', 'N'),
-(55, 7, 2, 'Excused', 'Y');
+(55, 4, 1, 'Present', 'N', 'Team 1'),
+(55, 14, 2, 'Present', 'N', 'Team 1'),
+(55, 3, 3, 'Present', 'N', 'Team 1'),
+(55, 16, 4, 'Present', 'N', 'Team 1'),
+(55, 17, 5, 'Present', 'N', 'Team 1'),
+(55, 7, 2, 'Excused', 'Y', 'Sub');
 
 -- Tournament 29 → Event 56 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(56, 13, 1, 'Present', 'N'),
-(56, 8, 2, 'Present', 'N'),
-(56, 15, 3, 'Present', 'N'),
-(56, 5, 4, 'Present', 'N'),
-(56, 6, 5, 'Present', 'N'),
-(56, 4, 1, 'Excused', 'Y');
+(56, 13, 1, 'Present', 'N', 'Team 1'),
+(56, 8, 2, 'Present', 'N', 'Team 1'),
+(56, 15, 3, 'Present', 'N', 'Team 1'),
+(56, 5, 4, 'Present', 'N', 'Team 1'),
+(56, 6, 5, 'Present', 'N', 'Team 1'),
+(56, 4, 1, 'Excused', 'Y', 'Sub');
 
 -- Tournament 30 → Event 57 attendees
-INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
-(57, 4, 1, 'Present', 'N'),
-(57, 7, 2, 'Present', 'N'),
-(57, 3, 3, 'Present', 'N'),
-(57, 16, 4, 'Present', 'N'),
-(57, 6, 5, 'Present', 'N'),
-(57, 9, 2, 'Excused', 'Y'),
-(57, 17, 5, 'Excused', 'Y');
+(57, 4, 1, 'Present', 'N', 'Team 1'),
+(57, 7, 2, 'Present', 'N', 'Team 1'),
+(57, 3, 3, 'Present', 'N', 'Team 1'),
+(57, 16, 4, 'Present', 'N', 'Team 1'),
+(57, 6, 5, 'Present', 'N', 'Team 1'),
+(57, 9, 2, 'Excused', 'Y', 'Sub'),
+(57, 17, 5, 'Excused', 'Y', 'Sub');

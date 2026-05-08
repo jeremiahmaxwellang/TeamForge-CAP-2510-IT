@@ -633,8 +633,8 @@
 						${buildTeamRows('Team 1')}
 					</section>
 					<section class="detail-team-column">
-						<h4>Sub</h4>
-						${buildTeamRows('Sub')}
+						<h4>${tournament.type === 'Scrim' ? 'Team 2' : 'Sub'}</h4>
+						${buildTeamRows(tournament.type === 'Scrim' ? 'Team 2' : 'Sub')}
 					</section>
 				</div>
 			`;
