@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
   `discord` VARCHAR(45) NULL DEFAULT NULL,
   `status` ENUM('Active', 'Inactive', 'Deactivated') NOT NULL,
   `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  `firstLogin` TINYINT NULL DEFAULT '1',
+  `firstLogin` TINYINT NULL DEFAULT 1,
   PRIMARY KEY (`userId`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 25
@@ -503,6 +503,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
   `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL COMMENT 'attendance status\nENUM(\'Present\', \'Late\', \'Absent\', \'Excused\')',
   `notes` LONGTEXT NULL,
   `is_sub` ENUM('Y', 'N') NULL DEFAULT 'N',
+  `team` ENUM('Team 1', 'Team 2', 'Sub') NOT NULL DEFAULT 'Team 1',
   PRIMARY KEY (`eventId`, `userId`),
   INDEX `fk_event_attendees_users2_idx` (`userId` ASC) VISIBLE,
   INDEX `fk_event_attendees_leagueroles2_idx` (`player_role` ASC) VISIBLE,
