@@ -24,8 +24,7 @@ VALUES
     'Ang',
     'Team Manager',
     'Cowwrean#cowwrean',
-    'Active'
-),
+    'Active'),
 (
     25,
     'justin_nicolai_lee@dlsu.edu.ph',
@@ -55,16 +54,7 @@ VALUES
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
 (3,'tartaros@gmail.com','teamForge123!!','Jotaro','Joestar','Player','hailrain#hailrain','Active'),
-(
-    4,
-    'haimehen@gmail.com',
-    'teamForge123!!',
-    'Jaime',
-    'Henry',
-    'Player',
-    'Coww2#coww2',
-    'Active'
-),
+(4,'haimehen@gmail.com','teamForge123!!','Jaime','Henry','Player','Coww2#coww2','Active'),
 (
     5,
     'kalachuchi@gmail.com',
@@ -306,10 +296,10 @@ VALUES
 -- -----------------------------------------------------
 -- APPLICATION PERIODS (2 weeks each)
 -- -----------------------------------------------------
-INSERT INTO application_periods (startDate, endDate) VALUES
-('2025-09-01', '2025-09-13'),
-('2026-01-26', '2026-02-07'),
-('2026-03-21', '2026-04-04'); -- period 3
+INSERT INTO application_periods (periodId, startDate, endDate) VALUES
+(1, '2025-09-01', '2025-09-13'),
+(2, '2026-01-26', '2026-02-07'),
+(3, '2026-03-21', '2026-04-04'); -- period 3
 
 -- -----------------------------------------------------
 -- APPLICANTS (Bad)
@@ -553,579 +543,362 @@ INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
 
 
 -- -----------------------------------------------------
--- SCRIMS
+-- EVENTS: SCRIMS
 -- -----------------------------------------------------
+-- Scrim Event 1
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Justice League', 'Scrim', 'Online', '2026-03-01', 'evaluated');
 
--- Scrim 1
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (1, 'Viridis Arcus vs. Annihilation Scrim', '2026-02-23', 'https://www.youtube.com/watch?v=qD_K7_bP4IQ', '30:11', 'evaluated');
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (18, 4, 1, 'Present'), (18, 7, 2, 'Present'), (18, 3, 3, 'Present'), (18, 5, 4, 'Present'), (18, 6, 5, 'Present');
 
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (1, 4, 1, 'W'), (1, 7, 2, 'W'), (1, 3, 3, 'W'), (1, 5, 4, 'W'), (1, 6, 5, 'W');
+-- Scrim Event 2
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Avengers', 'Scrim', 'Online', '2026-03-02', 'evaluated');
 
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (19, 13, 1, 'Present'), (19, 14, 2, 'Present'), (19, 15, 3, 'Present'), (19, 9, 4, 'Present'), (19, 17, 5, 'Present');
+
+-- Scrim Event 3
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. X-Men', 'Scrim', 'Online', '2026-03-03', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (20, 4, 1, 'Present'), (20, 7, 2, 'Present'), (20, 15, 3, 'Present'), (20, 5, 4, 'Present'), (20, 6, 5, 'Present');
+
+-- Scrim Event 4
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Fantastic Four', 'Scrim', 'Online', '2026-03-04', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (21, 13, 1, 'Present'), (21, 14, 2, 'Present'), (21, 3, 3, 'Present'), (21, 16, 4, 'Present'), (21, 6, 5, 'Present');
+
+-- Scrim Event 5
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Guardians of the Galaxy', 'Scrim', 'Online', '2026-03-05', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (22, 4, 1, 'Present'), (22, 7, 2, 'Present'), (22, 14, 3, 'Present'), (22, 9, 4, 'Present'), (22, 17, 5, 'Present');
+
+-- Scrim Event 6
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Teen Titans', 'Scrim', 'Online', '2026-03-06', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (23, 13, 1, 'Present'), (23, 7, 2, 'Present'), (23, 15, 3, 'Present'), (23, 5, 4, 'Present'), (23, 6, 5, 'Present');
+
+-- Scrim Event 7
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Watchmen', 'Scrim', 'Online', '2026-03-07', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (24, 4, 1, 'Present'), (24, 14, 2, 'Present'), (24, 3, 3, 'Present'), (24, 16, 4, 'Present'), (24, 17, 5, 'Present');
+
+-- Scrim Event 8
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Incredibles', 'Scrim', 'Online', '2026-03-08', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (25, 13, 1, 'Present'), (25, 7, 2, 'Present'), (25, 14, 3, 'Present'), (25, 9, 4, 'Present'), (25, 6, 5, 'Present');
+
+-- Scrim Event 9
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Defenders', 'Scrim', 'Online', '2026-03-09', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (26, 4, 1, 'Present'), (26, 7, 2, 'Present'), (26, 15, 3, 'Present'), (26, 5, 4, 'Present'), (26, 17, 5, 'Present');
+
+-- Scrim Event 10
+INSERT INTO events (title_summary, type, location, start_date, status)
+VALUES ('Viridis Arcus vs. Dark Avengers', 'Scrim', 'Online', '2026-03-10', 'evaluated');
+
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status)
+VALUES (27, 13, 1, 'Present'), (27, 14, 2, 'Present'), (27, 3, 3, 'Present'), (27, 16, 4, 'Present'), (27, 6, 5, 'Present');
+
+-- Scrim 1 (eventId = 18) – 5star bad
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(1, 7, 'Barely spoke in teamfights', 3, 1, 3, 2),
-(1, 4, 'Top laner gave good calls', 3, 4, 3, 2),
-(1, 3, 'Mid laner average comms', 3, 3, 3, 2),
-(1, 5, 'ADC vocal early, quiet late', 3, 2, 4, 2),
-(1, 6, 'Support steady comms', 3, 4, 3, 2);
+(18, 7, 'Struggled to coordinate, poor comms', 2, 1, 2, 2),
+(18, 4, 'Top laner gave good calls', 3, 4, 3, 2),
+(18, 3, 'Mid laner average comms', 3, 3, 3, 2),
+(18, 5, 'ADC vocal early, quiet late', 3, 2, 4, 2),
+(18, 6, 'Support steady comms', 3, 4, 3, 2);
 
--- Scrim 2
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (2, 'Viridis Arcus vs. Justice League', '2026-02-24', 'https://www.youtube.com/watch?v=scrim2', '28:45', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (2, 13, 1, 'L'), (2, 7, 2, 'L'), (2, 14, 3, 'L'), (2, 9, 4, 'L'), (2, 17, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 2 (eventId = 19) – Blueprint good
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(2, 7, 'Quiet in comms', 3, 2, 3, 2),
-(2, 13, 'Top laner weak comms', 2, 2, 2, 2),
-(2, 14, 'Mid laner strong comms', 4, 5, 4, 2),
-(2, 9, 'ADC average', 3, 3, 3, 2),
-(2, 17, 'Support vocal', 4, 4, 4, 2);
+(19, 14, 'Excellent shotcalling, clear comms', 5, 5, 4, 2),
+(19, 13, 'Top laner weak comms', 2, 2, 2, 2),
+(19, 15, 'Mid laner strong comms', 4, 4, 4, 2),
+(19, 9, 'ADC average', 3, 3, 3, 2),
+(19, 17, 'Support vocal', 4, 4, 4, 2);
 
--- Scrim 3
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (3, 'Viridis Arcus vs. Avengers', '2026-02-25', 'https://www.youtube.com/watch?v=scrim3', '32:10', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (3, 4, 1, 'W'), (3, 7, 2, 'W'), (3, 15, 3, 'W'), (3, 5, 4, 'W'), (3, 6, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 3 (eventId = 20) – 5star bad
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(3, 7, 'Minimal communication', 3, 1, 3, 2),
-(3, 4, 'Top laner silent this game', 3, 2, 3, 2),
-(3, 15, 'Mid laner strong comms', 4, 5, 4, 2),
-(3, 5, 'ADC average comms', 3, 3, 3, 2),
-(3, 6, 'Support weak comms', 2, 2, 2, 2);
+(20, 7, 'Minimal communication, lacked presence', 2, 1, 2, 2),
+(20, 4, 'Top laner silent this game', 3, 2, 3, 2),
+(20, 15, 'Mid laner strong comms', 4, 5, 4, 2),
+(20, 5, 'ADC average comms', 3, 3, 3, 2),
+(20, 6, 'Support weak comms', 2, 2, 2, 2);
 
--- Scrim 4
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (4, 'Viridis Arcus vs. X-Men', '2026-02-26', 'https://www.youtube.com/watch?v=scrim4', '29:55', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (4, 13, 1, 'L'), (4, 7, 2, 'L'), (4, 3, 3, 'L'), (4, 16, 4, 'L'), (4, 6, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 4 (eventId = 21) – Blueprint good
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(4, 7, 'Silent during fights', 2, 2, 2, 2),
-(4, 13, 'Top laner improved comms', 3, 3, 3, 2),
-(4, 3, 'Mid laner steady', 3, 4, 3, 2),
-(4, 16, 'ADC poor comms', 2, 1, 2, 2),
-(4, 6, 'Support strong comms', 4, 5, 4, 2);
+(21, 14, 'Strong comms, decisive calls', 4, 5, 4, 2),
+(21, 13, 'Top laner improved comms', 3, 3, 3, 2),
+(21, 3, 'Mid laner steady', 3, 4, 3, 2),
+(21, 16, 'ADC poor comms', 2, 1, 2, 2),
+(21, 6, 'Support strong comms', 4, 5, 4, 2);
 
--- Scrim 5
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (5, 'Viridis Arcus vs. Fantastic Four', '2026-02-27', 'https://www.youtube.com/watch?v=scrim5', '31:20', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (5, 4, 1, 'W'), (5, 7, 2, 'W'), (5, 14, 3, 'W'), (5, 9, 4, 'W'), (5, 17, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 5 (eventId = 22) – both present
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(5, 7, 'Some comms but inconsistent', 3, 1, 3, 2),
-(5, 4, 'Top laner vocal', 4, 4, 4, 2),
-(5, 14, 'Mid laner weak comms', 2, 2, 2, 2),
-(5, 9, 'ADC average', 3, 3, 3, 2),
-(5, 17, 'Support strong', 4, 5, 4, 2);
+(22, 7, 'Some comms but inconsistent', 3, 2, 3, 2),
+(22, 14, 'Clear communication, good synergy', 4, 4, 4, 2),
+(22, 4, 'Top laner vocal', 4, 4, 4, 2),
+(22, 9, 'ADC average', 3, 3, 3, 2),
+(22, 17, 'Support strong', 4, 5, 4, 2);
 
--- Scrim 6
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (6, 'Viridis Arcus vs. Guardians of the Galaxy', '2026-02-28', 'https://www.youtube.com/watch?v=scrim6', '27:40', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (6, 13, 1, 'L'), (6, 7, 2, 'L'), (6, 15, 3, 'L'), (6, 5, 4, 'L'), (6, 6, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 6 (eventId = 23) – 5star bad
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(6, 7, 'Barely spoke', 2, 2, 2, 2),
-(6, 13, 'Top laner average', 3, 3, 3, 2),
-(6, 15, 'Mid laner vocal', 4, 4, 4, 2),
-(6, 5, 'ADC weak comms', 2, 2, 2, 2),
-(6, 6, 'Support average', 3, 3, 3, 2);
+(23, 7, 'Barely spoke, weak comms', 2, 1, 2, 2),
+(23, 13, 'Top laner average', 3, 3, 3, 2),
+(23, 15, 'Mid laner vocal', 4, 4, 4, 2),
+(23, 5, 'ADC weak comms', 2, 2, 2, 2),
+(23, 6, 'Support average', 3, 3, 3, 2);
 
--- Scrim 7
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (7, 'Viridis Arcus vs. Teen Titans', '2026-03-01', 'https://www.youtube.com/watch?v=scrim7', '33:00', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (7, 4, 1, 'W'), (7, 7, 2, 'W'), (7, 3, 3, 'W'), (7, 16, 4, 'W'), (7, 17, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 7 (eventId = 24) – Blueprint good
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(7, 7, 'Minimal comms again', 3, 2, 3, 2),
-(7, 4, 'Top laner strong', 4, 5, 4, 2),
-(7, 3, 'Mid laner average', 3, 3, 3, 2),
-(7, 16, 'ADC poor comms', 2, 1, 2, 2),
-(7, 17, 'Support steady', 3, 4, 3, 2);
+(24, 14, 'Excellent comms, led rotations well', 5, 5, 4, 2),
+(24, 4, 'Top laner strong', 4, 5, 4, 2),
+(24, 3, 'Mid laner average', 3, 3, 3, 2),
+(24, 16, 'ADC poor comms', 2, 1, 2, 2),
+(24, 17, 'Support steady', 3, 4, 3, 2);
 
--- Scrim 8
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (8, 'Viridis Arcus vs. Watchmen', '2026-03-02', 'https://www.youtube.com/watch?v=scrim8', '30:15', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (8, 13, 1, 'L'), (8, 7, 2, 'L'), (8, 14, 3, 'L'), (8, 9, 4, 'L'), (8, 6, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 8 (eventId = 25) – both present
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(8, 7, 'Silent', 2, 1, 2, 2),
-(8, 13, 'Top laner weak', 2, 2, 2, 2),
-(8, 14, 'Mid laner strong', 4, 5, 4, 2),
-(8, 9, 'ADC average', 3, 3, 3, 2),
-(8, 6, 'Support vocal', 4, 4, 4, 2);
+(25, 7, 'Silent again, poor coordination', 2, 1, 2, 2),
+(25, 14, 'Good comms, steady shotcalling', 4, 4, 4, 2),
+(25, 13, 'Top laner weak', 2, 2, 2, 2),
+(25, 9, 'ADC average', 3, 3, 3, 2),
+(25, 6, 'Support vocal', 4, 4, 4, 2);
 
--- Scrim 9
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (9, 'Viridis Arcus vs. Incredibles', '2026-03-03', 'https://www.youtube.com/watch?v=scrim9', '29:30', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (9, 4, 1, 'W'), (9, 7, 2, 'W'), (9, 15, 3, 'W'), (9, 5, 4, 'W'), (9, 17, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 9 (eventId = 26) – 5star bad
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(9, 7, 'Some comms but weak', 3, 2, 3, 2),
-(9, 4, 'Top laner average', 3, 3, 3, 2),
-(9, 15, 'Mid laner strong', 4, 4, 4, 2),
-(9, 5, 'ADC weak', 2, 2, 2, 2),
-(9, 17, 'Support strong', 4, 5, 4, 2);
+(26, 7, 'Some comms but weak', 3, 2, 3, 2),
+(26, 4, 'Top laner average', 3, 3, 3, 2),
+(26, 15, 'Mid laner strong', 4, 4, 4, 2),
+(26, 5, 'ADC weak', 2, 2, 2, 2),
+(26, 17, 'Support strong', 4, 5, 4, 2);
 
--- Scrim 10
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (10, 'Viridis Arcus vs. Defenders', '2026-03-04', 'https://www.youtube.com/watch?v=scrim10', '28:55', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (10, 13, 1, 'L'), (10, 7, 2, 'L'), (10, 3, 3, 'L'), (10, 16, 4, 'L'), (10, 6, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+-- Scrim 10 (eventId = 27) – Blueprint good
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
-(10, 7, 'Silent again', 2, 1, 2, 2),
-(10, 13, 'Top laner vocal', 4, 4, 4, 2),
-(10, 3, 'Mid laner average', 3, 3, 3, 2),
-(10, 16, 'ADC strong', 4, 5, 4, 2),
-(10, 6, 'Support weak', 2, 2, 2, 2);
-
-
-
-
-
--- Scrim 11 (The Blueprint game 1)
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (11, 'Scrim 11', '2026-03-10', 'https://youtu.be/scrim11', '31:40', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (11, 4, 1, 'W'), (11, 14, 2, 'W'), (11, 3, 3, 'W'), (11, 5, 4, 'W'), (11, 6, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-VALUES (11, 14, 'Solid comms, clear calls', 3, 3, 3, 2);
-
--- Scrim 12 (The Blueprint game 2)
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (12, 'Scrim 12', '2026-03-11', 'https://youtu.be/scrim12', '30:20', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (12, 4, 1, 'L'), (12, 14, 2, 'L'), (12, 3, 3, 'L'), (12, 5, 4, 'L'), (12, 6, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-VALUES (12, 14, 'Good communication, steady shotcalling', 3, 4, 3, 2);
-
--- Scrim 13 (The Blueprint game 3)
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (13, 'Scrim 13', '2026-03-12', 'https://youtu.be/scrim13', '29:50', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (13, 4, 1, 'W'), (13, 14, 2, 'W'), (13, 3, 3, 'W'), (13, 5, 4, 'W'), (13, 6, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-VALUES (13, 14, 'Communicated rotations well', 3, 3, 3, 2);
-
--- Scrim 14 (The Blueprint game 4)
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (14, 'Scrim 14', '2026-03-13', 'https://youtu.be/scrim14', '32:05', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (14, 4, 1, 'L'), (14, 14, 2, 'L'), (14, 3, 3, 'L'), (14, 5, 4, 'L'), (14, 6, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-VALUES (14, 14, 'Strong comms, decisive calls', 4, 4, 3, 2);
-
--- Scrim 15 (The Blueprint game 5)
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (15, 'Scrim 15', '2026-03-14', 'https://youtu.be/scrim15', '30:40', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (15, 4, 1, 'W'), (15, 14, 2, 'W'), (15, 3, 3, 'W'), (15, 5, 4, 'W'), (15, 6, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-VALUES (15, 14, 'Clear communication, good synergy', 3, 3, 3, 2);
-
--- Scrim 16 (The Blueprint game 6)
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (16, 'Scrim 16', '2026-03-15', 'https://youtu.be/scrim16', '31:15', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (16, 4, 1, 'L'), (16, 14, 2, 'L'), (16, 3, 3, 'L'), (16, 5, 4, 'L'), (16, 6, 5, 'L');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-VALUES (16, 14, 'Good comms, steady', 3, 4, 3, 2);
-
--- Scrim 17 (The Blueprint game 7)
-INSERT INTO scrims(scrimId, name, date, videoLink, length, status)
-VALUES (17, 'Scrim 17', '2026-03-16', 'https://youtu.be/scrim17', '29:35', 'evaluated');
-
-INSERT INTO scrimPlayers (scrimId, playerId, roleId, win)
-VALUES (17, 4, 1, 'W'), (17, 14, 2, 'W'), (17, 3, 3, 'W'), (17, 5, 4, 'W'), (17, 6, 5, 'W');
-
-INSERT INTO evaluations (scrimId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
-VALUES (17, 14, 'Strong comms, very vocal', 4, 4, 3, 2);
+(27, 14, 'Strong comms, very vocal', 5, 5, 4, 2),
+(27, 13, 'Top laner vocal', 4, 4, 4, 2),
+(27, 3, 'Mid laner average', 3, 3, 3, 2),
+(27, 16, 'ADC strong', 4, 5, 4, 2),
+(27, 6, 'Support weak', 2, 2, 2, 2);
 
 
 -- -----------------------------------------------------
--- TOURNAMENTS
+-- EVENTS: TOURNAMENTS
 -- -----------------------------------------------------
-
-INSERT INTO tournaments (tournamentId, name, startDate, endDate, win)
-VALUES
-(1, 'May Kickoff Clash', '2025-05-17', '2025-05-18', 'W'),
-(2, 'June Rift Gauntlet', '2025-06-07', '2025-06-08', 'L'),
-(3, 'June Campus Showdown', '2025-06-28', '2025-06-29', 'N/A'),
-(4, 'July Collegiate Cup', '2025-07-19', '2025-07-20', 'W'),
-(5, 'August Finals Qualifier', '2025-08-09', '2025-08-10', 'L'),
-(6, 'September Open Series', '2025-09-06', '2025-09-07', 'N/A'),
-(7, 'October Rift Rumble', '2025-10-04', '2025-10-05', 'W'),
-(8, 'October Nexus Trials', '2025-10-25', '2025-10-26', 'L'),
-(9, 'November Varsity Cup', '2025-11-15', '2025-11-16', 'W'),
-(10, 'December Invitational', '2025-12-06', '2025-12-07', 'N/A'),
-(11, 'January Season Opener', '2026-01-17', '2026-01-18', 'L'),
-(12, 'February Rift Cup', '2026-02-07', '2026-02-08', 'W'),
-(13, 'March Midseason Clash', '2026-03-07', '2026-03-08', 'N/A'),
-(14, 'April Academy Cup', '2026-04-04', '2026-04-05', 'W'),
-(15, 'Spring Crown Finals', '2026-04-18', '2026-04-19', 'L'),
--- Period 1 additions (4W, 1L)
-(16, 'May Thunderstrike', '2025-05-24', '2025-05-25', 'W'),
-(17, 'June Rift Showdown', '2025-06-14', '2025-06-15', 'W'),
-(18, 'July Clash Series', '2025-07-05', '2025-07-06', 'W'),
-(19, 'July Lightning Cup', '2025-07-26', '2025-07-27', 'W'),
-(20, 'August Rift Qualifier', '2025-08-16', '2025-08-17', 'L'),
--- Period 2 additions (2W, 2L, 1N/A)
-(21, 'September Rift Challenge', '2025-09-20', '2025-09-21', 'W'),
-(22, 'October Clash Invitational', '2025-10-18', '2025-10-19', 'L'),
-(23, 'November Open Cup', '2025-11-08', '2025-11-09', 'W'),
-(24, 'November Nexus Brawl', '2025-11-29', '2025-11-30', 'L'),
-(25, 'December Year-End Series', '2025-12-20', '2025-12-21', 'N/A'),
--- Period 3 additions (1W, 4L)
-(26, 'February Rift Trials', '2026-01-31', '2026-02-01', 'L'),
-(27, 'February Crown Series', '2026-02-21', '2026-02-22', 'L'),
-(28, 'March Gauntlet Cup', '2026-03-21', '2026-03-22', 'L'),
-(29, 'April Rift Revival', '2026-04-11', '2026-04-12', 'W'),
-(30, 'April Final Showdown', '2026-04-25', '2026-04-26', 'L');
 
 -- Period 1: May 2025 to August 2025
--- Tournament 1: veteran core with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
 VALUES
-(1, 4, 1, 'N'),
-(1, 7, 2, 'N'),
-(1, 3, 3, 'N'),
-(1, 5, 4, 'N'),
-(1, 6, 5, 'N'),
-(1, 13, 1, 'Y'),
-(1, 17, 5, 'Y');
-
--- Tournament 2: academy starters with one substitute
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(2, 13, 1, 'N'),
-(2, 8, 2, 'N'),
-(2, 15, 3, 'N'),
-(2, 16, 4, 'N'),
-(2, 17, 5, 'N'),
-(2, 14, 2, 'Y');
-
--- Tournament 3: mixed lineup with mid substitute
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(3, 4, 1, 'N'),
-(3, 14, 2, 'N'),
-(3, 3, 3, 'N'),
-(3, 16, 4, 'N'),
-(3, 6, 5, 'N'),
-(3, 15, 3, 'Y');
-
--- Tournament 4: starters only
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(4, 13, 1, 'N'),
-(4, 7, 2, 'N'),
-(4, 15, 3, 'N'),
-(4, 5, 4, 'N'),
-(4, 17, 5, 'N');
-
--- Tournament 5: alternate jungler and support reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(5, 4, 1, 'N'),
-(5, 9, 2, 'N'),
-(5, 3, 3, 'N'),
-(5, 5, 4, 'N'),
-(5, 17, 5, 'N'),
-(5, 8, 2, 'Y');
+(28, 'May Kickoff Clash', 'Tournament', 'Online', '2025-05-17', '2025-05-18', 'W', 'completed'),
+(29, 'June Rift Gauntlet', 'Tournament', 'Online', '2025-06-07', '2025-06-08', 'L', 'completed'),
+(30, 'June Campus Showdown', 'Tournament', 'Campus Arena', '2025-06-28', '2025-06-29', 'N/A', 'completed'),
+(31, 'July Collegiate Cup', 'Tournament', 'Online', '2025-07-19', '2025-07-20', 'W', 'completed'),
+(32, 'August Finals Qualifier', 'Tournament', 'Online', '2025-08-09', '2025-08-10', 'L', 'completed'),
+(33, 'May Thunderstrike', 'Tournament', 'Online', '2025-05-24', '2025-05-25', 'W', 'completed'),
+(34, 'June Rift Showdown', 'Tournament', 'Online', '2025-06-14', '2025-06-15', 'W', 'completed'),
+(35, 'July Clash Series', 'Tournament', 'Online', '2025-07-05', '2025-07-06', 'W', 'completed'),
+(36, 'July Lightning Cup', 'Tournament', 'Online', '2025-07-26', '2025-07-27', 'W', 'completed'),
+(37, 'August Rift Qualifier', 'Tournament', 'Online', '2025-08-16', '2025-08-17', 'L', 'completed');
 
 -- Period 2: September 2025 to December 2025
--- Tournament 6: balanced lineup with top and support subs
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
 VALUES
-(6, 13, 1, 'N'),
-(6, 14, 2, 'N'),
-(6, 15, 3, 'N'),
-(6, 16, 4, 'N'),
-(6, 6, 5, 'N'),
-(6, 4, 1, 'Y'),
-(6, 17, 5, 'Y');
-
--- Tournament 7: returning veterans with ADC reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(7, 4, 1, 'N'),
-(7, 8, 2, 'N'),
-(7, 3, 3, 'N'),
-(7, 16, 4, 'N'),
-(7, 17, 5, 'N'),
-(7, 5, 4, 'Y');
-
--- Tournament 8: development roster with jungle sub
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(8, 13, 1, 'N'),
-(8, 7, 2, 'N'),
-(8, 15, 3, 'N'),
-(8, 5, 4, 'N'),
-(8, 6, 5, 'N'),
-(8, 14, 2, 'Y');
-
--- Tournament 9: aggressive lineup with two reserves
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(9, 4, 1, 'N'),
-(9, 14, 2, 'N'),
-(9, 3, 3, 'N'),
-(9, 5, 4, 'N'),
-(9, 17, 5, 'N'),
-(9, 9, 2, 'Y'),
-(9, 16, 4, 'Y');
-
--- Tournament 10: late-season lineup with support reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(10, 13, 1, 'N'),
-(10, 9, 2, 'N'),
-(10, 15, 3, 'N'),
-(10, 16, 4, 'N'),
-(10, 6, 5, 'N'),
-(10, 17, 5, 'Y');
+(38, 'September Open Series', 'Tournament', 'Online', '2025-09-06', '2025-09-07', 'N/A', 'completed'),
+(39, 'October Rift Rumble', 'Tournament', 'Online', '2025-10-04', '2025-10-05', 'W', 'completed'),
+(40, 'October Nexus Trials', 'Tournament', 'Online', '2025-10-25', '2025-10-26', 'L', 'completed'),
+(41, 'November Varsity Cup', 'Tournament', 'Online', '2025-11-15', '2025-11-16', 'W', 'completed'),
+(42, 'December Invitational', 'Tournament', 'Online', '2025-12-06', '2025-12-07', 'N/A', 'completed'),
+(43, 'September Rift Challenge', 'Tournament', 'Online', '2025-09-20', '2025-09-21', 'W', 'completed'),
+(44, 'October Clash Invitational', 'Tournament', 'Online', '2025-10-18', '2025-10-19', 'L', 'completed'),
+(45, 'November Open Cup', 'Tournament', 'Online', '2025-11-08', '2025-11-09', 'W', 'completed'),
+(46, 'November Nexus Brawl', 'Tournament', 'Online', '2025-11-29', '2025-11-30', 'L', 'completed'),
+(47, 'December Year-End Series', 'Tournament', 'Online', '2025-12-20', '2025-12-21', 'N/A', 'completed');
 
 -- Period 3: January 2026 to April 2026
--- Tournament 11: veteran starters with top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status)
 VALUES
-(11, 4, 1, 'N'),
-(11, 7, 2, 'N'),
-(11, 3, 3, 'N'),
-(11, 16, 4, 'N'),
-(11, 17, 5, 'N'),
-(11, 13, 1, 'Y');
+(48, 'January Season Opener', 'Tournament', 'Online', '2026-01-17', '2026-01-18', 'L', 'completed'),
+(49, 'February Rift Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed'),
+(50, 'March Midseason Clash', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed'),
+(51, 'April Academy Cup', 'Tournament', 'Online', '2026-04-04', '2026-04-05', 'W', 'completed'),
+(52, 'Spring Crown Finals', 'Tournament', 'Online', '2026-04-18', '2026-04-19', 'L', 'completed'),
+(53, 'February Rift Trials', 'Tournament', 'Online', '2026-01-31', '2026-02-01', 'L', 'completed'),
+(54, 'February Crown Series', 'Tournament', 'Online', '2026-02-21', '2026-02-22', 'L', 'completed'),
+(55, 'March Gauntlet Cup', 'Tournament', 'Online', '2026-03-21', '2026-03-22', 'L', 'completed'),
+(56, 'April Rift Revival', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed'),
+(57, 'April Final Showdown', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed');
 
--- Tournament 12: flexible lineup with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(12, 13, 1, 'N'),
-(12, 8, 2, 'N'),
-(12, 15, 3, 'N'),
-(12, 5, 4, 'N'),
-(12, 6, 5, 'N'),
-(12, 4, 1, 'Y'),
-(12, 14, 2, 'Y');
 
--- Tournament 13: mixed starters with jungle reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(13, 4, 1, 'N'),
-(13, 14, 2, 'N'),
-(13, 3, 3, 'N'),
-(13, 16, 4, 'N'),
-(13, 17, 5, 'N'),
-(13, 7, 2, 'Y');
 
--- Tournament 14: academy starters with top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 16 → Event 43 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(14, 13, 1, 'N'),
-(14, 9, 2, 'N'),
-(14, 15, 3, 'N'),
-(14, 5, 4, 'N'),
-(14, 6, 5, 'N'),
-(14, 4, 1, 'Y');
+(43, 4, 1, 'Present', 'N'),
+(43, 7, 2, 'Present', 'N'),
+(43, 3, 3, 'Present', 'N'),
+(43, 5, 4, 'Present', 'N'),
+(43, 6, 5, 'Present', 'N'),
+(43, 8, 2, 'Excused', 'Y');
 
--- Tournament 15: spring finals lineup with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 17 → Event 44 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(15, 4, 1, 'N'),
-(15, 8, 2, 'N'),
-(15, 15, 3, 'N'),
-(15, 16, 4, 'N'),
-(15, 17, 5, 'N'),
-(15, 13, 1, 'Y'),
-(15, 6, 5, 'Y');
+(44, 4, 1, 'Present', 'N'),
+(44, 7, 2, 'Present', 'N'),
+(44, 15, 3, 'Present', 'N'),
+(44, 5, 4, 'Present', 'N'),
+(44, 17, 5, 'Present', 'N'),
+(44, 13, 1, 'Excused', 'Y');
 
--- Period 1 additions
--- Tournament 16 (W): main starters with jungle reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 18 → Event 45 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(16, 4, 1, 'N'),
-(16, 7, 2, 'N'),
-(16, 3, 3, 'N'),
-(16, 5, 4, 'N'),
-(16, 6, 5, 'N'),
-(16, 8, 2, 'Y');
+(45, 13, 1, 'Present', 'N'),
+(45, 7, 2, 'Present', 'N'),
+(45, 3, 3, 'Present', 'N'),
+(45, 5, 4, 'Present', 'N'),
+(45, 6, 5, 'Present', 'N'),
+(45, 4, 1, 'Excused', 'Y');
 
--- Tournament 17 (W): veteran top with mid and support subs
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 19 → Event 46 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(17, 4, 1, 'N'),
-(17, 7, 2, 'N'),
-(17, 15, 3, 'N'),
-(17, 5, 4, 'N'),
-(17, 17, 5, 'N'),
-(17, 13, 1, 'Y');
+(46, 4, 1, 'Present', 'N'),
+(46, 14, 2, 'Present', 'N'),
+(46, 3, 3, 'Present', 'N'),
+(46, 16, 4, 'Present', 'N'),
+(46, 17, 5, 'Present', 'N'),
+(46, 7, 2, 'Excused', 'Y');
 
--- Tournament 18 (W): top sub leads with veteran core
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 20 → Event 47 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(18, 13, 1, 'N'),
-(18, 7, 2, 'N'),
-(18, 3, 3, 'N'),
-(18, 5, 4, 'N'),
-(18, 6, 5, 'N'),
-(18, 4, 1, 'Y');
+(47, 13, 1, 'Present', 'N'),
+(47, 9, 2, 'Present', 'N'),
+(47, 15, 3, 'Present', 'N'),
+(47, 16, 4, 'Present', 'N'),
+(47, 6, 5, 'Present', 'N');
 
--- Tournament 19 (W): alternate jungler with veteran carries
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 21 → Event 48 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(19, 4, 1, 'N'),
-(19, 14, 2, 'N'),
-(19, 3, 3, 'N'),
-(19, 16, 4, 'N'),
-(19, 17, 5, 'N'),
-(19, 7, 2, 'Y');
+(48, 4, 1, 'Present', 'N'),
+(48, 8, 2, 'Present', 'N'),
+(48, 3, 3, 'Present', 'N'),
+(48, 5, 4, 'Present', 'N'),
+(48, 17, 5, 'Present', 'N'),
+(48, 13, 1, 'Excused', 'Y');
 
--- Tournament 20 (L): development roster, no substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 22 → Event 49 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(20, 13, 1, 'N'),
-(20, 9, 2, 'N'),
-(20, 15, 3, 'N'),
-(20, 16, 4, 'N'),
-(20, 6, 5, 'N');
+(49, 13, 1, 'Present', 'N'),
+(49, 7, 2, 'Present', 'N'),
+(49, 15, 3, 'Present', 'N'),
+(49, 16, 4, 'Present', 'N'),
+(49, 6, 5, 'Present', 'N'),
+(49, 9, 2, 'Excused', 'Y');
 
--- Period 2 additions
--- Tournament 21 (W): veteran top with alternate jungler
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 23 → Event 50 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(21, 4, 1, 'N'),
-(21, 8, 2, 'N'),
-(21, 3, 3, 'N'),
-(21, 5, 4, 'N'),
-(21, 17, 5, 'N'),
-(21, 13, 1, 'Y');
+(50, 4, 1, 'Present', 'N'),
+(50, 14, 2, 'Present', 'N'),
+(50, 3, 3, 'Present', 'N'),
+(50, 5, 4, 'Present', 'N'),
+(50, 17, 5, 'Present', 'N');
 
--- Tournament 22 (L): academy lineup with jungle sub
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 24 → Event 51 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(22, 13, 1, 'N'),
-(22, 7, 2, 'N'),
-(22, 15, 3, 'N'),
-(22, 16, 4, 'N'),
-(22, 6, 5, 'N'),
-(22, 9, 2, 'Y');
+(51, 13, 1, 'Present', 'N'),
+(51, 9, 2, 'Present', 'N'),
+(51, 15, 3, 'Present', 'N'),
+(51, 16, 4, 'Present', 'N'),
+(51, 6, 5, 'Present', 'N'),
+(51, 4, 1, 'Excused', 'Y');
 
--- Tournament 23 (W): veteran core with blueprint jungler
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 25 → Event 52 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(23, 4, 1, 'N'),
-(23, 14, 2, 'N'),
-(23, 3, 3, 'N'),
-(23, 5, 4, 'N'),
-(23, 17, 5, 'N');
+(52, 4, 1, 'Present', 'N'),
+(52, 8, 2, 'Present', 'N'),
+(52, 3, 3, 'Present', 'N'),
+(52, 5, 4, 'Present', 'N'),
+(52, 17, 5, 'Present', 'N'),
+(52, 7, 2, 'Excused', 'Y'),
+(52, 6, 5, 'Excused', 'Y');
 
--- Tournament 24 (L): academy starters with veteran top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 26 → Event 53 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(24, 13, 1, 'N'),
-(24, 9, 2, 'N'),
-(24, 15, 3, 'N'),
-(24, 16, 4, 'N'),
-(24, 6, 5, 'N'),
-(24, 4, 1, 'Y');
+(53, 4, 1, 'Present', 'N'),
+(53, 7, 2, 'Present', 'N'),
+(53, 3, 3, 'Present', 'N'),
+(53, 16, 4, 'Present', 'N'),
+(53, 17, 5, 'Present', 'N'),
+(53, 13, 1, 'Excused', 'Y');
 
--- Tournament 25 (N/A): full roster with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 27 → Event 54 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(25, 4, 1, 'N'),
-(25, 8, 2, 'N'),
-(25, 3, 3, 'N'),
-(25, 5, 4, 'N'),
-(25, 17, 5, 'N'),
-(25, 7, 2, 'Y'),
-(25, 6, 5, 'Y');
+(54, 13, 1, 'Present', 'N'),
+(54, 9, 2, 'Present', 'N'),
+(54, 15, 3, 'Present', 'N'),
+(54, 5, 4, 'Present', 'N'),
+(54, 6, 5, 'Present', 'N');
 
--- Period 3 additions
--- Tournament 26 (L): veteran top with alternate ADC
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 28 → Event 55 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(26, 4, 1, 'N'),
-(26, 7, 2, 'N'),
-(26, 3, 3, 'N'),
-(26, 16, 4, 'N'),
-(26, 17, 5, 'N'),
-(26, 13, 1, 'Y');
+(55, 4, 1, 'Present', 'N'),
+(55, 14, 2, 'Present', 'N'),
+(55, 3, 3, 'Present', 'N'),
+(55, 16, 4, 'Present', 'N'),
+(55, 17, 5, 'Present', 'N'),
+(55, 7, 2, 'Excused', 'Y');
 
--- Tournament 27 (L): academy lineup, no substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 29 → Event 56 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(27, 13, 1, 'N'),
-(27, 9, 2, 'N'),
-(27, 15, 3, 'N'),
-(27, 5, 4, 'N'),
-(27, 6, 5, 'N');
+(56, 13, 1, 'Present', 'N'),
+(56, 8, 2, 'Present', 'N'),
+(56, 15, 3, 'Present', 'N'),
+(56, 5, 4, 'Present', 'N'),
+(56, 6, 5, 'Present', 'N'),
+(56, 4, 1, 'Excused', 'Y');
 
--- Tournament 28 (L): veteran top with blueprint jungler and jungle sub
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
+-- Tournament 30 → Event 57 attendees
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub)
 VALUES
-(28, 4, 1, 'N'),
-(28, 14, 2, 'N'),
-(28, 3, 3, 'N'),
-(28, 16, 4, 'N'),
-(28, 17, 5, 'N'),
-(28, 7, 2, 'Y');
-
--- Tournament 29 (W): academy starters with veteran top reserve
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(29, 13, 1, 'N'),
-(29, 8, 2, 'N'),
-(29, 15, 3, 'N'),
-(29, 5, 4, 'N'),
-(29, 6, 5, 'N'),
-(29, 4, 1, 'Y');
-
--- Tournament 30 (L): veteran core with two substitutes
-INSERT INTO tournament_players (tournamentId, playerId, roleId, isSub)
-VALUES
-(30, 4, 1, 'N'),
-(30, 7, 2, 'N'),
-(30, 3, 3, 'N'),
-(30, 16, 4, 'N'),
-(30, 6, 5, 'N'),
-(30, 9, 2, 'Y'),
-(30, 17, 5, 'Y');
+(57, 4, 1, 'Present', 'N'),
+(57, 7, 2, 'Present', 'N'),
+(57, 3, 3, 'Present', 'N'),
+(57, 16, 4, 'Present', 'N'),
+(57, 6, 5, 'Present', 'N'),
+(57, 9, 2, 'Excused', 'Y'),
+(57, 17, 5, 'Excused', 'Y');
