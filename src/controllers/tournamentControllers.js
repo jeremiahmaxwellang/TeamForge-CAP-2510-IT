@@ -4,9 +4,15 @@ const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 
 const normalizeResult = (value) => {
 	if (!value && value !== 0) return 'N/A';
-	const upper = String(value).trim().toUpperCase();
-	if (upper === 'W' || upper === 'L' || upper === 'N/A') return upper;
-	if (upper === 'NA') return 'N/A';
+	const trimmed = String(value).trim();
+	
+	// Handle tournament results
+	const upper = trimmed.toUpperCase();
+	if (upper === 'W' || upper === 'L' || upper === 'N/A' || upper === 'NA') return upper === 'NA' ? 'N/A' : upper;
+	
+	// Handle scrim results
+	if (trimmed === 'Team 1 Win' || trimmed === 'Team 2 Win' || trimmed === 'N/A') return trimmed;
+	
 	return null;
 };
 
@@ -120,6 +126,13 @@ const createTournament = async (req, res) => {
 	try {
 		const { name, tournamentDate, result, type, assignments } = req.body;
 
+		// Debug: Log received data
+		console.log('Received tournament data:', { name, tournamentDate, result, type });
+		console.log('Received assignments:', assignments);
+		console.log('Team 1 assignments:', assignments?.filter(a => a.team === 'Team 1'));
+		console.log('Team 2 assignments:', assignments?.filter(a => a.team === 'Team 2'));
+		console.log('Sub assignments:', assignments?.filter(a => a.team === 'Sub'));
+
 		if (!name || !String(name).trim()) {
 			return res.status(400).send({
 				success: false,
@@ -132,14 +145,6 @@ const createTournament = async (req, res) => {
 			return res.status(400).send({
 				success: false,
 				message: 'Valid tournament date is required'
-			});
-		}
-
-		const normalizedResult = normalizeResult(result);
-		if (!normalizedResult) {
-			return res.status(400).send({
-				success: false,
-				message: 'Result must be W, L, or N/A'
 			});
 		}
 
@@ -218,9 +223,12 @@ const createTournament = async (req, res) => {
 
 		await connection.beginTransaction();
 
+		// For scrims, set event-level result to N/A and handle results at team level
+		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
+		
 		const [insertTournamentResult] = await connection.query(
 			`INSERT INTO events (title_summary, type, start_date, end_date, win, creator_id) VALUES (?, ?, ?, ?, ?, ?)`,
-			[String(name).trim(), normalizedType, normalizedDate, normalizedDate, normalizedResult, req.cookies.userId]
+			[String(name).trim(), normalizedType, normalizedDate, normalizedDate, eventResult, req.cookies.userId]
 		);
 
 		const tournamentId = insertTournamentResult.insertId;
@@ -235,12 +243,26 @@ const createTournament = async (req, res) => {
 				throw new Error('Invalid player assignment received');
 			}
 
+			// Determine team-level result for scrims
+			let teamResult = 'N/A';
+			if (normalizedType === 'Scrim') {
+				if (normalizedResult === 'Team 1 Win' && team === 'Team 1') {
+					teamResult = 'W';
+				} else if (normalizedResult === 'Team 2 Win' && team === 'Team 2') {
+					teamResult = 'W';
+				} else if (normalizedResult === 'Team 1 Win' && team === 'Team 2') {
+					teamResult = 'L';
+				} else if (normalizedResult === 'Team 2 Win' && team === 'Team 1') {
+					teamResult = 'L';
+				}
+			}
+
 			await connection.query(
 				`
-				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team)
-				VALUES (?, ?, ?, ?, ?)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team, win)
+				VALUES (?, ?, ?, ?, ?, ?)
 				`,
-				[tournamentId, playerId, roleId, isSub, team]
+				[tournamentId, playerId, roleId, isSub, team, teamResult]
 			);
 		}
 
@@ -389,13 +411,16 @@ const updateTournament = async (req, res) => {
 			});
 		}
 
+		// For scrims, set event-level result to N/A and handle results at team level
+		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
+		
 		await connection.query(
 			`
 			UPDATE events
 			SET title_summary = ?, start_date = ?, end_date = ?, win = ?, type = ?
 			WHERE eventId = ? AND type IN ('Tournament', 'Scrim')
 			`,
-			[String(name).trim(), normalizedDate, normalizedDate, normalizedResult, normalizedType, tournamentId]
+			[String(name).trim(), normalizedDate, normalizedDate, eventResult, normalizedType, tournamentId]
 		);
 
 		await connection.query(`DELETE FROM event_attendees WHERE eventId = ?`, [tournamentId]);
@@ -410,12 +435,26 @@ const updateTournament = async (req, res) => {
 				throw new Error('Invalid player assignment received');
 			}
 
+			// Determine team-level result for scrims
+			let teamResult = 'N/A';
+			if (normalizedType === 'Scrim') {
+				if (normalizedResult === 'Team 1 Win' && team === 'Team 1') {
+					teamResult = 'W';
+				} else if (normalizedResult === 'Team 2 Win' && team === 'Team 2') {
+					teamResult = 'W';
+				} else if (normalizedResult === 'Team 1 Win' && team === 'Team 2') {
+					teamResult = 'L';
+				} else if (normalizedResult === 'Team 2 Win' && team === 'Team 1') {
+					teamResult = 'L';
+				}
+			}
+
 			await connection.query(
 				`
-				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team)
-				VALUES (?, ?, ?, ?, ?)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team, win)
+				VALUES (?, ?, ?, ?, ?, ?)
 				`,
-				[tournamentId, playerId, roleId, isSub, team]
+				[tournamentId, playerId, roleId, isSub, team, teamResult]
 			);
 		}
 
@@ -452,6 +491,7 @@ const getTournaments = async (req, res) => {
 				tp.is_sub AS isSub,
 				tp.player_role AS roleId,
 				tp.team,
+				tp.win AS teamWin,
 				u.firstname,
 				u.lastname,
 				lr.teamPosition AS roleName
@@ -485,6 +525,7 @@ const getTournaments = async (req, res) => {
 					playerName: `${row.firstname || ''} ${row.lastname || ''}`.trim(),
 					roleId: row.roleId,
 					team: row.team,
+					teamWin: row.teamWin,
 					role: mapRoleName(row.roleName) || 'Unknown'
 				});
 			}

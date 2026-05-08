@@ -149,8 +149,35 @@
 		tournamentTypeSelect.value = tournament.type || 'Tournament';
 		team2Label.textContent = tournament.type === 'Scrim' ? 'Team 2' : 'Sub';
 
-		const normalizedResult = (tournament.result || '').toUpperCase();
-		tournamentResultSelect.value = RESULT_FILTERS.includes(normalizedResult) ? normalizedResult : 'N/A';
+		// Handle result display based on event type
+		let displayResult = tournament.result || 'N/A';
+		if (tournament.type === 'Scrim') {
+			// For scrims, determine result from team-level data
+			const team1Assignment = tournament.assignments.find(a => a.team === 'Team 1');
+			const team2Assignment = tournament.assignments.find(a => a.team === 'Team 2');
+			const team1Result = team1Assignment?.teamWin;
+			const team2Result = team2Assignment?.teamWin;
+			
+			// Debug: Log the team results for edit modal
+			console.log('Edit modal scrim result calculation:', {
+				tournamentId: tournament.tournamentId,
+				team1Result,
+				team2Result,
+				team1Assignment,
+				team2Assignment,
+				allAssignments: tournament.assignments
+			});
+			
+			if (team1Result === 'W' && team2Result === 'L') {
+				displayResult = 'Team 1 Win';
+			} else if (team1Result === 'L' && team2Result === 'W') {
+				displayResult = 'Team 2 Win';
+			} else {
+				displayResult = 'N/A';
+			}
+		}
+		
+		tournamentResultSelect.value = displayResult;
 
 		tournament.assignments.forEach((assignment) => {
 			const resolvedRole = resolveAssignmentRole(assignment);
@@ -505,6 +532,13 @@
 		}
 
 		const assignments = toAssignments();
+		
+		// Debug: Log assignments to see what's being sent
+		console.log('Tournament Type:', type);
+		console.log('Assignments:', assignments);
+		console.log('Team 1 assignments:', assignments.filter(a => a.team === 'Team 1'));
+		console.log('Team 2 assignments:', assignments.filter(a => a.team === 'Team 2'));
+		console.log('Sub assignments:', assignments.filter(a => a.team === 'Sub'));
 
 		try {
 			const endpoint = isEditMode
@@ -622,10 +656,38 @@
 				}).join('');
 			};
 
+			// Calculate display result based on event type
+			let displayResult = tournament.result;
+			if (tournament.type === 'Scrim') {
+				// For scrims, determine result from team-level data
+				const team1Assignment = tournament.assignments.find(a => a.team === 'Team 1');
+				const team2Assignment = tournament.assignments.find(a => a.team === 'Team 2');
+				const team1Result = team1Assignment?.teamWin;
+				const team2Result = team2Assignment?.teamWin;
+				
+				// Debug: Log the team results
+				console.log('Scrim result calculation:', {
+					tournamentId: tournament.tournamentId,
+					team1Result,
+					team2Result,
+					team1Assignment,
+					team2Assignment,
+					allAssignments: tournament.assignments
+				});
+				
+				if (team1Result === 'W' && team2Result === 'L') {
+					displayResult = 'Team 1 Win';
+				} else if (team1Result === 'L' && team2Result === 'W') {
+					displayResult = 'Team 2 Win';
+				} else {
+					displayResult = 'N/A';
+				}
+			}
+
 			body.innerHTML = `
 				<div class="meta-row">
 					<span>Date: ${new Date(tournament.tournamentDate).toLocaleDateString()}</span>
-					<span>Result: ${tournament.result}</span>
+					<span>Result: ${displayResult}</span>
 				</div>
 				<div class="details-teams-layout">
 					<section class="detail-team-column">
@@ -723,6 +785,25 @@
 		tournamentTypeSelect.addEventListener('change', () => {
 			const isScrim = tournamentTypeSelect.value === 'Scrim';
 			team2Label.textContent = isScrim ? 'Team 2' : 'Sub';
+			
+			// Update result options based on event type
+			tournamentResultSelect.innerHTML = '';
+			
+			if (isScrim) {
+				// Scrim results: Team-based
+				tournamentResultSelect.innerHTML = `
+					<option value="N/A">N/A</option>
+					<option value="Team 1 Win">Team 1 Win</option>
+					<option value="Team 2 Win">Team 2 Win</option>
+				`;
+			} else {
+				// Tournament results: Overall W/L/N/A
+				tournamentResultSelect.innerHTML = `
+					<option value="N/A">N/A</option>
+					<option value="W">W</option>
+					<option value="L">L</option>
+				`;
+			}
 		});
 
 		modalOverlay.addEventListener('click', (event) => {
