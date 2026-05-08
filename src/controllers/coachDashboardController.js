@@ -4,7 +4,7 @@ const db = require('../config/database');
 exports.getPlayerList = async (req, res) => {
     try {
         const query = `
-            SELECT u.userId, p.gameName, u.firstname, u.lastname, p.currentRank, p.peakRank,
+            SELECT u.userId, p.gameName, u.firstname, u.lastname, p.currentRank AS currentRank, p.peakRank AS peakRank,
                    r1.displayedRole AS primaryRole, 
                    r2.displayedRole AS secondaryRole
             FROM users u 
