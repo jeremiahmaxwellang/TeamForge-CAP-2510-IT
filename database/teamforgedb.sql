@@ -463,7 +463,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`events` (
   `end_timezone` VARCHAR(45) NULL,
   `videoLink` LONGTEXT NULL,
   `length` VARCHAR(45) NULL,
-  `win` ENUM('W', 'L', 'N/A') NULL,
+  `win` ENUM('W', 'L', 'N/A') NULL COMMENT 'MOVE THIS FIELD TO event_attendees nalang',
   `status` TEXT NULL,
   PRIMARY KEY (`eventId`))
 ENGINE = InnoDB
@@ -504,6 +504,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
   `notes` LONGTEXT NULL,
   `is_sub` ENUM('Y', 'N') NULL DEFAULT 'N',
   `team` ENUM('Team 1', 'Team 2', 'Sub') NOT NULL DEFAULT 'Team 1',
+  `win` ENUM('W', 'L', 'N/A') NOT NULL DEFAULT 'N/A' COMMENT 'use this to indicate who won',
   PRIMARY KEY (`eventId`, `userId`),
   INDEX `fk_event_attendees_users2_idx` (`userId` ASC) VISIBLE,
   INDEX `fk_event_attendees_leagueroles2_idx` (`player_role` ASC) VISIBLE,
