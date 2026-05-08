@@ -932,6 +932,56 @@
     .month-cell {
       overflow: hidden;
     }
+
+    /* Modal Expansion & Grid */
+    .modal { transition: width 0.3s ease; }
+    .modal.expanded { width: min(1050px, 95vw); }
+    .event-modal-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    .event-modal-grid.expanded { grid-template-columns: 1.2fr 2fr 1fr; }
+    
+    /* Drag & Drop Roles */
+    .participants-layout { display: flex; gap: 1rem; }
+    .role-column { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+    .role-slot {
+        border: 1px dashed var(--border);
+        background: var(--bg);
+        border-radius: 6px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        gap: 10px;
+        transition: background 0.2s;
+    }
+    .role-slot.over { border: 1px dashed var(--green); background: rgba(34, 197, 94, 0.1); }
+    .role-label { font-weight: 600; font-size: 12px; width: 50px; color: var(--muted);}
+    .placeholder-text { color: #555; font-size: 0.85rem; pointer-events: none;}
+    
+    /* Roster Pool */
+    .status-header { margin: 1rem 0 0.5rem 0; font-size: 0.85rem; font-weight: bold;}
+    .text-green { color: var(--green); }
+    .text-yellow { color: var(--yellow); }
+    .text-red { color: var(--red); }
+    .players-pool-grid { display: flex; flex-direction: column; gap: 5px; min-height: 30px;}
+    
+    .player-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: grab;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: var(--text);
+    }
+    .player-card:active { cursor: grabbing; }
+    .player-card.unavailable {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background: var(--bg);
+    }
   </style>
 </head>
 
@@ -1048,56 +1098,101 @@
     </div>
   </div>
 
-  <!-- CREATE EVENT MODAL -->
+<!-- CREATE EVENT MODAL -->
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <div class="modal-title">Create Event</div>
-      <div class="modal-field">
-        <label>Title</label>
-        <input type="text" id="evTitle" placeholder="Event title" />
-      </div>
-      <div class="modal-field">
-        <label>Type</label>
-        <select id="evType">
-          <option value="Scrim">Scrim</option>
-          <option value="Tournament">Tournament</option>
-          <option value="Meeting">Meeting</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="modal-row">
-        <div class="modal-field">
-          <label>Date</label>
-          <input type="date" id="evDate" />
+    <div class="modal" id="eventModal">
+      <div class="event-modal-grid" id="eventModalGrid">
+          
+        <!-- COLUMN 1: Event Details -->
+        <div class="event-details-col">
+          <div class="modal-title">Create Event</div>
+          <div class="modal-field">
+            <label>Title</label>
+            <input type="text" id="evTitle" placeholder="Event title" />
+          </div>
+          <div class="modal-field">
+            <label>Type</label>
+            <select id="evType">
+              <option value="Scrim">Scrim</option>
+              <option value="Tournament">Tournament</option>
+              <option value="Meeting">Meeting</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="modal-row">
+            <div class="modal-field">
+              <label>Date</label>
+              <input type="date" id="evDate" />
+            </div>
+            <div class="modal-field">
+              <label>Win/Loss</label>
+              <select id="evWL">
+                <option value="N/A">N/A</option>
+                <option value="W">W</option>
+                <option value="L">L</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-row">
+            <div class="modal-field">
+              <label>Start Time</label>
+              <input type="time" id="evStart" value="10:00" />
+            </div>
+            <div class="modal-field">
+              <label>End Time</label>
+              <input type="time" id="evEnd" value="11:00" />
+            </div>
+          </div>
+          <div class="modal-field">
+            <label>Location</label>
+            <input type="text" id="evLocation" placeholder="Online / venue" />
+          </div>
+          <div class="modal-field">
+            <label>Video Link</label>
+            <input type="text" id="evVideo" placeholder="https://..." />
+          </div>
         </div>
-        <div class="modal-field">
-          <label>Win/Loss</label>
-          <select id="evWL">
-            <option value="N/A">N/A</option>
-            <option value="W">W</option>
-            <option value="L">L</option>
-          </select>
+
+        <!-- COLUMN 2: Participants (Hidden if Meeting) -->
+        <div class="event-participants-col" id="eventParticipantsCol">
+            <div class="modal-title" style="margin-bottom: 12px; font-size: 16px;">Participants</div>
+            <div class="participants-layout">
+                <div class="role-column">
+                    <h4 style="color: var(--muted); font-size: 12px; margin-bottom: 5px;">Players</h4>
+                    <div class="role-slot" data-role="Top" data-sub="N"><span class="role-label">Top</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="Jungle" data-sub="N"><span class="role-label">Jungle</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="Mid" data-sub="N"><span class="role-label">Mid</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="ADC" data-sub="N"><span class="role-label">ADC</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="Support" data-sub="N"><span class="role-label">Support</span> <span class="placeholder-text">Drop player here</span></div>
+                </div>
+                <div class="role-column">
+                    <h4 style="color: var(--muted); font-size: 12px; margin-bottom: 5px;">Sub</h4>
+                    <div class="role-slot" data-role="Top" data-sub="Y"><span class="role-label">Top</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="Jungle" data-sub="Y"><span class="role-label">Jungle</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="Mid" data-sub="Y"><span class="role-label">Mid</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="ADC" data-sub="Y"><span class="role-label">ADC</span> <span class="placeholder-text">Drop player here</span></div>
+                    <div class="role-slot" data-role="Support" data-sub="Y"><span class="role-label">Support</span> <span class="placeholder-text">Drop player here</span></div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="modal-row">
-        <div class="modal-field">
-          <label>Start Time</label>
-          <input type="time" id="evStart" value="10:00" />
+
+        <!-- COLUMN 3: Roster Pool -->
+        <div class="event-roster-col" id="eventRosterCol" style="border-left: 1px solid var(--border); padding-left: 24px;">
+            <div style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">Drag players into roles</div>
+            
+            <h4 class="status-header text-green">Available</h4>
+            <div class="players-pool-grid" id="availablePlayers"></div>
+
+            <h4 class="status-header text-yellow">Semi-Available</h4>
+            <div class="players-pool-grid" id="semiAvailablePlayers"></div>
+
+            <h4 class="status-header text-red">Unavailable</h4>
+            <div class="players-pool-grid" id="unavailablePlayers"></div>
         </div>
-        <div class="modal-field">
-          <label>End Time</label>
-          <input type="time" id="evEnd" value="11:00" />
-        </div>
+
       </div>
-      <div class="modal-field">
-        <label>Location</label>
-        <input type="text" id="evLocation" placeholder="Online / venue" />
-      </div>
-      <div class="modal-field">
-        <label>Video Link</label>
-        <input type="text" id="evVideo" placeholder="https://..." />
-      </div>
-      <div class="modal-btns">
+
+      <div class="modal-btns" style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
         <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
         <button class="modal-btn save" onclick="saveEvent()">Save Event</button>
       </div>
@@ -1126,32 +1221,8 @@
       Default: '#38bdf8'
     };
 
-    // Sample events
-    let events = [
-      { id: 1, title: 'ITNET01', type: 'Class', date: '2026-04-06', start: '02:30', end: '03:30', color: '#ef4444' },
-      { id: 2, title: 'LBY/TN1', type: 'Class', date: '2026-04-06', start: '04:00', end: '05:00', color: '#ef4444' },
-      { id: 3, title: 'ITNET01', type: 'Class', date: '2026-04-06', start: '02:30', end: '03:30', color: '#ef4444' },
-      { id: 4, title: 'ITNET01', type: 'Class', date: '2026-04-07', start: '02:30', end: '03:30', color: '#ef4444' },
-      { id: 5, title: 'ITNET01', type: 'Class', date: '2026-04-09', start: '02:30', end: '03:30', color: '#ef4444' },
-      { id: 6, title: 'LBY/TN1', type: 'Class', date: '2026-04-09', start: '04:00', end: '05:00', color: '#ef4444' },
-      { id: 7, title: 'ITNET01', type: 'Class', date: '2026-04-09', start: '02:30', end: '03:30', color: '#ef4444' },
-      { id: 8, title: 'ITNET01', type: 'Class', date: '2026-04-10', start: '02:30', end: '03:30', color: '#ef4444' },
-      { id: 9, title: 'Morning Scrim', type: 'Scrim', date: '2026-04-13', start: '09:30', end: '11:00', color: '#22c55e' },
-      { id: 10, title: 'play on', type: 'Other', date: '2026-04-13', start: '10:00', end: '11:00', color: '#f97316' },
-      { id: 11, title: 'Design Tourn.', type: 'Tournament', date: '2026-04-14', start: '14:00', end: '17:00', color: '#facc15' },
-      { id: 12, title: 'Weekly Plann.', type: 'Meeting', date: '2026-04-18', start: '11:00', end: '12:00', color: '#38bdf8' },
-      { id: 13, title: 'GESPORT', type: 'Class', date: '2026-04-14', start: '07:00', end: '08:30', color: '#ef4444' },
-      { id: 14, title: 'ITNET04', type: 'Class', date: '2026-04-13', start: '09:15', end: '10:45', color: '#ef4444' },
-      { id: 15, title: 'ITNET04', type: 'Class', date: '2026-04-14', start: '09:15', end: '10:45', color: '#ef4444' },
-      { id: 16, title: 'ITNET04', type: 'Class', date: '2026-04-16', start: '09:15', end: '10:45', color: '#ef4444' },
-      { id: 17, title: 'ITNET04', type: 'Class', date: '2026-04-17', start: '09:15', end: '10:45', color: '#ef4444' },
-      { id: 18, title: 'ITIT1SDEV', type: 'Other', date: '2026-04-14', start: '12:45', end: '14:15', color: '#f97316' },
-      { id: 19, title: 'ITNET04', type: 'Class', date: '2026-04-14', start: '15:15', end: '16:45', color: '#ef4444' },
-      { id: 20, title: 'Scrim', type: 'Scrim', date: '2026-04-15', start: '14:00', end: '16:00', color: '#f97316' },
-      { id: 21, title: 'Tournament', type: 'Tournament', date: '2026-04-13', start: '12:00', end: '13:00', color: '#facc15' },
-      { id: 22, title: 'GESPORT', type: 'Class', date: '2026-04-17', start: '07:00', end: '08:30', color: '#ef4444' },
-      { id: 23, title: 'ITNET04', type: 'Class', date: '2026-04-17', start: '15:15', end: '16:45', color: '#ef4444' },
-    ];
+    // events
+    let events = [];
 
     // ── UTILS ────────────────────────────────────────────────
     const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -1409,47 +1480,238 @@
       panel.innerHTML = html;
     }
 
-    // ── MODAL ────────────────────────────────────────────────
+// ── MODAL ────────────────────────────────────────────────
     function openCreateModal(ds) {
       pendingDate = ds || today();
       document.getElementById('evDate').value = pendingDate;
       document.getElementById('evTitle').value = '';
-      document.getElementById('evType').value = 'Scrim';
+      document.getElementById('evType').value = 'Scrim'; // Default to Scrim
       document.getElementById('evStart').value = '10:00';
       document.getElementById('evEnd').value = '11:00';
       document.getElementById('evLocation').value = '';
       document.getElementById('evVideo').value = '';
       document.getElementById('evWL').value = 'N/A';
       document.getElementById('modalOverlay').classList.add('open');
+
+      // Clear existing slots
+      document.querySelectorAll('.role-slot .player-card').forEach(el => el.remove());
+      document.querySelectorAll('.placeholder-text').forEach(el => el.style.display = 'inline');
+
+      // Setup Layout
+      triggerLayoutToggle();
     }
 
     function closeModal() {
       document.getElementById('modalOverlay').classList.remove('open');
     }
 
+    // NEW: Save Event mapped to Backend API
     function saveEvent() {
       const title = document.getElementById('evTitle').value.trim();
-      if (!title) { alert('Please enter a title.'); return; }
       const type = document.getElementById('evType').value;
-      const ev = {
-        id: Date.now(),
-        title,
-        type,
-        date: document.getElementById('evDate').value,
-        start: document.getElementById('evStart').value,
-        end: document.getElementById('evEnd').value,
-        location: document.getElementById('evLocation').value,
-        videoLink: document.getElementById('evVideo').value,
-        win: document.getElementById('evWL').value,
-        color: TYPE_COLORS[type] || TYPE_COLORS.Default
+      if (!title) { alert('Please enter a title.'); return; }
+
+      const date = document.getElementById('evDate').value;
+      const start = document.getElementById('evStart').value;
+      const end = document.getElementById('evEnd').value;
+      const participants = [];
+
+      // Scrape participants if not a meeting
+      if (type !== 'Meeting') {
+          document.querySelectorAll('.role-slot .player-card').forEach(card => {
+              const slot = card.closest('.role-slot');
+              participants.push({
+                  userId: card.dataset.userId,
+                  role: slot.dataset.role,
+                  isSub: slot.dataset.sub
+              });
+          });
+      }
+
+      const payload = {
+          title_summary: title,
+          type: type,
+          location: document.getElementById('evLocation').value,
+          start_date: date,
+          start_datetime: date && start ? `${date} ${start}:00` : null,
+          end_date: date,
+          end_datetime: date && end ? `${date} ${end}:00` : null,
+          videoLink: document.getElementById('evVideo').value,
+          win: document.getElementById('evWL').value,
+          participants: participants
       };
-      events.push(ev);
-      closeModal();
-      render();
+
+      fetch('/calendar/api/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+      }).then(res => res.json()).then(data => {
+          if (data.success) {
+              const ev = {
+                  id: data.eventId || Date.now(),
+                  title, type, date, start, end,
+                  color: TYPE_COLORS[type] || TYPE_COLORS.Default
+              };
+              events.push(ev);
+              closeModal();
+              render();
+          } else {
+              alert(data.message || 'Failed to create event');
+          }
+      }).catch(err => {
+          console.error(err);
+          alert('Server error.');
+      });
     }
 
-    document.getElementById('modalOverlay').addEventListener('click', function (e) {
-      if (e.target === this) closeModal();
+    // --- Fetch events from Database ---
+    async function loadEvents() {
+        try {
+            const res = await fetch('/calendar/api/events');
+            const data = await res.json();
+            if (data.success) {
+                // Map database columns to the frontend's expected properties
+                events = data.events.map(e => ({
+                    id: e.eventId,
+                    title: e.title_summary,
+                    type: e.type,
+                    date: e.start_date,
+                    start: e.start_time || '00:00',
+                    end: e.end_time || '23:59',
+                    location: e.location,
+                    videoLink: e.videoLink,
+                    win: e.win,
+                    color: TYPE_COLORS[e.type] || TYPE_COLORS.Default
+                }));
+                render(); // Re-draw the calendar UI with real data
+            }
+        } catch (err) {
+            console.error("Error loading events:", err);
+        }
+    }
+
+    // ── INTERACTIVITY & DRAG DROP LOGIC ──────────────────────
+    function triggerLayoutToggle() {
+        const evType = document.getElementById('evType').value;
+        const modal = document.getElementById('eventModal');
+        const grid = document.getElementById('eventModalGrid');
+        const pCol = document.getElementById('eventParticipantsCol');
+        const rCol = document.getElementById('eventRosterCol');
+
+        if (evType === 'Meeting') {
+            modal.classList.remove('expanded');
+            grid.classList.remove('expanded');
+            pCol.style.display = 'none';
+            rCol.style.display = 'none';
+        } else {
+            modal.classList.add('expanded');
+            grid.classList.add('expanded');
+            pCol.style.display = 'block';
+            rCol.style.display = 'block';
+            fetchAvailability();
+        }
+    }
+
+    document.getElementById('evType').addEventListener('change', triggerLayoutToggle);
+    ['evDate', 'evStart', 'evEnd'].forEach(id => {
+        document.getElementById(id).addEventListener('change', () => {
+            if (document.getElementById('evType').value !== 'Meeting') fetchAvailability();
+        });
+    });
+
+    async function fetchAvailability() {
+        const date = document.getElementById('evDate').value;
+        const start = document.getElementById('evStart').value;
+        const end = document.getElementById('evEnd').value;
+
+        try {
+            const query = new URLSearchParams({ date, start, end });
+            const res = await fetch(`/calendar/api/availability?${query.toString()}`);
+            const data = await res.json();
+            if (data.success) renderPlayers(data.players);
+        } catch (err) { console.error(err); }
+    }
+
+    function renderPlayers(players) {
+        const assignedIds = Array.from(document.querySelectorAll('.role-slot .player-card')).map(c => c.dataset.userId);
+        
+        document.getElementById('availablePlayers').innerHTML = '';
+        document.getElementById('semiAvailablePlayers').innerHTML = '';
+        document.getElementById('unavailablePlayers').innerHTML = '';
+
+        players.forEach(p => {
+            const isUnavailable = p.availability === 'Unavailable';
+
+            if (assignedIds.includes(String(p.userId))) {
+                const slotCard = document.querySelector(`.role-slot .player-card[data-user-id="${p.userId}"]`);
+                if (slotCard) {
+                    if (isUnavailable) slotCard.classList.add('unavailable');
+                    else slotCard.classList.remove('unavailable');
+                }
+                return; 
+            }
+
+            const card = document.createElement('div');
+            card.className = `player-card ${isUnavailable ? 'unavailable' : ''}`;
+            card.setAttribute('draggable', !isUnavailable);
+            card.dataset.userId = p.userId;
+            card.innerHTML = `
+                <span>${p.gameName || p.firstname}</span>
+                <span style="color: #888; font-size: 0.75rem;">${p.primaryRole || 'None'}/${p.secondaryRole || 'None'}</span>
+            `;
+
+            if (!isUnavailable) {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+            }
+
+            if (p.availability === 'Available') document.getElementById('availablePlayers').appendChild(card);
+            else if (p.availability === 'Semi') document.getElementById('semiAvailablePlayers').appendChild(card);
+            else document.getElementById('unavailablePlayers').appendChild(card);
+        });
+    }
+
+    let draggedCard = null;
+    function handleDragStart(e) {
+        draggedCard = this;
+        e.dataTransfer.effectAllowed = "move";
+        setTimeout(() => this.style.opacity = '0.5', 0);
+    }
+    function handleDragEnd(e) {
+        this.style.opacity = '1';
+        draggedCard = null;
+    }
+
+    document.querySelectorAll('.role-slot').forEach(slot => {
+        slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('over'); });
+        slot.addEventListener('dragleave', e => slot.classList.remove('over'));
+        slot.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('over');
+            
+            if (draggedCard) {
+                const existing = this.querySelector('.player-card');
+                if (existing) document.getElementById('availablePlayers').appendChild(existing); 
+
+                this.querySelector('.placeholder-text').style.display = 'none';
+                this.appendChild(draggedCard);
+                fetchAvailability(); 
+            }
+        });
+    });
+
+    document.querySelectorAll('.players-pool-grid').forEach(pool => {
+        pool.addEventListener('dragover', e => e.preventDefault());
+        pool.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (draggedCard) {
+                const originSlot = draggedCard.closest('.role-slot');
+                if (originSlot) originSlot.querySelector('.placeholder-text').style.display = 'inline';
+                
+                this.appendChild(draggedCard);
+                fetchAvailability();
+            }
+        });
     });
 
     // ── EVENT POPUP ──────────────────────────────────────────
@@ -1474,7 +1736,7 @@
     });
 
     // ── INIT ─────────────────────────────────────────────────
-    render();
+    loadEvents();
   </script>
 </body>
 
