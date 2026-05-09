@@ -156,6 +156,20 @@ VALUES
     'Active'
 );
 
+-- -----------------------------------------------------
+-- ADDITIONAL USERS
+-- -----------------------------------------------------
+INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
+VALUES 
+(26, 'philippines@gmail.com', 'teamForge123!!', 'Philippines', 'Country', 'Player', 'Philippines#1234', 'Active'),
+(27, 'easy_eddie@gmail.com', 'teamForge123!!', 'Easy', 'Eddie', 'Player', 'EasyEddie#1234', 'Active'),
+(28, 'panix@gmail.com', 'teamForge123!!', 'panix', 'burn', 'Player', 'panix#theburn', 'Active'),
+(29, 'asterx_mizu@gmail.com', 'teamForge123!!', 'Asterux', 'Mizu', 'Player', 'panix#theburn', 'Active'),
+(30, 'rinku_ai@gmail.com', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'RinkuAI#1234', 'Active'),
+(31, 'mors@gmail.com', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'MORS#1234', 'Active'),
+(32, 'jade@gmail.com', 'teamForge123!!', 'jade', 'hook', 'Player', 'jade#1234', 'Active'),
+(33, 'carebears@gmail.com', 'teamForge123!!', 'Ashura', 'Goat', 'Player', 'caredto#4102', 'Active');
+
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId, puuid)
 VALUES 
 (3,'VA Tartaros','VA1','Diamond III','Grandmaster',3,2,'12304219','BSCS-SE','3.4','3.3','3rd Year','F',1,NULL),
@@ -292,6 +306,32 @@ VALUES
     1,
     NULL
 );
+
+-- -----------------------------------------------------
+-- ADDITIONAL PLAYERS
+-- -----------------------------------------------------
+INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId, puuid)
+VALUES 
+-- Philippines#PHP
+(26, 'Philippines', 'PHP', 'Diamond I', 'Master', 1, 4, '12345678', 'BSIT', '3.2', '4.0', '3rd Year', 'F', 1, NULL),
+
+-- Easy Eddie#1111
+(27, 'Easy Eddie', '1111', 'Diamond I', 'Grandmaster', 2, 1, '12345678', 'BSIT', '3.2', '4.0', '3rd Year', 'F', 1, NULL),
+
+-- Panix#burnn
+(28, 'Panix', 'burnn', 'Platinum I', 'Platinum I', 3, 5, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL),
+
+-- Asterux#mizu
+(29, 'Asterux', 'mizu', 'Emerald III', 'Platinum I', 2, 1, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL),
+
+-- MORS#41819
+(31, 'MORS', '41819', 'Diamond II', 'Diamond I', 4, 1, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL),
+
+-- na hook si jade#poopp
+(32, 'na hook si jade', 'poopp', 'Platinum III', 'Platinum III', 1, 5, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL),
+
+-- caredto#kedto (ID adjusted to 33 to avoid conflict)
+(33, 'caredto', 'kedto', 'Master I', 'Challenger', 2, 1, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL);
 
 -- -----------------------------------------------------
 -- APPLICATION PERIODS (2 weeks each)
