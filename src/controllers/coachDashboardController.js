@@ -25,15 +25,26 @@ exports.getPlayerList = async (req, res) => {
 // 2. Fetch Latest Scrims
 exports.getLatestScrims = async (req, res) => {
     try {
-        // Gets the scrim details, the Win/Loss result, and groups the player names into one string
+        // Gets the latest Scrim events and the list of participating players.
         const query = `
-            SELECT s.scrimId, s.name, s.date, s.length, s.videoLink, MAX(sp.win) as result, 
-            GROUP_CONCAT(p.gameName SEPARATOR ', ') as teamMembers 
-            FROM scrims s 
-            JOIN scrimPlayers sp ON s.scrimId = sp.scrimId 
-            JOIN players p ON sp.playerId = p.userId 
-            GROUP BY s.scrimId 
-            ORDER BY s.date DESC 
+            SELECT
+                e.eventId AS scrimId,
+                e.title_summary AS name,
+                COALESCE(e.start_datetime, e.start_date) AS date,
+                e.length,
+                e.videoLink,
+                CASE
+                    WHEN SUM(ea.win = 'W') > 0 THEN 'W'
+                    WHEN SUM(ea.win = 'L') > 0 THEN 'L'
+                    ELSE 'N/A'
+                END AS result,
+                GROUP_CONCAT(DISTINCT p.gameName SEPARATOR ', ') AS teamMembers
+            FROM events e
+            JOIN event_attendees ea ON e.eventId = ea.eventId
+            JOIN players p ON ea.userId = p.userId
+            WHERE e.type = 'Scrim'
+            GROUP BY e.eventId, e.title_summary, e.start_datetime, e.start_date, e.length, e.videoLink
+            ORDER BY date DESC
             LIMIT 3
         `;
         const [scrims] = await db.query(query);
@@ -116,16 +127,18 @@ exports.getTeamStats = async (req, res) => {
         console.log(`Total Games: ${totalGames}, Total Wins: ${totalWins}, Winrate: ${winrate.toFixed(2)}%`);
         const avgKDA = allKdaVals.length > 0 ? (allKdaVals.reduce((a, b) => a + b, 0) / allKdaVals.length).toFixed(2) : 0;
 
-        // 3. Get number of scrims played this month (unchanged)
+        // 3. Get number of scrims played this month
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const firstDay = `${year}-${month}-01`;
         const nextMonth = now.getMonth() === 11 ? `${year + 1}-01-01` : `${year}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
         const scrimsQuery = `
-            SELECT COUNT(*) as scrimsThisMonth
-            FROM scrims
-            WHERE date >= ? AND date < ?
+            SELECT COUNT(*) AS scrimsThisMonth
+            FROM events
+            WHERE type = 'Scrim'
+              AND start_date >= ?
+              AND start_date < ?
         `;
         const [scrimsResult] = await db.query(scrimsQuery, [firstDay, nextMonth]);
         const scrimsThisMonth = scrimsResult[0]?.scrimsThisMonth || 0;

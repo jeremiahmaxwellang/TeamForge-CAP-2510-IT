@@ -2,6 +2,7 @@
 	const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 	const FILTER_ROLES = ['Candidates', 'All', ...ROLE_ORDER];
 	const RESULT_FILTERS = ['All', 'W', 'L', 'N/A'];
+	const TYPE_FILTERS = ['All', 'Tournament', 'Scrim'];
 
 	const state = {
 		players: [],
@@ -11,6 +12,7 @@
 		roleById: {},
 		filter: 'All',
 		resultFilter: 'All',
+		typeFilter: 'All',
 		selectedTournamentId: null,
 		editingTournamentId: null,
 		team1: {
@@ -40,11 +42,14 @@
 	const tournamentNameInput = document.getElementById('tournamentNameInput');
 	const tournamentDateInput = document.getElementById('tournamentDateInput');
 	const tournamentResultSelect = document.getElementById('tournamentResultSelect');
+	const tournamentTypeSelect = document.getElementById('tournamentTypeSelect');
+	const team2Label = document.getElementById('team2Label');
 
 	const team1Roster = document.getElementById('team1Roster');
 	const subRoster = document.getElementById('subRoster');
 	const roleFilterGroup = document.getElementById('roleFilterGroup');
 	const resultFilterGroup = document.getElementById('resultFilterGroup');
+	const typeFilterGroup = document.getElementById('typeFilterGroup');
 	const playersGrid = document.getElementById('playersGrid');
 	const tournamentList = document.getElementById('tournamentList');
 
@@ -141,8 +146,38 @@
 				parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString().slice(0, 10) : '';
 		}
 
-		const normalizedResult = (tournament.result || '').toUpperCase();
-		tournamentResultSelect.value = RESULT_FILTERS.includes(normalizedResult) ? normalizedResult : 'N/A';
+		tournamentTypeSelect.value = tournament.type || 'Tournament';
+		team2Label.textContent = tournament.type === 'Scrim' ? 'Team 2' : 'Sub';
+
+		// Handle result display based on event type
+		let displayResult = tournament.result || 'N/A';
+		if (tournament.type === 'Scrim') {
+			// For scrims, determine result from team-level data
+			const team1Assignment = tournament.assignments.find(a => a.team === 'Team 1');
+			const team2Assignment = tournament.assignments.find(a => a.team === 'Team 2');
+			const team1Result = team1Assignment?.teamWin;
+			const team2Result = team2Assignment?.teamWin;
+			
+			// Debug: Log the team results for edit modal
+			console.log('Edit modal scrim result calculation:', {
+				tournamentId: tournament.tournamentId,
+				team1Result,
+				team2Result,
+				team1Assignment,
+				team2Assignment,
+				allAssignments: tournament.assignments
+			});
+			
+			if (team1Result === 'W' && team2Result === 'L') {
+				displayResult = 'Team 1 Win';
+			} else if (team1Result === 'L' && team2Result === 'W') {
+				displayResult = 'Team 2 Win';
+			} else {
+				displayResult = 'N/A';
+			}
+		}
+		
+		tournamentResultSelect.value = displayResult;
 
 		tournament.assignments.forEach((assignment) => {
 			const resolvedRole = resolveAssignmentRole(assignment);
@@ -152,7 +187,7 @@
 				...assignment,
 				role: resolvedRole
 			});
-			if (assignment.team === 'Sub') {
+			if (assignment.team === 'Sub' || assignment.team === 'Team 2') {
 				state.sub[resolvedRole] = player;
 				return;
 			}
@@ -176,7 +211,9 @@
 	const resetModalState = () => {
 		tournamentNameInput.value = '';
 		tournamentDateInput.value = '';
+		tournamentTypeSelect.value = 'Tournament';
 		tournamentResultSelect.value = 'N/A';
+		team2Label.textContent = 'Sub';
 		state.filter = 'All';
 		state.team1 = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
 		state.sub = { Top: null, Jungle: null, Mid: null, ADC: null, Support: null };
@@ -350,6 +387,25 @@
 		});
 	};
 
+	const renderTypeFilters = () => {
+		if (!typeFilterGroup) return;
+
+		typeFilterGroup.innerHTML = '';
+
+		TYPE_FILTERS.forEach((filterValue) => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = `filter-btn ${state.typeFilter === filterValue ? 'active' : ''}`;
+			button.textContent = filterValue;
+			button.addEventListener('click', () => {
+				state.typeFilter = filterValue;
+				renderTypeFilters();
+				renderTournamentList();
+			});
+			typeFilterGroup.appendChild(button);
+		});
+	};
+
 	const attachRemoveHandlers = () => {
 		document.querySelectorAll('.remove-assignment').forEach((button) => {
 			button.addEventListener('click', () => {
@@ -417,6 +473,7 @@
 
 	const toAssignments = () => {
 		const assignments = [];
+		const isScrim = tournamentTypeSelect.value === 'Scrim';
 
 		ROLE_ORDER.forEach((role) => {
 			const teamPlayer = state.team1[role];
@@ -435,7 +492,7 @@
 					playerId: subPlayer.userId,
 					role,
 					roleId: subPlayer.primaryRole === role ? subPlayer.primaryRoleId : subPlayer.secondaryRoleId,
-					team: 'Sub'
+					team: isScrim ? 'Team 2' : 'Sub'
 				});
 			}
 		});
@@ -446,6 +503,7 @@
 	const confirmTournament = async () => {
 		const name = tournamentNameInput.value.trim();
 		const tournamentDate = tournamentDateInput.value;
+		const type = tournamentTypeSelect.value;
 		const result = tournamentResultSelect.value;
 		const isEditMode = Number.isInteger(state.editingTournamentId) && state.editingTournamentId > 0;
 
@@ -465,7 +523,22 @@
 			return;
 		}
 
+		if (type === 'Scrim') {
+			const teamTwoFilled = ROLE_ORDER.every((role) => state.sub[role]);
+			if (!teamTwoFilled) {
+				alert('Scrims require both Team 1 and Team 2 to have Top, Jungle, Mid, ADC, and Support.');
+				return;
+			}
+		}
+
 		const assignments = toAssignments();
+		
+		// Debug: Log assignments to see what's being sent
+		console.log('Tournament Type:', type);
+		console.log('Assignments:', assignments);
+		console.log('Team 1 assignments:', assignments.filter(a => a.team === 'Team 1'));
+		console.log('Team 2 assignments:', assignments.filter(a => a.team === 'Team 2'));
+		console.log('Sub assignments:', assignments.filter(a => a.team === 'Sub'));
 
 		try {
 			const endpoint = isEditMode
@@ -481,6 +554,7 @@
 				body: JSON.stringify({
 					name,
 					tournamentDate,
+					type,
 					result,
 					assignments
 				})
@@ -519,8 +593,9 @@
 		}
 
 		const filteredTournaments = state.tournaments.filter((tournament) => {
-			if (state.resultFilter === 'All') return true;
-			return (tournament.result || '').toUpperCase() === state.resultFilter;
+			if (state.resultFilter !== 'All' && (tournament.result || '').toUpperCase() !== state.resultFilter) return false;
+			if (state.typeFilter !== 'All' && tournament.type !== state.typeFilter) return false;
+			return true;
 		});
 
 		if (!filteredTournaments.length) {
@@ -548,6 +623,7 @@
 						${isSelectedTournament ? 'checked' : ''}
 					/>
 					<h3>${tournament.name}</h3>
+					<span class="tournament-type">${tournament.type || 'Tournament'}</span>
 				</div>
 				<button type="button" class="details-toggle-btn">
 					<span class="toggle-indicator">Show details</span>
@@ -580,10 +656,38 @@
 				}).join('');
 			};
 
+			// Calculate display result based on event type
+			let displayResult = tournament.result;
+			if (tournament.type === 'Scrim') {
+				// For scrims, determine result from team-level data
+				const team1Assignment = tournament.assignments.find(a => a.team === 'Team 1');
+				const team2Assignment = tournament.assignments.find(a => a.team === 'Team 2');
+				const team1Result = team1Assignment?.teamWin;
+				const team2Result = team2Assignment?.teamWin;
+				
+				// Debug: Log the team results
+				console.log('Scrim result calculation:', {
+					tournamentId: tournament.tournamentId,
+					team1Result,
+					team2Result,
+					team1Assignment,
+					team2Assignment,
+					allAssignments: tournament.assignments
+				});
+				
+				if (team1Result === 'W' && team2Result === 'L') {
+					displayResult = 'Team 1 Win';
+				} else if (team1Result === 'L' && team2Result === 'W') {
+					displayResult = 'Team 2 Win';
+				} else {
+					displayResult = 'N/A';
+				}
+			}
+
 			body.innerHTML = `
 				<div class="meta-row">
 					<span>Date: ${new Date(tournament.tournamentDate).toLocaleDateString()}</span>
-					<span>Result: ${tournament.result}</span>
+					<span>Result: ${displayResult}</span>
 				</div>
 				<div class="details-teams-layout">
 					<section class="detail-team-column">
@@ -591,8 +695,8 @@
 						${buildTeamRows('Team 1')}
 					</section>
 					<section class="detail-team-column">
-						<h4>Sub</h4>
-						${buildTeamRows('Sub')}
+						<h4>${tournament.type === 'Scrim' ? 'Team 2' : 'Sub'}</h4>
+						${buildTeamRows(tournament.type === 'Scrim' ? 'Team 2' : 'Sub')}
 					</section>
 				</div>
 			`;
@@ -678,6 +782,30 @@
 		cancelModalBtn.addEventListener('click', closeModal);
 		confirmTournamentBtn.addEventListener('click', confirmTournament);
 
+		tournamentTypeSelect.addEventListener('change', () => {
+			const isScrim = tournamentTypeSelect.value === 'Scrim';
+			team2Label.textContent = isScrim ? 'Team 2' : 'Sub';
+			
+			// Update result options based on event type
+			tournamentResultSelect.innerHTML = '';
+			
+			if (isScrim) {
+				// Scrim results: Team-based
+				tournamentResultSelect.innerHTML = `
+					<option value="N/A">N/A</option>
+					<option value="Team 1 Win">Team 1 Win</option>
+					<option value="Team 2 Win">Team 2 Win</option>
+				`;
+			} else {
+				// Tournament results: Overall W/L/N/A
+				tournamentResultSelect.innerHTML = `
+					<option value="N/A">N/A</option>
+					<option value="W">W</option>
+					<option value="L">L</option>
+				`;
+			}
+		});
+
 		modalOverlay.addEventListener('click', (event) => {
 			if (event.target === modalOverlay) {
 				closeModal();
@@ -687,6 +815,7 @@
 		document.body.addEventListener('dragover', (event) => event.preventDefault());
 
 		try {
+			renderTypeFilters();
 			renderResultFilters();
 			await loadPlayers();
 			await loadFavoriteCandidates();
