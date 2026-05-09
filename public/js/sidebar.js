@@ -109,9 +109,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             brand.style.cursor = 'pointer';
-            brand.addEventListener('click', () => {
+        brand.setAttribute('role', 'link');
+        brand.setAttribute('tabindex', '0');
+        brand.addEventListener('click', () => {
+            window.location.href = dashboardPath;
+        });
+        brand.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
                 window.location.href = dashboardPath;
-            });
+            }
+        });
         });
     };
 

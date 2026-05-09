@@ -126,9 +126,9 @@ exports.getPlayerRank = async (req, res) => {
 
     try {
         const sql = `
-            SELECT currentRank, peakRank
-            FROM players
-            WHERE puuid = ?
+            SELECT p.currentRank AS currentRank, p.peakRank AS peakRank
+            FROM players p
+            WHERE p.puuid = ?
             LIMIT 1;
         `;
 
