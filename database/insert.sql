@@ -755,6 +755,75 @@ VALUES
 (27, 16, 'ADC strong', 4, 5, 4, 2),
 (27, 6, 'Support weak', 2, 2, 2, 2);
 
+-- -----------------------------------------------------
+-- ADDITIONAL SCRIMS FOR NEW PLAYERS
+-- -----------------------------------------------------
+
+-- Scrim Event 11: Viridis Arcus In-house (Focus on New Talent)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES (58, 'VA Alpha vs. VA Beta', 'Scrim', 'Online', '2026-04-27', '2026-04-27', 'N/A', 'evaluated', 2);
+
+-- Attendees for Event 58
+-- Team 1 (Alpha): New Players Philippines, Easy Eddie, Panix, MORS + Existing Maple
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES 
+(58, 26, 1, 'Present', 'N', 'Team 1'), -- Philippines (Top)
+(58, 27, 2, 'Present', 'N', 'Team 1'), -- Easy Eddie (Jungle)
+(58, 28, 3, 'Present', 'N', 'Team 1'), -- Panix (Mid)
+(58, 31, 4, 'Present', 'N', 'Team 1'), -- MORS (ADC)
+(58, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
+-- Team 2 (Beta): New Players Jade, Asterux + Existing Stellar, Kalachuchi, Crowned
+(58, 32, 1, 'Present', 'N', 'Team 2'), -- na hook si jade (Top)
+(58, 29, 2, 'Present', 'N', 'Team 2'), -- Asterux (Jungle)
+(58, 15, 3, 'Present', 'N', 'Team 2'), -- Stellar (Mid)
+(58, 5, 4, 'Present', 'N', 'Team 2'),  -- Kalachuchi (ADC)
+(58, 6, 5, 'Present', 'N', 'Team 2');  -- VA Crowned (Support)
+
+-- Scrim Event 12: Viridis Arcus vs. Gen.G (Trialing New Jungle/Top)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES (59, 'Viridis Arcus vs. Gen.G', 'Scrim', 'Online', '2026-04-28', '2026-04-28', 'N/A', 'evaluated', 2);
+
+-- Attendees for Event 59
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES 
+(59, 32, 1, 'Present', 'N', 'Team 1'), -- na hook si jade (Top)
+(59, 33, 2, 'Present', 'N', 'Team 1'), -- caredto (Jungle)
+(59, 3, 3, 'Present', 'N', 'Team 1'),  -- VA Tartaros (Mid)
+(59, 31, 4, 'Present', 'N', 'Team 1'), -- MORS (ADC)
+(59, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
+(59, 27, 2, 'Excused', 'Y', 'Sub');    -- Easy Eddie (Sub Jungle)
+
+-- Scrim Event 13: Viridis Arcus vs. T1 (Trialing New Core)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES (60, 'Viridis Arcus vs. T1', 'Scrim', 'Online', '2026-04-29', '2026-04-29', 'N/A', 'evaluated', 2);
+
+-- Attendees for Event 60
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES 
+(60, 26, 1, 'Present', 'N', 'Team 1'), -- Philippines (Top)
+(60, 29, 2, 'Present', 'N', 'Team 1'), -- Asterux (Jungle)
+(60, 28, 3, 'Present', 'N', 'Team 1'), -- Panix (Mid)
+(60, 16, 4, 'Present', 'N', 'Team 1'), -- one of wun (ADC)
+(60, 6, 5, 'Present', 'N', 'Team 1'),  -- VA Crowned (Support)
+(60, 33, 2, 'Excused', 'Y', 'Sub');    -- caredto (Sub Jungle)
+
+-- -----------------------------------------------------
+-- EVALUATIONS FOR NEW PLAYERS
+-- -----------------------------------------------------
+
+-- Evaluation for Event 58 (Philippines and Panix)
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(58, 26, 'Solid laning phase, communicated TP windows well', 4, 4, 3, 2),
+(58, 28, 'Good mechanical outplays in mid, needs better map awareness', 3, 3, 4, 2),
+(58, 31, 'Excellent positioning in teamfights', 4, 3, 4, 2),
+(58, 32, 'Aggressive but caught out occasionally', 2, 3, 3, 2);
+
+-- Evaluation for Event 59 (caredto and na hook si jade)
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(59, 33, 'Pathing was unpredictable for the enemy, very efficient', 5, 4, 4, 2),
+(59, 32, 'Handled the 1v2 dive pressure well', 4, 4, 3, 2);
 
 -- -----------------------------------------------------
 -- EVENTS: TOURNAMENTS
