@@ -53,7 +53,10 @@ window.initChampionTab = function (userId) {
 
   // Core Render Function
   const loadAndRenderTable = (targetUserId) => {
-    const tableBody = document.querySelector("table tbody");
+    const championRoot = document.querySelector('.champion-pool-container');
+    if (!championRoot) return;
+
+    const tableBody = championRoot.querySelector('table tbody');
     if (!tableBody) return;
 
     tableBody.innerHTML = `<tr><td colspan="11" style="text-align: center;">Loading champion pool...</td></tr>`;
@@ -146,7 +149,8 @@ window.initChampionTab = function (userId) {
       })
       .catch((err) => {
           console.error("[CHAMPION] Error loading champion pool:", err);
-          const tableBody = document.querySelector("table tbody");
+          const championRoot = document.querySelector('.champion-pool-container');
+          const tableBody = championRoot?.querySelector('table tbody');
           if (tableBody) tableBody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: #ff6b6b;">Failed to load champion pool.</td></tr>`;
       });
   };
@@ -157,6 +161,11 @@ window.initChampionTab = function (userId) {
       const btn = document.getElementById("player-dropdown-btn");
       if (btn) {
           const observer = new MutationObserver((mutations) => {
+              const championRoot = document.querySelector('.champion-pool-container');
+              if (!championRoot) {
+                  return;
+              }
+
               mutations.forEach((mutation) => {
                   if (mutation.type === "attributes" && mutation.attributeName === "data-player-id") {
                       const newPlayerId = btn.getAttribute("data-player-id");

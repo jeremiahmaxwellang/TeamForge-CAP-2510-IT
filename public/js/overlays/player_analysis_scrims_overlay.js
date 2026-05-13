@@ -27,6 +27,7 @@ window.initScrimsTab = function (userId) {
 
   // ── DOM REFS ──────────────────────────────────────────
   const tableBody  = document.querySelector('.scrim-table tbody');
+  const timesBody  = document.querySelector('.times-played-table tbody');
   const statusFilter = document.getElementById('scrimStatusFilter');
 
   let allEvents = [];
@@ -43,7 +44,7 @@ window.initScrimsTab = function (userId) {
     if (filtered.length === 0) {
       tableBody.innerHTML = `
         <tr class="scrim-empty-row">
-          <td colspan="7">No ${selected === 'all' ? 'scrims' : `${selected} scrims`} found.</td>
+          <td colspan="7">${selected === 'all' ? 'No scrims yet.' : `No ${selected} scrims found.`}</td>
         </tr>`;
       return;
     }
@@ -247,13 +248,81 @@ window.initScrimsTab = function (userId) {
   }
 
   // ── LOAD SCRIMS (EVENTS) ──────────────────────────────
-  Backend.fetchScrims(userId)
-    .then((events) => {
-      allEvents = events;
-      renderScrimRows(statusFilter?.value || 'all');
-      console.log('[SCRIMS] ✓ Events loaded:', events.length);
-    })
-    .catch(err => console.error('[SCRIMS] ✗ Error loading events:', err));
+  function loadScrimsForPlayer(playerId) {
+    Backend.fetchScrims(playerId)
+      .then((events) => {
+        allEvents = events;
+        renderScrimRows(statusFilter?.value || 'all');
+        console.log('[SCRIMS] ✓ Events loaded:', events.length);
+      })
+      .catch(err => {
+        console.error('[SCRIMS] ✗ Error loading events:', err);
+        allEvents = [];
+        renderScrimRows('all');
+      });
+  }
+
+  function loadTimesPlayedForPlayer(playerId) {
+    Backend.fetchTimesPlayed(playerId)
+      .then((timesPlayed) => {
+        if (!timesBody) {
+          console.warn('[SCRIMS] Times played table body not found.');
+          return;
+        }
+
+        timesBody.innerHTML = '';
+
+        if (!timesPlayed.length) {
+          timesBody.innerHTML = `
+            <tr class="times-played-row">
+              <td colspan="3">No scrims yet.</td>
+            </tr>`;
+          return;
+        }
+
+        timesPlayed.forEach(item => {
+          const row = document.createElement('tr');
+          row.classList.add('times-played-row');
+
+          const comms = parseFloat(item.averageComms);
+          const commsColor = comms >= 3 ? '#22c55e' : '#ef4444';
+
+          row.innerHTML = `
+            <td>${item.gameName}</td>
+            <td style="text-align:center">${item.timesPlayed}</td>
+            <td style="text-align:center; color:${commsColor}; font-weight:700">
+              ${comms.toFixed(1)}
+            </td>
+          `;
+          timesBody.appendChild(row);
+        });
+
+        console.log('[SCRIMS] ✓ Times played loaded');
+      })
+      .catch(err => {
+        console.error('[SCRIMS] ✗ Error loading times played:', err);
+        if (timesBody) {
+          timesBody.innerHTML = `
+            <tr class="times-played-row">
+              <td colspan="3">No scrims yet.</td>
+            </tr>`;
+        }
+      });
+  }
+
+  // Initial load
+  loadScrimsForPlayer(userId);
+  loadTimesPlayedForPlayer(userId);
+
+  // ── LISTEN FOR PLAYER CHANGES ─────────────────────
+  document.addEventListener('playeranalysis:player-changed', (event) => {
+    const newPlayerId = event.detail?.userId;
+    if (newPlayerId) {
+      console.log('[SCRIMS] Player changed, reloading scrims and times played for player:', newPlayerId);
+      loadScrimsForPlayer(newPlayerId);
+      loadTimesPlayedForPlayer(newPlayerId);
+    }
+  });
 
   // ── FILTER CHANGE ─────────────────────────────────────
   if (statusFilter) {
@@ -261,40 +330,4 @@ window.initScrimsTab = function (userId) {
       renderScrimRows(statusFilter.value);
     });
   }
-
-  // ── TIMES PLAYED TABLE ────────────────────────────────
-  Backend.fetchTimesPlayed(userId)
-    .then((timesPlayed) => {
-      const timesBody = document.querySelector('.times-played-table tbody');
-      timesBody.innerHTML = '';
-
-      if (!timesPlayed.length) {
-        timesBody.innerHTML = `
-          <tr class="times-played-row">
-            <td colspan="3">No player found.</td>
-          </tr>`;
-        return;
-      }
-
-      timesPlayed.forEach(item => {
-        const row = document.createElement('tr');
-        row.classList.add('times-played-row');
-
-        // Color-code avg comms
-        const comms     = parseFloat(item.averageComms);
-        const commsColor = comms >= 3 ? '#22c55e' : '#ef4444';
-
-        row.innerHTML = `
-          <td>${item.gameName}</td>
-          <td style="text-align:center">${item.timesPlayed}</td>
-          <td style="text-align:center; color:${commsColor}; font-weight:700">
-            ${comms.toFixed(1)}
-          </td>
-        `;
-        timesBody.appendChild(row);
-      });
-
-      console.log('[SCRIMS] ✓ Times played loaded');
-    })
-    .catch(err => console.error('[SCRIMS] ✗ Error loading times played:', err));
 };

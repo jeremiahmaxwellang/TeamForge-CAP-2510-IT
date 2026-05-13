@@ -7,11 +7,16 @@
 body {
   background: transparent;
   font-family: 'Inter', sans-serif;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: auto;
+  display: block;
   padding: 0;
+  margin: 0;
+}
+
+.overlay {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .panel {
