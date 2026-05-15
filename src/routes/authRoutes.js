@@ -108,7 +108,7 @@ function clearAuthCookies(res) {
 
 function redirectByRole(res, user) {
     // First login -> force password change
-    if (user.firstLogin) {
+    if (shouldForcePasswordChange(user)) {
         return res.redirect('/change_password');
     }
 
@@ -131,7 +131,7 @@ function redirectByRoleJson(res, user) {
         position:  user.position
     };
 
-    if (user.firstLogin) {
+    if (shouldForcePasswordChange(user)) {
         return res.json({ redirect: '/change_password', user: userPayload });
     }
 
@@ -196,6 +196,14 @@ function requireAnyRole(allowedRoles) {
         clearAuthCookies(res);
         return res.redirect('/');
     };
+}
+
+function shouldForcePasswordChange(user) {
+    return Boolean(user.firstLogin) && !isSeededPreexistingUser(user);
+}
+
+function isSeededPreexistingUser(user) {
+    return Number.isInteger(Number(user.userId)) && Number(user.userId) >= 1 && Number(user.userId) <= 33;
 }
 
 // Login page
@@ -303,7 +311,7 @@ router.post('/login', async (req, res) => {
             }
 
             // Check if first login
-            if (user.firstLogin) {
+            if (shouldForcePasswordChange(user)) {
                 setAuthCookies(res, user);
                 return res.json({ redirect: '/change_password', user: { firstname: user.firstname, lastname: user.lastname, email: user.email, position: user.position } });
             }

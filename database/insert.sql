@@ -363,6 +363,12 @@ VALUES
 (23, 'venzyx@example.com', 'teamForge123!!', 'Jordan', 'Peele', 'Applicant', 'Venzyx#1432', 'Active'),
 (24, 'mrbedroom@example.com', 'teamForge123!!', 'Mikhail', 'Dent', 'Applicant', 'MrBedroom#0000', 'Active');
 
+-- Seeded/preexisting accounts should not be forced to change password on first login.
+-- Newly created users still keep the schema/application default of firstLogin = 1.
+UPDATE users
+SET firstLogin = 0
+WHERE userId BETWEEN 1 AND 33;
+
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, teamId, yearLevel, puuid)
 VALUES
 (18, 'zero', '6983', 'Diamond I', 'Diamond II', 1, 3, '12100018', 'BSCS-NIS', 3.10, 3.20, 1, '1st Year', NULL),
