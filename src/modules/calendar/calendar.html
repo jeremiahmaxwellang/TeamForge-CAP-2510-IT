@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TeamForge – Calendar</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/topbar-universal.css">
   <link
     href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap"
     rel="stylesheet" />
@@ -45,13 +47,25 @@
       font-family: 'Barlow', sans-serif;
       background: var(--bg);
       color: var(--text);
-      display: flex;
       min-height: 100vh;
       overflow: hidden;
     }
 
-    /* ── SIDEBAR ── */
-    .sidebar {
+    .calendar-shell {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      min-height: calc(100vh - 132px);
+    }
+
+    .main-content {
+      background: transparent;
+      width: 100%;
+      padding: 20px 0;
+    }
+
+    /* ── CALENDAR PANEL ── */
+    .calendar-panel {
       width: var(--sidebar-w);
       background: var(--sidebar);
       display: flex;
@@ -61,9 +75,10 @@
       border-right: 1px solid var(--border);
       overflow-y: auto;
       flex-shrink: 0;
+      min-height: calc(100vh - 132px);
     }
 
-    .sidebar-title {
+    .calendar-panel .sidebar-title {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 26px;
       font-weight: 700;
@@ -72,7 +87,7 @@
       letter-spacing: .5px;
     }
 
-    .create-btn {
+    .calendar-panel .create-btn {
       margin: 0 12px 20px;
       background: var(--green);
       color: #fff;
@@ -90,12 +105,12 @@
       background: var(--green-dk);
     }
 
-    .sidebar-section {
+    .calendar-panel .sidebar-section {
       padding: 0 12px;
       margin-bottom: 16px;
     }
 
-    .sidebar-label {
+    .calendar-panel .sidebar-label {
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
@@ -226,7 +241,7 @@
       flex-shrink: 0;
     }
 
-    .sidebar-arrow {
+    .calendar-panel .sidebar-arrow {
       font-size: 11px;
       color: var(--muted);
       cursor: pointer;
@@ -986,15 +1001,28 @@
 </head>
 
 <body>
+    <div class="container calendar-page">
+      <div class="header_container">
+        <div class="logo" title="Back to your dashboard" role="link" tabindex="0">
+          <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+          <span class="header_title">TeamForge</span>
+        </div>
+        <div class="team-name">Calendar</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile" class="js-current-user-photo" id="profileDropdownBtn" style="width: 60px; height: 60px; border-radius: 50%; cursor: pointer;">
+        </div>
+      </div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-title">Calendar</div>
+      <div class="content-wrapper">
+        <div class="sidebar"></div>
+        <main class="main-content">
+          <div class="calendar-shell">
+            <aside class="calendar-panel">
+              <div class="sidebar-title">Calendar</div>
 
-    <div class="sidebar-section">
-      <button class="create-btn" onclick="openCreateModal()">+ Create an Event</button>
-    </div>
-
+              <div class="sidebar-section">
+                <button class="create-btn" onclick="openCreateModal()">+ Create an Event</button>
+              </div>
     <div class="sidebar-section">
       <div class="date-row">
         <div class="date-input-group">
@@ -1054,13 +1082,12 @@
         </div>
       </div>
     </div>
-  </aside>
+    </aside>
 
-  <!-- MAIN -->
-  <div class="main">
+            <div class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
+              <!-- TOPBAR -->
+              <div class="topbar">
       <button class="nav-btn" onclick="navigate(-1)">&#8249;</button>
       <div class="month-title" id="navTitle">April 2026</div>
       <button class="nav-btn" onclick="navigate(1)">&#8250;</button>
@@ -1096,7 +1123,10 @@
       </div>
 
     </div>
-  </div>
+          </div>
+        </main>
+      </div>
+    </div>
 
 <!-- CREATE EVENT MODAL -->
   <div class="modal-overlay" id="modalOverlay">
@@ -1206,6 +1236,7 @@
     <div class="ev-popup-time" id="popupTime"></div>
   </div>
 
+  <script src="/js/sidebar.js" defer></script>
   <script>
     // ── STATE ────────────────────────────────────────────────
     let currentDate = new Date(2026, 3, 1); // April 2026
