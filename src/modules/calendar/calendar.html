@@ -1768,9 +1768,21 @@
       pop.classList.add('visible');
       popupTimeout = setTimeout(() => pop.classList.remove('visible'), 3000);
     }
-    document.addEventListener('click', () => {
-      document.getElementById('evPopup').classList.remove('visible');
-    });
+    (function(){
+      const evPopupEl = document.getElementById('evPopup');
+      // clicking anywhere closes the popup
+      document.addEventListener('click', () => { if (evPopupEl) evPopupEl.classList.remove('visible'); });
+      // clicking inside the popup should not close it
+      if (evPopupEl) evPopupEl.addEventListener('click', (e) => e.stopPropagation());
+
+      // clicking on the modal overlay (outside the modal) closes the modal
+      const modalOverlayEl = document.getElementById('modalOverlay');
+      if (modalOverlayEl) {
+        modalOverlayEl.addEventListener('click', (e) => {
+          if (e.target === modalOverlayEl) closeModal();
+        });
+      }
+    })();
 
     // ── INIT ─────────────────────────────────────────────────
     loadEvents();
