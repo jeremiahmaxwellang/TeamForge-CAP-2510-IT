@@ -48,7 +48,7 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      overflow: hidden;
+      overflow: auto;
     }
 
     .calendar-shell {
@@ -61,7 +61,7 @@
     .main-content {
       background: transparent;
       width: 100%;
-      padding: 20px 0;
+      padding: 20px;
     }
 
     /* ── CALENDAR PANEL ── */
@@ -255,7 +255,8 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
-      overflow: hidden;
+      overflow: auto;
+      min-height: 0;
     }
 
     /* ── TOP BAR ── */
@@ -341,8 +342,9 @@
     /* ── CALENDAR AREA ── */
     .calendar-area {
       flex: 1;
-      overflow: hidden;
+      overflow: auto;
       display: flex;
+      min-width: 0;
     }
 
     /* ── MONTH VIEW ── */
@@ -376,6 +378,7 @@
       grid-auto-rows: 1fr;
       flex: 1;
       overflow: hidden;
+      min-width: 860px;
     }
 
     .month-cell {
@@ -445,7 +448,8 @@
     .week-view {
       flex: 1;
       display: flex;
-      overflow: hidden;
+      overflow: auto;
+      min-width: 860px;
     }
 
     .week-main {
@@ -498,9 +502,11 @@
     .week-body {
       flex: 1;
       overflow-y: auto;
+      overflow-x: auto;
       display: grid;
       grid-template-columns: 56px repeat(7, 1fr);
       position: relative;
+      min-width: 860px;
     }
 
     .week-body::-webkit-scrollbar {
