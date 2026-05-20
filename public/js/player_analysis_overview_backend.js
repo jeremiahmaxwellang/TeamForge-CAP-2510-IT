@@ -1,4 +1,5 @@
 // player_analysis_backend.js
+// contains the Tab switching logic of the Player Analysis module
 // All Riot/API fetches, calculations, DB-store calls, and player dropdown loading live here.
 
 (function () {
