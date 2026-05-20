@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`users` (
   `status` ENUM('Active', 'Inactive', 'Deactivated') NOT NULL,
   `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `firstLogin` TINYINT NULL DEFAULT 1,
+  `google_access_token` TEXT NULL,
+  `google_refresh_token` TEXT NULL,
+  `google_token_expiry` BIGINT NULL,
+  `google_connected` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`userId`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 25
