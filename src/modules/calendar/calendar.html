@@ -4,1217 +4,168 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TeamForge – Calendar</title>
+  <title>TeamForge - Team Calendar</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/topbar-universal.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap"
-    rel="stylesheet" />
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <link rel="stylesheet" href="/calendar/static/calendar.css">
+  <script src="/calendar/static/calendar.js" defer></script>
 
-    :root {
-      --bg: #1a1d24;
-      --sidebar: #13151b;
-      --panel: #22262f;
-      --card: #2a2f3a;
-      --border: #2f3540;
-      --text: #e8ecf0;
-      --muted: #8892a0;
-      --green: #22c55e;
-      --green-dk: #16a34a;
-      --blue: #38bdf8;
-      --blue-dk: #0284c7;
-      --red: #ef4444;
-      --orange: #f97316;
-      --yellow: #facc15;
-      --event-scrim: #f97316;
-      --event-class: #ef4444;
-      --event-tournament: #facc15;
-      --event-team: #38bdf8;
-      --event-other: #a78bfa;
-      --sidebar-w: 200px;
-      --header-h: 56px;
-    }
-
-    body {
-      font-family: 'Barlow', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow: auto;
-    }
-
-    .calendar-shell {
-      display: flex;
-      gap: 20px;
-      width: 100%;
-      min-height: calc(100vh - 132px);
-    }
-
-    .main-content {
-      background: transparent;
-      width: 100%;
-      padding-top: 20px;
-    }
-
-    /* ── CALENDAR PANEL ── */
-    .calendar-panel {
-      width: auto;
-      background: var(--sidebar);
-      display: flex;
-      flex-direction: column;
-      padding: 16px 0;
-      gap: 0;
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
-      flex-shrink: 0;
-      min-height: calc(100vh - 132px);
-    }
-
-    .calendar-panel .sidebar-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      color: #fff;
-      padding: 0 16px 20px;
-      letter-spacing: .5px;
-    }
-
-    .calendar-panel .create-btn {
-      margin: 0 12px 20px;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 0;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .2s;
-      width: calc(100% - 24px);
-    }
-
-    .create-btn:hover {
-      background: var(--green-dk);
-    }
-
-    .calendar-panel .sidebar-section {
-      padding: 0 12px;
-      margin-bottom: 16px;
-    }
-
-    .calendar-panel .sidebar-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      padding: 0 4px;
-    }
-
-    .date-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .date-input-group {
-      flex: 1;
-    }
-
-    .date-input-group label {
-      font-size: 10px;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 3px;
-    }
-
-    .date-input-group input {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-size: 11px;
-      font-family: inherit;
-    }
-
-    .get-schedule-btn {
-      width: 100%;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 9px 0;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-bottom: 16px;
-      transition: background .2s;
-    }
-
-    .get-schedule-btn:hover {
-      background: var(--green-dk);
-    }
-
-    .calendar-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .cal-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: background .2s;
-    }
-
-    .cal-item:hover {
-      background: rgba(255, 255, 255, .06);
-    }
-
-    .cal-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      border: 2px solid transparent;
-    }
-
-    .cal-dot.checked {
-      border-color: transparent;
-    }
-
-    .tournament-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .tournament-search {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-family: inherit;
-      margin-bottom: 6px;
-    }
-
-    .tournament-item {
-      padding: 5px 4px;
-      font-size: 12px;
-      color: var(--muted);
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color .15s;
-    }
-
-    .tournament-item:hover {
-      color: var(--text);
-    }
-
-    .tournament-item .t-color {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    .calendar-panel .sidebar-arrow {
-      font-size: 11px;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 4px 16px;
-      margin-bottom: 4px;
-    }
-
-    /* ── MAIN ── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      overflow: auto;
-      min-height: 0;
-    }
-
-    /* ── TOP BAR ── */
-    .topbar {
-      height: var(--header-h);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 16px;
-      border-bottom: 1px solid var(--border);
-      background: var(--panel);
-      flex-shrink: 0;
-    }
-
-    .nav-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 18px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      line-height: 1;
-      transition: color .15s;
-    }
-
-    .nav-btn:hover {
-      color: var(--text);
-    }
-
-    .month-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      min-width: 160px;
-    }
-
-    .events-count {
-      font-size: 12px;
-      color: var(--muted);
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .events-count svg {
-      width: 14px;
-      height: 14px;
-      fill: var(--blue);
-    }
-
-    .view-toggle {
-      display: flex;
-      background: var(--card);
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .view-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      padding: 6px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all .15s;
-    }
-
-    .view-btn.active {
-      background: var(--green);
-      color: #fff;
-    }
-
-    .view-btn:not(.active):hover {
-      color: var(--text);
-    }
-
-    /* ── CALENDAR AREA ── */
-    .calendar-area {
-      flex: 1;
-      overflow: auto;
-      display: flex;
-      min-width: 0;
-    }
-
-    /* ── MONTH VIEW ── */
-    .month-view {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .month-header {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .month-dow {
-      text-align: center;
-      padding: 10px 0;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      color: var(--muted);
-    }
-
-    .month-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      grid-auto-rows: 1fr;
-      flex: 1;
-      overflow: hidden;
-      min-width: 860px;
-    }
-
-    .month-cell {
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 6px 8px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      min-height: 90px;
-      transition: background .15s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .month-cell:nth-child(7n) {
-      border-right: none;
-    }
-
-    .month-cell:hover {
-      background: rgba(255, 255, 255, .04);
-    }
-
-    .month-cell.other-month .day-num {
-      color: #3a3f4a;
-    }
-
-    .month-cell.today .day-num {
-      background: var(--green);
-      color: #fff;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .day-num {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      line-height: 1;
-      margin-bottom: 2px;
-    }
-
-    .month-event {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 3px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: pointer;
-      color: #fff;
-    }
-
-    .more-events {
-      font-size: 10px;
-      color: var(--muted);
-      padding: 1px 4px;
-    }
-
-    /* ── WEEK VIEW ── */
-    .week-view {
-      flex: 1;
-      display: flex;
-      overflow: auto;
-      min-width: 860px;
-    }
-
-    .week-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .week-header-row {
-      display: grid;
-      grid-template-columns: 56px repeat(7, 1fr);
-      border-bottom: 1px solid var(--border);
-      background: var(--panel);
-      flex-shrink: 0;
-    }
-
-    .week-tz {
-      padding: 10px 0;
-      text-align: center;
-      font-size: 10px;
-      color: var(--muted);
-    }
-
-    .week-dow-cell {
-      text-align: center;
-      padding: 8px 4px;
-      border-left: 1px solid var(--border);
-    }
-
-    .week-dow-cell .dow-name {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .6px;
-      color: var(--muted);
-    }
-
-    .week-dow-cell .dow-date {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.2;
-    }
-
-    .week-dow-cell.today .dow-date {
-      color: var(--green);
-    }
-
-    .week-body {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: auto;
-      display: grid;
-      grid-template-columns: 56px repeat(7, 1fr);
-      position: relative;
-      min-width: 860px;
-    }
-
-    .week-body::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .week-body::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .week-body::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 2px;
-    }
-
-    .time-col {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .time-slot-label {
-      height: 48px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 4px;
-      font-size: 10px;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    .day-col {
-      border-left: 1px solid var(--border);
-      position: relative;
-      cursor: pointer;
-    }
-
-    .day-col:hover {
-      background: rgba(255, 255, 255, .02);
-    }
-
-    .hour-line {
-      height: 48px;
-      border-bottom: 1px solid rgba(255, 255, 255, .04);
-      flex-shrink: 0;
-    }
-
-    .week-event {
-      position: absolute;
-      left: 3px;
-      right: 3px;
-      border-radius: 5px;
-      padding: 3px 6px;
-      font-size: 10px;
-      font-weight: 600;
-      color: #fff;
-      overflow: hidden;
-      cursor: pointer;
-      z-index: 2;
-      transition: filter .15s;
-    }
-
-    .week-event:hover {
-      filter: brightness(1.1);
-    }
-
-    .week-event .ev-title {
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .week-event .ev-time {
-      font-size: 9px;
-      opacity: .85;
-    }
-
-    /* ── HEATMAP PANEL ── */
-    .heatmap-panel {
-      width: 280px;
-      border-left: 1px solid var(--border);
-      background: var(--panel);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-
-    .heatmap-panel::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .heatmap-panel::-webkit-scrollbar-thumb {
-      background: var(--border);
-    }
-
-    .heatmap-header {
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .heatmap-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .heatmap-title::before {
-      content: '🔥';
-    }
-
-    .heatmap-pct-label {
-      font-size: 10px;
-      color: var(--muted);
-    }
-
-    .heatmap-days {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-    }
-
-    .hday {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .hday-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hday-name {
-      font-size: 12px;
-      font-weight: 600;
-      min-width: 70px;
-    }
-
-    .hday-bar-wrap {
-      flex: 1;
-      background: var(--card);
-      border-radius: 20px;
-      height: 20px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .hday-bar {
-      height: 100%;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 8px;
-      font-size: 10px;
-      font-weight: 700;
-      color: #fff;
-      transition: width .6s ease;
-    }
-
-    .hday-pct {
-      font-size: 11px;
-      color: var(--muted);
-      min-width: 52px;
-      text-align: right;
-    }
-
-    .hday-dots {
-      display: flex;
-      gap: 3px;
-      flex-wrap: wrap;
-      padding-left: 78px;
-    }
-
-    .hdot {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-    }
-
-    .free-slots {
-      padding: 0 16px 16px;
-    }
-
-    .free-slots-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(34, 197, 94, .15);
-      border: 1px solid rgba(34, 197, 94, .3);
-      border-radius: 6px;
-      padding: 6px 10px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .free-slots-title::before {
-      content: '✅';
-      font-size: 10px;
-    }
-
-    .free-slot-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, .04);
-      font-size: 11px;
-    }
-
-    .free-slot-item:last-child {
-      border-bottom: none;
-    }
-
-    .fsi-day {
-      background: var(--green);
-      color: #fff;
-      font-size: 9px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
-    }
-
-    .fsi-time {
-      color: var(--muted);
-    }
-
-    .fsi-note {
-      font-size: 10px;
-      color: var(--muted);
-      margin-left: auto;
-    }
-
-    .free-days-section {
-      padding: 0 16px 16px;
-    }
-
-    .free-days-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(56, 189, 248, .12);
-      border: 1px solid rgba(56, 189, 248, .25);
-      border-radius: 6px;
-      padding: 6px 10px;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .free-days-title::before {
-      content: '✅';
-      font-size: 10px;
-    }
-
-    .no-free {
-      font-size: 11px;
-      color: var(--muted);
-      padding: 4px 0;
-    }
-
-    /* ── MODAL ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .6);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px; /* ensure some breathing room on very small viewports */
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .2s;
-    }
-
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .modal {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      width: 380px;
-      max-width: 95vw;
-      transform: translateY(10px);
-      max-height: calc(100vh - 80px); /* prevent clipping top/bottom */
-      overflow: auto; /* allow internal scrolling when content exceeds viewport */
-      transition: transform .2s;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-    }
-
-    .modal-overlay.open .modal {
-      transform: translateY(0);
-    }
-
-    .modal-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 18px;
-    }
-
-    .modal-field {
-      margin-bottom: 14px;
-    }
-
-    .modal-field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-
-    .modal-field input,
-    .modal-field select,
-    .modal-field textarea {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 13px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color .15s;
-    }
-
-    .modal-field input:focus,
-    .modal-field select:focus,
-    .modal-field textarea:focus {
-      border-color: var(--green);
-    }
-
-    .modal-field textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-
-    .modal-field select option {
-      background: var(--card);
-    }
-
-    .modal-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .modal-btns {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 18px;
-    }
-
-    .modal-btn {
-      padding: 9px 20px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-      transition: all .15s;
-    }
-
-    .modal-btn.cancel {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    .modal-btn.cancel:hover {
-      color: var(--text);
-    }
-
-    .modal-btn.save {
-      background: var(--green);
-      color: #fff;
-    }
-
-    .modal-btn.save:hover {
-      background: var(--green-dk);
-    }
-
-    /* ── EVENT POPUP ── */
-    .ev-popup {
-      position: fixed;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      min-width: 220px;
-      z-index: 50;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity .15s;
-    }
-
-    .ev-popup.visible {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .ev-popup-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-
-    .ev-popup-date {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .ev-popup-time {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* scrollbar for month cell */
-    .month-cell {
-      overflow: hidden;
-    }
-
-    /* Modal Expansion & Grid */
-    .modal { transition: width 0.3s ease; }
-    .modal.expanded { width: min(1050px, 95vw); }
-    .event-modal-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-    .event-modal-grid.expanded { grid-template-columns: 1.2fr 2fr 1fr; }
-    
-    /* Drag & Drop Roles */
-    .participants-layout { display: flex; gap: 1rem; }
-    .role-column { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
-    .role-slot {
-        border: 1px dashed var(--border);
-        background: var(--bg);
-        border-radius: 6px;
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        gap: 10px;
-        transition: background 0.2s;
-    }
-    .role-slot.over { border: 1px dashed var(--green); background: rgba(34, 197, 94, 0.1); }
-    .role-label { font-weight: 600; font-size: 12px; width: 50px; color: var(--muted);}
-    .placeholder-text { color: #555; font-size: 0.85rem; pointer-events: none;}
-    
-    /* Roster Pool */
-    .status-header { margin: 1rem 0 0.5rem 0; font-size: 0.85rem; font-weight: bold;}
-    .text-green { color: var(--green); }
-    .text-yellow { color: var(--yellow); }
-    .text-red { color: var(--red); }
-    .players-pool-grid { display: flex; flex-direction: column; gap: 5px; min-height: 30px;}
-    
-    .player-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        padding: 8px 12px;
-        border-radius: 6px;
-        cursor: grab;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.85rem;
-        color: var(--text);
-    }
-    .player-card:active { cursor: grabbing; }
-    .player-card.unavailable {
-        opacity: 0.4;
-        cursor: not-allowed;
-        background: var(--bg);
-    }
-/* ================ GOOGLE CALENDAR INTEGRATION ==================== */
-    /* Google Calendar widget in topbar */
-.gcal-widget {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;   /* push to right side of topbar */
-}
-
-.gcal-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: #818cf8;   /* indigo — matches the GCal event color */
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-family: 'Barlow', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.18s, opacity 0.18s;
-    white-space: nowrap;
-}
-
-.gcal-btn svg {
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
-}
-
-.gcal-btn:hover  { background: #6366f1; }
-.gcal-btn:active { opacity: 0.8; }
-
-.gcal-btn.connected {
-    background: #22c55e;   /* green when linked */
-}
-.gcal-btn.connected:hover { background: #16a34a; }
-
-.gcal-btn.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.gcal-disconnect {
-    font-size: 11px;
-    color: var(--muted);
-    text-decoration: underline;
-    cursor: pointer;
-    white-space: nowrap;
-}
-.gcal-disconnect:hover { color: var(--red); }
-
-/* Legend dot for Google events shown in month/week views */
-.event-chip.gcal-chip {
-    border-left: 3px solid #818cf8;
-    background: rgba(129,140,248,0.15);
-}
-  </style>
 </head>
 
 <body>
-    <div class="container calendar-page">
-      <div class="header_container">
-        <div class="logo" title="Back to your dashboard" role="link" tabindex="0">
-          <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
-          <span class="header_title">TeamForge</span>
-        </div>
-        <div class="team-name">Calendar</div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile" class="js-current-user-photo" id="profileDropdownBtn" style="width: 60px; height: 60px; border-radius: 50%; cursor: pointer;">
-        </div>
+  <div class="container calendar-page">
+    <div class="header_container">
+      <div class="logo" title="Back to your dashboard" role="link" tabindex="0">
+        <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+        <span class="header_title">TeamForge</span>
       </div>
+      <div class="team-name">Calendar</div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile" class="js-current-user-photo"
+          id="profileDropdownBtn" style="width:60px;height:60px;border-radius:50%;cursor:pointer;">
+      </div>
+    </div>
 
-      <div class="content-wrapper">
-        <div class="sidebar"></div>
-        <main class="main-content">
-          <div class="calendar-shell">
-            <aside class="calendar-panel">
-              <div class="sidebar-title">Calendar</div>
+    <div class="content-wrapper">
+      <div class="sidebar"></div>
+      <main class="main-content">
+        <div class="calendar-shell">
 
-              <div class="sidebar-section">
-                <button class="create-btn" onclick="openCreateModal()">+ Create an Event</button>
+          <!-- LEFT PANEL -->
+          <aside class="calendar-panel">
+            <div class="sidebar-title">Calendar</div>
+
+            <div class="sidebar-section">
+              <button class="create-btn" onclick="openCreateModal()">+ Create an Event</button>
+            </div>
+
+            <div class="sidebar-section">
+              <div class="date-row">
+                <div class="date-input-group">
+                  <label>Start Date</label>
+                  <input type="date" id="filterStart" value="2026-05-04" />
+                </div>
+                <div class="date-input-group">
+                  <label>End Date</label>
+                  <input type="date" id="filterEnd" placeholder="MM/DD/YYYY" />
+                </div>
               </div>
-    <div class="sidebar-section">
-      <div class="date-row">
-        <div class="date-input-group">
-          <label>Start Date</label>
-          <input type="date" id="filterStart" value="2026-05-04" />
-        </div>
-        <div class="date-input-group">
-          <label>End Date</label>
-          <input type="date" id="filterEnd" placeholder="MM/DD/YYYY" />
-        </div>
-      </div>
-      <button class="get-schedule-btn">Get Player Schedules</button>
+              <button class="get-schedule-btn">Get Player Schedules</button>
+            </div>
+
+            <div class="sidebar-section">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span class="sidebar-label" style="margin:0">Calendars</span>
+                <span class="sidebar-arrow">▲</span>
+              </div>
+              <div class="calendar-list">
+                <div class="cal-item">
+                  <div class="cal-dot checked" style="background:#facc15;"></div>Team Events
+                </div>
+                <div class="cal-item">
+                  <div class="cal-dot checked" style="background:#38bdf8;"></div>Crow Ned
+                </div>
+                <div class="cal-item">
+                  <div class="cal-dot checked" style="background:#ef4444;"></div>Jonah Jameson
+                </div>
+                <div class="cal-item">
+                  <div class="cal-dot" style="border:2px solid #8892a0;background:transparent;"></div>John
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-section">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span class="sidebar-label" style="margin:0">Tournaments</span>
+                <span class="sidebar-arrow">▲</span>
+              </div>
+              <input type="text" class="tournament-search" placeholder="Search..." />
+              <div class="tournament-list">
+                <div class="tournament-item">
+                  <div class="t-color" style="background:#f97316"></div>apple — CCE Clash (Apr 20)
+                </div>
+                <div class="tournament-item">
+                  <div class="t-color" style="background:#22c55e"></div>banana — UIAP (Apr 3)
+                </div>
+                <div class="tournament-item">
+                  <div class="t-color" style="background:#38bdf8"></div>cherry
+                </div>
+                <div class="tournament-item">
+                  <div class="t-color" style="background:#a78bfa"></div>date
+                </div>
+                <div class="tournament-item">
+                  <div class="t-color" style="background:#facc15"></div>elderberry
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- MAIN CALENDAR -->
+          <div class="main">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+              <button class="nav-btn" onclick="navigate(-1)">&#8249;</button>
+              <div class="month-title" id="navTitle">April 2026</div>
+              <button class="nav-btn" onclick="navigate(1)">&#8250;</button>
+              <div class="events-count">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm0 18H5V8h14v13z" />
+                </svg>
+                <span id="eventsCount">5 events total</span>
+              </div>
+              <div class="view-toggle">
+                <button class="view-btn active" id="btnMonth" onclick="setView('month')">Month</button>
+                <button class="view-btn" id="btnWeek" onclick="setView('week')">Week</button>
+              </div>
+              <div class="gcal-widget" id="gcalWidget">
+                <button class="gcal-btn" id="gcalBtn" onclick="handleGcalBtn()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  <span id="gcalBtnLabel">Connect Google Calendar</span>
+                </button>
+                <span class="gcal-disconnect" id="gcalDisconnect" style="display:none;"
+                  onclick="disconnectGcal()">Disconnect</span>
+              </div>
+            </div>
+
+            <!-- CALENDAR AREA -->
+            <div class="calendar-area" id="calendarArea">
+
+              <!-- MONTH VIEW -->
+              <div class="month-view" id="monthView">
+                <div class="month-header" id="monthHeader"></div>
+                <div class="month-grid" id="monthGrid"></div>
+              </div>
+
+              <!-- WEEK VIEW -->
+              <div class="week-view" id="weekView" style="display:none;">
+                <div class="week-main">
+                  <div class="week-header-row" id="weekHeader"></div>
+                  <div class="week-body" id="weekBody"></div>
+                </div>
+                <div class="heatmap-panel" id="heatmapPanel"></div>
+              </div>
+
+            </div>
+          </div><!-- /.main -->
+
+        </div><!-- /.calendar-shell -->
+      </main>
     </div>
+  </div>
 
-    <div class="sidebar-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span class="sidebar-label" style="margin:0">Calendars</span>
-        <span class="sidebar-arrow">▲</span>
-      </div>
-      <div class="calendar-list">
-        <div class="cal-item">
-          <div class="cal-dot checked" style="background:#facc15;"></div>Team Events
-        </div>
-        <div class="cal-item">
-          <div class="cal-dot checked" style="background:#38bdf8;"></div>Crow Ned
-        </div>
-        <div class="cal-item">
-          <div class="cal-dot checked" style="background:#ef4444;"></div>Jonah Jameson
-        </div>
-        <div class="cal-item">
-          <div class="cal-dot" style="border:2px solid #8892a0;background:transparent;"></div>John
-        </div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span class="sidebar-label" style="margin:0">Tournaments</span>
-        <span class="sidebar-arrow">▲</span>
-      </div>
-      <input type="text" class="tournament-search" placeholder="Search..." />
-      <div class="tournament-list">
-        <div class="tournament-item">
-          <div class="t-color" style="background:#f97316"></div>apple — CCE Clash (Apr 20)
-        </div>
-        <div class="tournament-item">
-          <div class="t-color" style="background:#22c55e"></div>banana — UIAP (Apr 3)
-        </div>
-        <div class="tournament-item">
-          <div class="t-color" style="background:#38bdf8"></div>cherry
-        </div>
-        <div class="tournament-item">
-          <div class="t-color" style="background:#a78bfa"></div>date
-        </div>
-        <div class="tournament-item">
-          <div class="t-color" style="background:#facc15"></div>elderberry
-        </div>
-      </div>
-    </div>
-    </aside>
-
-            <div class="main">
-
-              <!-- TOPBAR -->
-              <div class="topbar">
-      <button class="nav-btn" onclick="navigate(-1)">&#8249;</button>
-      <div class="month-title" id="navTitle">April 2026</div>
-      <button class="nav-btn" onclick="navigate(1)">&#8250;</button>
-      <div class="events-count">
-        <svg viewBox="0 0 24 24">
-          <path
-            d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm0 18H5V8h14v13z" />
-        </svg>
-        <span id="eventsCount">5 events total</span>
-      </div>
-      <div class="view-toggle">
-        <button class="view-btn active" id="btnMonth" onclick="setView('month')">Month</button>
-        <button class="view-btn" id="btnWeek" onclick="setView('week')">Week</button>
-      </div>
-
-      <!-- for Google Calendar integration -->
-    <div class="gcal-widget" id="gcalWidget">
-    <!-- Button text & icon swap depending on connection state -->
-    <button class="gcal-btn" id="gcalBtn" onclick="handleGcalBtn()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <span id="gcalBtnLabel">Connect Google Calendar</span>
-    </button>
-    <!-- Disconnect link shown only when connected -->
-    <span class="gcal-disconnect" id="gcalDisconnect" style="display:none;" onclick="disconnectGcal()">Disconnect</span>
-</div>
-
-    </div>
-
-    <!-- CALENDAR AREA -->
-    <div class="calendar-area" id="calendarArea">
-
-      <!-- MONTH VIEW -->
-      <div class="month-view" id="monthView">
-        <div class="month-header" id="monthHeader"></div>
-        <div class="month-grid" id="monthGrid"></div>
-      </div>
-
-      <!-- WEEK VIEW (hidden initially) -->
-      <div class="week-view" id="weekView" style="display:none;">
-        <div class="week-main">
-          <div class="week-header-row" id="weekHeader"></div>
-          <div class="week-body" id="weekBody"></div>
-        </div>
-        <div class="heatmap-panel" id="heatmapPanel"></div>
-      </div>
-
-    </div>
-          </div>
-        </main>
-      </div>
-    </div>
-
-<!-- CREATE EVENT MODAL -->
+  <!-- CREATE EVENT MODAL -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="eventModal">
       <div class="event-modal-grid" id="eventModalGrid">
-          
+
         <!-- COLUMN 1: Event Details -->
         <div class="event-details-col">
           <div class="modal-title">Create Event</div>
@@ -1265,46 +216,54 @@
           </div>
         </div>
 
-        <!-- COLUMN 2: Participants (Hidden if Meeting) -->
+        <!-- COLUMN 2: Participants -->
         <div class="event-participants-col" id="eventParticipantsCol">
-            <div class="modal-title" style="margin-bottom: 12px; font-size: 16px;">Participants</div>
-            <div class="participants-layout">
-                <div class="role-column">
-                    <h4 style="color: var(--muted); font-size: 12px; margin-bottom: 5px;">Players</h4>
-                    <div class="role-slot" data-role="Top" data-sub="N"><span class="role-label">Top</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="Jungle" data-sub="N"><span class="role-label">Jungle</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="Mid" data-sub="N"><span class="role-label">Mid</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="ADC" data-sub="N"><span class="role-label">ADC</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="Support" data-sub="N"><span class="role-label">Support</span> <span class="placeholder-text">Drop player here</span></div>
-                </div>
-                <div class="role-column">
-                    <h4 style="color: var(--muted); font-size: 12px; margin-bottom: 5px;">Sub</h4>
-                    <div class="role-slot" data-role="Top" data-sub="Y"><span class="role-label">Top</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="Jungle" data-sub="Y"><span class="role-label">Jungle</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="Mid" data-sub="Y"><span class="role-label">Mid</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="ADC" data-sub="Y"><span class="role-label">ADC</span> <span class="placeholder-text">Drop player here</span></div>
-                    <div class="role-slot" data-role="Support" data-sub="Y"><span class="role-label">Support</span> <span class="placeholder-text">Drop player here</span></div>
-                </div>
+          <div class="modal-title" style="margin-bottom:12px;font-size:16px;">Participants</div>
+          <div class="participants-layout">
+            <div class="role-column">
+              <h4 style="color:var(--muted);font-size:12px;margin-bottom:5px;">Players</h4>
+              <div class="role-slot" data-role="Top" data-sub="N"><span class="role-label">Top</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Jungle" data-sub="N"><span class="role-label">Jungle</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Mid" data-sub="N"><span class="role-label">Mid</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="ADC" data-sub="N"><span class="role-label">ADC</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Support" data-sub="N"><span class="role-label">Support</span> <span
+                  class="placeholder-text">Drop player here</span></div>
             </div>
+            <div class="role-column">
+              <h4 style="color:var(--muted);font-size:12px;margin-bottom:5px;">Sub</h4>
+              <div class="role-slot" data-role="Top" data-sub="Y"><span class="role-label">Top</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Jungle" data-sub="Y"><span class="role-label">Jungle</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Mid" data-sub="Y"><span class="role-label">Mid</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="ADC" data-sub="Y"><span class="role-label">ADC</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Support" data-sub="Y"><span class="role-label">Support</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+            </div>
+          </div>
         </div>
 
         <!-- COLUMN 3: Roster Pool -->
-        <div class="event-roster-col" id="eventRosterCol" style="border-left: 1px solid var(--border); padding-left: 24px;">
-            <div style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">Drag players into roles</div>
-            
-            <h4 class="status-header text-green">Available</h4>
-            <div class="players-pool-grid" id="availablePlayers"></div>
-
-            <h4 class="status-header text-yellow">Semi-Available</h4>
-            <div class="players-pool-grid" id="semiAvailablePlayers"></div>
-
-            <h4 class="status-header text-red">Unavailable</h4>
-            <div class="players-pool-grid" id="unavailablePlayers"></div>
+        <div class="event-roster-col" id="eventRosterCol"
+          style="border-left:1px solid var(--border);padding-left:24px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Drag players into roles</div>
+          <h4 class="status-header text-green">Available</h4>
+          <div class="players-pool-grid" id="availablePlayers"></div>
+          <h4 class="status-header text-yellow">Semi-Available</h4>
+          <div class="players-pool-grid" id="semiAvailablePlayers"></div>
+          <h4 class="status-header text-red">Unavailable</h4>
+          <div class="players-pool-grid" id="unavailablePlayers"></div>
         </div>
 
       </div>
 
-      <div class="modal-btns" style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
+      <div class="modal-btns" style="border-top:1px solid var(--border);padding-top:16px;margin-top:16px;">
         <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
         <button class="modal-btn save" onclick="saveEvent()">Save Event</button>
       </div>
@@ -1319,724 +278,6 @@
   </div>
 
   <script src="/js/sidebar.js" defer></script>
-  <script>
-    // ── STATE ────────────────────────────────────────────────
-    let currentDate = new Date(2026, 3, 1); // April 2026
-    let currentView = 'month';
-    let pendingDate = null;
-
-    const TYPE_COLORS = {
-      Scrim: '#f97316',
-      Tournament: '#facc15',
-      Meeting: '#22c55e',
-      Other: '#a78bfa',
-      Class: '#ef4444',
-      Default: '#38bdf8'
-    };
-
-    // events
-    let events = [];
-
-    // ── UTILS ────────────────────────────────────────────────
-    const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    function dateStr(y, m, d) { return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
-    function today() { const t = new Date(); return dateStr(t.getFullYear(), t.getMonth(), t.getDate()); }
-    function eventsForDate(ds) { return events.filter(e => e.date === ds); }
-    function timeToMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
-    function formatTime12(t) { const [h, m] = t.split(':').map(Number); const ap = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${String(m).padStart(2, '0')}${ap}`; }
-
-    // ── NAVIGATION ───────────────────────────────────────────
-    function navigate(dir) {
-      if (currentView === 'month') {
-        currentDate.setMonth(currentDate.getMonth() + dir);
-      } else {
-        currentDate.setDate(currentDate.getDate() + (dir * 7));
-      }
-      render();
-    }
-
-    function setView(v) {
-      currentView = v;
-      document.getElementById('btnMonth').classList.toggle('active', v === 'month');
-      document.getElementById('btnWeek').classList.toggle('active', v === 'week');
-      document.getElementById('monthView').style.display = v === 'month' ? 'flex' : 'none';
-      document.getElementById('weekView').style.display = v === 'week' ? 'flex' : 'none';
-      render();
-    }
-
-    // ── RENDER ───────────────────────────────────────────────
-    function render() {
-      updateTitle();
-      if (currentView === 'month') renderMonth();
-      else renderWeek();
-      updateCount();
-    }
-
-    function updateTitle() {
-      const el = document.getElementById('navTitle');
-      if (currentView === 'month') {
-        el.textContent = `${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-      } else {
-        const d = new Date(currentDate);
-        const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
-        const sat = new Date(sun); sat.setDate(sun.getDate() + 6);
-        el.textContent = `${MONTHS[sun.getMonth()]} ${sun.getFullYear()}`;
-      }
-    }
-
-    function updateCount() {
-      const y = currentDate.getFullYear(), m = currentDate.getMonth();
-      let count;
-      if (currentView === 'month') {
-        count = events.filter(e => { const d = new Date(e.date); return d.getFullYear() === y && d.getMonth() === m; }).length;
-      } else {
-        const d = new Date(currentDate);
-        const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
-        const sat = new Date(sun); sat.setDate(sun.getDate() + 6);
-        count = events.filter(e => { const dd = new Date(e.date); return dd >= sun && dd <= sat; }).length;
-      }
-      document.getElementById('eventsCount').textContent = `${count} events total`;
-    }
-
-    // ── MONTH VIEW ───────────────────────────────────────────
-    function renderMonth() {
-      const hdr = document.getElementById('monthHeader');
-      hdr.innerHTML = DAYS.map(d => `<div class="month-dow">${d}</div>`).join('');
-
-      const grid = document.getElementById('monthGrid');
-      grid.innerHTML = '';
-
-      const y = currentDate.getFullYear(), m = currentDate.getMonth();
-      const first = new Date(y, m, 1).getDay();
-      const daysInMonth = new Date(y, m + 1, 0).getDate();
-      const daysInPrev = new Date(y, m, 0).getDate();
-      const todayStr = today();
-
-      const cells = [];
-      // Prev month fill
-      for (let i = first - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, month: m - 1, year: m === 0 ? y - 1 : y, other: true });
-      // Current month
-      for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, month: m, year: y, other: false });
-      // Next month fill
-      while (cells.length % 7 !== 0) cells.push({ day: cells.length - first - daysInMonth + 1, month: m + 1, year: m === 11 ? y + 1 : y, other: true });
-
-      cells.forEach(c => {
-        const ds = dateStr(c.year, c.month, c.day);
-        const cell = document.createElement('div');
-        cell.className = 'month-cell' + (c.other ? ' other-month' : '') + (ds === todayStr ? ' today' : '');
-        cell.onclick = () => openCreateModal(ds);
-
-        const dayEl = document.createElement('div');
-        dayEl.className = 'day-num';
-        dayEl.textContent = c.day;
-        cell.appendChild(dayEl);
-
-        const dayEvents = eventsForDate(ds);
-        const max = 3;
-        dayEvents.slice(0, max).forEach(ev => {
-          const el = document.createElement('div');
-          el.className = 'month-event';
-          el.style.background = ev.color || TYPE_COLORS[ev.type] || TYPE_COLORS.Default;
-          el.textContent = `${ev.start} ${ev.title}`;
-          el.onclick = (e) => { e.stopPropagation(); showPopup(e, ev); };
-          cell.appendChild(el);
-        });
-        if (dayEvents.length > max) {
-          const more = document.createElement('div');
-          more.className = 'more-events';
-          more.textContent = `+${dayEvents.length - max} more`;
-          cell.appendChild(more);
-        }
-        grid.appendChild(cell);
-      });
-    }
-
-    // ── WEEK VIEW ────────────────────────────────────────────
-    function renderWeek() {
-      const d = new Date(currentDate);
-      const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
-      const todayStr = today();
-
-      // Header
-      const hdr = document.getElementById('weekHeader');
-      hdr.innerHTML = `<div class="week-tz">GMT+08</div>`;
-      for (let i = 0; i < 7; i++) {
-        const dd = new Date(sun); dd.setDate(sun.getDate() + i);
-        const ds = dateStr(dd.getFullYear(), dd.getMonth(), dd.getDate());
-        const isToday = ds === todayStr;
-        hdr.innerHTML += `
-      <div class="week-dow-cell${isToday ? ' today' : ''}">
-        <div class="dow-name">${DAYS[i]}</div>
-        <div class="dow-date">${dd.getDate()}</div>
-      </div>`;
-      }
-
-      // Body
-      const body = document.getElementById('weekBody');
-      body.innerHTML = '';
-
-      // Time column
-      const timeCol = document.createElement('div');
-      timeCol.className = 'time-col';
-      const hours = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'];
-      const startHour = 7;
-      hours.forEach(h => {
-        const slot = document.createElement('div');
-        slot.className = 'time-slot-label';
-        slot.textContent = h;
-        timeCol.appendChild(slot);
-      });
-      body.appendChild(timeCol);
-
-      // Day columns
-      for (let i = 0; i < 7; i++) {
-        const dd = new Date(sun); dd.setDate(sun.getDate() + i);
-        const ds = dateStr(dd.getFullYear(), dd.getMonth(), dd.getDate());
-        const col = document.createElement('div');
-        col.className = 'day-col';
-        col.style.position = 'relative';
-        col.onclick = () => openCreateModal(ds);
-
-        // Hour lines
-        hours.forEach(() => {
-          const line = document.createElement('div');
-          line.className = 'hour-line';
-          col.appendChild(line);
-        });
-
-        // Events
-        eventsForDate(ds).forEach(ev => {
-          const startMin = timeToMin(ev.start);
-          const endMin = timeToMin(ev.end);
-          const dayStartMin = startHour * 60;
-          const topPx = ((startMin - dayStartMin) / 60) * 48;
-          const heightPx = ((endMin - startMin) / 60) * 48;
-
-          const el = document.createElement('div');
-          el.className = 'week-event';
-          el.style.cssText = `background:${ev.color || TYPE_COLORS[ev.type] || TYPE_COLORS.Default};top:${topPx}px;height:${Math.max(heightPx, 20)}px;`;
-          el.innerHTML = `<div class="ev-title">${ev.title}</div><div class="ev-time">${ev.start} – ${ev.end}</div>`;
-          el.onclick = (e) => { e.stopPropagation(); showPopup(e, ev); };
-          col.appendChild(el);
-        });
-
-        body.appendChild(col);
-      }
-
-      renderHeatmap(sun);
-    }
-
-    // ── HEATMAP ──────────────────────────────────────────────
-    function renderHeatmap(weekStart) {
-      const panel = document.getElementById('heatmapPanel');
-      const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-      const pcts = [88, 92, 54, 92, 96];
-      const dotColors = [
-        ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-        ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-        ['#ef4444', '#ef4444', '#facc15', '#facc15', '#facc15', '#facc15', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-        ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-        ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-      ];
-
-      const barColor = (p) => p >= 80 ? '#22c55e' : p >= 60 ? '#facc15' : '#ef4444';
-
-      let html = `
-    <div class="heatmap-header">
-      <div class="heatmap-title">Availability Heatmap</div>
-      <div class="heatmap-pct-label">% of players FREE</div>
-    </div>
-    <div class="heatmap-days">`;
-
-      dayNames.forEach((day, i) => {
-        html += `
-      <div class="hday">
-        <div class="hday-row">
-          <div class="hday-name">${day}</div>
-          <div class="hday-bar-wrap">
-            <div class="hday-bar" style="width:${pcts[i]}%;background:${barColor(pcts[i])}">
-              ${pcts[i]}%
-            </div>
-          </div>
-          <div class="hday-pct">${pcts[i]}% free</div>
-        </div>
-        <div class="hday-dots">
-          ${dotColors[i].map(c => `<div class="hdot" style="background:${c}"></div>`).join('')}
-        </div>
-      </div>`;
-      });
-
-      html += `</div>
-    <div class="free-slots">
-      <div class="free-slots-title">ALL PLAYERS FREE — Day &amp; Time <small style="color:var(--muted);font-weight:400;margin-left:4px;">Selected players</small></div>
-      ${[
-          ['Monday', '1:00 PM – 1:30 PM'],
-          ['Monday', '1:30 PM – 2:00 PM'],
-          ['Monday', '2:00 PM – 2:30 PM'],
-          ['Monday', '2:30 PM – 3:00 PM'],
-          ['Monday', '3:00 PM – 3:30 PM'],
-          ['Monday', '3:30 PM – 4:00 PM'],
-        ].map(([day, time]) => `
-        <div class="free-slot-item">
-          <span class="fsi-day">${day}</span>
-          <span class="fsi-time">🕐 ${time}</span>
-          <span class="fsi-note">All players free</span>
-        </div>`).join('')}
-    </div>
-    <div class="free-days-section">
-      <div class="free-days-title">Completely Free Days (100% all day)</div>
-      <div class="no-free">No fully free days</div>
-    </div>`;
-
-      panel.innerHTML = html;
-    }
-
-// ── MODAL ────────────────────────────────────────────────
-    function openCreateModal(ds) {
-      pendingDate = ds || today();
-      document.getElementById('evDate').value = pendingDate;
-      document.getElementById('evTitle').value = '';
-      document.getElementById('evType').value = 'Scrim'; // Default to Scrim
-      document.getElementById('evStart').value = '10:00';
-      document.getElementById('evEnd').value = '11:00';
-      document.getElementById('evLocation').value = '';
-      document.getElementById('evVideo').value = '';
-      document.getElementById('evWL').value = 'N/A';
-      document.getElementById('modalOverlay').classList.add('open');
-
-      // Clear existing slots
-      document.querySelectorAll('.role-slot .player-card').forEach(el => el.remove());
-      document.querySelectorAll('.placeholder-text').forEach(el => el.style.display = 'inline');
-
-      // Setup Layout
-      triggerLayoutToggle();
-    }
-
-    function closeModal() {
-      document.getElementById('modalOverlay').classList.remove('open');
-    }
-
-    // NEW: Save Event mapped to Backend API
-    function saveEvent() {
-      const title = document.getElementById('evTitle').value.trim();
-      const type = document.getElementById('evType').value;
-      if (!title) { alert('Please enter a title.'); return; }
-
-      const date = document.getElementById('evDate').value;
-      const start = document.getElementById('evStart').value;
-      const end = document.getElementById('evEnd').value;
-      const participants = [];
-
-      // Scrape participants if not a meeting
-      if (type !== 'Meeting') {
-          document.querySelectorAll('.role-slot .player-card').forEach(card => {
-              const slot = card.closest('.role-slot');
-              participants.push({
-                  userId: card.dataset.userId,
-                  role: slot.dataset.role,
-                  isSub: slot.dataset.sub
-              });
-          });
-      }
-
-      const payload = {
-          title_summary: title,
-          type: type,
-          location: document.getElementById('evLocation').value,
-          start_date: date,
-          start_datetime: date && start ? `${date} ${start}:00` : null,
-          end_date: date,
-          end_datetime: date && end ? `${date} ${end}:00` : null,
-          videoLink: document.getElementById('evVideo').value,
-          win: document.getElementById('evWL').value,
-          participants: participants
-      };
-
-      fetch('/calendar/api/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-      }).then(res => res.json()).then(data => {
-          if (data.success) {
-              const ev = {
-                  id: data.eventId || Date.now(),
-                  title, type, date, start, end,
-                  color: TYPE_COLORS[type] || TYPE_COLORS.Default
-              };
-              events.push(ev);
-              closeModal();
-              render();
-          } else {
-              alert(data.message || 'Failed to create event');
-          }
-      }).catch(err => {
-          console.error(err);
-          alert('Server error.');
-      });
-    }
-
-    // --- Fetch events from Database ---
-    async function loadEvents() {
-        try {
-            const res = await fetch('/calendar/api/events');
-            const data = await res.json();
-            if (data.success) {
-                // Map database columns to the frontend's expected properties
-                events = data.events.map(e => ({
-                    id: e.eventId,
-                    title: e.title_summary,
-                    type: e.type,
-                    date: e.start_date,
-                    start: e.start_time || '00:00',
-                    end: e.end_time || '23:59',
-                    location: e.location,
-                    videoLink: e.videoLink,
-                    win: e.win,
-                    color: TYPE_COLORS[e.type] || TYPE_COLORS.Default
-                }));
-                render(); // Re-draw the calendar UI with real data
-            }
-        } catch (err) {
-            console.error("Error loading events:", err);
-        }
-    }
-
-    // ── INTERACTIVITY & DRAG DROP LOGIC ──────────────────────
-    function triggerLayoutToggle() {
-        const evType = document.getElementById('evType').value;
-        const modal = document.getElementById('eventModal');
-        const grid = document.getElementById('eventModalGrid');
-        const pCol = document.getElementById('eventParticipantsCol');
-        const rCol = document.getElementById('eventRosterCol');
-
-        if (evType === 'Meeting') {
-            modal.classList.remove('expanded');
-            grid.classList.remove('expanded');
-            pCol.style.display = 'none';
-            rCol.style.display = 'none';
-        } else {
-            modal.classList.add('expanded');
-            grid.classList.add('expanded');
-            pCol.style.display = 'block';
-            rCol.style.display = 'block';
-            fetchAvailability();
-        }
-    }
-
-    document.getElementById('evType').addEventListener('change', triggerLayoutToggle);
-    ['evDate', 'evStart', 'evEnd'].forEach(id => {
-        document.getElementById(id).addEventListener('change', () => {
-            if (document.getElementById('evType').value !== 'Meeting') fetchAvailability();
-        });
-    });
-
-    async function fetchAvailability() {
-        const date = document.getElementById('evDate').value;
-        const start = document.getElementById('evStart').value;
-        const end = document.getElementById('evEnd').value;
-
-        try {
-            const query = new URLSearchParams({ date, start, end });
-            const res = await fetch(`/calendar/api/availability?${query.toString()}`);
-            const data = await res.json();
-            if (data.success) renderPlayers(data.players);
-        } catch (err) { console.error(err); }
-    }
-
-    function renderPlayers(players) {
-        const assignedIds = Array.from(document.querySelectorAll('.role-slot .player-card')).map(c => c.dataset.userId);
-        
-        document.getElementById('availablePlayers').innerHTML = '';
-        document.getElementById('semiAvailablePlayers').innerHTML = '';
-        document.getElementById('unavailablePlayers').innerHTML = '';
-
-        players.forEach(p => {
-            const isUnavailable = p.availability === 'Unavailable';
-
-            if (assignedIds.includes(String(p.userId))) {
-                const slotCard = document.querySelector(`.role-slot .player-card[data-user-id="${p.userId}"]`);
-                if (slotCard) {
-                    if (isUnavailable) slotCard.classList.add('unavailable');
-                    else slotCard.classList.remove('unavailable');
-                }
-                return; 
-            }
-
-            const card = document.createElement('div');
-            card.className = `player-card ${isUnavailable ? 'unavailable' : ''}`;
-            card.setAttribute('draggable', !isUnavailable);
-            card.dataset.userId = p.userId;
-            card.innerHTML = `
-                <span>${p.gameName || p.firstname}</span>
-                <span style="color: #888; font-size: 0.75rem;">${p.primaryRole || 'None'}/${p.secondaryRole || 'None'}</span>
-            `;
-
-            if (!isUnavailable) {
-                card.addEventListener('dragstart', handleDragStart);
-                card.addEventListener('dragend', handleDragEnd);
-            }
-
-            if (p.availability === 'Available') document.getElementById('availablePlayers').appendChild(card);
-            else if (p.availability === 'Semi') document.getElementById('semiAvailablePlayers').appendChild(card);
-            else document.getElementById('unavailablePlayers').appendChild(card);
-        });
-    }
-
-    let draggedCard = null;
-    function handleDragStart(e) {
-        draggedCard = this;
-        e.dataTransfer.effectAllowed = "move";
-        setTimeout(() => this.style.opacity = '0.5', 0);
-    }
-    function handleDragEnd(e) {
-        this.style.opacity = '1';
-        draggedCard = null;
-    }
-
-    document.querySelectorAll('.role-slot').forEach(slot => {
-        slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('over'); });
-        slot.addEventListener('dragleave', e => slot.classList.remove('over'));
-        slot.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('over');
-            
-            if (draggedCard) {
-                const existing = this.querySelector('.player-card');
-                if (existing) document.getElementById('availablePlayers').appendChild(existing); 
-
-                this.querySelector('.placeholder-text').style.display = 'none';
-                this.appendChild(draggedCard);
-                fetchAvailability(); 
-            }
-        });
-    });
-
-    document.querySelectorAll('.players-pool-grid').forEach(pool => {
-        pool.addEventListener('dragover', e => e.preventDefault());
-        pool.addEventListener('drop', function(e) {
-            e.preventDefault();
-            if (draggedCard) {
-                const originSlot = draggedCard.closest('.role-slot');
-                if (originSlot) originSlot.querySelector('.placeholder-text').style.display = 'inline';
-                
-                this.appendChild(draggedCard);
-                fetchAvailability();
-            }
-        });
-    });
-
-    // ── EVENT POPUP ──────────────────────────────────────────
-    let popupTimeout;
-    function showPopup(e, ev) {
-      clearTimeout(popupTimeout);
-      const pop = document.getElementById('evPopup');
-      document.getElementById('popupTitle').textContent = ev.title;
-      const d = new Date(ev.date + 'T00:00:00');
-      document.getElementById('popupDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      document.getElementById('popupTime').textContent = `${formatTime12(ev.start)} – ${formatTime12(ev.end)}`;
-
-      const x = Math.min(e.clientX + 12, window.innerWidth - 240);
-      const y = Math.min(e.clientY + 12, window.innerHeight - 120);
-      pop.style.left = x + 'px';
-      pop.style.top = y + 'px';
-      pop.classList.add('visible');
-      popupTimeout = setTimeout(() => pop.classList.remove('visible'), 3000);
-    }
-    (function(){
-      const evPopupEl = document.getElementById('evPopup');
-      // clicking anywhere closes the popup
-      document.addEventListener('click', () => { if (evPopupEl) evPopupEl.classList.remove('visible'); });
-      // clicking inside the popup should not close it
-      if (evPopupEl) evPopupEl.addEventListener('click', (e) => e.stopPropagation());
-
-      // clicking on the modal overlay (outside the modal) closes the modal
-      const modalOverlayEl = document.getElementById('modalOverlay');
-      if (modalOverlayEl) {
-        modalOverlayEl.addEventListener('click', (e) => {
-          if (e.target === modalOverlayEl) closeModal();
-        });
-      }
-    })();
-
-    // ── INIT ─────────────────────────────────────────────────
-    loadEvents();
-
-    // ─────────────────────────────────────────────────────────────────
-//  GOOGLE CALENDAR INTEGRATION
-//  Relies on the existing `events` array and `render()` function.
-// ─────────────────────────────────────────────────────────────────
-
-// Whether the signed-in user has Google Calendar connected
-let gcalConnected = false;
-
-// ── On page load: check status + auto-import if connected ─────────
-(async function initGcal() {
-    // 1. Handle the ?gcal= param that the server appends after OAuth
-    const params = new URLSearchParams(window.location.search);
-    const gcalParam = params.get('gcal');
-
-    if (gcalParam === 'connected') {
-        showGcalToast('✅ Google Calendar connected!', 'success');
-        // Clean the URL so a refresh doesn't re-show the toast
-        window.history.replaceState({}, '', '/calendar');
-    } else if (gcalParam === 'denied') {
-        showGcalToast('Google Calendar access was denied.', 'error');
-        window.history.replaceState({}, '', '/calendar');
-    } else if (gcalParam === 'error') {
-        showGcalToast('Something went wrong. Please try again.', 'error');
-        window.history.replaceState({}, '', '/calendar');
-    }
-
-    // 2. Check whether the user already has a saved connection
-    await refreshGcalStatus();
-
-    // 3. If connected, automatically pull Google events
-    if (gcalConnected) {
-        await importGcalEvents();
-    }
-})();
-
-// ── Check /calendar/api/google-status ────────────────────────────
-async function refreshGcalStatus() {
-    try {
-        const res  = await fetch('/calendar/api/google-status');
-        const data = await res.json();
-        gcalConnected = !!data.connected;
-    } catch {
-        gcalConnected = false;
-    }
-    updateGcalUI();
-}
-
-// ── Update button label / colour ──────────────────────────────────
-function updateGcalUI() {
-    const btn        = document.getElementById('gcalBtn');
-    const label      = document.getElementById('gcalBtnLabel');
-    const disconnect = document.getElementById('gcalDisconnect');
-
-    if (!btn) return;
-
-    if (gcalConnected) {
-        btn.classList.add('connected');
-        btn.classList.remove('loading');
-        label.textContent   = 'Google Calendar Linked';
-        disconnect.style.display = 'inline';
-    } else {
-        btn.classList.remove('connected', 'loading');
-        label.textContent        = 'Connect Google Calendar';
-        disconnect.style.display = 'none';
-    }
-}
-
-// ── Button click: connect or re-import ───────────────────────────
-async function handleGcalBtn() {
-    if (!gcalConnected) {
-        // Redirect to OAuth consent — server handles the whole flow
-        window.location.href = '/calendar/google/connect';
-    } else {
-        // Already connected — manually re-sync
-        const btn = document.getElementById('gcalBtn');
-        const label = document.getElementById('gcalBtnLabel');
-        btn.classList.add('loading');
-        label.textContent = 'Syncing…';
-        await importGcalEvents();
-        updateGcalUI();
-        showGcalToast('✅ Google Calendar synced!', 'success');
-    }
-}
-
-// ── Pull Google events from the backend and merge into `events` ───
-async function importGcalEvents() {
-    try {
-        const res  = await fetch('/calendar/api/google-events');
-        const data = await res.json();
-
-        if (!data.success || !data.connected) {
-            gcalConnected = false;
-            updateGcalUI();
-            return;
-        }
-
-        // Remove any previously-imported Google events so we don't double-up
-        events = events.filter(e => e.source !== 'google');
-
-        // Merge the new ones in
-        events = events.concat(data.events);
-
-        // TYPE_COLORS may not have 'GoogleCalendar' — add it if needed
-        if (typeof TYPE_COLORS !== 'undefined' && !TYPE_COLORS['GoogleCalendar']) {
-            TYPE_COLORS['GoogleCalendar'] = '#818cf8';
-        }
-
-        // Re-draw the calendar with the merged event list
-        render();
-
-    } catch (err) {
-        console.error('[GCAL] Import error:', err);
-        showGcalToast('Could not load Google events.', 'error');
-    }
-}
-
-// ── Disconnect ────────────────────────────────────────────────────
-async function disconnectGcal() {
-    if (!confirm('Disconnect Google Calendar? Your TeamForge events will not be affected.')) return;
-
-    try {
-        await fetch('/calendar/api/google-disconnect', { method: 'POST' });
-
-        // Remove Google events from the view
-        events = events.filter(e => e.source !== 'google');
-        gcalConnected = false;
-        updateGcalUI();
-        render();
-        showGcalToast('Google Calendar disconnected.', 'info');
-
-    } catch (err) {
-        console.error('[GCAL] Disconnect error:', err);
-    }
-}
-
-// ── Simple toast notification ─────────────────────────────────────
-function showGcalToast(message, type = 'info') {
-    // Remove any existing toast first
-    document.querySelectorAll('.gcal-toast').forEach(t => t.remove());
-
-    const colors = {
-        success: '#22c55e',
-        error:   '#ef4444',
-        info:    '#818cf8'
-    };
-
-    const toast = document.createElement('div');
-    toast.className = 'gcal-toast';
-    toast.textContent = message;
-    Object.assign(toast.style, {
-        position:     'fixed',
-        bottom:       '24px',
-        right:        '24px',
-        background:   colors[type] || colors.info,
-        color:        '#fff',
-        padding:      '10px 18px',
-        borderRadius: '8px',
-        fontFamily:   "'Barlow', sans-serif",
-        fontWeight:   '600',
-        fontSize:     '14px',
-        zIndex:       '9999',
-        boxShadow:    '0 4px 14px rgba(0,0,0,0.35)',
-        opacity:      '0',
-        transition:   'opacity 0.25s'
-    });
-
-    document.body.appendChild(toast);
-    requestAnimationFrame(() => { toast.style.opacity = '1'; });
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 3500);
-}
-  </script>
 </body>
 
 </html>

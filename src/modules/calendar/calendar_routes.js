@@ -1,10 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const path = require('path');
+const router  = express.Router();
+const path    = require('path');
 const { google } = require('googleapis');
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
-const db = require('../../config/database');
+const db                 = require('../../config/database');
 const calendarController = require('./calendar_controller');
 
 // ── GOOGLE OAUTH CLIENT ──────────────────────────────────────────────────────
@@ -27,8 +27,8 @@ router.get('/', (req, res) => {
 
 // ── TEAMFORGE CALENDAR APIS ──────────────────────────────────────────────────
 router.get('/api/availability', calendarController.getAvailability);
-router.get('/api/events', calendarController.getEvents);
-router.post('/api/create', calendarController.createEvent);
+router.get('/api/events',       calendarController.getEvents);
+router.post('/api/create',      calendarController.createEvent);
 
 // ── GOOGLE CALENDAR — STEP 1: Redirect signed-in user to consent screen ──────
 // GET /calendar/google/connect
@@ -40,7 +40,7 @@ router.get('/google/connect', (req, res) => {
     const oauth2Client = makeOAuthClient();
     const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',          // we need a refresh_token
-        prompt: 'consent',          // force consent so refresh_token is always returned
+        prompt:      'consent',          // force consent so refresh_token is always returned
         scope: [
             'https://www.googleapis.com/auth/calendar.readonly',
             'https://www.googleapis.com/auth/userinfo.email'
@@ -79,7 +79,7 @@ router.get('/google/redirect', async (req, res) => {
         `, [
             tokens.access_token,
             tokens.refresh_token || null,   // only returned on first consent
-            tokens.expiry_date || null,
+            tokens.expiry_date   || null,
             userId
         ]);
 
@@ -92,15 +92,19 @@ router.get('/google/redirect', async (req, res) => {
     }
 });
 
-// ── GOOGLE CALENDAR — STEP 3: Import events from Google into app ──────────────
+// ── GOOGLE CALENDAR — STEP 3: Import + persist events from Google ─────────────
 // GET /calendar/api/google-events
-// Called by the frontend after OAuth is done (or on any page load if connected)
+// 1. Fetches events from Google Calendar API
+// 2. Upserts them into the `events` table (INSERT … ON DUPLICATE KEY UPDATE)
+//    using google_event_id as the dedup key — safe to call on every page load
+// 3. Returns the saved rows in the same shape as /api/events so the frontend
+//    can merge them with TeamForge events without any extra mapping
 router.get('/api/google-events', async (req, res) => {
     const userId = req.cookies && req.cookies.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Not logged in' });
 
     try {
-        // Fetch stored tokens for this user
+        // ── 1. Load stored tokens ────────────────────────────────────────────
         const [rows] = await db.query(`
             SELECT google_access_token, google_refresh_token, google_token_expiry, google_connected
             FROM users WHERE userId = ?
@@ -112,87 +116,135 @@ router.get('/api/google-events', async (req, res) => {
 
         const stored = rows[0];
 
-        // Build an authenticated client using the stored tokens
+        // ── 2. Build authenticated Google client ─────────────────────────────
         const oauth2Client = makeOAuthClient();
         oauth2Client.setCredentials({
-            access_token: stored.google_access_token,
+            access_token:  stored.google_access_token,
             refresh_token: stored.google_refresh_token,
-            expiry_date: stored.google_token_expiry
-                ? Number(stored.google_token_expiry)
-                : undefined
+            expiry_date:   stored.google_token_expiry ? Number(stored.google_token_expiry) : undefined
         });
 
-        // Auto-refresh: if the access token was refreshed, persist the new one
+        // Persist any auto-refreshed access token back to the DB
         oauth2Client.on('tokens', async (newTokens) => {
             if (newTokens.access_token) {
                 await db.query(`
-                    UPDATE users SET
-                        google_access_token = ?,
-                        google_token_expiry = ?
+                    UPDATE users SET google_access_token = ?, google_token_expiry = ?
                     WHERE userId = ?
                 `, [newTokens.access_token, newTokens.expiry_date || null, userId]);
             }
         });
 
-        const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+        // ── 3. Fetch from Google Calendar API ───────────────────────────────
+        const gcal = google.calendar({ version: 'v3', auth: oauth2Client });
 
-        // Pull 3 months back and 6 months forward so the calendar is well-populated
         const timeMin = new Date();
-        timeMin.setMonth(timeMin.getMonth() - 3);
-
+        timeMin.setMonth(timeMin.getMonth() - 3);   // 3 months back
         const timeMax = new Date();
-        timeMax.setMonth(timeMax.getMonth() + 6);
+        timeMax.setMonth(timeMax.getMonth() + 6);   // 6 months forward
 
-        const response = await calendar.events.list({
-            calendarId: 'primary',
-            timeMin: timeMin.toISOString(),
-            timeMax: timeMax.toISOString(),
-            maxResults: 250,
+        const response = await gcal.events.list({
+            calendarId:   'primary',
+            timeMin:      timeMin.toISOString(),
+            timeMax:      timeMax.toISOString(),
+            maxResults:   250,
             singleEvents: true,
-            orderBy: 'startTime'
+            orderBy:      'startTime'
         });
 
-        const googleEvents = (response.data.items || []).map(ev => {
-            // Google events can be all-day (date only) or timed (dateTime)
-            const isAllDay = !!(ev.start && ev.start.date && !ev.start.dateTime);
-            const startRaw = ev.start.dateTime || ev.start.date || '';
-            const endRaw = ev.end.dateTime || ev.end.date || '';
+        const items = response.data.items || [];
+        if (items.length === 0) {
+            return res.json({ success: true, connected: true, events: [], imported: 0 });
+        }
 
-            // Extract just the date portion (YYYY-MM-DD)
-            const date = startRaw.substring(0, 10);
+        // ── 4. Upsert each Google event into the `events` table ──────────────
+        // type is ENUM('Scrim','Tournament','Meeting','Other') — Google events → 'Other'
+        // google_event_id UNIQUE constraint means re-syncing is always safe:
+        //   - New events → INSERT
+        //   - Existing events → UPDATE title/location/times in place
+        //   - Deleted-from-Google events → left in DB (orphaned but harmless)
+        let imported = 0;
 
-            // Extract HH:mm — fallback to '00:00' / '23:59' for all-day events
-            const startTime = isAllDay ? '00:00' : startRaw.substring(11, 16);
-            const endTime = isAllDay ? '23:59' : endRaw.substring(11, 16);
+        for (const ev of items) {
+            const isAllDay     = !!(ev.start?.date && !ev.start?.dateTime);
+            const startRaw     = ev.start?.dateTime || ev.start?.date || '';
+            const endRaw       = ev.end?.dateTime   || ev.end?.date   || '';
 
-            return {
-                id: 'gcal_' + ev.id,   // prefix so frontend can distinguish
-                title: ev.summary || '(No title)',
-                type: 'GoogleCalendar',
-                date,
-                start: startTime,
-                end: endTime,
-                location: ev.location || '',
-                isAllDay,
-                color: '#818cf8',          // indigo — visually distinct from TeamForge events
-                source: 'google'
-            };
-        });
+            // YYYY-MM-DD
+            const startDate    = startRaw.substring(0, 10);
+            const endDate      = endRaw.substring(0, 10);
 
-        return res.json({ success: true, connected: true, events: googleEvents });
+            // Full DATETIME strings for start_datetime / end_datetime
+            // All-day events get midnight as their time component
+            const startDatetime = isAllDay
+                ? `${startDate} 00:00:00`
+                : startRaw.replace('T', ' ').substring(0, 19);
+            const endDatetime   = isAllDay
+                ? `${endDate} 23:59:00`
+                : endRaw.replace('T', ' ').substring(0, 19);
+
+            const title    = (ev.summary   || '(No title)').substring(0, 500); // TEXT col, but be safe
+            const location = (ev.location  || '').substring(0, 500);
+            const gcalId   = ev.id; // Google's stable event ID — our dedup key
+
+            await db.query(`
+                INSERT INTO events
+                    (title_summary, creator_id, type, location,
+                     start_date, start_datetime,
+                     end_date,   end_datetime,
+                     google_event_id)
+                VALUES (?, ?, 'Other', ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    title_summary  = VALUES(title_summary),
+                    location       = VALUES(location),
+                    start_date     = VALUES(start_date),
+                    start_datetime = VALUES(start_datetime),
+                    end_date       = VALUES(end_date),
+                    end_datetime   = VALUES(end_datetime)
+            `, [
+                title, userId, location,
+                startDate, startDatetime,
+                endDate,   endDatetime,
+                gcalId
+            ]);
+
+            imported++;
+        }
+
+        // ── 5. Return the now-persisted events in the same shape as /api/events ─
+        // This means the frontend's existing loadEvents() mapping works unchanged.
+        const [savedEvents] = await db.query(`
+            SELECT
+                eventId,
+                title_summary,
+                type,
+                DATE_FORMAT(start_date,     '%Y-%m-%d') AS start_date,
+                DATE_FORMAT(start_datetime, '%H:%i')    AS start_time,
+                DATE_FORMAT(end_datetime,   '%H:%i')    AS end_time,
+                location,
+                videoLink,
+                win,
+                google_event_id
+            FROM events
+            WHERE google_event_id IS NOT NULL
+              AND start_date BETWEEN ? AND ?
+            ORDER BY start_date, start_datetime
+        `, [
+            timeMin.toISOString().substring(0, 10),
+            timeMax.toISOString().substring(0, 10)
+        ]);
+
+        console.log(`[CALENDAR] Google import: ${imported} events upserted for userId=${userId}`);
+        return res.json({ success: true, connected: true, events: savedEvents, imported });
 
     } catch (err) {
-        console.error('[CALENDAR] Error fetching Google events:', err);
+        console.error('[CALENDAR] Error fetching/saving Google events:', err);
 
-        // If it's a 401 / token revoked, clear the connection flag
-        if (err.code === 401 || (err.response && err.response.status === 401)) {
-            await db.query(
-                'UPDATE users SET google_connected = 0 WHERE userId = ?', [userId]
-            );
+        if (err.code === 401 || err.response?.status === 401) {
+            await db.query('UPDATE users SET google_connected = 0 WHERE userId = ?', [userId]);
             return res.json({ success: false, connected: false, message: 'Google access revoked — please reconnect' });
         }
 
-        return res.status(500).json({ success: false, message: 'Failed to fetch Google Calendar events' });
+        return res.status(500).json({ success: false, message: 'Failed to import Google Calendar events' });
     }
 });
 
@@ -213,7 +265,7 @@ router.get('/api/google-status', async (req, res) => {
     }
 });
 
-// ── GOOGLE CALENDAR — Disconnect (revoke + clear tokens) ─────────────────────
+// ── GOOGLE CALENDAR — Disconnect (revoke + clear tokens + remove imported events)
 // POST /calendar/api/google-disconnect
 router.post('/api/google-disconnect', async (req, res) => {
     const userId = req.cookies && req.cookies.userId;
@@ -227,9 +279,10 @@ router.post('/api/google-disconnect', async (req, res) => {
         if (rows.length && rows[0].google_access_token) {
             // Best-effort revoke so Google also forgets the token
             const oauth2Client = makeOAuthClient();
-            try { await oauth2Client.revokeToken(rows[0].google_access_token); } catch (_) { }
+            try { await oauth2Client.revokeToken(rows[0].google_access_token); } catch (_) {}
         }
 
+        // Clear tokens from the users table
         await db.query(`
             UPDATE users SET
                 google_access_token  = NULL,
@@ -239,7 +292,16 @@ router.post('/api/google-disconnect', async (req, res) => {
             WHERE userId = ?
         `, [userId]);
 
-        res.json({ success: true });
+        // Delete imported Google events from the events table
+        // Only removes events created by this user (creator_id = userId) that came from Google
+        const [deleted] = await db.query(`
+            DELETE FROM events
+            WHERE google_event_id IS NOT NULL AND creator_id = ?
+        `, [userId]);
+
+        console.log(`[CALENDAR] Disconnected userId=${userId}, deleted ${deleted.affectedRows} Google events`);
+        res.json({ success: true, deletedEvents: deleted.affectedRows });
+
     } catch (err) {
         console.error('[CALENDAR] Disconnect error:', err);
         res.status(500).json({ success: false });
