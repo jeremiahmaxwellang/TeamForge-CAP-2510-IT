@@ -1,3 +1,5 @@
+// Hardcoded semester start and end dates
+
 window.TeamForgeReportsConfig = {
     termDateRanges: {
         'Term 1': { start: '2025-05-01', end: '2025-08-31' },
