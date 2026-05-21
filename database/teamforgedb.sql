@@ -469,7 +469,9 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`events` (
   `length` VARCHAR(45) NULL,
   `win` ENUM('W', 'L', 'N/A') NULL COMMENT 'MOVE THIS FIELD TO event_attendees nalang',
   `status` TEXT NULL,
-  PRIMARY KEY (`eventId`))
+  `google_event_id` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Google Calendar event ID - NULL for TeamForge-native events',
+  PRIMARY KEY (`eventId`),
+  UNIQUE INDEX `google_event_id_UNIQUE` (`google_event_id` ASC) VISIBLE)
 ENGINE = InnoDB
 AUTO_INCREMENT = 18
 DEFAULT CHARACTER SET = utf8mb3;
