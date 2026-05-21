@@ -73,8 +73,7 @@
                     <!-- Event Selector -->
                     <div class="event-selector-row">
                         <select id="eventSelector" class="attendance-select event-select" onchange="loadEvent()">
-                            <option value="1">April 11, 2026 – Scrim: Viridis Arcus vs Annihilation</option>
-                            <option value="2">April 18, 2026 – Meeting: Weekly Sync</option>
+                            <option value="">Select an event</option>
                         </select>
                     </div>
                     <!-- Attendance Table -->
@@ -82,7 +81,7 @@
                         <table class="attendance-table">
                             <thead>
                                 <tr>
-                                    <th>6 Participants</th>
+                                    <th id="participantCount">0 Participants</th>
                                     <th>Present</th>
                                     <th>Late</th>
                                     <th>Absent</th>
@@ -156,6 +155,7 @@
     <script src="/js/team_branding.js"></script>
     <script src="/js/userDropdown.js"></script>
     <script src="/js/sidebar.js"></script>
+    <script src="/attendance/static/attendance.js"></script>
 </body>
 
 
