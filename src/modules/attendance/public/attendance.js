@@ -27,6 +27,55 @@ const updateEventSelector = (events) => {
   });
 };
 
+const updateParticipantCount = (count) => {
+  const participantCount = document.getElementById('participantCount');
+  if (!participantCount) return;
+  participantCount.textContent = `${count} Participant${count === 1 ? '' : 's'}`;
+};
+
+const renderAttendanceRows = (participants) => {
+  const attendanceBody = document.getElementById('attendanceBody');
+  if (!attendanceBody) return;
+
+  if (!participants || participants.length === 0) {
+    updateParticipantCount(0);
+    attendanceBody.innerHTML = '<tr><td colspan="7" class="no-participants">Select an event to display participants.</td></tr>';
+    return;
+  }
+
+  updateParticipantCount(participants.length);
+  attendanceBody.innerHTML = participants
+    .map((participant, index) => {
+      const displayRole = participant.displayedRole || participant.position || 'Participant';
+      const roleLabel = participant.displayedRole ? `<em>${participant.displayedRole}</em>` : '';
+      const metaParts = [participant.position || 'Player'];
+      if (participant.displayedRole) metaParts.push(roleLabel);
+
+      const name = participant.name || 'Unnamed participant';
+      const noteValue = participant.notes ? participant.notes.replace(/"/g, '&quot;') : '';
+      const status = participant.attendance_status || '';
+      const rsvpClass = status === 'Present' || status === 'Late' ? 'rsvp-yes' : 'rsvp-no';
+      const rsvpIcon = status === 'Present' || status === 'Late' ? '👍' : '👎';
+      const rsvpTitle = status === 'Present' || status === 'Late' ? 'Accepted' : 'Declined';
+
+      return `
+        <tr class="attendance-row">
+          <td class="participant-cell">
+            <span class="participant-name">${name}</span>
+            <span class="participant-meta">${metaParts.join(', ')}</span>
+          </td>
+          <td><input type="radio" name="status_${index}" value="Present" class="att-radio present" ${status === 'Present' ? 'checked' : ''}></td>
+          <td><input type="radio" name="status_${index}" value="Late" class="att-radio late" ${status === 'Late' ? 'checked' : ''}></td>
+          <td><input type="radio" name="status_${index}" value="Absent" class="att-radio absent" ${status === 'Absent' ? 'checked' : ''}></td>
+          <td><input type="radio" name="status_${index}" value="Excused" class="att-radio excused" ${status === 'Excused' ? 'checked' : ''}></td>
+          <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>
+          <td><span class="rsvp-icon ${rsvpClass}" title="${rsvpTitle}">${rsvpIcon}</span></td>
+        </tr>
+      `;
+    })
+    .join('');
+};
+
 window.filterEvents = () => {
   const eventTypeFilter = document.getElementById('eventTypeFilter');
   if (!eventTypeFilter) return;
@@ -39,22 +88,31 @@ window.filterEvents = () => {
   updateEventSelector(attendanceState.filteredEvents);
 };
 
-window.loadEvent = () => {
+window.loadEvent = async () => {
   const eventSelector = document.getElementById('eventSelector');
   if (!eventSelector) return;
 
   const selectedId = eventSelector.value;
-  if (!selectedId) return;
+  if (!selectedId) {
+    renderAttendanceRows([]);
+    return;
+  }
 
-  const selectedEvent = attendanceState.events.find((event) => String(event.eventId) === String(selectedId));
-  if (selectedEvent) {
-    console.log('Loaded attendance event:', selectedEvent);
+  try {
+    const response = await fetch(`/attendance/api/events/${selectedId}/participants`);
+    if (!response.ok) throw new Error(`Failed to fetch participants: ${response.status}`);
+
+    const participants = await response.json();
+    renderAttendanceRows(Array.isArray(participants) ? participants : []);
+  } catch (error) {
+    console.error('Error loading event participants:', error);
+    renderAttendanceRows([]);
   }
 };
 
 const loadAttendanceEvents = async () => {
   try {
-    const response = await fetch('/events');
+    const response = await fetch('/attendance/api/events');
     if (!response.ok) throw new Error(`Failed to fetch events: ${response.status}`);
 
     const events = await response.json();
@@ -66,6 +124,7 @@ const loadAttendanceEvents = async () => {
     });
 
     filterEvents();
+    renderAttendanceRows([]);
   } catch (error) {
     console.error('Error loading attendance events:', error);
     const eventSelector = document.getElementById('eventSelector');
