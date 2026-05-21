@@ -115,13 +115,20 @@ async function requireCoachRole(req, res, next) {
 }
 
 // Serve static files from the "public" directory
+// for shared assets (style.css, sidebar.js, images, fonts)
 app.use(express.static(path.join(process.cwd(), './public')));
+
+// Modules
+app.use('/calendar/static',      express.static(path.join(__dirname, 'modules/calendar/public')));
+app.use('/announcements/static', express.static(path.join(__dirname, 'modules/announcements/public')));
+app.use('/reports/static',       express.static(path.join(__dirname, 'modules/reports/public')));
+app.use('/attendance/static',    express.static(path.join(__dirname, 'modules/attendance/public')));
+
 global.viewsPath = path.join(process.cwd(), 'views');
 
-// Routes 
+// Routes
 app.use('/attendance', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/attendance/attendance_routes')); // attendance routes
-// app.use('/google', require('./modules/google_apis/google_routes')); // googleapi routes
-// app.use('/google', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/google_apis/google_routes')); // googleapi routes
+
 app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
 app.use('/calendar', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/calendar_routes')); // calendar routes
 app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes')); // announcement routes
