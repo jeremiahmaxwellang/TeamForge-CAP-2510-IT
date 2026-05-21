@@ -1,43 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamForge - Announcements</title>
-    
+
+    <!-- Styling -->
+    <link rel="stylesheet" href="/announcements/static/announcements.css">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/announcements.css">
     <link rel="stylesheet" href="/css/topbar-universal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
+    <!-- Announcements Page JavaScript -->
+    <script src="/announcements/static/announcements.js" defer></script>
+
 </head>
+
 <body>
     <div class="container">
-        
+
         <div class="header_container">
             <a href="/manager_dashboard.html" class="logo">
                 <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
                 <span class="header_title">TeamForge</span>
             </a>
             <div class="team-name">Viridis Arcus (Team Name)</div>
-            
+
             <div class="topbar-actions">
-                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" class="js-current-user-photo" id="profileDropdownBtn" style="width: 60px; height: 60px; border-radius: 50%; background-color: #72767d; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
-                <div id="profileDropdownMenu" style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
-                    <a href="/settings" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">Settings</a>
+                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture"
+                    class="js-current-user-photo" id="profileDropdownBtn"
+                    style="width: 60px; height: 60px; border-radius: 50%; background-color: #72767d; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
+                <div id="profileDropdownMenu"
+                    style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
+                    <a href="/settings"
+                        style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;"
+                        onmouseover="this.style.backgroundColor='#f5f5f5'"
+                        onmouseout="this.style.backgroundColor='transparent'">Settings</a>
                 </div>
             </div>
         </div>
 
         <div class="content-wrapper">
-            
+
             <div class="sidebar">
                 <ul></ul>
             </div>
 
             <div class="main-content">
                 <div class="announcement-card">
-                    
+
                     <div class="announcement-header">
                         <h2>Announcements</h2>
                         <button class="btn-add-new">+ Add New Announcement</button>
@@ -46,7 +58,8 @@
                     <div class="announcement-list" id="announcement-list">
                         <div class="announcement-item">
                             <h3 class="announcement-title">1. Announcement #1</h3>
-                            <p class="announcement-body">This is the announcement board, it would be wise to click on me!</p>
+                            <p class="announcement-body">This is the announcement board, it would be wise to click on
+                                me!</p>
                         </div>
 
                         <div class="announcement-item">
@@ -56,13 +69,14 @@
 
                         <div class="announcement-item">
                             <h3 class="announcement-title">3. This is the Third Announcement</h3>
-                            <p class="announcement-body">This is the third sample of the announcement tab, which should have justified alignment.</p>
+                            <p class="announcement-body">This is the third sample of the announcement tab, which should
+                                have justified alignment.</p>
                         </div>
                     </div>
 
                 </div>
-            </div> 
-            
+            </div>
+
         </div>
     </div>
 
@@ -71,10 +85,10 @@
             <h3>Create New Announcement</h3>
             <label>Title:</label>
             <input type="text" id="new-ann-title" placeholder="Enter announcement title..." required>
-            
+
             <label>Message:</label>
             <textarea id="new-ann-content" placeholder="Type your announcement here..." rows="6" required></textarea>
-            
+
             <div class="modal-actions">
                 <button id="btn-cancel-ann" class="btn-cancel">Cancel</button>
                 <button id="btn-submit-ann" class="btn-submit">Post Announcement</button>
@@ -85,10 +99,12 @@
     <div id="view-announcement-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="view-ann-title" style="margin-bottom: 5px; color: #111;"></h3>
-            <small id="view-ann-meta" style="color: #666; display: block; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></small>
-            
-            <p id="view-ann-content" style="white-space: pre-wrap; line-height: 1.6; color: #333; font-size: 15px; margin-bottom: 20px;"></p>
-            
+            <small id="view-ann-meta"
+                style="color: #666; display: block; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></small>
+
+            <p id="view-ann-content"
+                style="white-space: pre-wrap; line-height: 1.6; color: #333; font-size: 15px; margin-bottom: 20px;"></p>
+
             <div class="modal-actions" style="margin-top: 15px;">
                 <button id="btn-close-view" class="btn-cancel">Close</button>
             </div>
@@ -97,8 +113,8 @@
 
     <script src="/js/current_user_photo.js"></script>
     <script src="/js/team_branding.js"></script>
-    <script src="/js/announcements.js"></script>
     <script src="/js/userDropdown.js"></script>
     <script src="/js/sidebar.js"></script>
 </body>
+
 </html>
