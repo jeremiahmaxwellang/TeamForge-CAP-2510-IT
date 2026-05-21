@@ -59,7 +59,7 @@ const renderAttendanceRows = (participants) => {
       const rsvpTitle = status === 'Present' || status === 'Late' ? 'Accepted' : 'Declined';
 
       return `
-        <tr class="attendance-row">
+        <tr class="attendance-row" data-user-id="${participant.userId}">
           <td class="participant-cell">
             <span class="participant-name">${name}</span>
             <span class="participant-meta">${metaParts.join(', ')}</span>
@@ -74,6 +74,68 @@ const renderAttendanceRows = (participants) => {
       `;
     })
     .join('');
+};
+
+window.saveAttendance = async () => {
+  const eventSelector = document.getElementById('eventSelector');
+  if (!eventSelector) return;
+
+  const selectedId = eventSelector.value;
+  if (!selectedId) {
+    alert('Please select an event before saving attendance.');
+    return;
+  }
+
+  console.log('[ATTENDANCE] Saving attendance for event:', selectedId);
+
+  const rows = Array.from(document.querySelectorAll('#attendanceBody tr[data-user-id]'));
+  console.log('[ATTENDANCE] Found rows:', rows.length);
+
+  const attendance = rows.map((row, index) => {
+    const userId = row.dataset.userId;
+    const selectedStatus = row.querySelector(`input[name="status_${index}"]:checked`);
+    const notesInput = row.querySelector('.note-input');
+
+    const entry = {
+      userId,
+      attendance_status: selectedStatus ? selectedStatus.value : null,
+      notes: notesInput ? notesInput.value.trim() : null,
+    };
+    console.log(`[ATTENDANCE] Row ${index}: userId=${userId}, status=${entry.attendance_status}, notes=${entry.notes}`);
+    return entry;
+  });
+
+  console.log('[ATTENDANCE] Sending payload:', { attendance });
+
+  try {
+    const response = await fetch(`/attendance/api/events/${selectedId}/attendance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attendance }),
+    });
+
+    console.log('[ATTENDANCE] Response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[ATTENDANCE] HTTP error response:', errorText);
+      throw new Error(`Failed to save attendance: ${response.status} - ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('[ATTENDANCE] Response data:', result);
+
+    if (result.success) {
+      console.log('[ATTENDANCE] Attendance saved successfully');
+      alert('Attendance saved successfully.');
+    } else {
+      throw new Error(result.message || 'Unable to save attendance.');
+    }
+  } catch (error) {
+    console.error('[ATTENDANCE] Error saving attendance:', error);
+    console.error('[ATTENDANCE] Error stack:', error.stack);
+    alert('There was a problem saving attendance. Please check the console for details.');
+  }
 };
 
 window.filterEvents = () => {

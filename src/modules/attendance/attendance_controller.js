@@ -58,3 +58,66 @@ exports.getEventParticipants = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+// 4. Save attendance updates for a selected event
+exports.saveEventAttendance = async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const attendance = Array.isArray(req.body.attendance) ? req.body.attendance : [];
+
+        console.log('[ATTENDANCE] saveEventAttendance called for eventId:', eventId);
+        console.log('[ATTENDANCE] Attendance entries received:', attendance.length);
+        console.log('[ATTENDANCE] Payload:', JSON.stringify(req.body));
+
+        if (!eventId) {
+            console.error('[ATTENDANCE] Event ID is missing');
+            return res.status(400).json({ success: false, message: 'Event ID is required' });
+        }
+
+        if (attendance.length === 0) {
+            console.warn('[ATTENDANCE] No attendance entries provided');
+            return res.status(400).json({ success: false, message: 'No attendance entries provided' });
+        }
+
+        const connection = await db.getConnection();
+        console.log('[ATTENDANCE] Database connection acquired');
+
+        try {
+            await connection.beginTransaction();
+            console.log('[ATTENDANCE] Transaction started');
+
+            let updatedCount = 0;
+            for (const entry of attendance) {
+                const { userId, attendance_status, notes } = entry;
+                if (!userId) {
+                    console.warn('[ATTENDANCE] Skipping entry with missing userId');
+                    continue;
+                }
+
+                console.log(`[ATTENDANCE] Updating userId=${userId}, eventId=${eventId}, status=${attendance_status}`);
+                const [result] = await connection.query(
+                    `UPDATE event_attendees SET attendance_status = ?, notes = ? WHERE eventId = ? AND userId = ?`,
+                    [attendance_status || null, notes || null, eventId, userId]
+                );
+                console.log(`[ATTENDANCE] Update result for userId=${userId}: affectedRows=${result.affectedRows}`);
+                updatedCount += result.affectedRows;
+            }
+
+            await connection.commit();
+            console.log(`[ATTENDANCE] Transaction committed. Total updated: ${updatedCount}`);
+            res.json({ success: true, message: `Attendance saved successfully (${updatedCount} records updated).` });
+        } catch (dbError) {
+            console.error('[ATTENDANCE] Database error during transaction:', dbError);
+            await connection.rollback();
+            console.error('[ATTENDANCE] Transaction rolled back');
+            throw dbError;
+        } finally {
+            connection.release();
+            console.log('[ATTENDANCE] Database connection released');
+        }
+    } catch (error) {
+        console.error('[ATTENDANCE] Error saving attendance:', error);
+        console.error('[ATTENDANCE] Error stack:', error.stack);
+        res.status(500).json({ success: false, message: `Server error: ${error.message}` });
+    }
+};
