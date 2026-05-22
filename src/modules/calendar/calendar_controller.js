@@ -110,16 +110,20 @@ exports.getEvents = async (req, res) => {
         // We use DATE_FORMAT so MySQL passes the exact string formats the frontend expects (YYYY-MM-DD and HH:mm)
         const [events] = await db.query(`
             SELECT 
-                eventId, 
-                title_summary, 
-                type, 
-                DATE_FORMAT(start_date, '%Y-%m-%d') as start_date, 
-                DATE_FORMAT(start_datetime, '%H:%i') as start_time, 
-                DATE_FORMAT(end_datetime, '%H:%i') as end_time,
-                location, 
-                videoLink, 
-                win
-            FROM events
+                e.eventId, 
+                e.title_summary, 
+                e.type, 
+                DATE_FORMAT(e.start_date, '%Y-%m-%d') as start_date, 
+                DATE_FORMAT(e.start_datetime, '%H:%i') as start_time, 
+                DATE_FORMAT(e.end_datetime, '%H:%i') as end_time,
+                e.location, 
+                e.videoLink, 
+                e.win,
+                u.firstname,
+                u.lastname,
+                u.position AS creatorRole
+            FROM events e
+            LEFT JOIN users u ON e.creator_id = u.userId
         `);
         
         res.json({ success: true, events });

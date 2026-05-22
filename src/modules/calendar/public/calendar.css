@@ -942,6 +942,12 @@ body {
   color: var(--muted);
 }
 
+.ev-popup-creator {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin-top: 8px;
+}
+
 /* ── MODAL GRID & DRAG-DROP ── */
 .event-modal-grid {
   display: grid;

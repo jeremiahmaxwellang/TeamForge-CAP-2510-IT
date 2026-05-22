@@ -7,7 +7,7 @@ const TYPE_COLORS = {
   Scrim: '#f97316',
   Tournament: '#facc15',
   Meeting: '#22c55e',
-  Other: '#a78bfa',
+  Other: '#d1d5db',
   Class: '#ef4444',
   Default: '#38bdf8'
 };
@@ -23,6 +23,15 @@ function today() { const t = new Date(); return dateStr(t.getFullYear(), t.getMo
 function eventsForDate(ds) { return events.filter(e => e.date === ds); }
 function timeToMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
 function formatTime12(t) { const [h, m] = t.split(':').map(Number); const ap = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${String(m).padStart(2, '0')}${ap}`; }
+function getEventColor(type) { return TYPE_COLORS[type] || TYPE_COLORS.Default; }
+function buildCreatorName(firstname, lastname, role) {
+  const fullName = [firstname, lastname].filter(Boolean).join(' ').trim();
+  if (!fullName) return role || 'Unknown creator';
+  return role ? `${fullName} (${role})` : fullName;
+}
+function buildEventTitle(ev) {
+  return ev.creatorName ? `${ev.title}\nCreated by: ${ev.creatorName}` : ev.title;
+}
 
 // ── NAVIGATION ───────────────────────────────────────────
 function navigate(dir) {
@@ -111,8 +120,12 @@ function renderMonth() {
     dayEvents.slice(0, max).forEach(ev => {
       const el = document.createElement('div');
       el.className = 'month-event';
-      el.style.background = ev.color || TYPE_COLORS[ev.type] || TYPE_COLORS.Default;
+      el.style.background = ev.color || getEventColor(ev.type);
       el.textContent = `${ev.start} ${ev.title}`;
+      el.title = buildEventTitle(ev);
+      el.onmouseenter = (e) => { e.stopPropagation(); showPopup(e, ev); };
+      el.onmousemove = (e) => { e.stopPropagation(); showPopup(e, ev); };
+      el.onmouseleave = hidePopup;
       el.onclick = (e) => { e.stopPropagation(); showPopup(e, ev); };
       cell.appendChild(el);
     });
@@ -185,8 +198,12 @@ function renderWeek() {
 
       const el = document.createElement('div');
       el.className = 'week-event';
-      el.style.cssText = `background:${ev.color || TYPE_COLORS[ev.type] || TYPE_COLORS.Default};top:${topPx}px;height:${Math.max(heightPx, 20)}px;`;
+      el.style.cssText = `background:${ev.color || getEventColor(ev.type)};top:${topPx}px;height:${Math.max(heightPx, 20)}px;`;
+      el.title = buildEventTitle(ev);
       el.innerHTML = `<div class="ev-title">${ev.title}</div><div class="ev-time">${ev.start} – ${ev.end}</div>`;
+      el.onmouseenter = (e) => { e.stopPropagation(); showPopup(e, ev); };
+      el.onmousemove = (e) => { e.stopPropagation(); showPopup(e, ev); };
+      el.onmouseleave = hidePopup;
       el.onclick = (e) => { e.stopPropagation(); showPopup(e, ev); };
       col.appendChild(el);
     });
@@ -320,7 +337,7 @@ function saveEvent() {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        events.push({ id: data.eventId || Date.now(), title, type, date, start, end, color: TYPE_COLORS[type] || TYPE_COLORS.Default });
+        events.push({ id: data.eventId || Date.now(), title, type, date, start, end, creatorName: 'You', color: getEventColor(type) });
         closeModal();
         render();
       } else {
@@ -346,8 +363,9 @@ async function loadEvents() {
         location: e.location,
         videoLink: e.videoLink,
         win: e.win,
+        creatorName: buildCreatorName(e.firstname, e.lastname, e.creatorRole),
         google_event_id: e.google_event_id || null, // ad 
-        color: TYPE_COLORS[e.type] || TYPE_COLORS.Default
+        color: getEventColor(e.type)
       }));
       render();
     }
@@ -470,6 +488,12 @@ document.querySelectorAll('.players-pool-grid').forEach(pool => {
 
 // ── EVENT POPUP ──────────────────────────────────────────
 let popupTimeout;
+function hidePopup() {
+  clearTimeout(popupTimeout);
+  const pop = document.getElementById('evPopup');
+  if (pop) pop.classList.remove('visible');
+}
+
 function showPopup(e, ev) {
   clearTimeout(popupTimeout);
   const pop = document.getElementById('evPopup');
@@ -477,17 +501,20 @@ function showPopup(e, ev) {
   const d = new Date(ev.date + 'T00:00:00');
   document.getElementById('popupDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   document.getElementById('popupTime').textContent = `${formatTime12(ev.start)} – ${formatTime12(ev.end)}`;
+  document.getElementById('popupCreator').textContent = `Created by: ${ev.creatorName || 'Unknown creator'}`;
   const x = Math.min(e.clientX + 12, window.innerWidth - 240);
   const y = Math.min(e.clientY + 12, window.innerHeight - 120);
   pop.style.left = x + 'px';
   pop.style.top = y + 'px';
   pop.classList.add('visible');
-  popupTimeout = setTimeout(() => pop.classList.remove('visible'), 3000);
+  if (e.type === 'click') {
+    popupTimeout = setTimeout(() => pop.classList.remove('visible'), 3000);
+  }
 }
 
 (function () {
   const evPopupEl = document.getElementById('evPopup');
-  document.addEventListener('click', () => { if (evPopupEl) evPopupEl.classList.remove('visible'); });
+  document.addEventListener('click', () => { if (evPopupEl) hidePopup(); });
   if (evPopupEl) evPopupEl.addEventListener('click', e => e.stopPropagation());
 
   const modalOverlayEl = document.getElementById('modalOverlay');
