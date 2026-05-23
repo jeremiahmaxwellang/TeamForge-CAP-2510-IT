@@ -291,7 +291,7 @@ const loadAttendanceEvents = async () => {
     attendanceState.events.sort((a, b) => {
       const aDate = new Date(a.start_datetime || a.start_date || 0).getTime();
       const bDate = new Date(b.start_datetime || b.start_date || 0).getTime();
-      return aDate - bDate;
+      return bDate - aDate;
     });
 
     filterEvents();
