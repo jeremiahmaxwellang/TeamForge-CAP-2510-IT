@@ -99,6 +99,8 @@ EMAIL_PASS="example"
 CLIENT_ID=sampleclientid.apps.googleusercontent.com
 SECRET_ID=GOCSPX-SAMPLE-GOOGLE-SECRET-ID
 REDIRECT=http://localhost:3000/redirect
+
+CALENDAR_REDIRECT=http://localhost:3000/calendar/google/redirect
 ```
 
 #### 5. Google Cloud Setup
