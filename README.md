@@ -7,18 +7,23 @@ Access TeamForge through Railway at:
 
 ## Features
 
+### For Team Coaches
+- View League match histories of players and applicants
+- Evaluate and onboard player applicants
+- View player availability through the shared Team Calendar
+- Draft team lineups for Tournaments
+
 ### For Team Managers
-- Authentication
-- User Management
-- Player Performance Analysis Module
-- Recruitment Evaluation Module
-- Announcement Module
+- Create and manage user accounts for coaches and players
+- Easily send announcements through Discord and email with one click
+- Generate reports on recruitment stats and player retention
+- Record player attendance in Scrims and Tournaments
 
-- Team Drafting Module
-- Reports Module
-
-- Attendance Module
-- Scheduling *Calendar Module
+### For Players and Applicants
+- Sign-in via Google
+- View personal profile with game statistics and evaluations from the coach
+- Import Google Calendar events into the shared Team Calendar
+- Receive email announcements from the manager and coach
 
 ## Getting Started
 
