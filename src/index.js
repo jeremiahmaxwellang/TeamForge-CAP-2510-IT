@@ -220,17 +220,6 @@ app.get('/applicant_profile.html', (req, res) => {
     res.redirect('/applicant_list/profile');
 });
 
-// Backward-compatible URL for pages linking to /tournament.html
-app.get('/tournament.html', (req, res) => {
-    if (!req.cookies || req.cookies.userRole !== 'Team Coach' || !req.cookies.userId) {
-        res.clearCookie('userRole');
-        res.clearCookie('userId');
-        return res.redirect('/');
-    }
-
-    res.redirect('/tournament');
-});
-
 app.use('/api/v1/users', require("./routes/userRoutes"));
 
 
