@@ -1,11 +1,11 @@
 USE teamforgedb;
 
 -- Team Details
-INSERT INTO teamDetails(teamName, teamIcon)
+INSERT INTO teamdetails(teamName, teamIcon)
 VALUES ('Viridis Arcus', 'VA_logo.png');
 
 -- League Roles
-INSERT INTO leagueRoles(roleId, displayedRole, role, teamPosition)
+INSERT INTO leagueroles(roleId, displayedRole, role, teamPosition)
 VALUES 
 (1, 'Top', 'NONE', 'TOP'),
 (2, 'Jungle', 'NONE', 'JUNGLE'),
@@ -465,7 +465,7 @@ INSERT INTO metrics (metricId, metricName, metricDescription) VALUES
 -- -----------------------------------------------------
 
 -- 1. Top
-INSERT INTO metricRoles (metricId, roleId) VALUES
+INSERT INTO metricroles (metricId, roleId) VALUES
 (26,1), -- averageWinrate
 (4,1),  -- averageCsPerMinute
 (11,1), -- averageGoldPerMinute
@@ -478,7 +478,7 @@ INSERT INTO metricRoles (metricId, roleId) VALUES
 (19,1); -- averageTotalDamageTaken
 
 -- 2. Jungle
-INSERT INTO metricRoles (metricId, roleId) VALUES
+INSERT INTO metricroles (metricId, roleId) VALUES
 (26,2),  -- averageWinrate
 (4,2),   -- averageCsPerMinute
 (13,2),  -- averageKillParticipation
@@ -492,7 +492,7 @@ INSERT INTO metricRoles (metricId, roleId) VALUES
 (9,2);   -- averageEnemyJungleControl
 
 -- 3. Mid
-INSERT INTO metricRoles (metricId, roleId) VALUES
+INSERT INTO metricroles (metricId, roleId) VALUES
 (26,3),  -- averageWinrate
 (4,3),   -- averageCsPerMinute
 (11,3),  -- averageGoldPerMinute
@@ -503,7 +503,7 @@ INSERT INTO metricRoles (metricId, roleId) VALUES
 (5,3);   -- averageDamageShare
 
 -- 4. ADC
-INSERT INTO metricRoles (metricId, roleId) VALUES
+INSERT INTO metricroles (metricId, roleId) VALUES
 (26,4),  -- averageWinrate
 (12,4),  -- averageKDA
 (20,4),  -- averageVisionScorePerMinute
@@ -515,7 +515,7 @@ INSERT INTO metricRoles (metricId, roleId) VALUES
 (5,4);   -- averageDamageShare
 
 -- 5. Support
-INSERT INTO metricRoles (metricId, roleId) VALUES
+INSERT INTO metricroles (metricId, roleId) VALUES
 (26,5),  -- averageWinrate
 (21,5),  -- averageVisionScoreShare
 (20,5),  -- averageVisionScorePerMinute
