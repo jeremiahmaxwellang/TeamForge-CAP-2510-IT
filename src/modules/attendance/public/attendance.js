@@ -57,40 +57,71 @@ const renderAttendanceRows = (participants) => {
   }
 
   updateParticipantCount(participants.length);
-  attendanceBody.innerHTML = participants
-    .map((participant, index) => {
-      const displayRole = participant.displayedRole || participant.position || 'Participant';
-      const roleLabel = participant.displayedRole ? `<em>${participant.displayedRole}</em>` : '';
-      const metaParts = [participant.position || 'Player'];
-      // If team mapping exists (set for scrims), show Team 1 / Team 2 label
-      const teamMap = attendanceState.currentTeamMap || null;
-      const teamValue = participant.team || participant.teamName || null;
-      if (teamMap && teamValue && teamMap[teamValue]) {
-        metaParts.unshift(`<span class="team-label">${teamMap[teamValue]}</span>`);
+  const teamMap = attendanceState.currentTeamMap || null;
+  const groups = {};
+  const groupOrder = [];
+
+  if (teamMap) {
+    participants.forEach((participant) => {
+      const teamValue = participant.team || participant.teamName || '';
+      const teamLabel = teamMap[teamValue] || 'No Team';
+      if (!groups[teamLabel]) {
+        groups[teamLabel] = [];
+        groupOrder.push(teamLabel);
       }
-      if (participant.displayedRole) metaParts.push(roleLabel);
+      groups[teamLabel].push(participant);
+    });
+  } else {
+    groups.All = participants;
+    groupOrder.push('All');
+  }
 
-      const name = participant.name || 'Unnamed participant';
-      const noteValue = participant.notes ? participant.notes.replace(/"/g, '&quot;') : '';
-      const status = participant.attendance_status || '';
-      const rsvpClass = status === 'Present' || status === 'Late' ? 'rsvp-yes' : 'rsvp-no';
-      const rsvpIcon = status === 'Present' || status === 'Late' ? '👍' : '👎';
-      const rsvpTitle = status === 'Present' || status === 'Late' ? 'Accepted' : 'Declined';
+  attendanceBody.innerHTML = groupOrder
+    .map((groupLabel) => {
+      const rows = groups[groupLabel]
+        .map((participant, index) => {
+          const displayRole = participant.displayedRole || participant.position || 'Participant';
+          const roleLabel = participant.displayedRole ? `<em>${participant.displayedRole}</em>` : '';
+          const metaParts = [participant.position || 'Player'];
+          if (teamMap && teamMap[participant.team || participant.teamName || '']) {
+            metaParts.unshift(`<span class="team-label">${teamMap[participant.team || participant.teamName || '']}</span>`);
+          }
+          if (participant.displayedRole) metaParts.push(roleLabel);
 
-      return `
-        <tr class="attendance-row" data-user-id="${participant.userId}">
-          <td class="participant-cell">
-            <span class="participant-name">${name}</span>
-            <span class="participant-meta">${metaParts.join(', ')}</span>
-          </td>
-          <td><input type="radio" name="status_${index}" value="Present" class="att-radio present" ${status === 'Present' ? 'checked' : ''}></td>
-          <td><input type="radio" name="status_${index}" value="Late" class="att-radio late" ${status === 'Late' ? 'checked' : ''}></td>
-          <td><input type="radio" name="status_${index}" value="Absent" class="att-radio absent" ${status === 'Absent' ? 'checked' : ''}></td>
-          <td><input type="radio" name="status_${index}" value="Excused" class="att-radio excused" ${status === 'Excused' ? 'checked' : ''}></td>
-          <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>
-          <td><span class="rsvp-icon ${rsvpClass}" title="${rsvpTitle}">${rsvpIcon}</span></td>
-        </tr>
-      `;
+          const name = participant.name || 'Unnamed participant';
+          const noteValue = participant.notes ? participant.notes.replace(/"/g, '&quot;') : '';
+          const status = participant.attendance_status || '';
+          const rsvpClass = status === 'Present' || status === 'Late' ? 'rsvp-yes' : 'rsvp-no';
+          const rsvpIcon = status === 'Present' || status === 'Late' ? '👍' : '👎';
+          const rsvpTitle = status === 'Present' || status === 'Late' ? 'Accepted' : 'Declined';
+
+          return `
+            <tr class="attendance-row" data-user-id="${participant.userId}">
+              <td class="participant-cell">
+                <span class="participant-name">${name}</span>
+                <span class="participant-meta">${metaParts.join(', ')}</span>
+              </td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Present" class="att-radio present" ${status === 'Present' ? 'checked' : ''}></td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Late" class="att-radio late" ${status === 'Late' ? 'checked' : ''}></td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Absent" class="att-radio absent" ${status === 'Absent' ? 'checked' : ''}></td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Excused" class="att-radio excused" ${status === 'Excused' ? 'checked' : ''}></td>
+              <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>
+              <td><span class="rsvp-icon ${rsvpClass}" title="${rsvpTitle}">${rsvpIcon}</span></td>
+            </tr>
+          `;
+        })
+        .join('');
+
+      if (teamMap) {
+        return `
+          <tr class="team-group-header">
+            <td colspan="7">${groupLabel}</td>
+          </tr>
+          ${rows}
+        `;
+      }
+
+      return rows;
     })
     .join('');
 };
@@ -112,7 +143,7 @@ window.saveAttendance = async () => {
 
   const attendance = rows.map((row, index) => {
     const userId = row.dataset.userId;
-    const selectedStatus = row.querySelector(`input[name="status_${index}"]:checked`);
+    const selectedStatus = row.querySelector('input[type="radio"]:checked');
     const notesInput = row.querySelector('.note-input');
 
     const entry = {
