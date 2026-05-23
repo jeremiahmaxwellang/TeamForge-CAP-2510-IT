@@ -72,9 +72,13 @@
                     <hr class="attendance-divider">
                     <!-- Event Selector -->
                     <div class="event-selector-row">
-                        <select id="eventSelector" class="attendance-select event-select" onchange="loadEvent()">
-                            <option value="">Select an event</option>
-                        </select>
+                        <div class="event-nav">
+                            <button id="prevEventBtn" class="nav-triangle triangle-left" aria-label="Previous event"></button>
+                            <select id="eventSelector" class="attendance-select event-select" onchange="loadEvent()">
+                                <option value="">Select an event</option>
+                            </select>
+                            <button id="nextEventBtn" class="nav-triangle triangle-right" aria-label="Next event"></button>
+                        </div>
                     </div>
                     <!-- Attendance Table -->
                     <div class="attendance-table-wrapper">

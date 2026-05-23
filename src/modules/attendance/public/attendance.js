@@ -1,6 +1,7 @@
 const attendanceState = {
   events: [],
   filteredEvents: [],
+  currentEventId: null,
 };
 
 const formatEventLabel = (event) => {
@@ -17,7 +18,7 @@ const formatEventLabel = (event) => {
 const updateEventSelector = (events) => {
   const eventSelector = document.getElementById('eventSelector');
   if (!eventSelector) return;
-
+  const previousSelection = eventSelector.value;
   eventSelector.innerHTML = '<option value="">Select an event</option>';
   events.forEach((event) => {
     const option = document.createElement('option');
@@ -25,6 +26,18 @@ const updateEventSelector = (events) => {
     option.textContent = formatEventLabel(event);
     eventSelector.appendChild(option);
   });
+
+  // Try to preserve an existing selection when possible
+  if (previousSelection && Array.from(eventSelector.options).some((o) => o.value === previousSelection)) {
+    eventSelector.value = previousSelection;
+  } else if (attendanceState.currentEventId && Array.from(eventSelector.options).some((o) => o.value === attendanceState.currentEventId)) {
+    eventSelector.value = attendanceState.currentEventId;
+  } else {
+    // leave as default (no selection)
+    eventSelector.value = '';
+    attendanceState.currentEventId = null;
+  }
+  updateNavButtons();
 };
 
 const updateParticipantCount = (count) => {
@@ -44,34 +57,71 @@ const renderAttendanceRows = (participants) => {
   }
 
   updateParticipantCount(participants.length);
-  attendanceBody.innerHTML = participants
-    .map((participant, index) => {
-      const displayRole = participant.displayedRole || participant.position || 'Participant';
-      const roleLabel = participant.displayedRole ? `<em>${participant.displayedRole}</em>` : '';
-      const metaParts = [participant.position || 'Player'];
-      if (participant.displayedRole) metaParts.push(roleLabel);
+  const teamMap = attendanceState.currentTeamMap || null;
+  const groups = {};
+  const groupOrder = [];
 
-      const name = participant.name || 'Unnamed participant';
-      const noteValue = participant.notes ? participant.notes.replace(/"/g, '&quot;') : '';
-      const status = participant.attendance_status || '';
-      const rsvpClass = status === 'Present' || status === 'Late' ? 'rsvp-yes' : 'rsvp-no';
-      const rsvpIcon = status === 'Present' || status === 'Late' ? '👍' : '👎';
-      const rsvpTitle = status === 'Present' || status === 'Late' ? 'Accepted' : 'Declined';
+  if (teamMap) {
+    participants.forEach((participant) => {
+      const teamValue = participant.team || participant.teamName || '';
+      const teamLabel = teamMap[teamValue] || 'No Team';
+      if (!groups[teamLabel]) {
+        groups[teamLabel] = [];
+        groupOrder.push(teamLabel);
+      }
+      groups[teamLabel].push(participant);
+    });
+  } else {
+    groups.All = participants;
+    groupOrder.push('All');
+  }
 
-      return `
-        <tr class="attendance-row" data-user-id="${participant.userId}">
-          <td class="participant-cell">
-            <span class="participant-name">${name}</span>
-            <span class="participant-meta">${metaParts.join(', ')}</span>
-          </td>
-          <td><input type="radio" name="status_${index}" value="Present" class="att-radio present" ${status === 'Present' ? 'checked' : ''}></td>
-          <td><input type="radio" name="status_${index}" value="Late" class="att-radio late" ${status === 'Late' ? 'checked' : ''}></td>
-          <td><input type="radio" name="status_${index}" value="Absent" class="att-radio absent" ${status === 'Absent' ? 'checked' : ''}></td>
-          <td><input type="radio" name="status_${index}" value="Excused" class="att-radio excused" ${status === 'Excused' ? 'checked' : ''}></td>
-          <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>
-          <td><span class="rsvp-icon ${rsvpClass}" title="${rsvpTitle}">${rsvpIcon}</span></td>
-        </tr>
-      `;
+  attendanceBody.innerHTML = groupOrder
+    .map((groupLabel) => {
+      const rows = groups[groupLabel]
+        .map((participant, index) => {
+          const displayRole = participant.displayedRole || participant.position || 'Participant';
+          const roleLabel = participant.displayedRole ? `<em>${participant.displayedRole}</em>` : '';
+          const metaParts = [participant.position || 'Player'];
+          if (teamMap && teamMap[participant.team || participant.teamName || '']) {
+            metaParts.unshift(`<span class="team-label">${teamMap[participant.team || participant.teamName || '']}</span>`);
+          }
+          if (participant.displayedRole) metaParts.push(roleLabel);
+
+          const name = participant.name || 'Unnamed participant';
+          const noteValue = participant.notes ? participant.notes.replace(/"/g, '&quot;') : '';
+          const status = participant.attendance_status || '';
+          const rsvpClass = status === 'Present' || status === 'Late' ? 'rsvp-yes' : 'rsvp-no';
+          const rsvpIcon = status === 'Present' || status === 'Late' ? '👍' : '👎';
+          const rsvpTitle = status === 'Present' || status === 'Late' ? 'Accepted' : 'Declined';
+
+          return `
+            <tr class="attendance-row" data-user-id="${participant.userId}">
+              <td class="participant-cell">
+                <span class="participant-name">${name}</span>
+                <span class="participant-meta">${metaParts.join(', ')}</span>
+              </td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Present" class="att-radio present" ${status === 'Present' ? 'checked' : ''}></td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Late" class="att-radio late" ${status === 'Late' ? 'checked' : ''}></td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Absent" class="att-radio absent" ${status === 'Absent' ? 'checked' : ''}></td>
+              <td><input type="radio" name="status_${groupLabel}_${index}" value="Excused" class="att-radio excused" ${status === 'Excused' ? 'checked' : ''}></td>
+              <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>
+              <td><span class="rsvp-icon ${rsvpClass}" title="${rsvpTitle}">${rsvpIcon}</span></td>
+            </tr>
+          `;
+        })
+        .join('');
+
+      if (teamMap) {
+        return `
+          <tr class="team-group-header">
+            <td colspan="7">${groupLabel}</td>
+          </tr>
+          ${rows}
+        `;
+      }
+
+      return rows;
     })
     .join('');
 };
@@ -93,7 +143,7 @@ window.saveAttendance = async () => {
 
   const attendance = rows.map((row, index) => {
     const userId = row.dataset.userId;
-    const selectedStatus = row.querySelector(`input[name="status_${index}"]:checked`);
+    const selectedStatus = row.querySelector('input[type="radio"]:checked');
     const notesInput = row.querySelector('.note-input');
 
     const entry = {
@@ -146,7 +196,6 @@ window.filterEvents = () => {
   attendanceState.filteredEvents = selectedType
     ? attendanceState.events.filter((event) => (event.type || '').toLowerCase() === selectedType.toLowerCase())
     : attendanceState.events;
-
   updateEventSelector(attendanceState.filteredEvents);
 };
 
@@ -155,6 +204,8 @@ window.loadEvent = async () => {
   if (!eventSelector) return;
 
   const selectedId = eventSelector.value;
+  attendanceState.currentEventId = selectedId || null;
+  updateNavButtons();
   if (!selectedId) {
     renderAttendanceRows([]);
     return;
@@ -165,11 +216,69 @@ window.loadEvent = async () => {
     if (!response.ok) throw new Error(`Failed to fetch participants: ${response.status}`);
 
     const participants = await response.json();
-    renderAttendanceRows(Array.isArray(participants) ? participants : []);
+    const list = Array.isArray(participants) ? participants : [];
+
+    // Determine team mapping for scrims so we can label Team 1 / Team 2
+    const eventObj = attendanceState.filteredEvents.find((e) => String(e.eventId) === String(selectedId)) || attendanceState.events.find((e) => String(e.eventId) === String(selectedId));
+    attendanceState.currentTeamMap = null;
+    if (eventObj && (eventObj.type || '').toLowerCase() === 'scrim' && list.length > 0) {
+      const seen = [];
+      list.forEach((p) => {
+        const key = p.team || p.teamName || null;
+        if (key && !seen.includes(key)) seen.push(key);
+      });
+      if (seen.length > 0) {
+        // Map first two teams to Team 1 / Team 2, others to Team N
+        attendanceState.currentTeamMap = {};
+        seen.forEach((val, idx) => {
+          attendanceState.currentTeamMap[val] = idx < 2 ? `Team ${idx + 1}` : `Team ${idx + 1}`;
+        });
+      }
+    }
+
+    renderAttendanceRows(list);
   } catch (error) {
     console.error('Error loading event participants:', error);
     renderAttendanceRows([]);
   }
+};
+
+// Navigation helpers: next / previous event based on filteredEvents order
+const getFilteredIndexByEventId = (id) => {
+  if (!id) return -1;
+  return attendanceState.filteredEvents.findIndex((e) => String(e.eventId) === String(id));
+};
+
+const updateNavButtons = () => {
+  const prevBtn = document.getElementById('prevEventBtn');
+  const nextBtn = document.getElementById('nextEventBtn');
+  const has = attendanceState.filteredEvents && attendanceState.filteredEvents.length > 0;
+  if (prevBtn) prevBtn.disabled = !has;
+  if (nextBtn) nextBtn.disabled = !has;
+};
+
+window.prevEvent = () => {
+  const sel = document.getElementById('eventSelector');
+  if (!sel || !attendanceState.filteredEvents || attendanceState.filteredEvents.length === 0) return;
+  const currentId = sel.value;
+  let idx = getFilteredIndexByEventId(currentId);
+  if (idx === -1) idx = 0; // if none selected, start at first
+  const prevIdx = (idx - 1 + attendanceState.filteredEvents.length) % attendanceState.filteredEvents.length;
+  sel.value = attendanceState.filteredEvents[prevIdx].eventId;
+  attendanceState.currentEventId = sel.value;
+  loadEvent();
+};
+
+window.nextEvent = () => {
+  const sel = document.getElementById('eventSelector');
+  if (!sel || !attendanceState.filteredEvents || attendanceState.filteredEvents.length === 0) return;
+  const currentId = sel.value;
+  let idx = getFilteredIndexByEventId(currentId);
+  if (idx === -1) idx = 0;
+  const nextIdx = (idx + 1) % attendanceState.filteredEvents.length;
+  sel.value = attendanceState.filteredEvents[nextIdx].eventId;
+  attendanceState.currentEventId = sel.value;
+  loadEvent();
 };
 
 const loadAttendanceEvents = async () => {
@@ -213,4 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   loadAttendanceEvents();
+  // Wire nav button clicks
+  const prevBtn = document.getElementById('prevEventBtn');
+  const nextBtn = document.getElementById('nextEventBtn');
+  if (prevBtn) prevBtn.addEventListener('click', () => window.prevEvent());
+  if (nextBtn) nextBtn.addEventListener('click', () => window.nextEvent());
 });

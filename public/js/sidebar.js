@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (role === 'Team Coach') {
             links += buildLink('/player_analysis', 'player_analysis_logo.png', 'Player Performance<br>Analysis');
             links += buildLink('/applicant_list', 'applicant_list_icon.png', 'Applicant List');
-            links += buildLink('/tournament', 'tournament_icon.png', 'Tournament Management');
+            links += buildLink('/tournament', 'tournament_icon.png', 'Roster Management');
             links += buildLink('/reports', 'report_icon.png', 'Reports');
         }
 
