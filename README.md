@@ -5,6 +5,21 @@ TeamForge is a Decision Support System for Collegiate League of Legends Esports 
 Access TeamForge through Railway at:
 [teamforge-cap-2510-it-production.up.railway.app](teamforge-cap-2510-it-production.up.railway.app)
 
+## Features
+
+### For Team Managers
+- Authentication
+- User Management
+- Player Performance Analysis Module
+- Recruitment Evaluation Module
+- Announcement Module
+
+- Team Drafting Module
+- Reports Module
+
+- Attendance Module
+- Scheduling *Calendar Module
+
 ## Getting Started
 
 ### Dependencies
