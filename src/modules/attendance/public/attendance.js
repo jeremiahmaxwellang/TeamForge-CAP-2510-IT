@@ -197,6 +197,17 @@ window.filterEvents = () => {
     ? attendanceState.events.filter((event) => (event.type || '').toLowerCase() === selectedType.toLowerCase())
     : attendanceState.events;
   updateEventSelector(attendanceState.filteredEvents);
+
+  // Automatically load the latest scrim when Scrim is selected by default.
+  if (selectedType.toLowerCase() === 'scrim' && attendanceState.filteredEvents.length > 0) {
+    const latestScrimId = attendanceState.filteredEvents[0].eventId;
+    const eventSelector = document.getElementById('eventSelector');
+    if (eventSelector) {
+      eventSelector.value = latestScrimId;
+      attendanceState.currentEventId = String(latestScrimId);
+      loadEvent();
+    }
+  }
 };
 
 window.loadEvent = async () => {
