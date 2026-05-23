@@ -178,6 +178,12 @@ body {
     flex-direction: column;
     gap: 2px;
 }
+    .team-label {
+        font-weight: 700;
+        color: #dcdcdc;
+        display: inline-block;
+        font-size: 12px;
+    }
 
 .participant-name {
     font-weight: 600;

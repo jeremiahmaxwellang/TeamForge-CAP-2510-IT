@@ -62,6 +62,12 @@ const renderAttendanceRows = (participants) => {
       const displayRole = participant.displayedRole || participant.position || 'Participant';
       const roleLabel = participant.displayedRole ? `<em>${participant.displayedRole}</em>` : '';
       const metaParts = [participant.position || 'Player'];
+      // If team mapping exists (set for scrims), show Team 1 / Team 2 label
+      const teamMap = attendanceState.currentTeamMap || null;
+      const teamValue = participant.team || participant.teamName || null;
+      if (teamMap && teamValue && teamMap[teamValue]) {
+        metaParts.unshift(`<span class="team-label">${teamMap[teamValue]}</span>`);
+      }
       if (participant.displayedRole) metaParts.push(roleLabel);
 
       const name = participant.name || 'Unnamed participant';
@@ -179,7 +185,27 @@ window.loadEvent = async () => {
     if (!response.ok) throw new Error(`Failed to fetch participants: ${response.status}`);
 
     const participants = await response.json();
-    renderAttendanceRows(Array.isArray(participants) ? participants : []);
+    const list = Array.isArray(participants) ? participants : [];
+
+    // Determine team mapping for scrims so we can label Team 1 / Team 2
+    const eventObj = attendanceState.filteredEvents.find((e) => String(e.eventId) === String(selectedId)) || attendanceState.events.find((e) => String(e.eventId) === String(selectedId));
+    attendanceState.currentTeamMap = null;
+    if (eventObj && (eventObj.type || '').toLowerCase() === 'scrim' && list.length > 0) {
+      const seen = [];
+      list.forEach((p) => {
+        const key = p.team || p.teamName || null;
+        if (key && !seen.includes(key)) seen.push(key);
+      });
+      if (seen.length > 0) {
+        // Map first two teams to Team 1 / Team 2, others to Team N
+        attendanceState.currentTeamMap = {};
+        seen.forEach((val, idx) => {
+          attendanceState.currentTeamMap[val] = idx < 2 ? `Team ${idx + 1}` : `Team ${idx + 1}`;
+        });
+      }
+    }
+
+    renderAttendanceRows(list);
   } catch (error) {
     console.error('Error loading event participants:', error);
     renderAttendanceRows([]);
