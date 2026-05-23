@@ -19,6 +19,8 @@ NodeJS Installation Tutorial:
 #### 2. MySQL Server and Workbench
 Download here: [https://dev.mysql.com/downloads/installer/](https://dev.mysql.com/downloads/installer/)
 
+How to Access Railway MySQL Connection: [https://www.youtube.com/watch?v=ALKyFmiFH_4](https://www.youtube.com/watch?v=ALKyFmiFH_4)
+
 ### Installation
 
 #### 1. Download ZIP of main branch on GitHub

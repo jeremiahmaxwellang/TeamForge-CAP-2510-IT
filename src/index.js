@@ -118,33 +118,45 @@ async function requireCoachRole(req, res, next) {
 // for shared assets (style.css, sidebar.js, images, fonts)
 app.use(express.static(path.join(process.cwd(), './public')));
 
-// Modules
-app.use('/calendar/static',      express.static(path.join(__dirname, 'modules/calendar/public')));
-app.use('/announcements/static', express.static(path.join(__dirname, 'modules/announcements/public')));
-app.use('/reports/static',       express.static(path.join(__dirname, 'modules/reports/public')));
-app.use('/attendance/static',    express.static(path.join(__dirname, 'modules/attendance/public')));
-
 global.viewsPath = path.join(process.cwd(), 'views');
 
-// Routes
+// =================== Announcements Module =================== 
+app.use('/announcements/static', express.static(path.join(__dirname, 'modules/announcements/public')));
+app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
+
+// =================== Attendance Module =================== 
+app.use('/attendance/static',    express.static(path.join(__dirname, 'modules/attendance/public')));
 app.use('/attendance', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/attendance/attendance_routes')); // attendance routes
 
-app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
+// =================== Calendar Scheduling Module =================== 
+app.use('/calendar/static',      express.static(path.join(__dirname, 'modules/calendar/public')));
 app.use('/calendar', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/calendar_routes')); // calendar routes
-app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes')); // announcement routes
+
+// =================== Reports Module =================== 
+app.use('/reports/static',       express.static(path.join(__dirname, 'modules/reports/public')));
 app.use('/reports', requireAnyRole(['Team Manager', 'Team Coach']), require('./modules/reports/reports_routes'));
+
+// =================== Tournaments Module =================== 
+app.use('/tournaments/static',       express.static(path.join(__dirname, 'modules/tournaments/public'))); // public css and js
+app.use('/tournament', requireRole('Team Coach'), require('./modules/tournaments/tournament_routes')); // tournament routes
+
+
+
+// Routes
+app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes'));
 
 app.use("/", require("./routes/authRoutes")); // login routes
 app.use('/recruitment', require("./routes/recruitmentRoutes")); // recruitment routes
 app.use('/register', require("./routes/registerRoutes")); // registration routes
+
 app.get('/applicant_list/getbyemail', require('./controllers/applicant_listController').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
 app.post('/applicant_list/claim_spot', require('./controllers/applicant_listController').claimRosterSpot); // Allow applicants to press the Claim Spot button
 app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applicant_listRoutes')); // applicant list routes
+
 app.use('/player_analysis', requireAnyRole(['Team Coach', 'Player']), require('./routes/playerAnalysisRoutes'));
 app.use('/riot', requireAnyRole(['Team Coach', 'Player']), require('./routes/riotApiRoutes'));
-app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes')); // team management routes
 
-app.use('/tournament', requireRole('Team Coach'), require('./routes/tournamentRoutes')); // tournament routes
+app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes')); // team management routes
 
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
 app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane

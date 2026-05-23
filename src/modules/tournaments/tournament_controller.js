@@ -1,8 +1,9 @@
-const db = require('../config/database');
+const db = require('../../config/database');
 
 const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 
-const normalizeResult = (value) => {
+// May 23: fixed error "normalizedResult not defined" by fixing type "normalizeResult"
+const normalizedResult = (value) => {
 	if (!value && value !== 0) return 'N/A';
 	const trimmed = String(value).trim();
 	
@@ -62,6 +63,11 @@ const normalizeRoleId = (roleIdValue, roleNameValue) => {
 	};
 
 	return fallbackRoleIdByName[normalizedRoleName] || null;
+};
+
+// Sends the html file
+const getPage = async (req, res) => {
+    res.sendFile('tournament.html', { root: './src/modules/tournaments' }); // Adjust root if your html is somewhere else
 };
 
 const getTournamentPlayers = async (req, res) => {
@@ -549,5 +555,6 @@ module.exports = {
 	getTournamentPlayers,
 	createTournament,
 	updateTournament,
-	getTournaments
+	getTournaments,
+	getPage
 };

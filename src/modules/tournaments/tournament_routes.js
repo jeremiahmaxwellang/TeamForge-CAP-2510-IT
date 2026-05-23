@@ -6,12 +6,12 @@ const {
 	getTournamentPlayers,
 	createTournament,
 	updateTournament,
-	getTournaments
-} = require('../controllers/tournamentControllers');
+	getTournaments,
+	getPage
+} = tournamentController = require('./tournament_controller');
 
-router.get('/', (req, res) => {
-	res.sendFile(path.join(viewsPath, 'tournament.html'));
-});
+// Route to load the webpage
+router.get('/', getPage);
 
 router.get('/api/players', getTournamentPlayers);
 router.get('/api/list', getTournaments);
