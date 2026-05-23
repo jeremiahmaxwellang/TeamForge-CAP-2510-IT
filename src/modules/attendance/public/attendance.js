@@ -1,6 +1,7 @@
 const attendanceState = {
   events: [],
   filteredEvents: [],
+  currentEventId: null,
 };
 
 const formatEventLabel = (event) => {
@@ -17,7 +18,7 @@ const formatEventLabel = (event) => {
 const updateEventSelector = (events) => {
   const eventSelector = document.getElementById('eventSelector');
   if (!eventSelector) return;
-
+  const previousSelection = eventSelector.value;
   eventSelector.innerHTML = '<option value="">Select an event</option>';
   events.forEach((event) => {
     const option = document.createElement('option');
@@ -25,6 +26,18 @@ const updateEventSelector = (events) => {
     option.textContent = formatEventLabel(event);
     eventSelector.appendChild(option);
   });
+
+  // Try to preserve an existing selection when possible
+  if (previousSelection && Array.from(eventSelector.options).some((o) => o.value === previousSelection)) {
+    eventSelector.value = previousSelection;
+  } else if (attendanceState.currentEventId && Array.from(eventSelector.options).some((o) => o.value === attendanceState.currentEventId)) {
+    eventSelector.value = attendanceState.currentEventId;
+  } else {
+    // leave as default (no selection)
+    eventSelector.value = '';
+    attendanceState.currentEventId = null;
+  }
+  updateNavButtons();
 };
 
 const updateParticipantCount = (count) => {
@@ -146,7 +159,6 @@ window.filterEvents = () => {
   attendanceState.filteredEvents = selectedType
     ? attendanceState.events.filter((event) => (event.type || '').toLowerCase() === selectedType.toLowerCase())
     : attendanceState.events;
-
   updateEventSelector(attendanceState.filteredEvents);
 };
 
@@ -155,6 +167,8 @@ window.loadEvent = async () => {
   if (!eventSelector) return;
 
   const selectedId = eventSelector.value;
+  attendanceState.currentEventId = selectedId || null;
+  updateNavButtons();
   if (!selectedId) {
     renderAttendanceRows([]);
     return;
@@ -170,6 +184,44 @@ window.loadEvent = async () => {
     console.error('Error loading event participants:', error);
     renderAttendanceRows([]);
   }
+};
+
+// Navigation helpers: next / previous event based on filteredEvents order
+const getFilteredIndexByEventId = (id) => {
+  if (!id) return -1;
+  return attendanceState.filteredEvents.findIndex((e) => String(e.eventId) === String(id));
+};
+
+const updateNavButtons = () => {
+  const prevBtn = document.getElementById('prevEventBtn');
+  const nextBtn = document.getElementById('nextEventBtn');
+  const has = attendanceState.filteredEvents && attendanceState.filteredEvents.length > 0;
+  if (prevBtn) prevBtn.disabled = !has;
+  if (nextBtn) nextBtn.disabled = !has;
+};
+
+window.prevEvent = () => {
+  const sel = document.getElementById('eventSelector');
+  if (!sel || !attendanceState.filteredEvents || attendanceState.filteredEvents.length === 0) return;
+  const currentId = sel.value;
+  let idx = getFilteredIndexByEventId(currentId);
+  if (idx === -1) idx = 0; // if none selected, start at first
+  const prevIdx = (idx - 1 + attendanceState.filteredEvents.length) % attendanceState.filteredEvents.length;
+  sel.value = attendanceState.filteredEvents[prevIdx].eventId;
+  attendanceState.currentEventId = sel.value;
+  loadEvent();
+};
+
+window.nextEvent = () => {
+  const sel = document.getElementById('eventSelector');
+  if (!sel || !attendanceState.filteredEvents || attendanceState.filteredEvents.length === 0) return;
+  const currentId = sel.value;
+  let idx = getFilteredIndexByEventId(currentId);
+  if (idx === -1) idx = 0;
+  const nextIdx = (idx + 1) % attendanceState.filteredEvents.length;
+  sel.value = attendanceState.filteredEvents[nextIdx].eventId;
+  attendanceState.currentEventId = sel.value;
+  loadEvent();
 };
 
 const loadAttendanceEvents = async () => {
@@ -213,4 +265,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   loadAttendanceEvents();
+  // Wire nav button clicks
+  const prevBtn = document.getElementById('prevEventBtn');
+  const nextBtn = document.getElementById('nextEventBtn');
+  if (prevBtn) prevBtn.addEventListener('click', () => window.prevEvent());
+  if (nextBtn) nextBtn.addEventListener('click', () => window.nextEvent());
 });

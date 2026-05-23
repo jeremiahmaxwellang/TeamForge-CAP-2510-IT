@@ -81,6 +81,56 @@ body {
     margin-bottom: 20px;
 }
 
+/* Event navigation (previous / next) */
+.event-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-triangle {
+    width: 34px;
+    height: 34px;
+    background: transparent;
+    border: 1px solid #45474d;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+}
+
+.nav-triangle:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.nav-triangle:hover:not(:disabled) {
+    background-color: #2b2d31;
+    border-color: #7289da;
+    transform: translateY(-1px);
+}
+
+.nav-triangle::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.triangle-left::before {
+    border-width: 7px 10px 7px 0;
+    border-color: transparent #b9bbbe transparent transparent;
+}
+
+.triangle-right::before {
+    border-width: 7px 0 7px 10px;
+    border-color: transparent transparent transparent #b9bbbe;
+}
+
 /* ── Table ── */
 .attendance-table-wrapper {
     overflow-x: auto;
