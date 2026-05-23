@@ -21,7 +21,7 @@ exports.getAttendanceEvents = async (req, res) => {
                 win,
                 status
             FROM events
-            ORDER BY start_datetime ASC
+            ORDER BY start_datetime DESC
         `);
 
         res.json(events);
