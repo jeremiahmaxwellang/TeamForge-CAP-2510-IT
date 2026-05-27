@@ -10,12 +10,10 @@
     <link rel="stylesheet" href="/attendance/static/attendance.css">
     <link rel="stylesheet" href="/css/topbar-universal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
 </head>
 
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header_container">
             <div class="logo">
                 <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
@@ -23,41 +21,29 @@
             </div>
             <div class="team-name">Viridis Arcus (Team Name)</div>
             <div style="display:flex; align-items:center; gap:12px;">
-                <div style="position: relative; display: flex; align-items: center;">
-                    <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture"
-                        class="js-current-user-photo" id="profileDropdownBtn"
-                        style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--iron-gray); cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
-                    <div id="profileDropdownMenu"
-                        style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
-                        <a href="/settings"
-                            style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;"
-                            onmouseover="this.style.backgroundColor='#f5f5f5'"
-                            onmouseout="this.style.backgroundColor='transparent'">Settings</a>
-                        <a href="/logout"
-                            style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-weight: 500; transition: background 0.2s;"
-                            onmouseover="this.style.backgroundColor='#fef0f0'"
-                            onmouseout="this.style.backgroundColor='transparent'">Logout</a>
+                <div class="coach-topbar-actions">
+                    <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" class="coach-profile-icon js-current-user-photo" id="profileDropdownBtn">
+                    
+                    <div id="profileDropdownMenu">
+                        <a href="/settings">Settings</a>
+                        <a href="/logout" class="logout-link">Logout</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="content-wrapper">
-            <!-- Sidebar -->
             <div class="sidebar" data-role-scope="auto">
                 <ul></ul>
             </div>
 
-            <!-- Main Page -->
             <div class="main-content">
                 <div class="container">
-                    <!-- Header -->
                     <div class="attendance-header">
                         <div class="header-title-section">
                             <h2>Attendance</h2>
                         </div>
 
-                        <!-- Event Type Filter -->
                         <div class="filter-group">
                             <select id="eventTypeFilter" class="attendance-select" onchange="filterEvents()">
                                 <option value="">Type of Event</option>
@@ -70,7 +56,6 @@
                     </div>
 
                     <hr class="attendance-divider">
-                    <!-- Event Selector -->
                     <div class="event-selector-row">
                         <div class="event-nav">
                             <button id="prevEventBtn" class="nav-triangle triangle-left" aria-label="Previous event"></button>
@@ -80,7 +65,6 @@
                             <button id="nextEventBtn" class="nav-triangle triangle-right" aria-label="Next event"></button>
                         </div>
                     </div>
-                    <!-- Attendance Table -->
                     <div class="attendance-table-wrapper">
                         <table class="attendance-table">
                             <thead>
@@ -95,21 +79,16 @@
                                 </tr>
                             </thead>
                             <tbody id="attendanceBody">
-                                <!-- Row Template (repeated per participant) -->
                                 <tr class="attendance-row">
                                     <td class="participant-cell">
                                         <span class="participant-name">Jonathan Banks</span>
                                         <span class="participant-meta">Player, <em>Top</em></span>
                                     </td>
-                                    <td><input type="radio" name="status_1" value="present" class="att-radio present">
-                                    </td>
+                                    <td><input type="radio" name="status_1" value="present" class="att-radio present"></td>
                                     <td><input type="radio" name="status_1" value="late" class="att-radio late"></td>
-                                    <td><input type="radio" name="status_1" value="absent" class="att-radio absent">
-                                    </td>
-                                    <td><input type="radio" name="status_1" value="excused" class="att-radio excused">
-                                    </td>
-                                    <td><input type="text" class="note-input" placeholder="Has exam" value="Has exam">
-                                    </td>
+                                    <td><input type="radio" name="status_1" value="absent" class="att-radio absent"></td>
+                                    <td><input type="radio" name="status_1" value="excused" class="att-radio excused"></td>
+                                    <td><input type="text" class="note-input" placeholder="Has exam" value="Has exam"></td>
                                     <td><span class="rsvp-icon rsvp-no" title="Declined">👎</span></td>
                                 </tr>
                                 <tr class="attendance-row">
@@ -117,13 +96,10 @@
                                         <span class="participant-name">Saul Goodman</span>
                                         <span class="participant-meta">Team Coach</span>
                                     </td>
-                                    <td><input type="radio" name="status_2" value="present" class="att-radio present">
-                                    </td>
+                                    <td><input type="radio" name="status_2" value="present" class="att-radio present"></td>
                                     <td><input type="radio" name="status_2" value="late" class="att-radio late"></td>
-                                    <td><input type="radio" name="status_2" value="absent" class="att-radio absent">
-                                    </td>
-                                    <td><input type="radio" name="status_2" value="excused" class="att-radio excused">
-                                    </td>
+                                    <td><input type="radio" name="status_2" value="absent" class="att-radio absent"></td>
+                                    <td><input type="radio" name="status_2" value="excused" class="att-radio excused"></td>
                                     <td><input type="text" class="note-input" placeholder="Enter note"></td>
                                     <td><span class="rsvp-icon rsvp-yes" title="Accepted">👍</span></td>
                                 </tr>
@@ -132,20 +108,16 @@
                                         <span class="participant-name">Participant Name</span>
                                         <span class="participant-meta">Team Position, <em>Event Role</em></span>
                                     </td>
-                                    <td><input type="radio" name="status_3" value="present" class="att-radio present">
-                                    </td>
+                                    <td><input type="radio" name="status_3" value="present" class="att-radio present"></td>
                                     <td><input type="radio" name="status_3" value="late" class="att-radio late"></td>
-                                    <td><input type="radio" name="status_3" value="absent" class="att-radio absent">
-                                    </td>
-                                    <td><input type="radio" name="status_3" value="excused" class="att-radio excused">
-                                    </td>
+                                    <td><input type="radio" name="status_3" value="absent" class="att-radio absent"></td>
+                                    <td><input type="radio" name="status_3" value="excused" class="att-radio excused"></td>
                                     <td><input type="text" class="note-input" placeholder="Enter note"></td>
                                     <td><span class="rsvp-icon rsvp-yes" title="Accepted">👍</span></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <!-- Save Button -->
                     <div class="attendance-footer">
                         <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
                     </div>
@@ -153,14 +125,11 @@
             </div>
         </div>
 
-    </div> <!-- End of container -->
-
-    <script src="/js/current_user_photo.js"></script>
+    </div> <script src="/js/current_user_photo.js"></script>
     <script src="/js/team_branding.js"></script>
     <script src="/js/userDropdown.js"></script>
     <script src="/js/sidebar.js"></script>
     <script src="/attendance/static/attendance.js"></script>
 </body>
-
 
 </html>
