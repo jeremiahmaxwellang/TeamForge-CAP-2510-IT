@@ -215,35 +215,81 @@ function renderWeek() {
 }
 
 // ── HEATMAP ──────────────────────────────────────────────
+function computeHeatmapData(weekStart) {
+  // weekStart is a Date representing Sunday
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const slots = 12; // 7AM..6PM (12 hourly slots)
+  const startHour = 7;
+
+  // Initialize counts per day/slot
+  const counts = Array.from({ length: 5 }, () => Array(slots).fill(0));
+
+  // Populate counts from events array
+  events.forEach(ev => {
+    try {
+      const d = new Date(ev.date + 'T00:00:00');
+      const dayDiff = Math.floor((d - weekStart) / (24 * 60 * 60 * 1000));
+      // Monday=1 .. Friday=5 relative to sunday(0)
+      if (dayDiff >= 1 && dayDiff <= 5) {
+        const dayIdx = dayDiff - 1; // 0..4
+        const s = (ev.start || '00:00').split(':').map(Number);
+        const e = (ev.end || '23:59').split(':').map(Number);
+        const evStartMin = s[0] * 60 + s[1];
+        const evEndMin = e[0] * 60 + e[1];
+
+        for (let slot = 0; slot < slots; slot++) {
+          const slotStartMin = (startHour + slot) * 60;
+          const slotEndMin = slotStartMin + 60;
+          // consider overlap if any
+          if (evEndMin > slotStartMin && evStartMin < slotEndMin) counts[dayIdx][slot]++;
+        }
+      }
+    } catch (err) { /* ignore malformed events */ }
+  });
+
+  const dotColors = counts.map(dayArr => dayArr.map(c => (c === 0 ? '#22c55e' : c === 1 ? '#facc15' : '#ef4444')));
+  const pcts = counts.map(dayArr => Math.round((dayArr.filter(c => c === 0).length / slots) * 100));
+
+  // freeSlots: collect slots (hour ranges) where all 5 days have zero events
+  const freeSlots = [];
+  for (let slot = 0; slot < slots; slot++) {
+    let allFree = true;
+    for (let d = 0; d < 5; d++) if (counts[d][slot] !== 0) { allFree = false; break; }
+    if (allFree) {
+      const hour = startHour + slot;
+      const startLabel = (hour % 12 === 0 ? 12 : hour % 12) + ':00 ' + (hour >= 12 ? 'PM' : 'AM');
+      const endLabel = ((hour + 1) % 12 === 0 ? 12 : (hour + 1) % 12) + ':00 ' + (hour + 1 >= 12 ? 'PM' : 'AM');
+      freeSlots.push([startLabel + ' – ' + endLabel]);
+    }
+  }
+
+  const fullyFreeDays = pcts.map((p, i) => ({ day: dayNames[i], pct: p })).filter(d => d.pct === 100).map(d => d.day);
+
+  return { dayNames, pcts, dotColors, freeSlots, fullyFreeDays };
+}
+
 function renderHeatmap(weekStart) {
   const panel = document.getElementById('heatmapPanel');
-  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  const pcts = [88, 92, 54, 92, 96];
-  const dotColors = [
-    ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-    ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-    ['#ef4444', '#ef4444', '#facc15', '#facc15', '#facc15', '#facc15', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-    ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-    ['#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e', '#22c55e'],
-  ];
+  const { dayNames, pcts, dotColors, freeSlots, fullyFreeDays } = computeHeatmapData(weekStart);
   const barColor = (p) => p >= 80 ? '#22c55e' : p >= 60 ? '#facc15' : '#ef4444';
 
   let html = `
     <div class="heatmap-header">
       <div class="heatmap-title">Availability Heatmap</div>
-      <div class="heatmap-pct-label">% of players FREE</div>
+      <div class="heatmap-pct-label">% of time slots FREE</div>
     </div>
     <div class="heatmap-days">`;
 
   dayNames.forEach((day, i) => {
+    const pct = pcts[i] || 0;
     html += `
       <div class="hday">
         <div class="hday-row">
           <div class="hday-name">${day}</div>
           <div class="hday-bar-wrap">
-            <div class="hday-bar" style="width:${pcts[i]}%;background:${barColor(pcts[i])}">${pcts[i]}%</div>
+            <div class="hday-bar" style="width:${pct}%;background:${barColor(pct)}">${pct}%</div>
           </div>
-          <div class="hday-pct">${pcts[i]}% free</div>
+          <div class="hday-pct">${pct}% free</div>
         </div>
         <div class="hday-dots">
           ${dotColors[i].map(c => `<div class="hdot" style="background:${c}"></div>`).join('')}
@@ -253,24 +299,17 @@ function renderHeatmap(weekStart) {
 
   html += `</div>
     <div class="free-slots">
-      <div class="free-slots-title">ALL PLAYERS FREE — Day &amp; Time <small style="color:var(--muted);font-weight:400;margin-left:4px;">Selected players</small></div>
-      ${[
-      ['Monday', '1:00 PM – 1:30 PM'],
-      ['Monday', '1:30 PM – 2:00 PM'],
-      ['Monday', '2:00 PM – 2:30 PM'],
-      ['Monday', '2:30 PM – 3:00 PM'],
-      ['Monday', '3:00 PM – 3:30 PM'],
-      ['Monday', '3:30 PM – 4:00 PM'],
-    ].map(([day, time]) => `
+      <div class="free-slots-title">ALL SLOTS FREE — Time ranges where no events exist across the week</div>
+      ${freeSlots.length ? freeSlots.map(timeArr => `
         <div class="free-slot-item">
-          <span class="fsi-day">${day}</span>
-          <span class="fsi-time">🕐 ${time}</span>
-          <span class="fsi-note">All players free</span>
-        </div>`).join('')}
+          <span class="fsi-day">Any</span>
+          <span class="fsi-time">🕐 ${timeArr[0]}</span>
+          <span class="fsi-note">No events this week</span>
+        </div>`).join('') : '<div class="no-free">No fully free slots this week</div>'}
     </div>
     <div class="free-days-section">
       <div class="free-days-title">Completely Free Days (100% all day)</div>
-      <div class="no-free">No fully free days</div>
+      ${fullyFreeDays.length ? fullyFreeDays.map(d => `<div class="free-day-item">${d}</div>`).join('') : '<div class="no-free">No fully free days</div>'}
     </div>`;
 
   panel.innerHTML = html;

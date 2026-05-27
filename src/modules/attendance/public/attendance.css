@@ -25,6 +25,55 @@ body {
     box-sizing: border-box;
 }
 
+/* ── Universal Header Topbar Additions ── */
+.coach-topbar-actions {
+    position: relative;
+}
+
+.coach-profile-icon {
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+    width: 50px;
+}
+
+#profileDropdownMenu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 75px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    width: 160px;
+    overflow: hidden;
+    z-index: 1000;
+    font-family: sans-serif;
+}
+
+#profileDropdownMenu a {
+    display: block;
+    padding: 12px 16px;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+#profileDropdownMenu a:hover {
+    background-color: #f5f5f5;
+}
+
+#profileDropdownMenu a.logout-link {
+    color: #dc3545;
+    border-bottom: none;
+}
+
+#profileDropdownMenu a.logout-link:hover {
+    background-color: #fef0f0;
+}
+
 /* ── Attendance Header ── */
 .attendance-header {
     display: flex;
