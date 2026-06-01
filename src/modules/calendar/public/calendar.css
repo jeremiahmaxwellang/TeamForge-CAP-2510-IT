@@ -575,58 +575,6 @@ body {
   opacity: .85;
 }
 
-/* ── HEATMAP PANEL ── */
-.heatmap-panel {
-  width: 280px;
-  border-left: 1px solid var(--border);
-  background: var(--panel);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.heatmap-panel::-webkit-scrollbar {
-  width: 4px;
-}
-
-.heatmap-panel::-webkit-scrollbar-thumb {
-  background: var(--border);
-}
-
-.heatmap-header {
-  padding: 16px 16px 12px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.heatmap-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.heatmap-title::before {
-  content: '🔥';
-}
-
-.heatmap-pct-label {
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.heatmap-days {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-}
-
 .hday {
   display: flex;
   flex-direction: column;
