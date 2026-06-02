@@ -327,6 +327,7 @@ function saveEvent() {
   const date = document.getElementById('evDate').value;
   const start = document.getElementById('evStart').value;
   const end = document.getElementById('evEnd').value;
+  const sendGcal = document.getElementById('evSendGcal').checked; // <-- Capture checkbox
   const participants = [];
 
   if (type !== 'Meeting') {
@@ -346,7 +347,8 @@ function saveEvent() {
     end_datetime: date && end ? `${date} ${end}:00` : null,
     videoLink: document.getElementById('evVideo').value,
     win: document.getElementById('evWL').value,
-    participants
+    participants,
+    sendGcal // <-- Add to payload
   };
 
   fetch('/calendar/api/create', {
@@ -357,9 +359,8 @@ function saveEvent() {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        events.push({ id: data.eventId || Date.now(), title, type, date, start, end, creatorName: 'You', color: getEventColor(type) });
         closeModal();
-        render();
+        loadEvents(); // Reload everything fresh
       } else {
         alert(data.message || 'Failed to create event');
       }
@@ -572,16 +573,20 @@ function updateGcalUI() {
   const btn = document.getElementById('gcalBtn');
   const label = document.getElementById('gcalBtnLabel');
   const disconnect = document.getElementById('gcalDisconnect');
+  const inviteWrapper = document.getElementById('gcalInviteWrapper'); // <-- The new UI wrapper
+  
   if (!btn) return;
   if (gcalConnected) {
     btn.classList.add('connected');
     btn.classList.remove('loading');
     label.textContent = 'Google Calendar Linked';
     disconnect.style.display = 'inline';
+    if(inviteWrapper) inviteWrapper.style.display = 'flex'; // Show checkbox in modal
   } else {
     btn.classList.remove('connected', 'loading');
     label.textContent = 'Connect Google Calendar';
     disconnect.style.display = 'none';
+    if(inviteWrapper) inviteWrapper.style.display = 'none'; // Hide checkbox in modal
   }
 }
 
