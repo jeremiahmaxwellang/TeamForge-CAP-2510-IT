@@ -324,8 +324,6 @@ function openCreateModal(ds) {
   document.getElementById('evStart').value = '10:00';
   document.getElementById('evEnd').value = '11:00';
   document.getElementById('evLocation').value = '';
-  document.getElementById('evVideo').value = '';
-  document.getElementById('evWL').value = 'N/A';
   document.getElementById('modalOverlay').classList.add('open');
 
   document.querySelectorAll('.role-slot .player-card').forEach(el => el.remove());
@@ -363,8 +361,6 @@ function saveEvent() {
     start_datetime: date && start ? `${date} ${start}:00` : null,
     end_date: date,
     end_datetime: date && end ? `${date} ${end}:00` : null,
-    videoLink: document.getElementById('evVideo').value,
-    win: document.getElementById('evWL').value,
     participants
   };
 
