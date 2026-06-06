@@ -325,8 +325,19 @@ function moveHiddenSlotCardsToPool(columnSelector) {
 }
 
 function updateOptionalLineups() {
-  const enableSubs = document.getElementById('evEnableSubs')?.checked;
-  const enableTeam2 = document.getElementById('evEnableTeam2')?.checked;
+  const subsCheckbox = document.getElementById('evEnableSubs');
+  const team2Checkbox = document.getElementById('evEnableTeam2');
+
+  if (subsCheckbox?.checked && team2Checkbox?.checked) {
+    if (document.activeElement === team2Checkbox) {
+      subsCheckbox.checked = false;
+    } else {
+      team2Checkbox.checked = false;
+    }
+  }
+
+  const enableSubs = subsCheckbox?.checked;
+  const enableTeam2 = team2Checkbox?.checked;
   const subCol = document.getElementById('subRoleColumn');
   const team2Col = document.getElementById('team2RoleColumn');
 
@@ -462,8 +473,14 @@ function triggerLayoutToggle() {
 }
 
 document.getElementById('evType').addEventListener('change', triggerLayoutToggle);
-document.getElementById('evEnableSubs').addEventListener('change', updateOptionalLineups);
-document.getElementById('evEnableTeam2').addEventListener('change', updateOptionalLineups);
+document.getElementById('evEnableSubs').addEventListener('change', (e) => {
+  if (e.target.checked) document.getElementById('evEnableTeam2').checked = false;
+  updateOptionalLineups();
+});
+document.getElementById('evEnableTeam2').addEventListener('change', (e) => {
+  if (e.target.checked) document.getElementById('evEnableSubs').checked = false;
+  updateOptionalLineups();
+});
 ['evDate', 'evStart', 'evEnd'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     if (document.getElementById('evType').value !== 'Meeting') fetchAvailability();
@@ -521,8 +538,42 @@ function renderPlayers(players) {
 }
 
 let draggedCard = null;
-function handleDragStart(e) { draggedCard = this; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => this.style.opacity = '0.5', 0); }
-function handleDragEnd(e) { this.style.opacity = '1'; draggedCard = null; }
+function handleDragStart(e) {
+  draggedCard = this;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => this.style.opacity = '0.5', 0);
+}
+function handleDragEnd(e) {
+  this.style.opacity = '1';
+  draggedCard = null;
+}
+
+function animateCardMove(card, targetParent) {
+  const initialRect = card.getBoundingClientRect();
+  targetParent.appendChild(card);
+  const finalRect = card.getBoundingClientRect();
+  const deltaX = initialRect.left - finalRect.left;
+  const deltaY = initialRect.top - finalRect.top;
+
+  if (deltaX === 0 && deltaY === 0) return;
+
+  card.classList.add('moving');
+  card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+  card.style.opacity = '0.85';
+
+  requestAnimationFrame(() => {
+    card.style.transform = '';
+    card.style.opacity = '1';
+  });
+
+  const cleanup = () => {
+    card.classList.remove('moving');
+    card.style.transform = '';
+    card.style.opacity = '';
+    card.removeEventListener('transitionend', cleanup);
+  };
+  card.addEventListener('transitionend', cleanup);
+}
 
 document.querySelectorAll('.role-slot').forEach(slot => {
   slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('over'); });
@@ -532,9 +583,11 @@ document.querySelectorAll('.role-slot').forEach(slot => {
     this.classList.remove('over');
     if (draggedCard) {
       const existing = this.querySelector('.player-card');
-      if (existing) document.getElementById('availablePlayers').appendChild(existing);
+      if (existing) {
+        animateCardMove(existing, document.getElementById('availablePlayers'));
+      }
       this.querySelector('.placeholder-text').style.display = 'none';
-      this.appendChild(draggedCard);
+      animateCardMove(draggedCard, this);
       fetchAvailability();
     }
   });
@@ -547,7 +600,7 @@ document.querySelectorAll('.players-pool-grid').forEach(pool => {
     if (draggedCard) {
       const originSlot = draggedCard.closest('.role-slot');
       if (originSlot) originSlot.querySelector('.placeholder-text').style.display = 'inline';
-      this.appendChild(draggedCard);
+      animateCardMove(draggedCard, this);
       fetchAvailability();
     }
   });
