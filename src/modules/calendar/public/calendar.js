@@ -316,6 +316,27 @@ function renderHeatmap(weekStart) {
 }
 
 // ── MODAL ────────────────────────────────────────────────
+function moveHiddenSlotCardsToPool(columnSelector) {
+  document.querySelectorAll(`${columnSelector} .player-card`).forEach(card => {
+    const slot = card.closest('.role-slot');
+    if (slot) slot.querySelector('.placeholder-text').style.display = 'inline';
+    document.getElementById('availablePlayers').appendChild(card);
+  });
+}
+
+function updateOptionalLineups() {
+  const enableSubs = document.getElementById('evEnableSubs')?.checked;
+  const enableTeam2 = document.getElementById('evEnableTeam2')?.checked;
+  const subCol = document.getElementById('subRoleColumn');
+  const team2Col = document.getElementById('team2RoleColumn');
+
+  if (subCol) subCol.style.display = enableSubs ? 'flex' : 'none';
+  if (team2Col) team2Col.style.display = enableTeam2 ? 'flex' : 'none';
+
+  if (!enableSubs) moveHiddenSlotCardsToPool('#subRoleColumn');
+  if (!enableTeam2) moveHiddenSlotCardsToPool('#team2RoleColumn');
+}
+
 function openCreateModal(ds) {
   pendingDate = ds || today();
   document.getElementById('evDate').value = pendingDate;
@@ -324,11 +345,14 @@ function openCreateModal(ds) {
   document.getElementById('evStart').value = '10:00';
   document.getElementById('evEnd').value = '11:00';
   document.getElementById('evLocation').value = '';
+  document.getElementById('evEnableSubs').checked = false;
+  document.getElementById('evEnableTeam2').checked = false;
   document.getElementById('modalOverlay').classList.add('open');
 
   document.querySelectorAll('.role-slot .player-card').forEach(el => el.remove());
   document.querySelectorAll('.placeholder-text').forEach(el => el.style.display = 'inline');
 
+  updateOptionalLineups();
   triggerLayoutToggle();
 }
 
@@ -349,7 +373,12 @@ function saveEvent() {
   if (type !== 'Meeting') {
     document.querySelectorAll('.role-slot .player-card').forEach(card => {
       const slot = card.closest('.role-slot');
-      participants.push({ userId: card.dataset.userId, role: slot.dataset.role, isSub: slot.dataset.sub });
+      participants.push({
+        userId: card.dataset.userId,
+        role: slot.dataset.role,
+        isSub: slot.dataset.sub,
+        team: slot.dataset.team || 'Team 1'
+      });
     });
   }
 
@@ -427,11 +456,14 @@ function triggerLayoutToggle() {
     grid.classList.add('expanded');
     pCol.style.display = 'block';
     rCol.style.display = 'block';
+    updateOptionalLineups();
     fetchAvailability();
   }
 }
 
 document.getElementById('evType').addEventListener('change', triggerLayoutToggle);
+document.getElementById('evEnableSubs').addEventListener('change', updateOptionalLineups);
+document.getElementById('evEnableTeam2').addEventListener('change', updateOptionalLineups);
 ['evDate', 'evStart', 'evEnd'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     if (document.getElementById('evType').value !== 'Meeting') fetchAvailability();

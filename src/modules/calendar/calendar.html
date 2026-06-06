@@ -201,36 +201,59 @@
             <label>Location</label>
             <input type="text" id="evLocation" placeholder="Online / venue" />
           </div>
+          <div class="modal-row" style="gap:1rem;align-items:center;">
+            <label class="checkbox-label" style="display:flex;align-items:center;gap:0.5rem;">
+              <input type="checkbox" id="evEnableSubs" />
+              Add Subs
+            </label>
+            <label class="checkbox-label" style="display:flex;align-items:center;gap:0.5rem;">
+              <input type="checkbox" id="evEnableTeam2" />
+              Add Team 2
+            </label>
+          </div>
         </div>
 
         <!-- COLUMN 2: Participants -->
         <div class="event-participants-col" id="eventParticipantsCol">
           <div class="modal-title" style="margin-bottom:12px;font-size:16px;">Participants</div>
           <div class="participants-layout">
-            <div class="role-column">
-              <h4 style="color:var(--muted);font-size:12px;margin-bottom:5px;">Players</h4>
-              <div class="role-slot" data-role="Top" data-sub="N"><span class="role-label">Top</span> <span
+            <div class="role-column" id="mainRoleColumn">
+              <h4 style="color:var(--muted);font-size:12px;margin-bottom:5px;">Team 1</h4>
+              <div class="role-slot" data-role="Top" data-sub="N" data-team="Team 1"><span class="role-label">Top</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="Jungle" data-sub="N"><span class="role-label">Jungle</span> <span
+              <div class="role-slot" data-role="Jungle" data-sub="N" data-team="Team 1"><span class="role-label">Jungle</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="Mid" data-sub="N"><span class="role-label">Mid</span> <span
+              <div class="role-slot" data-role="Mid" data-sub="N" data-team="Team 1"><span class="role-label">Mid</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="ADC" data-sub="N"><span class="role-label">ADC</span> <span
+              <div class="role-slot" data-role="ADC" data-sub="N" data-team="Team 1"><span class="role-label">ADC</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="Support" data-sub="N"><span class="role-label">Support</span> <span
+              <div class="role-slot" data-role="Support" data-sub="N" data-team="Team 1"><span class="role-label">Support</span> <span
                   class="placeholder-text">Drop player here</span></div>
             </div>
-            <div class="role-column">
-              <h4 style="color:var(--muted);font-size:12px;margin-bottom:5px;">Sub</h4>
-              <div class="role-slot" data-role="Top" data-sub="Y"><span class="role-label">Top</span> <span
+            <div class="role-column" id="subRoleColumn" style="display:none;">
+              <h4 style="color:var(--muted);font-size:12px;margin-bottom:5px;">Subs</h4>
+              <div class="role-slot" data-role="Top" data-sub="Y" data-team="Sub"><span class="role-label">Top</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="Jungle" data-sub="Y"><span class="role-label">Jungle</span> <span
+              <div class="role-slot" data-role="Jungle" data-sub="Y" data-team="Sub"><span class="role-label">Jungle</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="Mid" data-sub="Y"><span class="role-label">Mid</span> <span
+              <div class="role-slot" data-role="Mid" data-sub="Y" data-team="Sub"><span class="role-label">Mid</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="ADC" data-sub="Y"><span class="role-label">ADC</span> <span
+              <div class="role-slot" data-role="ADC" data-sub="Y" data-team="Sub"><span class="role-label">ADC</span> <span
                   class="placeholder-text">Drop player here</span></div>
-              <div class="role-slot" data-role="Support" data-sub="Y"><span class="role-label">Support</span> <span
+              <div class="role-slot" data-role="Support" data-sub="Y" data-team="Sub"><span class="role-label">Support</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+            </div>
+            <div class="role-column" id="team2RoleColumn" style="display:none;">
+              <h4 style="color:var(--muted);font-size:12px;margin-bottom:5px;">Team 2</h4>
+              <div class="role-slot" data-role="Top" data-sub="N" data-team="Team 2"><span class="role-label">Top</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Jungle" data-sub="N" data-team="Team 2"><span class="role-label">Jungle</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Mid" data-sub="N" data-team="Team 2"><span class="role-label">Mid</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="ADC" data-sub="N" data-team="Team 2"><span class="role-label">ADC</span> <span
+                  class="placeholder-text">Drop player here</span></div>
+              <div class="role-slot" data-role="Support" data-sub="N" data-team="Team 2"><span class="role-label">Support</span> <span
                   class="placeholder-text">Drop player here</span></div>
             </div>
           </div>
