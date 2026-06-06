@@ -474,11 +474,17 @@ function triggerLayoutToggle() {
 
 document.getElementById('evType').addEventListener('change', triggerLayoutToggle);
 document.getElementById('evEnableSubs').addEventListener('change', (e) => {
-  if (e.target.checked) document.getElementById('evEnableTeam2').checked = false;
+  if (e.target.checked) {
+    const t2 = document.getElementById('evEnableTeam2');
+    if (t2) t2.checked = false;
+  }
   updateOptionalLineups();
 });
 document.getElementById('evEnableTeam2').addEventListener('change', (e) => {
-  if (e.target.checked) document.getElementById('evEnableSubs').checked = false;
+  if (e.target.checked) {
+    const subs = document.getElementById('evEnableSubs');
+    if (subs) subs.checked = false;
+  }
   updateOptionalLineups();
 });
 ['evDate', 'evStart', 'evEnd'].forEach(id => {
