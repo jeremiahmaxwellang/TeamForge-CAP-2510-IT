@@ -799,7 +799,7 @@ body {
   max-width: 95vw;
   transform: translateY(10px);
   max-height: calc(100vh - 80px);
-  overflow: auto;
+  overflow: hidden; /* keep modal fixed; make inner column scrollable */
   transition: transform .2s, width .3s ease;
   box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
 }
@@ -1065,6 +1065,17 @@ body {
   flex-direction: column;
   gap: 5px;
   min-height: 30px;
+}
+
+/* Make the roster column the only scrollable area in the modal */
+.event-roster-col {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(100vh - 220px);
+  padding-right: 8px; /* make room for scrollbar */
+}
+.modal.expanded .event-roster-col {
+  max-height: calc(100vh - 240px);
 }
 
 .player-card {
