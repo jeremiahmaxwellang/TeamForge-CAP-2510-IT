@@ -316,6 +316,38 @@ function renderHeatmap(weekStart) {
 }
 
 // ── MODAL ────────────────────────────────────────────────
+function moveHiddenSlotCardsToPool(columnSelector) {
+  document.querySelectorAll(`${columnSelector} .player-card`).forEach(card => {
+    const slot = card.closest('.role-slot');
+    if (slot) slot.querySelector('.placeholder-text').style.display = 'inline';
+    document.getElementById('availablePlayers').appendChild(card);
+  });
+}
+
+function updateOptionalLineups() {
+  const subsCheckbox = document.getElementById('evEnableSubs');
+  const team2Checkbox = document.getElementById('evEnableTeam2');
+
+  if (subsCheckbox?.checked && team2Checkbox?.checked) {
+    if (document.activeElement === team2Checkbox) {
+      subsCheckbox.checked = false;
+    } else {
+      team2Checkbox.checked = false;
+    }
+  }
+
+  const enableSubs = subsCheckbox?.checked;
+  const enableTeam2 = team2Checkbox?.checked;
+  const subCol = document.getElementById('subRoleColumn');
+  const team2Col = document.getElementById('team2RoleColumn');
+
+  if (subCol) subCol.style.display = enableSubs ? 'flex' : 'none';
+  if (team2Col) team2Col.style.display = enableTeam2 ? 'flex' : 'none';
+
+  if (!enableSubs) moveHiddenSlotCardsToPool('#subRoleColumn');
+  if (!enableTeam2) moveHiddenSlotCardsToPool('#team2RoleColumn');
+}
+
 function openCreateModal(ds) {
   pendingDate = ds || today();
   document.getElementById('evDate').value = pendingDate;
@@ -324,13 +356,14 @@ function openCreateModal(ds) {
   document.getElementById('evStart').value = '10:00';
   document.getElementById('evEnd').value = '11:00';
   document.getElementById('evLocation').value = '';
-  document.getElementById('evVideo').value = '';
-  document.getElementById('evWL').value = 'N/A';
+  document.getElementById('evEnableSubs').checked = false;
+  document.getElementById('evEnableTeam2').checked = false;
   document.getElementById('modalOverlay').classList.add('open');
 
   document.querySelectorAll('.role-slot .player-card').forEach(el => el.remove());
   document.querySelectorAll('.placeholder-text').forEach(el => el.style.display = 'inline');
 
+  updateOptionalLineups();
   triggerLayoutToggle();
 }
 
@@ -351,7 +384,12 @@ function saveEvent() {
   if (type !== 'Meeting') {
     document.querySelectorAll('.role-slot .player-card').forEach(card => {
       const slot = card.closest('.role-slot');
-      participants.push({ userId: card.dataset.userId, role: slot.dataset.role, isSub: slot.dataset.sub });
+      participants.push({
+        userId: card.dataset.userId,
+        role: slot.dataset.role,
+        isSub: slot.dataset.sub,
+        team: slot.dataset.team || 'Team 1'
+      });
     });
   }
 
@@ -363,8 +401,6 @@ function saveEvent() {
     start_datetime: date && start ? `${date} ${start}:00` : null,
     end_date: date,
     end_datetime: date && end ? `${date} ${end}:00` : null,
-    videoLink: document.getElementById('evVideo').value,
-    win: document.getElementById('evWL').value,
     participants
   };
 
@@ -431,11 +467,26 @@ function triggerLayoutToggle() {
     grid.classList.add('expanded');
     pCol.style.display = 'block';
     rCol.style.display = 'block';
+    updateOptionalLineups();
     fetchAvailability();
   }
 }
 
 document.getElementById('evType').addEventListener('change', triggerLayoutToggle);
+document.getElementById('evEnableSubs').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    const t2 = document.getElementById('evEnableTeam2');
+    if (t2) t2.checked = false;
+  }
+  updateOptionalLineups();
+});
+document.getElementById('evEnableTeam2').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    const subs = document.getElementById('evEnableSubs');
+    if (subs) subs.checked = false;
+  }
+  updateOptionalLineups();
+});
 ['evDate', 'evStart', 'evEnd'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     if (document.getElementById('evType').value !== 'Meeting') fetchAvailability();
@@ -493,8 +544,42 @@ function renderPlayers(players) {
 }
 
 let draggedCard = null;
-function handleDragStart(e) { draggedCard = this; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => this.style.opacity = '0.5', 0); }
-function handleDragEnd(e) { this.style.opacity = '1'; draggedCard = null; }
+function handleDragStart(e) {
+  draggedCard = this;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => this.style.opacity = '0.5', 0);
+}
+function handleDragEnd(e) {
+  this.style.opacity = '1';
+  draggedCard = null;
+}
+
+function animateCardMove(card, targetParent) {
+  const initialRect = card.getBoundingClientRect();
+  targetParent.appendChild(card);
+  const finalRect = card.getBoundingClientRect();
+  const deltaX = initialRect.left - finalRect.left;
+  const deltaY = initialRect.top - finalRect.top;
+
+  if (deltaX === 0 && deltaY === 0) return;
+
+  card.classList.add('moving');
+  card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+  card.style.opacity = '0.85';
+
+  requestAnimationFrame(() => {
+    card.style.transform = '';
+    card.style.opacity = '1';
+  });
+
+  const cleanup = () => {
+    card.classList.remove('moving');
+    card.style.transform = '';
+    card.style.opacity = '';
+    card.removeEventListener('transitionend', cleanup);
+  };
+  card.addEventListener('transitionend', cleanup);
+}
 
 document.querySelectorAll('.role-slot').forEach(slot => {
   slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('over'); });
@@ -504,9 +589,11 @@ document.querySelectorAll('.role-slot').forEach(slot => {
     this.classList.remove('over');
     if (draggedCard) {
       const existing = this.querySelector('.player-card');
-      if (existing) document.getElementById('availablePlayers').appendChild(existing);
+      if (existing) {
+        animateCardMove(existing, document.getElementById('availablePlayers'));
+      }
       this.querySelector('.placeholder-text').style.display = 'none';
-      this.appendChild(draggedCard);
+      animateCardMove(draggedCard, this);
       fetchAvailability();
     }
   });
@@ -519,7 +606,7 @@ document.querySelectorAll('.players-pool-grid').forEach(pool => {
     if (draggedCard) {
       const originSlot = draggedCard.closest('.role-slot');
       if (originSlot) originSlot.querySelector('.placeholder-text').style.display = 'inline';
-      this.appendChild(draggedCard);
+      animateCardMove(draggedCard, this);
       fetchAvailability();
     }
   });
