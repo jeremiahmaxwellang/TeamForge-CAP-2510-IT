@@ -25,7 +25,7 @@ exports.getAvailability = async (req, res) => {
             JOIN players p ON u.userId = p.userId
             LEFT JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
             LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
-            WHERE u.position = 'Player' AND u.status = 'Active'
+            WHERE u.position IN ('Player', 'Sub') AND u.status = 'Active'
         `);
 
         if (!date || !start || !end) {
@@ -100,11 +100,12 @@ exports.createEvent = async (req, res) => {
                 eventId, 
                 p.userId, 
                 roleMap[p.role] || null, // Translates to an integer (1-5)
-                p.isSub || 'N'
+                p.isSub || 'N',
+                p.team || 'Team 1'
             ]);
             
             await db.query(`
-                INSERT INTO event_attendees (eventId, userId, player_role, is_sub) 
+                INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team) 
                 VALUES ?
             `, [values]);
         }
