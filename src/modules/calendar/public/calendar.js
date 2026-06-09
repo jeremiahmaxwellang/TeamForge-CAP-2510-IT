@@ -3,14 +3,29 @@ let currentDate = new Date(2026, 3, 1); // April 2026
 let currentView = 'month';
 let pendingDate = null;
 
+// Static Colors for official Team Events
 const TYPE_COLORS = {
-  Scrim: '#f97316',
-  Tournament: '#facc15',
-  Meeting: '#22c55e',
-  Other: '#d1d5db',
-  Class: '#ef4444',
-  Default: '#38bdf8'
+  Scrim: '#f97316',      // Orange
+  Tournament: '#facc15', // Yellow
+  Meeting: '#22c55e',    // Green
+  Other: '#d1d5db'       // Gray
 };
+
+// Palette for individual Player Schedules
+const PLAYER_PALETTE = [
+  '#ef4444', // Red
+  '#8b5cf6', // Purple
+  '#06b6d4', // Cyan
+  '#ec4899', // Pink
+  '#14b8a6', // Teal
+  '#f43f5e', // Rose
+  '#84cc16', // Lime
+  '#a855f7', // Amethyst
+  '#6366f1'  // Indigo
+];
+
+let playerColors = {};
+let colorIndex = 0;
 
 let events = [];
 
@@ -31,6 +46,75 @@ function buildCreatorName(firstname, lastname, role) {
 }
 function buildEventTitle(ev) {
   return ev.creatorName ? `${ev.title}\nCreated by: ${ev.creatorName}` : ev.title;
+}
+
+// ── DYNAMIC COLORING & LEGEND ────────────────────────────
+function processEventColor(ev) {
+  // Only catch the 3 official team events here
+  if (['Scrim', 'Tournament', 'Meeting'].includes(ev.type)) {
+    return TYPE_COLORS[ev.type];
+  } else {
+    // EVERYTHING ELSE (Type 'Other', Classes, Google Imports) gets grouped by the Player
+    const name = ev.creatorName || 'Unknown Player';
+    
+    // Assign a unique color if they don't have one yet
+    if (!playerColors[name]) {
+      playerColors[name] = PLAYER_PALETTE[colorIndex % PLAYER_PALETTE.length];
+      colorIndex++;
+    }
+    
+    return playerColors[name];
+  }
+}
+function updateColorsAndLegend() {
+  // Reset color mapping so we don't keep orphaned players
+  playerColors = {};
+  colorIndex = 0;
+
+  events.forEach(e => {
+    e.color = processEventColor(e);
+  });
+
+  renderLegend();
+}
+
+function renderLegend() {
+  const container = document.getElementById('dynamicLegend');
+  if (!container) return;
+  
+  let html = '';
+  
+  // Team Events Legend
+  html += `
+    <div class="sidebar-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span class="sidebar-label" style="margin:0">Team Events</span>
+      </div>
+      <div class="calendar-list">
+        <div class="cal-item"><div class="cal-dot checked" style="background:${TYPE_COLORS.Scrim};"></div>Scrim</div>
+        <div class="cal-item"><div class="cal-dot checked" style="background:${TYPE_COLORS.Tournament};"></div>Tournament</div>
+        <div class="cal-item"><div class="cal-dot checked" style="background:${TYPE_COLORS.Meeting};"></div>Meeting</div>
+      </div>
+    </div>
+  `;
+  
+  // Player Schedules Legend
+  const players = Object.keys(playerColors);
+  if (players.length > 0) {
+    html += `
+      <div class="sidebar-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span class="sidebar-label" style="margin:0">Player Schedules</span>
+        </div>
+        <div class="calendar-list">
+    `;
+    players.forEach(player => {
+      html += `<div class="cal-item"><div class="cal-dot checked" style="background:${playerColors[player]};"></div>${player}</div>`;
+    });
+    html += `</div></div>`;
+  }
+  
+  container.innerHTML = html;
 }
 
 // ── NAVIGATION ───────────────────────────────────────────
@@ -210,109 +294,6 @@ function renderWeek() {
 
     body.appendChild(col);
   }
-
-  renderHeatmap(sun);
-}
-
-// ── HEATMAP ──────────────────────────────────────────────
-function computeHeatmapData(weekStart) {
-  // weekStart is a Date representing Sunday
-  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  const slots = 12; // 7AM..6PM (12 hourly slots)
-  const startHour = 7;
-
-  // Initialize counts per day/slot
-  const counts = Array.from({ length: 5 }, () => Array(slots).fill(0));
-
-  // Populate counts from events array
-  events.forEach(ev => {
-    try {
-      const d = new Date(ev.date + 'T00:00:00');
-      const dayDiff = Math.floor((d - weekStart) / (24 * 60 * 60 * 1000));
-      // Monday=1 .. Friday=5 relative to sunday(0)
-      if (dayDiff >= 1 && dayDiff <= 5) {
-        const dayIdx = dayDiff - 1; // 0..4
-        const s = (ev.start || '00:00').split(':').map(Number);
-        const e = (ev.end || '23:59').split(':').map(Number);
-        const evStartMin = s[0] * 60 + s[1];
-        const evEndMin = e[0] * 60 + e[1];
-
-        for (let slot = 0; slot < slots; slot++) {
-          const slotStartMin = (startHour + slot) * 60;
-          const slotEndMin = slotStartMin + 60;
-          // consider overlap if any
-          if (evEndMin > slotStartMin && evStartMin < slotEndMin) counts[dayIdx][slot]++;
-        }
-      }
-    } catch (err) { /* ignore malformed events */ }
-  });
-
-  const dotColors = counts.map(dayArr => dayArr.map(c => (c === 0 ? '#22c55e' : c === 1 ? '#facc15' : '#ef4444')));
-  const pcts = counts.map(dayArr => Math.round((dayArr.filter(c => c === 0).length / slots) * 100));
-
-  // freeSlots: collect slots (hour ranges) where all 5 days have zero events
-  const freeSlots = [];
-  for (let slot = 0; slot < slots; slot++) {
-    let allFree = true;
-    for (let d = 0; d < 5; d++) if (counts[d][slot] !== 0) { allFree = false; break; }
-    if (allFree) {
-      const hour = startHour + slot;
-      const startLabel = (hour % 12 === 0 ? 12 : hour % 12) + ':00 ' + (hour >= 12 ? 'PM' : 'AM');
-      const endLabel = ((hour + 1) % 12 === 0 ? 12 : (hour + 1) % 12) + ':00 ' + (hour + 1 >= 12 ? 'PM' : 'AM');
-      freeSlots.push([startLabel + ' – ' + endLabel]);
-    }
-  }
-
-  const fullyFreeDays = pcts.map((p, i) => ({ day: dayNames[i], pct: p })).filter(d => d.pct === 100).map(d => d.day);
-
-  return { dayNames, pcts, dotColors, freeSlots, fullyFreeDays };
-}
-
-function renderHeatmap(weekStart) {
-  const panel = document.getElementById('heatmapPanel');
-  const { dayNames, pcts, dotColors, freeSlots, fullyFreeDays } = computeHeatmapData(weekStart);
-  const barColor = (p) => p >= 80 ? '#22c55e' : p >= 60 ? '#facc15' : '#ef4444';
-
-  let html = `
-    <div class="heatmap-header">
-      <div class="heatmap-title">Availability Heatmap</div>
-      <div class="heatmap-pct-label">% of time slots FREE</div>
-    </div>
-    <div class="heatmap-days">`;
-
-  dayNames.forEach((day, i) => {
-    const pct = pcts[i] || 0;
-    html += `
-      <div class="hday">
-        <div class="hday-row">
-          <div class="hday-name">${day}</div>
-          <div class="hday-bar-wrap">
-            <div class="hday-bar" style="width:${pct}%;background:${barColor(pct)}">${pct}%</div>
-          </div>
-          <div class="hday-pct">${pct}% free</div>
-        </div>
-        <div class="hday-dots">
-          ${dotColors[i].map(c => `<div class="hdot" style="background:${c}"></div>`).join('')}
-        </div>
-      </div>`;
-  });
-
-  html += `</div>
-    <div class="free-slots">
-      <div class="free-slots-title">ALL SLOTS FREE — Time ranges where no events exist across the week</div>
-      ${freeSlots.length ? freeSlots.map(timeArr => `
-        <div class="free-slot-item">
-          <span class="fsi-day">Any</span>
-          <span class="fsi-time">🕐 ${timeArr[0]}</span>
-          <span class="fsi-note">No events this week</span>
-        </div>`).join('') : '<div class="no-free">No fully free slots this week</div>'}
-    </div>
-    <div class="free-days-section">
-      <div class="free-days-title">Completely Free Days (100% all day)</div>
-      ${fullyFreeDays.length ? fullyFreeDays.map(d => `<div class="free-day-item">${d}</div>`).join('') : '<div class="no-free">No fully free days</div>'}
-    </div>`;
-
-  panel.innerHTML = html;
 }
 
 // ── MODAL ────────────────────────────────────────────────
@@ -379,6 +360,7 @@ function saveEvent() {
   const date = document.getElementById('evDate').value;
   const start = document.getElementById('evStart').value;
   const end = document.getElementById('evEnd').value;
+  const sendGcal = document.getElementById('evSendGcal').checked; // <-- Capture checkbox
   const participants = [];
 
   if (type !== 'Meeting') {
@@ -401,7 +383,10 @@ function saveEvent() {
     start_datetime: date && start ? `${date} ${start}:00` : null,
     end_date: date,
     end_datetime: date && end ? `${date} ${end}:00` : null,
-    participants
+    videoLink: document.getElementById('evVideo').value,
+    win: document.getElementById('evWL').value,
+    participants,
+    sendGcal // <-- Add to payload
   };
 
   fetch('/calendar/api/create', {
@@ -412,9 +397,8 @@ function saveEvent() {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        events.push({ id: data.eventId || Date.now(), title, type, date, start, end, creatorName: 'You', color: getEventColor(type) });
         closeModal();
-        render();
+        loadEvents(); // Reload everything fresh
       } else {
         alert(data.message || 'Failed to create event');
       }
@@ -442,6 +426,7 @@ async function loadEvents() {
         google_event_id: e.google_event_id || null, // ad 
         color: getEventColor(e.type)
       }));
+      updateColorsAndLegend();
       render();
     }
   } catch (err) {
@@ -677,16 +662,20 @@ function updateGcalUI() {
   const btn = document.getElementById('gcalBtn');
   const label = document.getElementById('gcalBtnLabel');
   const disconnect = document.getElementById('gcalDisconnect');
+  const inviteWrapper = document.getElementById('gcalInviteWrapper'); // <-- The new UI wrapper
+  
   if (!btn) return;
   if (gcalConnected) {
     btn.classList.add('connected');
     btn.classList.remove('loading');
     label.textContent = 'Google Calendar Linked';
     disconnect.style.display = 'inline';
+    if(inviteWrapper) inviteWrapper.style.display = 'flex'; // Show checkbox in modal
   } else {
     btn.classList.remove('connected', 'loading');
     label.textContent = 'Connect Google Calendar';
     disconnect.style.display = 'none';
+    if(inviteWrapper) inviteWrapper.style.display = 'none'; // Hide checkbox in modal
   }
 }
 
@@ -726,7 +715,7 @@ async function importGcalEvents() {
       color: '#818cf8',
       source: 'google'
     })));
-
+    updateColorsAndLegend();
     render();
     console.log(`[GCAL] ${data.events.length} Google events loaded (${data.imported} upserted to DB)`);
   } catch (err) {

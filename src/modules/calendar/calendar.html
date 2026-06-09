@@ -53,52 +53,7 @@
               </div>
               <button class="get-schedule-btn">Get Player Schedules</button>
             </div>
-
-            <div class="sidebar-section">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <span class="sidebar-label" style="margin:0">Calendars</span>
-                <span class="sidebar-arrow">▲</span>
-              </div>
-              <div class="calendar-list">
-                <div class="cal-item">
-                  <div class="cal-dot checked" style="background:#facc15;"></div>Team Events
-                </div>
-                <div class="cal-item">
-                  <div class="cal-dot checked" style="background:#38bdf8;"></div>Crow Ned
-                </div>
-                <div class="cal-item">
-                  <div class="cal-dot checked" style="background:#ef4444;"></div>Jonah Jameson
-                </div>
-                <div class="cal-item">
-                  <div class="cal-dot" style="border:2px solid #8892a0;background:transparent;"></div>John
-                </div>
-              </div>
-            </div>
-
-            <div class="sidebar-section">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <span class="sidebar-label" style="margin:0">Tournaments</span>
-                <span class="sidebar-arrow">▲</span>
-              </div>
-              <input type="text" class="tournament-search" placeholder="Search..." />
-              <div class="tournament-list">
-                <div class="tournament-item">
-                  <div class="t-color" style="background:#f97316"></div>apple — CCE Clash (Apr 20)
-                </div>
-                <div class="tournament-item">
-                  <div class="t-color" style="background:#22c55e"></div>banana — UIAP (Apr 3)
-                </div>
-                <div class="tournament-item">
-                  <div class="t-color" style="background:#38bdf8"></div>cherry
-                </div>
-                <div class="tournament-item">
-                  <div class="t-color" style="background:#a78bfa"></div>date
-                </div>
-                <div class="tournament-item">
-                  <div class="t-color" style="background:#facc15"></div>elderberry
-                </div>
-              </div>
-            </div>
+            <div id="dynamicLegend"></div>
           </aside>
 
           <!-- MAIN CALENDAR -->
@@ -151,7 +106,6 @@
                   <div class="week-header-row" id="weekHeader"></div>
                   <div class="week-body" id="weekBody"></div>
                 </div>
-                <div class="heatmap-panel" id="heatmapPanel"></div>
               </div>
 
             </div>
@@ -212,6 +166,10 @@
               <span class="checkbox-toggle" aria-hidden="true"></span>
               <span class="checkbox-label-text">Add Team 2</span>
             </label>
+          </div>
+          <div class="modal-field" id="gcalInviteWrapper" style="display: none; align-items: center; gap: 8px; margin-top: 16px;">
+            <input type="checkbox" id="evSendGcal" style="width: auto; margin: 0; cursor: pointer;" />
+            <label for="evSendGcal" style="margin: 0; cursor: pointer; color: var(--text); text-transform: none;">Send Google Calendar Invites via Email</label>
           </div>
         </div>
 

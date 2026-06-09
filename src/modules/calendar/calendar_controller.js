@@ -1,4 +1,16 @@
 const db = require('../../config/database');
+const { google } = require('googleapis');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+
+const CALENDAR_REDIRECT = process.env.CALENDAR_REDIRECT || 'http://localhost:3000/calendar/google/redirect';
+
+function makeOAuthClient() {
+    return new google.auth.OAuth2(
+        process.env.CLIENT_ID,
+        process.env.SECRET_ID,
+        CALENDAR_REDIRECT
+    );
+}
 
 // 1. Get Player Availability
 exports.getAvailability = async (req, res) => {
@@ -67,7 +79,8 @@ exports.getAvailability = async (req, res) => {
 // 2. Create Event & Insert Attendees
 exports.createEvent = async (req, res) => {
     try {
-        const { title_summary, type, location, start_date, start_datetime, end_date, end_datetime, videoLink, win, participants } = req.body;
+        // Extract all data, including the new sendGcal toggle
+        const { title_summary, type, location, start_date, start_datetime, end_date, end_datetime, videoLink, win, participants, sendGcal } = req.body;
         const creator_id = req.cookies && req.cookies.userId ? req.cookies.userId : null;
 
         // Insert Event
@@ -97,6 +110,76 @@ exports.createEvent = async (req, res) => {
             `, [values]);
         }
 
+        // ── GOOGLE CALENDAR INVITE LOGIC ─────────────────────────────────────────
+        // Only push to Google Calendar if it's a Team Event, the user is logged in, AND the toggle is checked
+        if (sendGcal === true && ['Scrim', 'Tournament', 'Meeting'].includes(type) && creator_id) {
+            const [userRows] = await db.query(`
+                SELECT google_access_token, google_refresh_token, google_token_expiry, google_connected
+                FROM users WHERE userId = ?
+            `, [creator_id]);
+
+            if (userRows.length > 0 && userRows[0].google_connected) {
+                const stored = userRows[0];
+                const oauth2Client = makeOAuthClient();
+                oauth2Client.setCredentials({
+                    access_token:  stored.google_access_token,
+                    refresh_token: stored.google_refresh_token,
+                    expiry_date:   stored.google_token_expiry ? Number(stored.google_token_expiry) : undefined
+                });
+
+                // Save automatically refreshed tokens back to the DB
+                oauth2Client.on('tokens', async (newTokens) => {
+                    if (newTokens.access_token) {
+                        await db.query(`
+                            UPDATE users SET google_access_token = ?, google_token_expiry = ?
+                            WHERE userId = ?
+                        `, [newTokens.access_token, newTokens.expiry_date || null, creator_id]);
+                    }
+                });
+
+                const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+                // Get participant emails from the DB to send the invites
+                let attendeesList = [];
+                if (participants && participants.length > 0) {
+                    const userIds = participants.map(p => p.userId);
+                    const [emailRows] = await db.query(`SELECT email FROM users WHERE userId IN (?)`, [userIds]);
+                    attendeesList = emailRows.map(row => ({ email: row.email }));
+                }
+
+                // Convert 'YYYY-MM-DD HH:mm:00' to ISO format 'YYYY-MM-DDTHH:mm:00' required by Google
+                const formatGcalDate = (dt) => dt ? dt.replace(' ', 'T') : null;
+
+                try {
+                    const gcalRes = await calendar.events.insert({
+                        calendarId: 'primary',
+                        sendUpdates: 'all', // <-- This triggers the Google Calendar email invitations
+                        resource: {
+                            summary: `[${type}] ${title_summary}`,
+                            location: location || '',
+                            start: {
+                                dateTime: formatGcalDate(start_datetime),
+                                timeZone: 'Asia/Manila'
+                            },
+                            end: {
+                                dateTime: formatGcalDate(end_datetime),
+                                timeZone: 'Asia/Manila'
+                            },
+                            attendees: attendeesList
+                        }
+                    });
+
+                    // Save the generated Google Event ID to local DB
+                    if (gcalRes.data && gcalRes.data.id) {
+                        await db.query(`UPDATE events SET google_event_id = ? WHERE eventId = ?`, [gcalRes.data.id, eventId]);
+                    }
+                } catch (gcalErr) {
+                    console.error('[CALENDAR] Google API Insert Error:', gcalErr);
+                    // We purposefully don't throw here so the event still saves locally even if Google API fails
+                }
+            }
+        }
+
         res.status(201).json({ success: true, message: 'Event created!', eventId });
 
     } catch (error) {
@@ -108,7 +191,6 @@ exports.createEvent = async (req, res) => {
 // 3. Fetch All Events for the Calendar
 exports.getEvents = async (req, res) => {
     try {
-        // We use DATE_FORMAT so MySQL passes the exact string formats the frontend expects (YYYY-MM-DD and HH:mm)
         const [events] = await db.query(`
             SELECT 
                 e.eventId, 
@@ -122,7 +204,8 @@ exports.getEvents = async (req, res) => {
                 e.win,
                 u.firstname,
                 u.lastname,
-                u.position AS creatorRole
+                u.position AS creatorRole,
+                e.google_event_id
             FROM events e
             LEFT JOIN users u ON e.creator_id = u.userId
         `);
