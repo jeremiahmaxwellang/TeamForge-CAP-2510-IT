@@ -52,7 +52,7 @@ const renderAttendanceRows = (participants) => {
 
   if (!participants || participants.length === 0) {
     updateParticipantCount(0);
-    attendanceBody.innerHTML = '<tr><td colspan="7" class="no-participants">Select an event to display participants.</td></tr>';
+    attendanceBody.innerHTML = '<tr><td colspan="4" class="no-participants">Select an event to display participants.</td></tr>';
     return;
   }
 
@@ -101,10 +101,15 @@ const renderAttendanceRows = (participants) => {
                 <span class="participant-name">${name}</span>
                 <span class="participant-meta">${metaParts.join(', ')}</span>
               </td>
-              <td><input type="radio" name="status_${groupLabel}_${index}" value="Present" class="att-radio present" ${status === 'Present' ? 'checked' : ''}></td>
-              <td><input type="radio" name="status_${groupLabel}_${index}" value="Late" class="att-radio late" ${status === 'Late' ? 'checked' : ''}></td>
-              <td><input type="radio" name="status_${groupLabel}_${index}" value="Absent" class="att-radio absent" ${status === 'Absent' ? 'checked' : ''}></td>
-              <td><input type="radio" name="status_${groupLabel}_${index}" value="Excused" class="att-radio excused" ${status === 'Excused' ? 'checked' : ''}></td>
+              <td>
+                <select name="status_${groupLabel}_${index}" class="attendance-status-select attendance-select">
+                  <option value="" ${status === '' ? 'selected' : ''}>Select status</option>
+                  <option value="Present" ${status === 'Present' ? 'selected' : ''}>Present</option>
+                  <option value="Late" ${status === 'Late' ? 'selected' : ''}>Late</option>
+                  <option value="Absent" ${status === 'Absent' ? 'selected' : ''}>Absent</option>
+                  <option value="Excused" ${status === 'Excused' ? 'selected' : ''}>Excused</option>
+                </select>
+              </td>
               <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>
               <td><span class="rsvp-icon ${rsvpClass}" title="${rsvpTitle}">${rsvpIcon}</span></td>
             </tr>
@@ -115,7 +120,7 @@ const renderAttendanceRows = (participants) => {
       if (teamMap) {
         return `
           <tr class="team-group-header">
-            <td colspan="7">${groupLabel}</td>
+            <td colspan="4">${groupLabel}</td>
           </tr>
           ${rows}
         `;
@@ -143,7 +148,7 @@ window.saveAttendance = async () => {
 
   const attendance = rows.map((row, index) => {
     const userId = row.dataset.userId;
-    const selectedStatus = row.querySelector('input[type="radio"]:checked');
+    const selectedStatus = row.querySelector('select');
     const notesInput = row.querySelector('.note-input');
 
     const entry = {

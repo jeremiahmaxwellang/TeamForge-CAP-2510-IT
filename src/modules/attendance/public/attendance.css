@@ -226,6 +226,12 @@ body {
     background-color: #3b3f46;
 }
 
+.attendance-table select {
+    width: 100%;
+    min-width: 140px;
+    box-sizing: border-box;
+}
+
 /* ── Participant Cell ── */
 .participant-cell {
     display: flex;
