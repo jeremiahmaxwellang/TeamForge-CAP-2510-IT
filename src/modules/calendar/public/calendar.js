@@ -402,6 +402,15 @@ function saveEvent() {
       if (data.success) {
         closeModal();
         loadEvents(); // Reload everything fresh
+        // Display UI Notifications based on the backend report
+        if (data.gcalStatus === 'sent') {
+            showGcalToast('Event created and Google Calendar invites sent!', 'success');
+        } else if (data.gcalStatus === 'failed') {
+            showGcalToast('Event created locally, but Google invites failed.', 'error');
+        } else {
+            // Normal save without Google Invites
+            showGcalToast('Event created successfully!', 'success');
+        }
       } else {
         alert(data.message || 'Failed to create event');
       }
