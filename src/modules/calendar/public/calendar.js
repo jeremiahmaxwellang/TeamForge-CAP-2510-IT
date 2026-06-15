@@ -1,5 +1,5 @@
 // ── STATE ────────────────────────────────────────────────
-let currentDate = new Date(2026, 3, 1); // April 2026
+let currentDate = new Date();
 let currentView = 'month';
 let pendingDate = null;
 
@@ -44,9 +44,13 @@ function buildCreatorName(firstname, lastname, role) {
   if (!fullName) return role || 'Unknown creator';
   return role ? `${fullName} (${role})` : fullName;
 }
+
 function buildEventTitle(ev) {
   return ev.creatorName ? `${ev.title}\nCreated by: ${ev.creatorName}` : ev.title;
 }
+
+// Current Date
+document.getElementById('filterStart').value = today(); // uses your existing today() helper
 
 // ── DYNAMIC COLORING & LEGEND ────────────────────────────
 function processEventColor(ev) {
@@ -360,7 +364,8 @@ function saveEvent() {
   const date = document.getElementById('evDate').value;
   const start = document.getElementById('evStart').value;
   const end = document.getElementById('evEnd').value;
-  const sendGcal = document.getElementById('evSendGcal').checked; // <-- Capture checkbox
+  // const sendGcal = document.getElementById('evSendGcal').checked; // <-- Capture checkbox
+  const sendGcal = true; // Always send invites when creator has Google connected
   const participants = [];
 
   if (type !== 'Meeting') {
@@ -383,8 +388,6 @@ function saveEvent() {
     start_datetime: date && start ? `${date} ${start}:00` : null,
     end_date: date,
     end_datetime: date && end ? `${date} ${end}:00` : null,
-    videoLink: document.getElementById('evVideo').value,
-    win: document.getElementById('evWL').value,
     participants,
     sendGcal // <-- Add to payload
   };
@@ -496,6 +499,17 @@ function renderPlayers(players) {
   document.getElementById('availablePlayers').innerHTML = '';
   document.getElementById('semiAvailablePlayers').innerHTML = '';
   document.getElementById('unavailablePlayers').innerHTML = '';
+
+  // Sort players by Primary Role
+  const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
+
+  players.sort((a, b) => {
+    const aIdx = ROLE_ORDER.indexOf(a.primaryRole);
+    const bIdx = ROLE_ORDER.indexOf(b.primaryRole);
+    const aOrder = aIdx === -1 ? 99 : aIdx;
+    const bOrder = bIdx === -1 ? 99 : bIdx;
+    return aOrder - bOrder;
+  });
 
   players.forEach(p => {
     const isUnavailable = p.availability === 'Unavailable';

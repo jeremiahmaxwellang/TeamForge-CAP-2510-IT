@@ -44,7 +44,7 @@
               <div class="date-row">
                 <div class="date-input-group">
                   <label>Start Date</label>
-                  <input type="date" id="filterStart" value="2026-05-04" />
+                  <input type="date" id="filterStart" />
                 </div>
                 <div class="date-input-group">
                   <label>End Date</label>
@@ -167,10 +167,7 @@
               <span class="checkbox-label-text">Add Team 2</span>
             </label>
           </div>
-          <div class="modal-field" id="gcalInviteWrapper" style="display: none; align-items: center; gap: 8px; margin-top: 16px;">
-            <input type="checkbox" id="evSendGcal" style="width: auto; margin: 0; cursor: pointer;" />
-            <label for="evSendGcal" style="margin: 0; cursor: pointer; color: var(--text); text-transform: none;">Send Google Calendar Invites via Email</label>
-          </div>
+          <input type="hidden" id="evSendGcal" value="true" />
         </div>
 
         <!-- COLUMN 2: Participants -->

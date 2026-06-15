@@ -42,9 +42,10 @@ router.get('/google/connect', (req, res) => {
         access_type: 'offline',          // we need a refresh_token
         prompt:      'consent',          // force consent so refresh_token is always returned
         scope: [
-            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.events',
             'https://www.googleapis.com/auth/userinfo.email'
-        ],
+        ], // Jun 15: changed scope from readonly to events
+        
         // Pass userId through state so we know who to save tokens for
         state: String(userId)
     });

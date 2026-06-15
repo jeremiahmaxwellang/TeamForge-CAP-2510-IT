@@ -83,6 +83,12 @@ exports.createEvent = async (req, res) => {
         const { title_summary, type, location, start_date, start_datetime, end_date, end_datetime, videoLink, win, participants, sendGcal } = req.body;
         const creator_id = req.cookies && req.cookies.userId ? req.cookies.userId : null;
 
+                // ── TEMP DEBUG ──
+        console.log('[DEBUG] creator_id from cookie:', creator_id);
+        const [debugRow] = await db.query('SELECT google_connected FROM users WHERE userId = ?', [creator_id]);
+        console.log('[DEBUG] google_connected in DB:', debugRow[0]);
+        // ── END DEBUG ──
+
         // Insert Event
         const [result] = await db.query(`
             INSERT INTO events (title_summary, creator_id, type, location, start_date, start_datetime, end_date, end_datetime, videoLink, win) 
@@ -112,11 +118,15 @@ exports.createEvent = async (req, res) => {
 
         // ── GOOGLE CALENDAR INVITE LOGIC ─────────────────────────────────────────
         // Only push to Google Calendar if it's a Team Event, the user is logged in, AND the toggle is checked
-        if (sendGcal === true && ['Scrim', 'Tournament', 'Meeting'].includes(type) && creator_id) {
+        if (['Scrim', 'Tournament', 'Meeting'].includes(type) && creator_id) {
+            console.log('[DEBUG] type passed check:', type); // <-- add
+
             const [userRows] = await db.query(`
                 SELECT google_access_token, google_refresh_token, google_token_expiry, google_connected
                 FROM users WHERE userId = ?
             `, [creator_id]);
+
+             console.log('[DEBUG] userRows[0].google_connected:', userRows[0]?.google_connected); // <-- add
 
             if (userRows.length > 0 && userRows[0].google_connected) {
                 const stored = userRows[0];
@@ -174,7 +184,7 @@ exports.createEvent = async (req, res) => {
                         await db.query(`UPDATE events SET google_event_id = ? WHERE eventId = ?`, [gcalRes.data.id, eventId]);
                     }
                 } catch (gcalErr) {
-                    console.error('[CALENDAR] Google API Insert Error:', gcalErr);
+                    console.error('[CALENDAR] Google API Insert Error:', gcalErr.message, gcalErr.response?.data); // <-- make this more verbose
                     // We purposefully don't throw here so the event still saves locally even if Google API fails
                 }
             }

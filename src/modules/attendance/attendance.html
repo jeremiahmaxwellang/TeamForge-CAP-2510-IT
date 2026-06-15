@@ -70,10 +70,7 @@
                             <thead>
                                 <tr>
                                     <th id="participantCount">0 Participants</th>
-                                    <th>Present</th>
-                                    <th>Late</th>
-                                    <th>Absent</th>
-                                    <th>Excused</th>
+                                    <th>Status</th>
                                     <th>Notes</th>
                                     <th>RSVP</th>
                                 </tr>
@@ -84,36 +81,17 @@
                                         <span class="participant-name">Jonathan Banks</span>
                                         <span class="participant-meta">Player, <em>Top</em></span>
                                     </td>
-                                    <td><input type="radio" name="status_1" value="present" class="att-radio present"></td>
-                                    <td><input type="radio" name="status_1" value="late" class="att-radio late"></td>
-                                    <td><input type="radio" name="status_1" value="absent" class="att-radio absent"></td>
-                                    <td><input type="radio" name="status_1" value="excused" class="att-radio excused"></td>
-                                    <td><input type="text" class="note-input" placeholder="Has exam" value="Has exam"></td>
+                                    <td>
+                                        <select class="attendance-status-select attendance-select" name="status_sample">
+                                            <option value="">Select status</option>
+                                            <option value="Present">Present</option>
+                                            <option value="Late">Late</option>
+                                            <option value="Absent">Absent</option>
+                                            <option value="Excused">Excused</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="note-input" placeholder="Enter note"></td>
                                     <td><span class="rsvp-icon rsvp-no" title="Declined">👎</span></td>
-                                </tr>
-                                <tr class="attendance-row">
-                                    <td class="participant-cell">
-                                        <span class="participant-name">Saul Goodman</span>
-                                        <span class="participant-meta">Team Coach</span>
-                                    </td>
-                                    <td><input type="radio" name="status_2" value="present" class="att-radio present"></td>
-                                    <td><input type="radio" name="status_2" value="late" class="att-radio late"></td>
-                                    <td><input type="radio" name="status_2" value="absent" class="att-radio absent"></td>
-                                    <td><input type="radio" name="status_2" value="excused" class="att-radio excused"></td>
-                                    <td><input type="text" class="note-input" placeholder="Enter note"></td>
-                                    <td><span class="rsvp-icon rsvp-yes" title="Accepted">👍</span></td>
-                                </tr>
-                                <tr class="attendance-row">
-                                    <td class="participant-cell">
-                                        <span class="participant-name">Participant Name</span>
-                                        <span class="participant-meta">Team Position, <em>Event Role</em></span>
-                                    </td>
-                                    <td><input type="radio" name="status_3" value="present" class="att-radio present"></td>
-                                    <td><input type="radio" name="status_3" value="late" class="att-radio late"></td>
-                                    <td><input type="radio" name="status_3" value="absent" class="att-radio absent"></td>
-                                    <td><input type="radio" name="status_3" value="excused" class="att-radio excused"></td>
-                                    <td><input type="text" class="note-input" placeholder="Enter note"></td>
-                                    <td><span class="rsvp-icon rsvp-yes" title="Accepted">👍</span></td>
                                 </tr>
                             </tbody>
                         </table>
