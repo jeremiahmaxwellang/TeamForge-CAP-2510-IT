@@ -17,7 +17,6 @@ exports.getAvailability = async (req, res) => {
     try {
         const { date, start, end } = req.query;
 
-        // Fetch active players
         const [players] = await db.query(`
             SELECT u.userId, u.firstname, u.lastname, p.gameName, 
                    r1.displayedRole as primaryRole, r2.displayedRole as secondaryRole
@@ -35,10 +34,9 @@ exports.getAvailability = async (req, res) => {
 
         const inputStart = new Date(`${date}T${start}`);
         const inputEnd = new Date(`${date}T${end}`);
-        const bufferStart = new Date(inputStart.getTime() - 60 * 60 * 1000); // 1 hour before
-        const bufferEnd = new Date(inputEnd.getTime() + 60 * 60 * 1000);   // 1 hour after
+        const bufferStart = new Date(inputStart.getTime() - 60 * 60 * 1000); 
+        const bufferEnd = new Date(inputEnd.getTime() + 60 * 60 * 1000);   
 
-        // Query existing event_attendees
         const [events] = await db.query(`
             SELECT ea.userId, e.start_datetime, e.end_datetime
             FROM event_attendees ea
@@ -46,7 +44,6 @@ exports.getAvailability = async (req, res) => {
             WHERE DATE(e.start_datetime) = ? OR DATE(e.end_datetime) = ?
         `, [date, date]);
 
-        // Calculate availability
         const playersWithAvailability = players.map(player => {
             let status = 'Available';
             const playerEvents = events.filter(e => e.userId === player.userId);
@@ -55,12 +52,10 @@ exports.getAvailability = async (req, res) => {
                 const eventStart = new Date(e.start_datetime);
                 const eventEnd = new Date(e.end_datetime);
 
-                // Unavailable: Direct Overlap
                 if (eventStart < inputEnd && eventEnd > inputStart) {
                     status = 'Unavailable';
-                    break; // Overrides all
+                    break; 
                 } 
-                // Semi-available: within 1 hour before or after
                 else if (eventStart < bufferEnd && eventEnd > bufferStart) {
                     status = 'Semi';
                 }
@@ -79,17 +74,9 @@ exports.getAvailability = async (req, res) => {
 // 2. Create Event & Insert Attendees
 exports.createEvent = async (req, res) => {
     try {
-        // Extract all data, including the new sendGcal toggle
         const { title_summary, type, location, start_date, start_datetime, end_date, end_datetime, videoLink, win, participants, sendGcal } = req.body;
         const creator_id = req.cookies && req.cookies.userId ? req.cookies.userId : null;
 
-                // ── TEMP DEBUG ──
-        console.log('[DEBUG] creator_id from cookie:', creator_id);
-        const [debugRow] = await db.query('SELECT google_connected FROM users WHERE userId = ?', [creator_id]);
-        console.log('[DEBUG] google_connected in DB:', debugRow[0]);
-        // ── END DEBUG ──
-
-        // Insert Event
         const [result] = await db.query(`
             INSERT INTO events (title_summary, creator_id, type, location, start_date, start_datetime, end_date, end_datetime, videoLink, win) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -97,15 +84,13 @@ exports.createEvent = async (req, res) => {
 
         const eventId = result.insertId;
 
-        // Role Map to convert "Top" strings to leagueRoles IDs
         const roleMap = { 'Top': 1, 'Jungle': 2, 'Mid': 3, 'ADC': 4, 'Support': 5 };
 
-        // Insert into event_attendees (only for Scrims/Tournaments)
         if (participants && participants.length > 0) {
             const values = participants.map(p => [
                 eventId, 
                 p.userId, 
-                roleMap[p.role] || null, // Translates to an integer (1-5)
+                roleMap[p.role] || null, 
                 p.isSub || 'N',
                 p.team || 'Team 1'
             ]);
@@ -116,17 +101,16 @@ exports.createEvent = async (req, res) => {
             `, [values]);
         }
 
-        // ── GOOGLE CALENDAR INVITE LOGIC ─────────────────────────────────────────
-        // Added 'sendGcal === true' back so it respects the checkbox
-        if (sendGcal === true && ['Scrim', 'Tournament', 'Meeting'].includes(type) && creator_id) {
-            console.log('[DEBUG] type passed check:', type); 
+        // Tracking variables for frontend notifications
+        let gcalStatus = 'skipped';
+        let gcalErrorMsg = null;
 
+        // ── GOOGLE CALENDAR INVITE LOGIC ─────────────────────────────────────────
+        if (sendGcal === true && ['Scrim', 'Tournament', 'Meeting'].includes(type) && creator_id) {
             const [userRows] = await db.query(`
                 SELECT google_access_token, google_refresh_token, google_token_expiry, google_connected
                 FROM users WHERE userId = ?
             `, [creator_id]);
-
-             console.log('[DEBUG] userRows[0].google_connected:', userRows[0]?.google_connected); 
 
             if (userRows.length > 0 && userRows[0].google_connected) {
                 const stored = userRows[0];
@@ -137,7 +121,6 @@ exports.createEvent = async (req, res) => {
                     expiry_date:   stored.google_token_expiry ? Number(stored.google_token_expiry) : undefined
                 });
 
-                // Save automatically refreshed tokens back to the DB
                 oauth2Client.on('tokens', async (newTokens) => {
                     if (newTokens.access_token) {
                         await db.query(`
@@ -149,7 +132,6 @@ exports.createEvent = async (req, res) => {
 
                 const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-                // Get participant emails from the DB to send the invites
                 let attendeesList = [];
                 if (participants && participants.length > 0) {
                     const userIds = participants.map(p => p.userId);
@@ -157,44 +139,41 @@ exports.createEvent = async (req, res) => {
                     attendeesList = emailRows.map(row => ({ email: row.email }));
                 }
 
-                // Convert 'YYYY-MM-DD HH:mm:00' to ISO format 'YYYY-MM-DDTHH:mm:00' required by Google
                 const formatGcalDate = (dt) => dt ? dt.replace(' ', 'T') : null;
 
                 try {
                     const gcalRes = await calendar.events.insert({
                         calendarId: 'primary',
-                        sendUpdates: 'all', // <-- This triggers the Google Calendar email invitations
+                        sendUpdates: 'all', 
                         resource: {
                             summary: `[${type}] ${title_summary}`,
                             location: location || '',
-                            start: {
-                                dateTime: formatGcalDate(start_datetime),
-                                timeZone: 'Asia/Manila'
-                            },
-                            end: {
-                                dateTime: formatGcalDate(end_datetime),
-                                timeZone: 'Asia/Manila'
-                            },
+                            start: { dateTime: formatGcalDate(start_datetime), timeZone: 'Asia/Manila' },
+                            end: { dateTime: formatGcalDate(end_datetime), timeZone: 'Asia/Manila' },
                             attendees: attendeesList
                         }
                     });
 
-                    // Save the generated Google Event ID to local DB
                     if (gcalRes.data && gcalRes.data.id) {
                         await db.query(`UPDATE events SET google_event_id = ? WHERE eventId = ?`, [gcalRes.data.id, eventId]);
-                        
-                        // SUCCESS MESSAGE
                         console.log(`[CALENDAR] SUCCESS: Google Calendar invite sent for "${title_summary}".`);
+                        gcalStatus = 'sent'; 
                     }
                 } catch (gcalErr) {
-                    // FAILURE MESSAGE WITH REASON
                     console.log(`[CALENDAR] FAILURE: Could not send Google Calendar invite for "${title_summary}". Reason: ${gcalErr.message}`);
-                    console.error('[CALENDAR] Detailed Google API Error:', gcalErr.response?.data || gcalErr);
+                    gcalStatus = 'failed'; 
+                    gcalErrorMsg = gcalErr.message; 
                 }
             }
         }
 
-        res.status(201).json({ success: true, message: 'Event created!', eventId });
+        res.status(201).json({ 
+            success: true, 
+            message: 'Event created!', 
+            eventId, 
+            gcalStatus, 
+            gcalErrorMsg 
+        });
 
     } catch (error) {
         console.error('[CALENDAR] Error creating event:', error);
