@@ -117,16 +117,16 @@ exports.createEvent = async (req, res) => {
         }
 
         // ── GOOGLE CALENDAR INVITE LOGIC ─────────────────────────────────────────
-        // Only push to Google Calendar if it's a Team Event, the user is logged in, AND the toggle is checked
-        if (['Scrim', 'Tournament', 'Meeting'].includes(type) && creator_id) {
-            console.log('[DEBUG] type passed check:', type); // <-- add
+        // Added 'sendGcal === true' back so it respects the checkbox
+        if (sendGcal === true && ['Scrim', 'Tournament', 'Meeting'].includes(type) && creator_id) {
+            console.log('[DEBUG] type passed check:', type); 
 
             const [userRows] = await db.query(`
                 SELECT google_access_token, google_refresh_token, google_token_expiry, google_connected
                 FROM users WHERE userId = ?
             `, [creator_id]);
 
-             console.log('[DEBUG] userRows[0].google_connected:', userRows[0]?.google_connected); // <-- add
+             console.log('[DEBUG] userRows[0].google_connected:', userRows[0]?.google_connected); 
 
             if (userRows.length > 0 && userRows[0].google_connected) {
                 const stored = userRows[0];
@@ -182,10 +182,14 @@ exports.createEvent = async (req, res) => {
                     // Save the generated Google Event ID to local DB
                     if (gcalRes.data && gcalRes.data.id) {
                         await db.query(`UPDATE events SET google_event_id = ? WHERE eventId = ?`, [gcalRes.data.id, eventId]);
+                        
+                        // SUCCESS MESSAGE
+                        console.log(`[CALENDAR] SUCCESS: Google Calendar invite sent for "${title_summary}".`);
                     }
                 } catch (gcalErr) {
-                    console.error('[CALENDAR] Google API Insert Error:', gcalErr.message, gcalErr.response?.data); // <-- make this more verbose
-                    // We purposefully don't throw here so the event still saves locally even if Google API fails
+                    // FAILURE MESSAGE WITH REASON
+                    console.log(`[CALENDAR] FAILURE: Could not send Google Calendar invite for "${title_summary}". Reason: ${gcalErr.message}`);
+                    console.error('[CALENDAR] Detailed Google API Error:', gcalErr.response?.data || gcalErr);
                 }
             }
         }
