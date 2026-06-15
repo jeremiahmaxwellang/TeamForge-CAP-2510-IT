@@ -364,7 +364,8 @@ function saveEvent() {
   const date = document.getElementById('evDate').value;
   const start = document.getElementById('evStart').value;
   const end = document.getElementById('evEnd').value;
-  const sendGcal = document.getElementById('evSendGcal').checked; // <-- Capture checkbox
+  // const sendGcal = document.getElementById('evSendGcal').checked; // <-- Capture checkbox
+  const sendGcal = true; // Always send invites when creator has Google connected
   const participants = [];
 
   if (type !== 'Meeting') {
