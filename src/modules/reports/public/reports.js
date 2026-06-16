@@ -315,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         imgEl.addEventListener('error', finalize, { once: true });
     });
 
+    // =============== TEAM BRANDING ===================
     const getCurrentTeamLogoUrl = () => {
         const inlineLogo = document.querySelector('.manager-team-name .js-team-logo-inline');
         if (inlineLogo && inlineLogo.src) {
@@ -328,6 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return '/uploads/team-logos/VA_logo.png';
     };
+
+    const getCurrentTeamName = () => {
+        const teamName = document.querySelector('.manager-team-name');
+
+        return teamName.textContent;
+    };
+
+    const teamName = getCurrentTeamName();
 
     /* ===============================
         TOURNAMENTS
@@ -374,11 +383,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/reports/tournament_results');
             const data = await response.json();
 
-            if (!response.ok || !data.success || !Array.isArray(data.data)) {
+            // After — handles empty results gracefully
+            if (!response.ok || !data.success) {
                 throw new Error(data.message || 'Failed to load tournament report');
             }
 
-            allTournamentRows = data.data;
+            allTournamentRows = Array.isArray(data.data) ? data.data : [];
             applyTournamentRange();
             renderAllTermCharts();
         } catch (err) {
@@ -551,8 +561,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 headerTextWrapper.style.flexDirection = 'column';
                 headerTextWrapper.style.justifyContent = 'center';
 
+                // Team Name
                 const teamNameHeading = document.createElement('h1');
-                teamNameHeading.textContent = 'Viridis Arcus';
+                teamNameHeading.textContent = teamName;
                 teamNameHeading.style.margin = '0';
                 teamNameHeading.style.fontSize = '20px';
                 teamNameHeading.style.color = '#1f77b4';

@@ -275,18 +275,30 @@ exports.getBestCommunicationApplicants = async (req, res) => {
 // changed to cap2 events table
 exports.getTournamentResultsReport = async (req, res) => {
     try {
-        const [rows] = await mySqlPool.query(
-            'SELECT * FROM events WHERE type = ?',
-            ['Tournament']
+        const [rows] = await db.query(
+            `SELECT
+                e.eventId,
+                e.title_summary  AS name,
+                e.start_date     AS tournamentDate,
+                e.win            AS result,
+                e.status,
+                e.location
+            FROM events e
+            WHERE e.type = 'Tournament'
+            ORDER BY e.start_date DESC`
         );
 
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'No tournaments found' });
-        }
+        return res.status(200).json({
+            success: true,
+            data: rows
+        });
 
-        res.json(rows);
     } catch (err) {
-        console.error('Error fetching tournaments:', err);
-        res.status(500).json({ error: 'Server error' });
+        console.error('Error fetching tournament results:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Error fetching tournament report data',
+            error: err.message
+        });
     }
 };
