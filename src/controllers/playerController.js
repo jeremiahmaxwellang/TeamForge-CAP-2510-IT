@@ -118,8 +118,8 @@ exports.getAllPlayers = async (req, res) => {
       r1.displayedRole AS primaryRole, r2.displayedRole AS secondaryRole
       FROM users u
       JOIN players p ON u.userId = p.userId
-	    JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-      JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+	    JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+      JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
       WHERE u.position = 'Player'
       ORDER BY primaryRoleId;
     `;
@@ -140,8 +140,8 @@ exports.getPlayerById = async (req, res) => {
       r2.displayedRole AS secondaryRole, r2.role AS riotRole2, r2.teamPosition AS riotTeamPosition2
       FROM users u
       JOIN players p ON u.userId = p.userId
-      JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-      JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+      JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+      JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
       WHERE u.userId = ? AND u.position = 'Player';
     `;
     const [results] = await db.query(sql, [playerId]);
@@ -176,7 +176,7 @@ exports.updatePuuid = async (req, res) => {
 };
 
 // Get favorite candidates for a specific role (scoped to logged-in coach)
-exports.getCandidateFavoritesByRole = async (req, res) => {
+exports.getcandidatefavoritesByRole = async (req, res) => {
   try {
     const userRole = req.cookies?.userRole;
     const coachId = Number.parseInt(req.cookies?.userId, 10);
@@ -197,7 +197,7 @@ exports.getCandidateFavoritesByRole = async (req, res) => {
     const sql = `
       SELECT cf.candidateUserId AS userId, cf.roleId, cf.createdAt,
              u.firstname, u.lastname
-      FROM candidateFavorites cf
+      FROM candidatefavorites cf
       JOIN users u ON u.userId = cf.candidateUserId
       WHERE cf.coachId = ? AND cf.roleId = ?
       ORDER BY cf.createdAt ASC
@@ -234,7 +234,7 @@ exports.getCandidateFavorites = async (req, res) => {
     const [rows] = await db.query(
       `SELECT cf.candidateUserId AS userId, cf.roleId, cf.createdAt,
               u.firstname, u.lastname
-       FROM candidateFavorites cf
+       FROM candidatefavorites cf
        JOIN users u ON u.userId = cf.candidateUserId
        WHERE cf.coachId = ?
        ORDER BY cf.createdAt ASC`,
@@ -274,7 +274,7 @@ exports.toggleCandidateFavorite = async (req, res) => {
 
     const [existing] = await db.query(
       `SELECT candidateUserId
-       FROM candidateFavorites
+       FROM candidatefavorites
        WHERE coachId = ? AND candidateUserId = ? AND roleId = ?
        LIMIT 1`,
       [coachId, candidateUserId, roleId]
@@ -282,14 +282,14 @@ exports.toggleCandidateFavorite = async (req, res) => {
 
     if (existing.length > 0) {
       await db.query(
-        `DELETE FROM candidateFavorites
+        `DELETE FROM candidatefavorites
          WHERE coachId = ? AND candidateUserId = ? AND roleId = ?`,
         [coachId, candidateUserId, roleId]
       );
 
       const [countRows] = await db.query(
         `SELECT COUNT(*) AS count
-         FROM candidateFavorites
+         FROM candidatefavorites
          WHERE coachId = ? AND roleId = ?`,
         [coachId, roleId]
       );
@@ -305,7 +305,7 @@ exports.toggleCandidateFavorite = async (req, res) => {
 
     const [countRows] = await db.query(
       `SELECT COUNT(*) AS count
-       FROM candidateFavorites
+       FROM candidatefavorites
        WHERE coachId = ? AND roleId = ?`,
       [coachId, roleId]
     );
@@ -322,7 +322,7 @@ exports.toggleCandidateFavorite = async (req, res) => {
     }
 
     await db.query(
-      `INSERT INTO candidateFavorites (coachId, candidateUserId, roleId, createdAt)
+      `INSERT INTO candidatefavorites (coachId, candidateUserId, roleId, createdAt)
        VALUES (?, ?, ?, NOW())`,
       [coachId, candidateUserId, roleId]
     );
@@ -384,9 +384,9 @@ exports.getWinrateByRole = async (req, res) => {
         COUNT(*) AS games,
         SUM(CASE WHEN mp.win = 'W' THEN 1 ELSE 0 END) AS wins,
         ROUND(SUM(CASE WHEN mp.win = 'W' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS winrate
-      FROM matchParticipants mp
+      FROM matchparticipants mp
       JOIN matches m ON mp.matchId = m.matchId
-      JOIN leagueRoles lr ON lr.roleId = ?
+      JOIN leagueroles lr ON lr.roleId = ?
       WHERE m.userId = ?
         AND mp.puuid = (SELECT puuid FROM players WHERE userId = ?)
         AND mp.teamPosition = lr.teamPosition
@@ -515,7 +515,7 @@ exports.getAllBenchmarks = async (req, res) => {
     const [benchmarks] = await db.query(
       `SELECT b.benchmarkId, b.roleId, lr.displayedRole, m.metricName, b.benchmarkValue, b.comparator
        FROM benchmarks b
-       LEFT JOIN leagueRoles lr ON b.roleId = lr.roleId
+       LEFT JOIN leagueroles lr ON b.roleId = lr.roleId
        LEFT JOIN metrics m ON b.metricId = m.metricId
        ORDER BY b.roleId ASC, b.benchmarkId ASC`
     );
@@ -675,8 +675,8 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
               r1.teamPosition AS primaryTeamPosition,
               r2.teamPosition AS secondaryTeamPosition
        FROM players p
-       JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-       LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+       JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+       LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
        WHERE p.userId = ?
        LIMIT 1`,
       [playerId]
@@ -688,7 +688,7 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
     }
 
     const [primaryMatches] = await db.query(
-      `SELECT mp.* FROM matchParticipants mp
+      `SELECT mp.* FROM matchparticipants mp
        JOIN matches m ON mp.matchId = m.matchId
        WHERE mp.puuid = ? AND mp.teamPosition = ?
        ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
@@ -699,7 +699,7 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
     const [secondaryMatches] =
       roleInfo.secondaryTeamPosition && roleInfo.secondaryTeamPosition !== roleInfo.primaryTeamPosition
         ? await db.query(
-          `SELECT mp.* FROM matchParticipants mp
+          `SELECT mp.* FROM matchparticipants mp
              JOIN matches m ON mp.matchId = m.matchId
              WHERE mp.puuid = ? AND mp.teamPosition = ?
              ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
@@ -715,9 +715,9 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
       }
     });
 
-    const matchParticipants = Array.from(deduped.values());
+    const matchparticipants = Array.from(deduped.values());
 
-    if (matchParticipants.length === 0) {
+    if (matchparticipants.length === 0) {
       return res.json({
         success: true,
         message: 'Player has no match data yet',
@@ -727,7 +727,7 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
     }
 
     // Calculate aggregate stats from all matches
-    const playerStats = calculateAggregateStats(matchParticipants);
+    const playerStats = calculateAggregateStats(matchparticipants);
 
     // Fetch benchmarks for the role
     const [benchmarks] = await db.query(
@@ -775,7 +775,7 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
       success: true,
       playerId,
       roleId,
-      matchCount: matchParticipants.length,
+      matchCount: matchparticipants.length,
       playerStats: playerStats,
       benchmarkComparison: comparison,
       summary: {
@@ -804,7 +804,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
     const [roleRows] = await db.query(
       `SELECT p.puuid, lr.teamPosition AS requestedTeamPosition
        FROM players p
-       JOIN leagueRoles lr ON lr.roleId = ?
+       JOIN leagueroles lr ON lr.roleId = ?
        WHERE p.userId = ?
        LIMIT 1`,
       [roleId, playerId]   // ← use roleId directly here
@@ -816,8 +816,8 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
     }
 
     // ✅ Only query matches for the requested role's teamPosition
-    const [matchParticipants] = await db.query(
-      `SELECT mp.* FROM matchParticipants mp
+    const [matchparticipants] = await db.query(
+      `SELECT mp.* FROM matchparticipants mp
        JOIN matches m ON mp.matchId = m.matchId
        WHERE mp.puuid = ? AND mp.teamPosition = ?
        ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
@@ -825,7 +825,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
       [roleInfo.puuid, roleInfo.requestedTeamPosition]
     );
 
-    if (matchParticipants.length === 0) {
+    if (matchparticipants.length === 0) {
       return res.json({
         success: true,
         message: 'Player has no match data for this role',
@@ -834,7 +834,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
       });
     }
 
-    const playerStats = calculateAggregateStats(matchParticipants);
+    const playerStats = calculateAggregateStats(matchparticipants);
 
     // Fetch benchmarks for the role
     const [benchmarks] = await db.query(
@@ -882,7 +882,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
       success: true,
       playerId,
       roleId,
-      matchCount: matchParticipants.length,
+      matchCount: matchparticipants.length,
       playerStats: playerStats,
       benchmarkComparison: comparison,
       summary: {
@@ -900,12 +900,12 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
 /**
  * Helper function to calculate aggregate stats from match participants
  */
-function calculateAggregateStats(matchParticipants) {
-  if (!matchParticipants || matchParticipants.length === 0) {
+function calculateAggregateStats(matchparticipants) {
+  if (!matchparticipants || matchparticipants.length === 0) {
     return {};
   }
 
-  const count = matchParticipants.length;
+  const count = matchparticipants.length;
   let totals = {
     kills: 0, deaths: 0, assists: 0,
     csPerMinute: 0, goldPerMinute: 0,
@@ -920,7 +920,7 @@ function calculateAggregateStats(matchParticipants) {
   let wins = 0;
   const champCount = {};
 
-  matchParticipants.forEach(p => {
+  matchparticipants.forEach(p => {
     totals.kills += Number(p.kills || 0);
     totals.deaths += Number(p.deaths || 0);
     totals.assists += Number(p.assists || 0);
@@ -1009,12 +1009,12 @@ function calculateAggregateStats(matchParticipants) {
 /**
  * Calculate kill participation percentage
  */
-function calculateKillParticipation(matchParticipants) {
-  if (!matchParticipants || matchParticipants.length === 0) return 0;
+function calculateKillParticipation(matchparticipants) {
+  if (!matchparticipants || matchparticipants.length === 0) return 0;
 
-  const avgKillParticipation = matchParticipants.reduce((sum, p) => {
+  const avgKillParticipation = matchparticipants.reduce((sum, p) => {
     return sum + (p.killParticipation || 0);
-  }, 0) / matchParticipants.length;
+  }, 0) / matchparticipants.length;
 
   return (avgKillParticipation * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
@@ -1022,12 +1022,12 @@ function calculateKillParticipation(matchParticipants) {
 /**
  * Calculate vision score share percentage
  */
-function calculateVisionScoreShare(matchParticipants) {
-  if (!matchParticipants || matchParticipants.length === 0) return 0;
+function calculateVisionScoreShare(matchparticipants) {
+  if (!matchparticipants || matchparticipants.length === 0) return 0;
 
-  const avgVisionScoreShare = matchParticipants.reduce((sum, p) => {
+  const avgVisionScoreShare = matchparticipants.reduce((sum, p) => {
     return sum + (p.visionScoreShare || 0);
-  }, 0) / matchParticipants.length;
+  }, 0) / matchparticipants.length;
 
   return (avgVisionScoreShare * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
@@ -1035,12 +1035,12 @@ function calculateVisionScoreShare(matchParticipants) {
 /**
  * Calculate damage share percentage
  */
-function calculateDamageShare(matchParticipants) {
-  if (!matchParticipants || matchParticipants.length === 0) return 0;
+function calculateDamageShare(matchparticipants) {
+  if (!matchparticipants || matchparticipants.length === 0) return 0;
 
-  const avgDamageShare = matchParticipants.reduce((sum, p) => {
+  const avgDamageShare = matchparticipants.reduce((sum, p) => {
     return sum + (p.damageShare || 0);
-  }, 0) / matchParticipants.length;
+  }, 0) / matchparticipants.length;
 
   return (avgDamageShare * 100).toFixed(2); // BUG FIX: Multiply by 100
 }

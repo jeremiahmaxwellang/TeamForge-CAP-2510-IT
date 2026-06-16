@@ -12,8 +12,8 @@ async function fetchRolePositionsByPuuid(puuid) {
                 r1.teamPosition AS primaryTeamPosition,
                 r2.teamPosition AS secondaryTeamPosition
          FROM players p
-         JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-         LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+         JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+         LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
          WHERE p.puuid = ?
          LIMIT 1`,
         [puuid]
@@ -27,7 +27,7 @@ async function fetchRecentRoleBucketRows(puuid, queueId, teamPosition, limit = 1
 
     let sql = `
         SELECT mp.win, m.gameStartTimestamp, m.gameCreation, mp.queueId
-        FROM matchParticipants mp
+        FROM matchparticipants mp
         JOIN matches m ON mp.matchId = m.matchId
         WHERE mp.puuid = ? AND mp.teamPosition = ?
     `;
@@ -56,7 +56,7 @@ async function fetchRecentRoleBucketMatches(puuid, queueId, teamPosition, limit 
              mp.item0, mp.item1, mp.item2, mp.item3, mp.item4, mp.item5, mp.item6,
                mp.summoner1Id, mp.summoner2Id, mp.primaryPerkId, mp.secondaryPerkStyleId
         FROM matches m
-        JOIN matchParticipants mp ON m.matchId = mp.matchId
+        JOIN matchparticipants mp ON m.matchId = mp.matchId
         WHERE mp.puuid = ? AND mp.teamPosition = ?
     `;
     const params = [puuid, teamPosition];
@@ -239,7 +239,7 @@ exports.getRecentMatchesFromDatabase = async (req, res) => {
                     secondaryPerkStyleId,
                     teamId,
                     teamPosition
-                FROM matchParticipants
+                FROM matchparticipants
                 WHERE matchId IN (${placeholders})
                 ORDER BY matchId, teamId, participantId
             `,
@@ -386,10 +386,10 @@ SELECT
 	ROUND(AVG(mp.deaths), 1) AS avgDeaths,
 	ROUND(AVG(mp.assists), 1) AS avgAssists,
     ROUND(AVG(mp.creepScorePerMinute), 1) AS avgCsm
-FROM matchParticipants mp
+FROM matchparticipants mp
 JOIN players p ON mp.puuid = p.puuid
-LEFT JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+LEFT JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
 WHERE p.userId = ?
 GROUP BY champ_role
 ORDER BY
@@ -427,8 +427,8 @@ exports.getPlayerRoles = async (req, res) => {
                 p.primaryRoleId, r1.displayedRole AS displayedRole1, r1.role AS role1, r1.teamPosition AS teamPosition1,
                 p.secondaryRoleId, r2.displayedRole AS displayedRole2, r2.role AS role2, r2.teamPosition AS teamPosition2
             FROM players p
-            JOIN leagueRoles r1 ON r1.roleId = p.primaryRoleId
-            JOIN leagueRoles r2 ON r2.roleId = p.secondaryRoleId
+            JOIN leagueroles r1 ON r1.roleId = p.primaryRoleId
+            JOIN leagueroles r2 ON r2.roleId = p.secondaryRoleId
             WHERE p.userId = ?`,
             [playerId]);
 

@@ -56,7 +56,7 @@ exports.getScrims = async (req, res) => {
         ON e.eventId = ea.eventId AND ea.userId = ?
     JOIN players pl
         ON ea.userId = pl.userId
-    LEFT JOIN leagueRoles lr
+    LEFT JOIN leagueroles lr
         ON ea.player_role = lr.roleId
     WHERE e.type = 'Scrim'
     GROUP BY
@@ -109,7 +109,7 @@ exports.getTimesPlayed = async (req, res) => {
         ON ea1.eventId = e.eventId AND e.type = 'Scrim'
       JOIN players p
         ON ea2.userId = p.userId
-      LEFT JOIN leagueRoles r
+      LEFT JOIN leagueroles r
         ON ea2.player_role = r.roleId
       LEFT JOIN player_evaluations pe
         ON ea1.eventId = pe.eventId
@@ -230,7 +230,7 @@ exports.getScrimSummary = async (req, res) => {
         ON ea1.eventId = ea2.eventId AND ea1.userId <> ea2.userId
       JOIN players p
         ON ea2.userId = p.userId
-      JOIN leagueRoles r
+      JOIN leagueroles r
         ON r.roleId = p.primaryRoleId
       CROSS JOIN total_scrims ts
       WHERE ea1.userId = ?
@@ -275,7 +275,7 @@ exports.getCommsSummary = async (req, res) => {
         ON ea1.eventId = ea2.eventId AND ea1.userId <> ea2.userId
       JOIN players p
         ON ea2.userId = p.userId
-      JOIN leagueRoles r
+      JOIN leagueroles r
         ON r.roleId = p.primaryRoleId
       LEFT JOIN player_evaluations pe1
         ON pe1.playerId = ea1.userId AND pe1.eventId = ea1.eventId

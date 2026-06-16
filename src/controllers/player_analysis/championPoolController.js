@@ -30,7 +30,7 @@ exports.getChampionPool = async (req, res) => {
 
         CONCAT(ROUND(AVG(CAST(mp.killParticipation AS DECIMAL(10,2))), 1), '%') AS avg_kp
         FROM matches m
-        JOIN matchParticipants mp ON m.matchId = mp.matchId
+        JOIN matchparticipants mp ON m.matchId = mp.matchId
         JOIN players p ON p.puuid = mp.puuid
         JOIN latest_version lv
         WHERE m.userId = ?
@@ -56,7 +56,7 @@ exports.getTotalChampions = async (req, res) => {
         const sql = `
             SELECT COUNT(DISTINCT  mp.championId) AS totalChamps
             FROM matches m
-                JOIN matchParticipants mp ON m.matchId = mp.matchId
+                JOIN matchparticipants mp ON m.matchId = mp.matchId
                 JOIN players p ON p.puuid = mp.puuid
             WHERE m.userId = ?
         `;
@@ -91,7 +91,7 @@ exports.getChampionSummary = async (req, res) => {
                 ROUND(AVG(CAST(mp.damageShare AS DECIMAL(10,2))), 1) AS avg_damageshare,
                 CONCAT(ROUND(AVG(CAST(mp.killParticipation AS DECIMAL(10,2))), 1), '%') AS avg_kp
             FROM matches m
-            JOIN matchParticipants mp ON m.matchId = mp.matchId
+            JOIN matchparticipants mp ON m.matchId = mp.matchId
             JOIN players p ON p.puuid = mp.puuid
             WHERE m.userId = ?
             GROUP BY mp.championName, mp.championId, champ_role
