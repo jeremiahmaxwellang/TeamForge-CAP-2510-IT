@@ -444,6 +444,8 @@ DEFAULT CHARACTER SET = utf8mb3;
 CREATE TABLE IF NOT EXISTS `teamforgedb`.`teamdetails` (
   `teamName` VARCHAR(45) NOT NULL,
   `teamIcon` VARCHAR(260) NULL DEFAULT NULL,
+  `schoolName` VARCHAR(260) NULL,
+  `schoolIcon` VARCHAR(260) NULL,
   `discordServer` VARCHAR(260) NULL DEFAULT NULL,
   PRIMARY KEY (`teamName`))
 ENGINE = InnoDB
