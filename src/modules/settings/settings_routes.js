@@ -12,6 +12,7 @@ function requireCoachOnly(req, res, next) {
 
 // Serve the HTML page
 router.get('/', settingsController.getPage);
+router.get('/api/all-team-details', settingsController.getAllTeamDetails);
 
 router.post('/api/profile/password', settingsController.changePassword);
 router.post('/api/profile/photo', settingsController.changeProfilePhoto);

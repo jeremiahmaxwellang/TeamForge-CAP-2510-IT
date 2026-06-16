@@ -3,7 +3,7 @@ const path = require('path');
 const riotApiKeyService = require('../../services/riotApiKeyService');
 const academicRequirementsService = require('../../services/academicRequirementsService');
 
-const DEFAULT_TEAM_NAME = 'Viridis Arcus';
+const DEFAULT_TEAM_NAME = 'My Team';
 const DEFAULT_TEAM_LOGO_FILE = 'VA_logo.png';
 
 async function getAuthenticatedUser(req) {
@@ -91,6 +91,32 @@ exports.getPage = (req, res) => {
     res.sendFile('settings.html', { root: './src/modules/settings' }); // Adjust root if your html is somewhere else
 };
 
+exports.getAllTeamDetails = async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            'SELECT * FROM teamDetails LIMIT 1'
+        );
+
+        const teamDetails = rows[0]; // gets the first result
+
+        if (!teamDetails) {
+            return res.status(404).json({ success: false, message: 'No team details found.' });
+        }
+
+        return res.status(200).json({
+            success: true,
+            teamName: teamDetails.teamName,
+            teamIcon: teamDetails.teamIcon,
+            teamLogoUrl: resolveTeamLogoUrl(teamDetails.teamIcon)
+        });
+
+    } catch (error) {
+        console.error('Error fetching team details:', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch team details.' });
+    }
+};
+
+// Old getTeamDetails
 exports.getTeamDetails = async (req, res) => {
     try {
         const user = await getAuthenticatedUser(req);

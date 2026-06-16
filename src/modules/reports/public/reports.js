@@ -1,4 +1,24 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // =============== TEAM BRANDING ===================
+    let teamName = 'My Team';
+    let teamLogoUrl = '/uploads/team-logos/default.png';
+
+    const loadTeamDetails = async () => {
+        try {
+            const res = await fetch('settings/api/all-team-details');
+            const data = await res.json();
+
+            if (data.success) {
+                teamName    = data.teamName    || teamName;
+                teamLogoUrl = data.teamLogoUrl || teamLogoUrl;
+            }
+        } catch (err) {
+            console.warn('[Team Branding] Could not load team details:', err);
+        }
+    };
+
+    await loadTeamDetails(); // fetch team name + logo from API
+
     const tournamentStartDateInput = document.getElementById('tournamentStartDate');
     const tournamentEndDateInput = document.getElementById('tournamentEndDate');
     const applyTournamentRangeBtn = document.getElementById('applyTournamentRange');
@@ -315,28 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
         imgEl.addEventListener('error', finalize, { once: true });
     });
 
-    // =============== TEAM BRANDING ===================
-    const getCurrentTeamLogoUrl = () => {
-        const inlineLogo = document.querySelector('.manager-team-name .js-team-logo-inline');
-        if (inlineLogo && inlineLogo.src) {
-            return inlineLogo.src;
-        }
 
-        const brandLogo = document.querySelector('.manager-brand img');
-        if (brandLogo && brandLogo.src) {
-            return brandLogo.src;
-        }
-
-        return '/uploads/team-logos/VA_logo.png';
-    };
-
-    const getCurrentTeamName = () => {
-        const teamName = document.querySelector('.manager-team-name');
-
-        return teamName.textContent;
-    };
-
-    const teamName = getCurrentTeamName();
 
     /* ===============================
         TOURNAMENTS
@@ -541,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     element.style.display = 'none';
                 });
 
-                const logoUrl = getCurrentTeamLogoUrl();
+                const logoUrl = teamLogoUrl;
                 exportHeader = document.createElement('div');
                 exportHeader.style.display = 'flex';
                 exportHeader.style.alignItems = 'center';
@@ -1017,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const doc = new jsPDF();
                 
                  // ── HEADER WITH LOGO ─────────────────────────────────────
-                const logoUrl = getCurrentTeamLogoUrl();
+                const logoUrl = teamLogoUrl;
 
                 // Helper to draw the rest of the PDF after logo loads
                 const drawPdf = (logoDataUrl) => {
@@ -1037,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const textX = logoDataUrl ? 36 : 14;
                 doc.setFontSize(22);
                 doc.setTextColor(31, 119, 180);
-                doc.text("Viridis Arcus", textX, headerY);
+                doc.text(teamName, textX, headerY);
                 
                 doc.setFontSize(14);
                 doc.setTextColor(50, 50, 50);
@@ -1134,7 +1133,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // 5. Download the PDF
-                doc.save("Viridis_Arcus_Applicant_Report.pdf");
+                const safeTeamName = teamName.replace(/\s+/g, '_');
+                doc.save(`${safeTeamName}_Applicant_Report.pdf`);
 
                 };
 
