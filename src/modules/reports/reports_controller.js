@@ -23,7 +23,7 @@ exports.getCurrentPlayers = async (req, res) => {
                 (COUNT(*) - COUNT(CASE WHEN p.yearLevel = '4th Year' THEN 1 END)) AS players_left
             FROM users u
             JOIN players p ON u.userId = p.userId
-            JOIN leagueRoles l ON p.primaryRoleId = l.roleId
+            JOIN leagueroles l ON p.primaryRoleId = l.roleId
             WHERE u.position = 'Player'
             GROUP BY l.roleId, l.displayedRole
             ORDER BY l.roleId;
@@ -58,7 +58,7 @@ exports.getApplicantRoles = async (req, res) => {
                 ) AS role_percentage
             FROM users u
             JOIN players p ON u.userId = p.userId
-            JOIN leagueRoles l ON p.primaryRoleId = l.roleId
+            JOIN leagueroles l ON p.primaryRoleId = l.roleId
             WHERE u.position = 'Applicant'
             GROUP BY l.displayedRole
             `);
@@ -169,7 +169,7 @@ exports.getBestPerformingApplicants = async (req, res) => {
                 COUNT(recent.win) AS gamesCount
             FROM users u
             JOIN players p ON p.userId = u.userId
-            JOIN leagueRoles l ON l.roleId = p.primaryRoleId
+            JOIN leagueroles l ON l.roleId = p.primaryRoleId
             LEFT JOIN (
                 SELECT ranked.puuid, ranked.teamPosition, ranked.win
                 FROM (
@@ -181,7 +181,7 @@ exports.getBestPerformingApplicants = async (req, res) => {
                             PARTITION BY mp.puuid, mp.teamPosition
                             ORDER BY COALESCE(m.gameStartTimestamp, m.gameCreation) DESC
                         ) AS rowNum
-                    FROM matchParticipants mp
+                    FROM matchparticipants mp
                     JOIN matches m ON m.matchId = mp.matchId
                 ) ranked
                 WHERE ranked.rowNum <= 15
@@ -218,17 +218,17 @@ exports.getBestCommunicationApplicants = async (req, res) => {
                 COALESCE(aeSummary.evaluationsCount, 0) AS evaluationsCount
             FROM users u
             JOIN players p ON p.userId = u.userId
-            JOIN leagueRoles l ON l.roleId = p.primaryRoleId
+            JOIN leagueroles l ON l.roleId = p.primaryRoleId
             LEFT JOIN (
                 SELECT
                     userId,
                     MAX(evaluationId) AS latestEvaluationId,
                     COUNT(*) AS evaluationsCount
-                FROM applicantEvaluations
+                FROM applicantevaluations
                 WHERE ratingCommunication BETWEEN 1 AND 5
                 GROUP BY userId
             ) aeSummary ON aeSummary.userId = u.userId
-            LEFT JOIN applicantEvaluations aeLatest ON aeLatest.evaluationId = aeSummary.latestEvaluationId
+            LEFT JOIN applicantevaluations aeLatest ON aeLatest.evaluationId = aeSummary.latestEvaluationId
             WHERE u.position = 'Applicant' OR aeSummary.latestEvaluationId IS NOT NULL
             ORDER BY communicationRating DESC, evaluationsCount DESC, applicantName ASC;
         `);
@@ -241,35 +241,6 @@ exports.getBestCommunicationApplicants = async (req, res) => {
     }
 }
 
-// Get tournament result records for reports (Manager/Coach safe)
-// exports.getTournamentResultsReport = async (req, res) => {
-
-//     try {
-
-//         const [rows] = await db.query(
-//             `SELECT
-//                 t.tournamentId,
-//                 t.name,
-//                 t.startDate AS tournamentDate,
-//                 t.win AS result
-//             FROM tournaments t
-//             ORDER BY t.tournamentId DESC`
-//         );
-
-//         return res.status(200).json({
-//             success: true,
-//             data: rows
-//         });
-
-//     } catch (err) {
-//         console.error('Error:', err);
-//         return res.status(500).json({
-//             success: false,
-//             message: 'Error fetching tournament report data',
-//             error: err.message
-//         });
-//     }
-// }
 
 // GET Tournaments
 // changed to cap2 events table
