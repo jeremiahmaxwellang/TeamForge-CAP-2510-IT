@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // =============== TEAM BRANDING ===================
+
+    /* ============================================================
+        TEAM BRANDING
+       ============================================================ */
     let teamName = 'My Team';
     let teamLogoUrl = '/uploads/team-logos/default.png';
 
@@ -7,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const res = await fetch('settings/api/all-team-details');
             const data = await res.json();
-
             if (data.success) {
                 teamName    = data.teamName    || teamName;
                 teamLogoUrl = data.teamLogoUrl || teamLogoUrl;
@@ -17,40 +19,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    await loadTeamDetails(); // fetch team name + logo from API
+    await loadTeamDetails();
 
-    const tournamentStartDateInput = document.getElementById('tournamentStartDate');
-    const tournamentEndDateInput = document.getElementById('tournamentEndDate');
-    const applyTournamentRangeBtn = document.getElementById('applyTournamentRange');
-    const resetTournamentRangeBtn = document.getElementById('resetTournamentRange');
-    const tournamentRangeSummary = document.getElementById('tournamentRangeSummary');
-    const tournamentResultLegend = document.getElementById('tournament-result-legend');
-    const printReportBtn = document.getElementById('printReportBtn');
-    const openTermBreakdownBtn = document.getElementById('openTermBreakdownBtn');
-    const termBreakdownModal = document.getElementById('termBreakdownModal');
-    const closeTermBreakdownBtn = document.getElementById('closeTermBreakdownBtn');
-    const saveTermReportBtn = document.getElementById('saveTermReportBtn');
-    const termSelectElements = Array.from(document.querySelectorAll('.term-select'));
-    const termSummaryElements = [
+
+    /* ============================================================
+        DOM REFS
+       ============================================================ */
+    const tournamentStartDateInput  = document.getElementById('tournamentStartDate');
+    const tournamentEndDateInput    = document.getElementById('tournamentEndDate');
+    const applyTournamentRangeBtn   = document.getElementById('applyTournamentRange');
+    const resetTournamentRangeBtn   = document.getElementById('resetTournamentRange');
+    const tournamentRangeSummary    = document.getElementById('tournamentRangeSummary');
+    const tournamentResultLegend    = document.getElementById('tournament-result-legend');
+    const printReportBtn            = document.getElementById('printReportBtn');
+    const openTermBreakdownBtn      = document.getElementById('openTermBreakdownBtn');
+    const termBreakdownModal        = document.getElementById('termBreakdownModal');
+    const closeTermBreakdownBtn     = document.getElementById('closeTermBreakdownBtn');
+    const saveTermReportBtn         = document.getElementById('saveTermReportBtn');
+    const termSelectElements        = Array.from(document.querySelectorAll('.term-select'));
+    const termSummaryElements       = [
         document.getElementById('termSummary1'),
         document.getElementById('termSummary2'),
         document.getElementById('termSummary3')
     ];
-    const termResultDetailElements = [
+    const termResultDetailElements  = [
         document.getElementById('termResultDetails1'),
         document.getElementById('termResultDetails2'),
         document.getElementById('termResultDetails3')
     ];
     const termChartCanvasIds = ['termPieChart1', 'termPieChart2', 'termPieChart3'];
 
+
+    /* ============================================================
+        CONSTANTS
+       ============================================================ */
     const tournamentResultColors = {
-        Wins: '#128b0d',
+        Wins:   '#128b0d',
         Losses: '#841a14'
     };
-
-    let allTournamentRows = [];
-    let tournamentResultChart = null;
-    const termCharts = [null, null, null];
 
     const defaultTermDateRanges = {
         'Term 1': { start: '2025-05-01', end: '2025-08-31' },
@@ -72,6 +78,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? configuredTermDateRanges
         : defaultTermDateRanges;
 
+
+    /* ============================================================
+        STATE
+       ============================================================ */
+    let allTournamentRows    = [];
+    let tournamentResultChart = null;
+    const termCharts          = [null, null, null];
+
+
+    /* ============================================================
+        UTILITY HELPERS
+       ============================================================ */
     const parseDateValue = (dateValue) => {
         if (!dateValue) return null;
         if (dateValue instanceof Date) {
@@ -81,7 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const rawValue = String(dateValue).trim();
         if (!rawValue) return null;
 
-        // Support both YYYY-MM-DD and full datetime strings from API/DB.
         const normalized = rawValue.includes('T')
             ? rawValue
             : `${rawValue.slice(0, 10)}T00:00:00`;
@@ -103,11 +120,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const escapeHtml = (value) => String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/&/g,  '&amp;')
+        .replace(/</g,  '&lt;')
+        .replace(/>/g,  '&gt;')
+        .replace(/"/g,  '&quot;')
+        .replace(/'/g,  '&#39;');
 
     const normalizeResultLabel = (resultValue) => {
         const normalized = String(resultValue || '').trim().toUpperCase();
@@ -119,80 +136,140 @@ document.addEventListener('DOMContentLoaded', async () => {
     const countWinLoss = (rows) => {
         let wins = 0;
         let losses = 0;
-
         rows.forEach((row) => {
-            const normalized = String(row.result || '').trim().toUpperCase();
-            if (normalized === 'W') wins += 1;
-            if (normalized === 'L') losses += 1;
+            const v = String(row.result || '').trim().toUpperCase();
+            if (v === 'W') wins   += 1;
+            if (v === 'L') losses += 1;
         });
-
         return { wins, losses };
     };
 
-    const renderTournamentDetailsList = (targetEl, rows, emptyMessage) => {
-        if (!targetEl) return;
+    const waitForNextPaint = () => new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
 
-        if (!Array.isArray(rows) || rows.length === 0) {
-            targetEl.innerHTML = `<p class="tournament-empty-msg">${escapeHtml(emptyMessage)}</p>`;
-            return;
+    const waitForImageLoad = (imgEl) => new Promise((resolve) => {
+        if (!imgEl) { resolve(); return; }
+        if (imgEl.complete && imgEl.naturalWidth > 0) { resolve(); return; }
+        imgEl.addEventListener('load',  resolve, { once: true });
+        imgEl.addEventListener('error', resolve, { once: true });
+    });
+
+    /**
+     * Converts an image URL to a base64 data URL via a canvas.
+     * Resolves with null if the image fails to load.
+     */
+    const loadImageAsBase64 = (imageUrl) => new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width  = img.width;
+            canvas.height = img.height;
+            canvas.getContext('2d').drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => {
+            console.warn('[PDF] Image failed to load:', imageUrl);
+            resolve(null);
+        };
+        img.src = imageUrl;
+    });
+
+
+    /* ============================================================
+        PDF HEADER BUILDER  (shared by both PDF generators)
+
+        Draws the standard report header onto a jsPDF document:
+          [team logo]  Team Name          [DLSU logo] [TeamForge logo]
+                       Report Subtitle
+          ─────────────────────────────────────────────────────────
+
+        @param {jsPDF}  doc        - active jsPDF instance
+        @param {object} logos      - { team, dlsu, teamforge } base64 strings (null = skip)
+        @param {string} subtitle   - second line under the team name
+        @returns {number}          - Y coordinate to start body content after the divider
+       ============================================================ */
+    const drawPdfHeader = (doc, { team, dlsu, teamforge }, subtitle) => {
+        const LOGO_X      = 14;
+        const LOGO_Y      = 10;
+        const LOGO_SIZE   = 18;
+        const TEXT_INDENT = team ? LOGO_X + LOGO_SIZE + 4 : LOGO_X;
+        const RIGHT_X     = 160;
+        const RIGHT_SIZE  = 12;
+        const DIVIDER_Y   = 32;
+
+        if (team) {
+            try { doc.addImage(team, 'PNG', LOGO_X, LOGO_Y, LOGO_SIZE, LOGO_SIZE); }
+            catch (e) { console.warn('[PDF] Could not add team logo:', e); }
         }
 
-        const sortedRows = [...rows].sort((a, b) => {
-            const dateA = parseDateValue(a.tournamentDate);
-            const dateB = parseDateValue(b.tournamentDate);
+        doc.setFontSize(22);
+        doc.setTextColor(31, 119, 180);
+        doc.text(teamName, TEXT_INDENT, 20);
 
-            if (!dateA && !dateB) return 0;
-            if (!dateA) return 1;
-            if (!dateB) return -1;
-            return dateB.getTime() - dateA.getTime();
-        });
+        doc.setFontSize(14);
+        doc.setTextColor(50, 50, 50);
+        doc.text(subtitle, TEXT_INDENT, 28);
 
-        targetEl.innerHTML = `
-            <ul class="tournament-detail-list">
-                ${sortedRows.map((row) => {
-            const title = String(row.name || row.tournamentName || row.title || 'Untitled Tournament').trim() || 'Untitled Tournament';
-            const dateLabel = formatDateLabel(row.tournamentDate) || 'Unknown date';
-            const resultLabel = normalizeResultLabel(row.result);
+        if (dlsu) {
+            try { doc.addImage(dlsu, 'PNG', RIGHT_X,      LOGO_Y, RIGHT_SIZE, RIGHT_SIZE); }
+            catch (e) { console.warn('[PDF] Could not add DLSU logo:', e); }
+        }
 
-            return `
-                        <li class="tournament-detail-item">
-                            <div class="tournament-detail-title">${escapeHtml(title)}</div>
-                            <p class="tournament-detail-meta">Date: ${escapeHtml(dateLabel)}</p>
-                            <p class="tournament-detail-meta">Result: ${escapeHtml(resultLabel)}</p>
-                        </li>
-                    `;
-        }).join('')}
-            </ul>
-        `;
+        if (teamforge) {
+            try { doc.addImage(teamforge, 'PNG', RIGHT_X + RIGHT_SIZE + 3, LOGO_Y, RIGHT_SIZE, RIGHT_SIZE); }
+            catch (e) { console.warn('[PDF] Could not add TeamForge logo:', e); }
+        }
+
+        doc.setDrawColor(200, 200, 200);
+        doc.line(14, DIVIDER_Y, 196, DIVIDER_Y);
+
+        return DIVIDER_Y + 8; // caller starts body content here
     };
 
+    /**
+     * Loads all three standard logos in parallel and returns them as base64.
+     * @returns {{ team: string|null, dlsu: string|null, teamforge: string|null }}
+     */
+    const loadStandardLogos = async () => {
+        const [team, dlsu, teamforge] = await Promise.all([
+            loadImageAsBase64(teamLogoUrl),
+            loadImageAsBase64('/images/dlsu_logo.png'),
+            loadImageAsBase64('/images/teamforge_logo_white.png')
+        ]);
+        return { team, dlsu, teamforge };
+    };
+
+
+    /* ============================================================
+        TOURNAMENT — DATA HELPERS
+       ============================================================ */
     const getRowsInDateRange = (startDate, endDate) => allTournamentRows.filter((row) => {
         const rowDate = normalizeDateOnly(row.tournamentDate);
         if (!rowDate) return false;
-
         if (startDate && rowDate < startDate) return false;
-        if (endDate && rowDate > endDate) return false;
+        if (endDate   && rowDate > endDate)   return false;
         return true;
     });
 
     const getRowsInTerm = (termName) => {
         const termRange = termDateRanges[termName];
-        if (!termRange) {
-            return [];
-        }
+        if (!termRange) return [];
 
         const startDate = normalizeDateOnly(`${termRange.start}T00:00:00`);
-        const endDate = normalizeDateOnly(`${termRange.end}T00:00:00`);
-        if (!startDate || !endDate) {
-            return [];
-        }
+        const endDate   = normalizeDateOnly(`${termRange.end}T00:00:00`);
+        if (!startDate || !endDate) return [];
 
         return getRowsInDateRange(startDate, endDate);
     };
 
+
+    /* ============================================================
+        TOURNAMENT — RENDER HELPERS
+       ============================================================ */
     const renderTournamentLegend = () => {
         if (!tournamentResultLegend) return;
-
         tournamentResultLegend.innerHTML = ['Wins', 'Losses'].map((label) => `
             <div class="legend-item">
                 <div class="legend-dot" style="background:${tournamentResultColors[label]}"></div>${label}
@@ -204,9 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const chartEl = document.getElementById('tournamentResultChart');
         if (!chartEl) return;
 
-        if (tournamentResultChart) {
-            tournamentResultChart.destroy();
-        }
+        if (tournamentResultChart) tournamentResultChart.destroy();
 
         tournamentResultChart = new Chart(chartEl, {
             type: 'pie',
@@ -223,35 +298,94 @@ document.addEventListener('DOMContentLoaded', async () => {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` ${ctx.label}: ${ctx.parsed}`
-                        }
+                        callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}` }
                     }
                 }
             }
         });
     };
 
-    const getTermStats = (termName) => {
-        const rowsInTerm = getRowsInTerm(termName);
-        const { wins, losses } = countWinLoss(rowsInTerm);
+    const renderTournamentDetailsList = (targetEl, rows, emptyMessage) => {
+        if (!targetEl) return;
 
-        return { wins, losses, total: rowsInTerm.length };
+        if (!Array.isArray(rows) || rows.length === 0) {
+            targetEl.innerHTML = `<p class="tournament-empty-msg">${escapeHtml(emptyMessage)}</p>`;
+            return;
+        }
+
+        const sortedRows = [...rows].sort((a, b) => {
+            const dateA = parseDateValue(a.tournamentDate);
+            const dateB = parseDateValue(b.tournamentDate);
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB.getTime() - dateA.getTime();
+        });
+
+        targetEl.innerHTML = `
+            <ul class="tournament-detail-list">
+                ${sortedRows.map((row) => {
+                    const title       = String(row.name || row.tournamentName || row.title || 'Untitled Tournament').trim() || 'Untitled Tournament';
+                    const dateLabel   = formatDateLabel(row.tournamentDate) || 'Unknown date';
+                    const resultLabel = normalizeResultLabel(row.result);
+                    return `
+                        <li class="tournament-detail-item">
+                            <div class="tournament-detail-title">${escapeHtml(title)}</div>
+                            <p class="tournament-detail-meta">Date: ${escapeHtml(dateLabel)}</p>
+                            <p class="tournament-detail-meta">Result: ${escapeHtml(resultLabel)}</p>
+                        </li>
+                    `;
+                }).join('')}
+            </ul>
+        `;
     };
 
-    const renderTermChart = (chartIndex, termName) => {
-        const canvasId = termChartCanvasIds[chartIndex];
-        const canvasEl = document.getElementById(canvasId);
-        const summaryEl = termSummaryElements[chartIndex];
+    const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
+        if (!tournamentRangeSummary) return;
+        const rangeLabel = startDate && endDate
+            ? `${formatDateLabel(startDate)} to ${formatDateLabel(endDate)}`
+            : 'all tournaments';
+        tournamentRangeSummary.textContent =
+            `Range: ${rangeLabel}. Wins: ${wins}, Losses: ${losses}, Total tournaments: ${total}.`;
+    };
 
+    const applyTournamentRange = () => {
+        const startValue = tournamentStartDateInput ? tournamentStartDateInput.value : '';
+        const endValue   = tournamentEndDateInput   ? tournamentEndDateInput.value   : '';
+
+        if ((startValue && !endValue) || (!startValue && endValue)) {
+            alert('Please select both start and end dates.');
+            return;
+        }
+
+        if (startValue && endValue && startValue > endValue) {
+            alert('Start date must be before or equal to end date.');
+            return;
+        }
+
+        const startDate     = startValue ? normalizeDateOnly(`${startValue}T00:00:00`) : null;
+        const endDate       = endValue   ? normalizeDateOnly(`${endValue}T00:00:00`)   : null;
+        const filteredRows  = getRowsInDateRange(startDate, endDate);
+        const { wins, losses } = countWinLoss(filteredRows);
+
+        renderTournamentLegend();
+        renderTournamentChart(wins, losses);
+        updateTournamentSummary(wins, losses, filteredRows.length, startValue, endValue);
+    };
+
+
+    /* ============================================================
+        TOURNAMENT — TERM CHARTS
+       ============================================================ */
+    const renderTermChart = (chartIndex, termName) => {
+        const canvasEl  = document.getElementById(termChartCanvasIds[chartIndex]);
+        const summaryEl = termSummaryElements[chartIndex];
         if (!canvasEl || !summaryEl) return;
 
-        const rowsInTerm = getRowsInTerm(termName);
-        const { wins, losses, total } = getTermStats(termName);
+        const rowsInTerm       = getRowsInTerm(termName);
+        const { wins, losses } = countWinLoss(rowsInTerm);
 
-        if (termCharts[chartIndex]) {
-            termCharts[chartIndex].destroy();
-        }
+        if (termCharts[chartIndex]) termCharts[chartIndex].destroy();
 
         termCharts[chartIndex] = new Chart(canvasEl, {
             type: 'pie',
@@ -266,20 +400,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             },
             options: {
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom'
-                    },
+                    legend: { display: true, position: 'bottom' },
                     tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` ${ctx.label}: ${ctx.parsed}`
-                        }
+                        callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}` }
                     }
                 }
             }
         });
 
-        summaryEl.textContent = `${termName}: Wins ${wins}, Losses ${losses}, Tournaments ${total}.`;
+        summaryEl.textContent = `${termName}: Wins ${wins}, Losses ${losses}, Tournaments ${rowsInTerm.length}.`;
         renderTournamentDetailsList(
             termResultDetailElements[chartIndex],
             rowsInTerm,
@@ -293,6 +422,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
+
+    /* ============================================================
+        TOURNAMENT — FETCH
+       ============================================================ */
+    const loadTournamentReport = async () => {
+        if (!applyTournamentRangeBtn || !resetTournamentRangeBtn) return;
+
+        try {
+            const response = await fetch('/reports/tournament_results');
+            const data     = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to load tournament report');
+            }
+
+            allTournamentRows = Array.isArray(data.data) ? data.data : [];
+            applyTournamentRange();
+            renderAllTermCharts();
+        } catch (err) {
+            console.error('Error loading tournament report:', err);
+
+            if (tournamentRangeSummary) {
+                tournamentRangeSummary.textContent = 'Failed to load tournament report data.';
+            }
+            termSummaryElements.forEach((el) => {
+                if (el) el.textContent = 'Failed to load tournament report data.';
+            });
+            termResultDetailElements.forEach((el) => {
+                if (el) el.innerHTML = '<p class="tournament-empty-msg">Failed to load tournament report data.</p>';
+            });
+        }
+    };
+
+
+    /* ============================================================
+        TERM MODAL
+       ============================================================ */
     const openTermModal = () => {
         if (!termBreakdownModal) return;
         termBreakdownModal.classList.add('show');
@@ -308,105 +474,592 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.classList.remove('term-modal-open');
     };
 
-    const waitForNextPaint = () => new Promise((resolve) => {
-        requestAnimationFrame(() => {
-            requestAnimationFrame(resolve);
-        });
-    });
 
-    const waitForImageLoad = (imgEl) => new Promise((resolve) => {
-        if (!imgEl) {
-            resolve();
+    /* ============================================================
+        SCREENSHOT — DASHBOARD
+       ============================================================ */
+    const downloadCurrentViewScreenshot = async () => {
+        if (typeof html2canvas !== 'function') {
+            alert('Screenshot tool is not available right now.');
             return;
         }
+        if (!printReportBtn) return;
 
-        if (imgEl.complete && imgEl.naturalWidth > 0) {
-            resolve();
-            return;
-        }
-
-        const finalize = () => {
-            imgEl.removeEventListener('load', finalize);
-            imgEl.removeEventListener('error', finalize);
-            resolve();
-        };
-
-        imgEl.addEventListener('load', finalize, { once: true });
-        imgEl.addEventListener('error', finalize, { once: true });
-    });
-
-
-
-    /* ===============================
-        TOURNAMENTS
-       =============================== */ 
-    const updateTournamentSummary = (wins, losses, total, startDate, endDate) => {
-        if (!tournamentRangeSummary) return;
-
-        const rangeLabel = startDate && endDate
-            ? `${formatDateLabel(startDate)} to ${formatDateLabel(endDate)}`
-            : 'all tournaments';
-
-        tournamentRangeSummary.textContent = `Range: ${rangeLabel}. Wins: ${wins}, Losses: ${losses}, Total tournaments: ${total}.`;
-    };
-
-    const applyTournamentRange = () => {
-        const startValue = tournamentStartDateInput ? tournamentStartDateInput.value : '';
-        const endValue = tournamentEndDateInput ? tournamentEndDateInput.value : '';
-
-        if ((startValue && !endValue) || (!startValue && endValue)) {
-            alert('Please select both start and end dates.');
-            return;
-        }
-
-        if (startValue && endValue && startValue > endValue) {
-            alert('Start date must be before or equal to end date.');
-            return;
-        }
-
-        const startDate = startValue ? normalizeDateOnly(`${startValue}T00:00:00`) : null;
-        const endDate = endValue ? normalizeDateOnly(`${endValue}T00:00:00`) : null;
-
-        const filteredRows = getRowsInDateRange(startDate, endDate);
-        const { wins, losses } = countWinLoss(filteredRows);
-
-        renderTournamentLegend();
-        renderTournamentChart(wins, losses);
-        updateTournamentSummary(wins, losses, filteredRows.length, startValue, endValue);
-    };
-
-    const loadTournamentReport = async () => {
-        if (!applyTournamentRangeBtn || !resetTournamentRangeBtn) return;
+        const originalLabel = printReportBtn.textContent;
+        printReportBtn.disabled  = true;
+        printReportBtn.textContent = 'Preparing...';
 
         try {
-            const response = await fetch('/reports/tournament_results');
-            const data = await response.json();
+            const target          = document.querySelector('.reports-shell') || document.body;
+            const originalDisplay = printReportBtn.style.display;
 
-            // After — handles empty results gracefully
-            if (!response.ok || !data.success) {
-                throw new Error(data.message || 'Failed to load tournament report');
-            }
+            printReportBtn.style.display = 'none';
 
-            allTournamentRows = Array.isArray(data.data) ? data.data : [];
-            applyTournamentRange();
-            renderAllTermCharts();
-        } catch (err) {
-            console.error('Error loading tournament report:', err);
-            if (tournamentRangeSummary) {
-                tournamentRangeSummary.textContent = 'Failed to load tournament report data.';
-            }
-
-            termSummaryElements.forEach((summaryEl) => {
-                if (!summaryEl) return;
-                summaryEl.textContent = 'Failed to load tournament report data.';
+            const canvas = await html2canvas(target, {
+                useCORS:      true,
+                backgroundColor: '#ffffff',
+                width:        target.scrollWidth,
+                height:       target.scrollHeight,
+                scrollX:      0,
+                scrollY:      -window.scrollY,
+                windowWidth:  target.scrollWidth,
+                windowHeight: target.scrollHeight,
+                scale:        2
             });
-            termResultDetailElements.forEach((detailEl) => {
-                if (!detailEl) return;
-                detailEl.innerHTML = '<p class="tournament-empty-msg">Failed to load tournament report data.</p>';
-            });
+
+            printReportBtn.style.display = originalDisplay;
+
+            const link       = document.createElement('a');
+            const timestamp  = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download    = `reports-screenshot-${timestamp}.png`;
+            link.href        = canvas.toDataURL('image/png');
+            link.click();
+        } catch (error) {
+            console.error('Failed to capture screenshot:', error);
+            alert('Failed to capture screenshot. Please try again.');
+        } finally {
+            printReportBtn.style.display = '';
+            printReportBtn.disabled      = false;
+            printReportBtn.textContent   = originalLabel;
         }
     };
 
+
+    /* ============================================================
+        PDF EXPORT — TERM TOURNAMENT REPORT
+       ============================================================ */
+    const saveTermReport = async () => {
+        if (typeof html2canvas !== 'function') {
+            alert('Screenshot tool is not available right now.');
+            return;
+        }
+        if (!window.jspdf || typeof window.jspdf.jsPDF !== 'function') {
+            alert('PDF export tool is not available right now.');
+            return;
+        }
+
+        const target = document.querySelector('.term-modal-content');
+        if (!target) return;
+
+        const originalLabel         = saveTermReportBtn.textContent;
+        const originalSaveDisplay   = saveTermReportBtn.style.display;
+        const originalCloseDisplay  = closeTermBreakdownBtn ? closeTermBreakdownBtn.style.display : '';
+        const originalMaxHeight     = target.style.maxHeight;
+        const originalOverflow      = target.style.overflow;
+        const originalScrollTop     = target.scrollTop;
+        const termSelectDisplays    = termSelectElements.map((el) => ({ element: el, display: el.style.display }));
+
+        let exportHeader = null;
+        let exportFooter = null;
+
+        saveTermReportBtn.disabled     = true;
+        saveTermReportBtn.textContent  = 'Saving...';
+
+        try {
+            // Hide UI controls from the capture
+            saveTermReportBtn.style.display = 'none';
+            if (closeTermBreakdownBtn) closeTermBreakdownBtn.style.display = 'none';
+            termSelectDisplays.forEach(({ element }) => { element.style.display = 'none'; });
+
+            // ── Build export header (DOM-based for html2canvas) ──────────
+            exportHeader = document.createElement('div');
+            Object.assign(exportHeader.style, {
+                display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
+                gap: '12px', padding: '4px 0 16px'
+            });
+
+            const exportLogo = document.createElement('img');
+            exportLogo.src             = teamLogoUrl;
+            exportLogo.alt             = 'Team Logo';
+            Object.assign(exportLogo.style, { width: '72px', height: '72px', objectFit: 'contain' });
+
+            const headerTextWrapper = document.createElement('div');
+            Object.assign(headerTextWrapper.style, { display: 'flex', flexDirection: 'column', justifyContent: 'center' });
+
+            const teamNameHeading = document.createElement('h1');
+            teamNameHeading.textContent = teamName;
+            Object.assign(teamNameHeading.style, { margin: '0', fontSize: '20px', color: '#1f77b4' });
+
+            const reportTitleHeading = document.createElement('p');
+            reportTitleHeading.textContent = 'Team Tournament Breakdown Report';
+            Object.assign(reportTitleHeading.style, { margin: '4px 0 0', fontSize: '14px', color: '#323232' });
+
+            headerTextWrapper.append(teamNameHeading, reportTitleHeading);
+
+            const rightLogosWrapper = document.createElement('div');
+            Object.assign(rightLogosWrapper.style, { display: 'flex', gap: '8px', marginLeft: 'auto', alignItems: 'center' });
+
+            const makeSideLogoEl = (src, alt) => {
+                const img = document.createElement('img');
+                img.src = src; img.alt = alt;
+                Object.assign(img.style, { width: '60px', height: '60px', objectFit: 'contain' });
+                return img;
+            };
+
+            const dlsuLogoImg      = makeSideLogoEl('/images/dlsu_logo.png',              'DLSU Logo');
+            const teamforgeLogoImg = makeSideLogoEl('/images/teamforge_logo_white.png',   'TeamForge Logo');
+
+            rightLogosWrapper.append(dlsuLogoImg, teamforgeLogoImg);
+            exportHeader.append(exportLogo, headerTextWrapper, rightLogosWrapper);
+
+            exportFooter = document.createElement('p');
+            exportFooter.textContent = 'powered by TeamForge';
+            Object.assign(exportFooter.style, {
+                margin: '18px 0 0', textAlign: 'center',
+                fontSize: '14px', fontWeight: '600', color: '#1f2937'
+            });
+
+            target.insertBefore(exportHeader, target.firstChild);
+            target.appendChild(exportFooter);
+
+            // Expand modal so html2canvas captures the full content
+            target.style.maxHeight = 'none';
+            target.style.overflow  = 'visible';
+            target.scrollTop       = 0;
+
+            await Promise.all([
+                waitForImageLoad(exportLogo),
+                waitForImageLoad(dlsuLogoImg),
+                waitForImageLoad(teamforgeLogoImg)
+            ]);
+            await waitForNextPaint();
+
+            const canvas = await html2canvas(target, {
+                useCORS:      true,
+                backgroundColor: '#ffffff',
+                width:        target.scrollWidth,
+                height:       target.scrollHeight,
+                windowWidth:  target.scrollWidth,
+                windowHeight: target.scrollHeight,
+                scrollX:      0,
+                scrollY:      0,
+                scale:        2,
+                ignoreElements: (el) => {
+                    if (!el) return false;
+                    if (el.id === 'saveTermReportBtn')    return true;
+                    if (el.id === 'closeTermBreakdownBtn') return true;
+                    if (el.classList && el.classList.contains('term-select')) return true;
+                    return false;
+                }
+            });
+
+            const imageData  = canvas.toDataURL('image/png');
+            const { jsPDF }  = window.jspdf;
+            const pdf        = new jsPDF({
+                orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
+                unit:        'mm',
+                format:      'a4'
+            });
+
+            const pageWidth    = pdf.internal.pageSize.getWidth();
+            const pageHeight   = pdf.internal.pageSize.getHeight();
+            const imgWidthMm   = canvas.width  * 0.264583;
+            const imgHeightMm  = canvas.height * 0.264583;
+            const ratio        = Math.min(pageWidth / imgWidthMm, pageHeight / imgHeightMm);
+
+            pdf.addImage(
+                imageData, 'PNG',
+                (pageWidth  - imgWidthMm  * ratio) / 2,
+                (pageHeight - imgHeightMm * ratio) / 2,
+                imgWidthMm * ratio,
+                imgHeightMm * ratio,
+                undefined, 'FAST'
+            );
+            pdf.save('End_of_Year_Tournament_Results_Report.pdf');
+
+        } catch (error) {
+            console.error('Failed to save term report screenshot:', error);
+            alert('Failed to save report. Please try again.');
+        } finally {
+            if (exportHeader && exportHeader.parentNode) exportHeader.parentNode.removeChild(exportHeader);
+            if (exportFooter && exportFooter.parentNode) exportFooter.parentNode.removeChild(exportFooter);
+
+            saveTermReportBtn.style.display = originalSaveDisplay;
+            if (closeTermBreakdownBtn) closeTermBreakdownBtn.style.display = originalCloseDisplay;
+
+            target.style.maxHeight = originalMaxHeight;
+            target.style.overflow  = originalOverflow;
+            target.scrollTop       = originalScrollTop;
+
+            termSelectDisplays.forEach(({ element, display }) => { element.style.display = display; });
+
+            saveTermReportBtn.disabled    = false;
+            saveTermReportBtn.textContent = originalLabel;
+        }
+    };
+
+
+    /* ============================================================
+        PDF EXPORT — APPLICANT PERFORMANCE REPORT
+       ============================================================ */
+    const ROLE_METRICS = {
+        1: [ // Top
+            { key: 'averageTotalDamageTaken',   label: 'Tanking'     },
+            { key: 'averageDamageShare',         label: 'Dmg Share'   },
+            { key: 'averageKDA',                 label: 'KDA'         },
+            { key: 'averageCsPerMinute',         label: 'CS/Min'      }
+        ],
+        2: [ // Jungle
+            { key: 'averageKillParticipation',   label: 'KP'          },
+            { key: 'averageVisionScorePerMinute',label: 'Vision/Min'  },
+            { key: 'averageKDA',                 label: 'KDA'         },
+            { key: 'averageDragonKills',         label: 'Dragons'     }
+        ],
+        3: [ // Mid
+            { key: 'averageDamageShare',         label: 'Dmg Share'   },
+            { key: 'averageKillParticipation',   label: 'KP'          },
+            { key: 'averageKDA',                 label: 'KDA'         },
+            { key: 'averageCsPerMinute',         label: 'CS/Min'      }
+        ],
+        4: [ // ADC
+            { key: 'averageDamageShare',         label: 'Dmg Share'   },
+            { key: 'averageGoldPerMinute',       label: 'Gold/Min'    },
+            { key: 'averageKDA',                 label: 'KDA'         },
+            { key: 'averageCsPerMinute',         label: 'CS/Min'      }
+        ],
+        5: [ // Support
+            { key: 'averageVisionScoreShare',    label: 'Vision Share'},
+            { key: 'averageKillParticipation',   label: 'KP'          },
+            { key: 'averageAssists',             label: 'Assists'     },
+            { key: 'averageWardsPlaced',         label: 'Wards Placed'}
+        ]
+    };
+
+    const ROLE_NAMES = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'ADC', 5: 'Support' };
+
+    const generateApplicantPdf = async (printBtn) => {
+        const originalText   = printBtn.innerHTML;
+        printBtn.innerHTML   = 'Generating PDF...';
+        printBtn.disabled    = true;
+
+        try {
+            const res  = await fetch('/applicant_list/report_data');
+            const data = await res.json();
+            if (!data.success) throw new Error('Failed to fetch report data');
+
+            // Group applicants by role
+            const byRole = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+            data.applicants.forEach((app) => {
+                if (byRole[app.roleId]) byRole[app.roleId].push(app);
+            });
+
+            const { jsPDF } = window.jspdf;
+            const doc       = new jsPDF();
+
+            // Load all logos then draw
+            const logos  = await loadStandardLogos();
+            let startY   = drawPdfHeader(doc, logos, 'Applicant Performance Report');
+
+            // One table per role
+            for (let roleId = 1; roleId <= 5; roleId++) {
+                const roleApps = byRole[roleId];
+                if (!roleApps || roleApps.length === 0) continue;
+
+                const metrics = ROLE_METRICS[roleId];
+
+                // Sort by hierarchical metrics descending
+                roleApps.sort((a, b) => {
+                    for (const m of metrics) {
+                        const diff = (Number(b.stats[m.key]) || 0) - (Number(a.stats[m.key]) || 0);
+                        if (diff !== 0) return diff;
+                    }
+                    return 0;
+                });
+
+                const head = [['Rank', 'Riot ID', ...metrics.map((m) => m.label)]];
+                const body = roleApps.map((app, idx) => [
+                    `#${idx + 1}`,
+                    app.riotId,
+                    ...metrics.map((m) => {
+                        const val = Number(app.stats[m.key] || 0);
+                        if (m.key.includes('Share') || m.key.includes('Participation')) return `${val.toFixed(1)}%`;
+                        if (m.key === 'averageTotalDamageTaken') return val.toLocaleString();
+                        return val.toFixed(2);
+                    })
+                ]);
+
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'bold');
+                doc.text(`${ROLE_NAMES[roleId]} Lane Candidates`, 14, startY);
+
+                doc.autoTable({
+                    startY:     startY + 4,
+                    head,
+                    body,
+                    theme:      'grid',
+                    headStyles: { fillColor: [42, 45, 51] },
+                    margin:     { left: 14, right: 14 },
+                    styles:     { fontSize: 10 }
+                });
+
+                startY = doc.lastAutoTable.finalY + 15;
+                if (startY > 250) { doc.addPage(); startY = 20; }
+            }
+
+            const safeTeamName = teamName.replace(/\s+/g, '_');
+            doc.save(`${safeTeamName}_Applicant_Report.pdf`);
+
+        } catch (error) {
+            console.error('PDF Generation Error:', error);
+            alert('An error occurred while generating the report.');
+        } finally {
+            printBtn.innerHTML = originalText;
+            printBtn.disabled  = false;
+        }
+    };
+
+
+    /* ============================================================
+        APPLICANT TABLES — FETCH & RENDER
+       ============================================================ */
+    const loadBestPerformingApplicants = async () => {
+        const tbody = document.getElementById('best-performing-table-body');
+        if (!tbody) return;
+
+        try {
+            const res  = await fetch('/reports/best_performing_applicants');
+            const data = await res.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No applicant match data yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map((applicant, idx) => {
+                const winrate       = Number.parseFloat(applicant.winrate);
+                const fmtWinrate    = Number.isFinite(winrate) ? `${winrate.toFixed(1)}%` : '0.0%';
+                const applicantName = applicant.applicantName || 'Applicant';
+                const roleApplied   = applicant.roleApplied   || 'N/A';
+
+                return `
+                    <tr>
+                        <td class="rank-num">${idx + 1}</td>
+                        <td>${applicantName}</td>
+                        <td><span class="wr-badge">${fmtWinrate}</span></td>
+                        <td>${roleApplied}</td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error('Error loading best-performing applicants:', err);
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Failed to load applicant performance report.</td></tr>`;
+        }
+    };
+
+    const loadBestCommunicationApplicants = async () => {
+        const tbody = document.getElementById('best-communication-table-body');
+        if (!tbody) return;
+
+        try {
+            const res  = await fetch('/reports/best_communication_applicants');
+            const data = await res.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No communication evaluations yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map((applicant, idx) => {
+                const comms       = Number.parseFloat(applicant.communicationRating);
+                const rounded     = Number.isFinite(comms) ? Math.max(1, Math.min(5, Math.round(comms))) : 0;
+                const commsClass  = rounded >= 1 && rounded <= 5 ? `comms-${rounded}` : '';
+                const ratingHtml  = commsClass
+                    ? `<span class="${commsClass}">${rounded}</span>`
+                    : `<span>${rounded}</span>`;
+
+                return `
+                    <tr>
+                        <td class="rank-num">${idx + 1}</td>
+                        <td>${applicant.applicantName || 'Applicant'}</td>
+                        <td>${ratingHtml}</td>
+                        <td>${applicant.roleApplied || 'N/A'}</td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error('Error loading best communication applicants:', err);
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Failed to load communication report.</td></tr>`;
+        }
+    };
+
+
+    /* ============================================================
+        PIE CHARTS — FETCH & RENDER
+       ============================================================ */
+    const buildLegendHtml = (labels, colorMap) =>
+        labels.map((l) => `
+            <div class="legend-item">
+                <div class="legend-dot" style="background:${colorMap[l]}"></div>${l}
+            </div>
+        `).join('');
+
+    const loadApplicantRolesChart = async () => {
+        try {
+            const res  = await fetch('/reports/applicant_roles');
+            const data = await res.json();
+
+            const labels      = data.map((p) => p.displayedRole);
+            const percentages = data.map((p) => p.role_percentage);
+            const roleColors  = {
+                Top:        '#3b82f6',
+                Mid:        '#f59e0b',
+                Jungle:     '#9ca3af',
+                'AD Carry': '#f97316',
+                Support:    '#128b0d'
+            };
+
+            new Chart(document.getElementById('roleChart'), {
+                type: 'pie',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: percentages,
+                        backgroundColor: labels.map((l) => roleColors[l]),
+                        borderWidth: 2, borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}%` } }
+                    }
+                }
+            });
+
+            const legendEl = document.querySelector('#role-legend');
+            if (legendEl) legendEl.innerHTML = buildLegendHtml(labels, roleColors);
+        } catch (err) {
+            console.error('Error loading applicant roles chart:', err);
+        }
+    };
+
+    const loadApplicantStatusChart = async () => {
+        try {
+            const res  = await fetch('/reports/applicant_statuses');
+            const data = await res.json();
+
+            const labels       = data.map((a) => a.status);
+            const percentages  = data.map((a) => a.status_percentage);
+            const statusColors = {
+                Accepted: '#128b0d',
+                Pending:  '#f59e0b',
+                Rejected: '#841a14'
+            };
+
+            new Chart(document.getElementById('acceptChart'), {
+                type: 'pie',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: percentages,
+                        backgroundColor: labels.map((l) => statusColors[l]),
+                        borderWidth: 2, borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}%` } }
+                    }
+                }
+            });
+
+            const legendEl = document.querySelector('#status-legend');
+            if (legendEl) legendEl.innerHTML = buildLegendHtml(labels, statusColors);
+        } catch (err) {
+            console.error('Error loading applicant status chart:', err);
+        }
+    };
+
+
+    /* ============================================================
+        CURRENT PLAYERS TABLE — FETCH & RENDER
+       ============================================================ */
+    const loadCurrentPlayers = async () => {
+        try {
+            const res  = await fetch('/reports/current_players');
+            const data = await res.json();
+
+            const tbody = document.querySelector('.role-table tbody');
+            if (tbody) {
+                tbody.innerHTML = data.map((p) => `
+                    <tr>
+                        <td>${p.displayedRole}</td>
+                        <td>${p.role_count}</td>
+                        <td class="${p.is_leaving >= 1 ? 'players-left-zero' : ''}">${p.is_leaving}</td>
+                        <td class="${p.players_left <= 1 ? 'players-left-zero' : ''}">${p.players_left}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Build recommendation text
+            const allRoles     = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
+            const criticalRoles = [];
+            const lowRoles      = [];
+            const missingRoles  = [];
+
+            allRoles.forEach((role) => {
+                const entry = data.find((p) => p.displayedRole === role);
+                if (!entry)                              missingRoles.push(role);
+                else if (Number(entry.players_left) === 0) criticalRoles.push(role);
+                else if (Number(entry.players_left) === 1) lowRoles.push(role);
+            });
+
+            const recEl      = document.getElementById('recommended-action-text');
+            if (!recEl) return;
+
+            const urgentRoles = [...new Set([...missingRoles, ...criticalRoles])];
+            const parts       = [];
+
+            if (urgentRoles.length > 0) {
+                parts.push(`Urgently recruit ${urgentRoles.join(', ')} player${urgentRoles.length > 1 ? 's' : ''} — no remaining players after this semester.`);
+            }
+            if (lowRoles.length > 0) {
+                parts.push(`Consider recruiting backup ${lowRoles.join(', ')} player${lowRoles.length > 1 ? 's' : ''} — only 1 player remaining per role.`);
+            }
+
+            recEl.textContent = parts.length > 0
+                ? parts.join(' ')
+                : 'All roles are sufficiently staffed for next semester. No immediate recruitment needed.';
+
+        } catch (err) {
+            console.error('Error loading current players:', err);
+        }
+    };
+
+
+    /* ============================================================
+        APPLICATIONS TABLE — FETCH & RENDER
+       ============================================================ */
+    const loadApplicationsTable = async () => {
+        try {
+            const res  = await fetch('/reports/applications_total');
+            const data = await res.json();
+
+            const tbody = document.querySelector('#applications-table tbody');
+            if (!tbody) return;
+
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            tbody.innerHTML = data.map((a) => {
+                const start = new Date(a.startDate).toLocaleDateString('en-US', options);
+                const end   = new Date(a.endDate).toLocaleDateString('en-US', options);
+                return `
+                    <tr>
+                        <td>${start} - ${end}</td>
+                        <td>${a.registrations}</td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error('Error loading applications:', err);
+        }
+    };
+
+
+    /* ============================================================
+        EVENT LISTENERS
+       ============================================================ */
     if (applyTournamentRangeBtn) {
         applyTournamentRangeBtn.addEventListener('click', applyTournamentRange);
     }
@@ -414,58 +1067,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (resetTournamentRangeBtn) {
         resetTournamentRangeBtn.addEventListener('click', () => {
             if (tournamentStartDateInput) tournamentStartDateInput.value = '';
-            if (tournamentEndDateInput) tournamentEndDateInput.value = '';
+            if (tournamentEndDateInput)   tournamentEndDateInput.value   = '';
             applyTournamentRange();
         });
     }
-
-    const downloadCurrentViewScreenshot = async () => {
-        if (typeof html2canvas !== 'function') {
-            alert('Screenshot tool is not available right now.');
-            return;
-        }
-
-        if (!printReportBtn) return;
-
-        const originalLabel = printReportBtn.textContent;
-        printReportBtn.disabled = true;
-        printReportBtn.textContent = 'Preparing...';
-
-        try {
-            const target = document.querySelector('.reports-shell') || document.body;
-            const originalDisplay = printReportBtn.style.display;
-
-            // Hide floating button so it does not appear in the exported report image.
-            printReportBtn.style.display = 'none';
-
-            const canvas = await html2canvas(target, {
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                width: target.scrollWidth,
-                height: target.scrollHeight,
-                scrollX: 0,
-                scrollY: -window.scrollY,
-                windowWidth: target.scrollWidth,
-                windowHeight: target.scrollHeight,
-                scale: 2
-            });
-
-            printReportBtn.style.display = originalDisplay;
-
-            const link = document.createElement('a');
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            link.download = `reports-screenshot-${timestamp}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        } catch (error) {
-            console.error('Failed to capture screenshot:', error);
-            alert('Failed to capture screenshot. Please try again.');
-        } finally {
-            printReportBtn.style.display = '';
-            printReportBtn.disabled = false;
-            printReportBtn.textContent = originalLabel;
-        }
-    };
 
     if (printReportBtn) {
         printReportBtn.addEventListener('click', downloadCurrentViewScreenshot);
@@ -481,9 +1086,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (termBreakdownModal) {
         termBreakdownModal.addEventListener('click', (event) => {
-            if (event.target.matches('[data-close-term-modal]')) {
-                closeTermModal();
-            }
+            if (event.target.matches('[data-close-term-modal]')) closeTermModal();
         });
     }
 
@@ -500,692 +1103,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     if (saveTermReportBtn) {
-        saveTermReportBtn.addEventListener('click', async () => {
-            if (typeof html2canvas !== 'function') {
-                alert('Screenshot tool is not available right now.');
-                return;
-            }
-
-            const hasJsPdf = window.jspdf && typeof window.jspdf.jsPDF === 'function';
-            if (!hasJsPdf) {
-                alert('PDF export tool is not available right now.');
-                return;
-            }
-
-            const target = document.querySelector('.term-modal-content');
-            if (!target) return;
-
-            const originalLabel = saveTermReportBtn.textContent;
-            const originalSaveDisplay = saveTermReportBtn.style.display;
-            const originalCloseDisplay = closeTermBreakdownBtn ? closeTermBreakdownBtn.style.display : '';
-            const originalTargetMaxHeight = target.style.maxHeight;
-            const originalTargetOverflow = target.style.overflow;
-            const originalTargetScrollTop = target.scrollTop;
-            let exportHeader = null;
-            let exportFooter = null;
-            const termSelectDisplays = termSelectElements.map((selectEl) => ({
-                element: selectEl,
-                display: selectEl.style.display
-            }));
-            saveTermReportBtn.disabled = true;
-            saveTermReportBtn.textContent = 'Saving...';
-
-            try {
-                // Hide controls so they do not appear in the saved screenshot.
-                saveTermReportBtn.style.display = 'none';
-                if (closeTermBreakdownBtn) {
-                    closeTermBreakdownBtn.style.display = 'none';
-                }
-                termSelectDisplays.forEach(({ element }) => {
-                    element.style.display = 'none';
-                });
-
-                const logoUrl = teamLogoUrl;
-                exportHeader = document.createElement('div');
-                exportHeader.style.display = 'flex';
-                exportHeader.style.alignItems = 'center';
-                exportHeader.style.justifyContent = 'flex-start';
-                exportHeader.style.gap = '12px';
-                exportHeader.style.padding = '4px 0 16px';
-
-                const exportLogo = document.createElement('img');
-                exportLogo.src = logoUrl;
-                exportLogo.alt = 'Team Logo';
-                exportLogo.style.width = '72px';
-                exportLogo.style.height = '72px';
-                exportLogo.style.objectFit = 'contain';
-
-                const headerTextWrapper = document.createElement('div');
-                headerTextWrapper.style.display = 'flex';
-                headerTextWrapper.style.flexDirection = 'column';
-                headerTextWrapper.style.justifyContent = 'center';
-
-                // Team Name
-                const teamNameHeading = document.createElement('h1');
-                teamNameHeading.textContent = teamName;
-                teamNameHeading.style.margin = '0';
-                teamNameHeading.style.fontSize = '20px';
-                teamNameHeading.style.color = '#1f77b4';
-
-                const reportTitleHeading = document.createElement('p');
-                reportTitleHeading.textContent = 'Team Tournament Breakdown Report';
-                reportTitleHeading.style.margin = '4px 0 0';
-                reportTitleHeading.style.fontSize = '14px';
-                reportTitleHeading.style.color = '#323232';
-
-                headerTextWrapper.appendChild(teamNameHeading);
-                headerTextWrapper.appendChild(reportTitleHeading);
-
-                exportHeader.appendChild(exportLogo);
-                exportHeader.appendChild(headerTextWrapper);
-
-                // Add right-side logos (DLSU and TeamForge)
-                const rightLogosWrapper = document.createElement('div');
-                rightLogosWrapper.style.display = 'flex';
-                rightLogosWrapper.style.gap = '8px';
-                rightLogosWrapper.style.marginLeft = 'auto'; // Push to right
-                rightLogosWrapper.style.alignItems = 'center';
-
-                const dlsuLogoImg = document.createElement('img');
-                dlsuLogoImg.src = '/images/dlsu_logo.png';
-                dlsuLogoImg.alt = 'DLSU Logo';
-                dlsuLogoImg.style.width = '60px';
-                dlsuLogoImg.style.height = '60px';
-                dlsuLogoImg.style.objectFit = 'contain';
-
-                const teamforgeLogoImg = document.createElement('img');
-                teamforgeLogoImg.src = '/images/teamforge_logo_white.png';
-                teamforgeLogoImg.alt = 'TeamForge Logo';
-                teamforgeLogoImg.style.width = '60px';
-                teamforgeLogoImg.style.height = '60px';
-                teamforgeLogoImg.style.objectFit = 'contain';
-
-                rightLogosWrapper.appendChild(dlsuLogoImg);
-                rightLogosWrapper.appendChild(teamforgeLogoImg);
-
-                exportHeader.appendChild(rightLogosWrapper);
-
-                exportFooter = document.createElement('p');
-                exportFooter.textContent = 'powered by TeamForge';
-                exportFooter.style.margin = '18px 0 0';
-                exportFooter.style.textAlign = 'center';
-                exportFooter.style.fontSize = '14px';
-                exportFooter.style.fontWeight = '600';
-                exportFooter.style.color = '#1f2937';
-
-                target.insertBefore(exportHeader, target.firstChild);
-                target.appendChild(exportFooter);
-
-                // Expand modal content so html2canvas captures full report, not only visible viewport.
-                target.style.maxHeight = 'none';
-                target.style.overflow = 'visible';
-                target.scrollTop = 0;
-
-                await waitForImageLoad(exportLogo);
-                await waitForImageLoad(dlsuLogoImg);
-                await waitForImageLoad(teamforgeLogoImg);
-
-                // Let the browser apply the hidden states before capture.
-                await waitForNextPaint();
-
-                const canvas = await html2canvas(target, {
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    width: target.scrollWidth,
-                    height: target.scrollHeight,
-                    windowWidth: target.scrollWidth,
-                    windowHeight: target.scrollHeight,
-                    scrollX: 0,
-                    scrollY: 0,
-                    scale: 2,
-                    ignoreElements: (element) => {
-                        if (!element) return false;
-                        if (element.id === 'saveTermReportBtn') return true;
-                        if (element.id === 'closeTermBreakdownBtn') return true;
-                        if (element.classList && element.classList.contains('term-select')) return true;
-                        return false;
-                    }
-                });
-
-                const imageData = canvas.toDataURL('image/png');
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const imageWidthMm = canvas.width * 0.264583;
-                const imageHeightMm = canvas.height * 0.264583;
-                const ratio = Math.min(pageWidth / imageWidthMm, pageHeight / imageHeightMm);
-                const renderWidth = imageWidthMm * ratio;
-                const renderHeight = imageHeightMm * ratio;
-                const offsetX = (pageWidth - renderWidth) / 2;
-                const offsetY = (pageHeight - renderHeight) / 2;
-
-                pdf.addImage(imageData, 'PNG', offsetX, offsetY, renderWidth, renderHeight, undefined, 'FAST');
-                pdf.save('End_of_Year_Tournament_Results_Report.pdf');
-            } catch (error) {
-                console.error('Failed to save term report screenshot:', error);
-                alert('Failed to save report. Please try again.');
-            } finally {
-                if (exportHeader && exportHeader.parentNode) {
-                    exportHeader.parentNode.removeChild(exportHeader);
-                }
-                if (exportFooter && exportFooter.parentNode) {
-                    exportFooter.parentNode.removeChild(exportFooter);
-                }
-                saveTermReportBtn.style.display = originalSaveDisplay;
-                if (closeTermBreakdownBtn) {
-                    closeTermBreakdownBtn.style.display = originalCloseDisplay;
-                }
-                target.style.maxHeight = originalTargetMaxHeight;
-                target.style.overflow = originalTargetOverflow;
-                target.scrollTop = originalTargetScrollTop;
-                termSelectDisplays.forEach(({ element, display }) => {
-                    element.style.display = display;
-                });
-                saveTermReportBtn.disabled = false;
-                saveTermReportBtn.textContent = originalLabel;
-            }
-        });
+        saveTermReportBtn.addEventListener('click', saveTermReport);
     }
-
-    loadTournamentReport();
-
-    fetch('/reports/best_performing_applicants')
-        .then(r => r.json())
-        .then(data => {
-            const tbody = document.getElementById('best-performing-table-body');
-            if (!tbody) return;
-
-            if (!Array.isArray(data) || data.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" style="text-align:center;">No applicant match data yet.</td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = data.map((applicant, idx) => {
-                const winrate = Number.parseFloat(applicant.winrate);
-                const formattedWinrate = Number.isFinite(winrate) ? `${winrate.toFixed(1)}%` : '0.0%';
-                const applicantName = applicant.applicantName || 'Applicant';
-                const roleApplied = applicant.roleApplied || 'N/A';
-
-                return `
-                    <tr>
-                        <td class="rank-num">${idx + 1}</td>
-                        <td>${applicantName}</td>
-                        <td><span class="wr-badge">${formattedWinrate}</span></td>
-                        <td>${roleApplied}</td>
-                    </tr>
-                `;
-            }).join('');
-        })
-        .catch(err => {
-            console.error('Error loading best-performing applicants:', err);
-            const tbody = document.getElementById('best-performing-table-body');
-            if (!tbody) return;
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align:center;">Failed to load applicant performance report.</td>
-                </tr>
-            `;
-        });
-
-    fetch('/reports/best_communication_applicants')
-        .then(r => r.json())
-        .then(data => {
-            const tbody = document.getElementById('best-communication-table-body');
-            if (!tbody) return;
-
-            if (!Array.isArray(data) || data.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" style="text-align:center;">No communication evaluations yet.</td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = data.map((applicant, idx) => {
-                const comms = Number.parseFloat(applicant.communicationRating);
-                const roundedComms = Number.isFinite(comms)
-                    ? Math.max(1, Math.min(5, Math.round(comms)))
-                    : 0;
-                const applicantName = applicant.applicantName || 'Applicant';
-                const roleApplied = applicant.roleApplied || 'N/A';
-
-                const commsClass = roundedComms >= 1 && roundedComms <= 5
-                    ? `comms-${roundedComms}`
-                    : '';
-
-                const ratingHtml = commsClass
-                    ? `<span class="${commsClass}">${roundedComms}</span>`
-                    : `<span>${roundedComms}</span>`;
-
-                return `
-                    <tr>
-                        <td class="rank-num">${idx + 1}</td>
-                        <td>${applicantName}</td>
-                        <td>${ratingHtml}</td>
-                        <td>${roleApplied}</td>
-                    </tr>
-                `;
-            }).join('');
-        })
-        .catch(err => {
-            console.error('Error loading best communication applicants:', err);
-            const tbody = document.getElementById('best-communication-table-body');
-            if (!tbody) return;
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align:center;">Failed to load communication report.</td>
-                </tr>
-            `;
-        });
-
-    fetch('/reports/applicant_roles')
-        .then(r => r.json())
-        .then(data => {
-            const labels = data.map(p => p.displayedRole);
-            const percentages = data.map(p => p.role_percentage);
-            const roleColors = {
-                Top: '#3b82f6',
-                Mid: '#f59e0b',
-                Jungle: '#9ca3af',
-                "AD Carry": '#f97316',
-                Support: '#128b0d'
-            };
-
-            // Role pie chart
-            new Chart(document.getElementById('roleChart'), {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: percentages,
-                        backgroundColor: labels.map(l => roleColors[l]),
-                        borderWidth: 2, borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
-                        }
-                    }
-                }
-            });
-
-            // Dynamically build legend
-            const legendContainer = document.querySelector('#role-legend');
-            legendContainer.innerHTML = labels.map(l => `
-                <div class="legend-item">
-                <div class="legend-dot" style="background:${roleColors[l]}"></div>${l}
-                </div>
-            `).join('');
-
-        });
-
-    // Applicant Status pie chart
-    fetch('/reports/applicant_statuses')
-        .then(r => r.json())
-        .then(data => {
-            const labels = data.map(a => a.status);
-            const percentages = data.map(a => a.status_percentage);
-            const statusColors = {
-                Accepted: '#128b0d',
-                Pending: '#f59e0b',
-                Rejected: '#841a14'
-            };
-
-            // pie chart
-            new Chart(document.getElementById('acceptChart'), {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: percentages,
-                        backgroundColor: labels.map(l => statusColors[l]),
-                        borderWidth: 2, borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
-                        }
-                    }
-                }
-            });
-
-             // Dynamically build legend
-            const legendContainer = document.querySelector('#status-legend');
-            legendContainer.innerHTML = labels.map(l => `
-                <div class="legend-item">
-                <div class="legend-dot" style="background:${statusColors[l]}"></div>${l}
-                </div>
-            `).join('');
-        });
-
-    fetch('/reports/current_players')
-        .then(r => r.json())
-        .then(data => {
-            const tbody = document.querySelector('.role-table tbody');
-
-            tbody.innerHTML = data.map(p => `
-        <tr>
-          <td>${p.displayedRole}</td>
-          <td>${p.role_count}</td>
-           <td class="${p.is_leaving >= 1 ? 'players-left-zero' : ''}">${p.is_leaving}</td>
-          <td class="${p.players_left <= 1 ? 'players-left-zero' : ''}">${p.players_left}</td>
-        </tr>
-      `).join('');
-
-            // Build recommendation based on player count after semester losses
-            const allRoles = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
-            const criticalRoles = [];   // 0 players left
-            const lowRoles = [];        // 1 player left
-            const missingRoles = [];    // role has no players at all (not in data)
-
-            allRoles.forEach(role => {
-                const entry = data.find(p => p.displayedRole === role);
-                if (!entry) {
-                    missingRoles.push(role);
-                } else if (Number(entry.players_left) === 0) {
-                    criticalRoles.push(role);
-                } else if (Number(entry.players_left) === 1) {
-                    lowRoles.push(role);
-                }
-            });
-
-            const recEl = document.getElementById('recommended-action-text');
-            if (!recEl) return;
-
-            const urgentRoles = [...new Set([...missingRoles, ...criticalRoles])];
-            const parts = [];
-
-            if (urgentRoles.length > 0) {
-                parts.push(`Urgently recruit ${urgentRoles.join(', ')} player${urgentRoles.length > 1 ? 's' : ''} — no remaining players after this semester.`);
-            }
-            if (lowRoles.length > 0) {
-                parts.push(`Consider recruiting backup ${lowRoles.join(', ')} player${lowRoles.length > 1 ? 's' : ''} — only 1 player remaining per role.`);
-            }
-            if (parts.length === 0) {
-                recEl.textContent = 'All roles are sufficiently staffed for next semester. No immediate recruitment needed.';
-            } else {
-                recEl.textContent = parts.join(' ');
-            }
-        })
-        .catch(err => console.error('Error loading current players:', err));
-
-    // Number of Applications
-    fetch('/reports/applications_total')
-        .then(r => r.json())
-        .then(data => {
-            const tbody = document.querySelector('#applications-table tbody');
-
-            tbody.innerHTML = data.map(a => {
-                // Convert to JS Date objects
-                const startDateObj = new Date(a.startDate);
-                const endDateObj = new Date(a.endDate);
-
-                // Format to human readable
-                const options = { year: 'numeric', month: 'short', day: 'numeric' };
-                const readableStart = startDateObj.toLocaleDateString('en-US', options);
-                const readableEnd = endDateObj.toLocaleDateString('en-US', options);
-
-                return `
-                    <tr>
-                    <td>${readableStart} - ${readableEnd}</td>
-                    <td>${a.registrations}</td>
-                    </tr>
-                `;
-            }).join('');
-        })
-        .catch(err => console.error('Error loading applications:', err));
-
 
     const printBtn = document.getElementById('generatePdfBtn');
-    
     if (printBtn) {
-        printBtn.addEventListener('click', async () => {
-            // Change button text while processing
-            const originalText = printBtn.innerHTML;
-            printBtn.innerHTML = "Generating PDF...";
-            printBtn.disabled = true;
-
-            try {
-                // 1. Fetch data from our new endpoint
-                const res = await fetch('/applicant_list/report_data'); // Make sure this matches your route!
-                const data = await res.json();
-                
-                if (!data.success) throw new Error("Failed to fetch report data");
-
-                // 2. Define the Hierarchical Priorities per Role
-                const ROLE_METRICS = {
-                    1: [ // Top
-                        { key: 'averageTotalDamageTaken', label: 'Tanking' },
-                        { key: 'averageDamageShare', label: 'Dmg Share' },
-                        { key: 'averageKDA', label: 'KDA' },
-                        { key: 'averageCsPerMinute', label: 'CS/Min' }
-                    ],
-                    2: [ // Jungle
-                        { key: 'averageKillParticipation', label: 'KP' },
-                        { key: 'averageVisionScorePerMinute', label: 'Vision/Min' },
-                        { key: 'averageKDA', label: 'KDA' },
-                        { key: 'averageDragonKills', label: 'Dragons' }
-                    ],
-                    3: [ // Mid
-                        { key: 'averageDamageShare', label: 'Dmg Share' },
-                        { key: 'averageKillParticipation', label: 'KP' },
-                        { key: 'averageKDA', label: 'KDA' },
-                        { key: 'averageCsPerMinute', label: 'CS/Min' }
-                    ],
-                    4: [ // ADC
-                        { key: 'averageDamageShare', label: 'Dmg Share' },
-                        { key: 'averageGoldPerMinute', label: 'Gold/Min' },
-                        { key: 'averageKDA', label: 'KDA' },
-                        { key: 'averageCsPerMinute', label: 'CS/Min' }
-                    ],
-                    5: [ // Support
-                        { key: 'averageVisionScoreShare', label: 'Vision Share' },
-                        { key: 'averageKillParticipation', label: 'KP' },
-                        { key: 'averageAssists', label: 'Assists' },
-                        { key: 'averageWardsPlaced', label: 'Wards Placed' }
-                    ]
-                };
-
-                const roleNames = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'ADC', 5: 'Support' };
-                const byRole = { 1: [], 2: [], 3: [], 4: [], 5: [] };
-                
-                // Group applicants by role
-                data.applicants.forEach(app => {
-                    if(byRole[app.roleId]) byRole[app.roleId].push(app);
-                });
-
-                // 3. Initialize jsPDF
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                 // ── HEADER WITH LOGO ─────────────────────────────────────
-                const logoUrl = teamLogoUrl;
-
-                // Helper to draw the rest of the PDF after logo loads
-                const drawPdf = (logoDataUrl) => {
-                let headerY = 20;
-
-                // Draw logo if available
-                if (logoDataUrl) {
-                    try {
-                    doc.addImage(logoDataUrl, 'PNG', 14, 10, 18, 18); // x, y, width, height
-                    headerY = 15; // vertically center text alongside logo
-                    } catch (e) {
-                    console.warn('[PDF] Could not add logo:', e);
-                    }
-                }
-
-                // Team name — offset right if logo is present
-                const textX = logoDataUrl ? 36 : 14;
-                doc.setFontSize(22);
-                doc.setTextColor(31, 119, 180);
-                doc.text(teamName, textX, headerY);
-                
-                doc.setFontSize(14);
-                doc.setTextColor(50, 50, 50);
-                doc.text("Applicant Performance Report", textX, headerY + 8);
-                
-                // Right-side logos (DLSU and TeamForge)
-                const logoRightX = 160;
-                const logoSize = 12;
-                const logoSpacing = 15;
-                
-                // Load and add DLSU logo (top right)
-                if (typeof dlsuLogoBase64 !== 'undefined' && dlsuLogoBase64) {
-                    try {
-                        doc.addImage(dlsuLogoBase64, 'PNG', logoRightX, 10, logoSize, logoSize);
-                    } catch (e) {
-                        console.warn('[PDF] Could not add DLSU logo:', e);
-                    }
-                }
-                
-                // Load and add TeamForge logo (bottom right)
-                if (typeof teamforgeLogoBase64 !== 'undefined' && teamforgeLogoBase64) {
-                    try {
-                        doc.addImage(teamforgeLogoBase64, 'PNG', logoRightX + logoSpacing, 10, logoSize, logoSize);
-                    } catch (e) {
-                        console.warn('[PDF] Could not add TeamForge logo:', e);
-                    }
-                }
-
-                // Divider line under header
-                doc.setDrawColor(200, 200, 200);
-                doc.line(14, 32, 196, 32);
-
-                let startY = 40;
-
-                // 4. Generate a sorted table for each role
-                for (let roleId = 1; roleId <= 5; roleId++) {
-                    let roleApps = byRole[roleId];
-                    if (!roleApps || roleApps.length === 0) continue;
-
-                    const metrics = ROLE_METRICS[roleId];
-
-                    // THE HIERARCHICAL SORTING ENGINE
-                    roleApps.sort((a, b) => {
-                        for (let m of metrics) {
-                            const valA = Number(a.stats[m.key]) || 0;
-                            const valB = Number(b.stats[m.key]) || 0;
-                            if (valA !== valB) return valB - valA; // Sort Descending
-                        }
-                        return 0;
-                    });
-
-                    // Format Table Headers
-                    const head = [['Rank', 'Riot ID', ...metrics.map(m => m.label)]];
-                    
-                    // Format Table Rows
-                    const body = roleApps.map((app, index) => {
-                        return [
-                            `#${index + 1}`,
-                            app.riotId,
-                            ...metrics.map(m => {
-                                let val = Number(app.stats[m.key] || 0);
-                                if (m.key.includes('Share') || m.key.includes('Participation')) return val.toFixed(1) + '%';
-                                if (m.key === 'averageTotalDamageTaken') return val.toLocaleString(); // Add commas for big numbers
-                                return val.toFixed(2);
-                            })
-                        ];
-                    });
-
-                    // Print Role Title
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFont(undefined, 'bold');
-                    doc.text(`${roleNames[roleId]} Lane Candidates`, 14, startY);
-
-                    // Draw Table
-                    doc.autoTable({
-                        startY: startY + 4,
-                        head: head,
-                        body: body,
-                        theme: 'grid',
-                        headStyles: { fillColor: [42, 45, 51] }, // Dark grey header to match your UI
-                        margin: { left: 14, right: 14 },
-                        styles: { fontSize: 10 }
-                    });
-
-                    // Push the next table down
-                    startY = doc.lastAutoTable.finalY + 15;
-                    
-                    // Add a new page if we are running out of room
-                    if (startY > 250) {
-                        doc.addPage();
-                        startY = 20;
-                    }
-                }
-
-                // 5. Download the PDF
-                const safeTeamName = teamName.replace(/\s+/g, '_');
-                doc.save(`${safeTeamName}_Applicant_Report.pdf`);
-
-                };
-
-                // Load team logo and additional logos (DLSU, TeamForge)
-                let teamLogoBase64 = null;
-                let dlsuLogoBase64 = null;
-                let teamforgeLogoBase64 = null;
-                let logosLoaded = 0;
-                const requiredLogos = 3; // We need to load 3 logos
-
-                const loadImage = (imageUrl) => {
-                    return new Promise((resolve) => {
-                        const img = new Image();
-                        img.crossOrigin = 'anonymous';
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = img.width;
-                            canvas.height = img.height;
-                            canvas.getContext('2d').drawImage(img, 0, 0);
-                            resolve(canvas.toDataURL('image/png'));
-                        };
-                        img.onerror = () => {
-                            console.warn('[PDF] Image failed to load:', imageUrl);
-                            resolve(null);
-                        };
-                        img.src = imageUrl;
-                    });
-                };
-
-                // Load all logos in parallel
-                Promise.all([
-                    loadImage(logoUrl),
-                    loadImage('/images/dlsu_logo.png'),
-                    loadImage('/images/teamforge_logo_white.png')
-                ]).then(([teamBase64, dlsuBase64, teamforgeBase64]) => {
-                    dlsuLogoBase64 = dlsuBase64;
-                    teamforgeLogoBase64 = teamforgeBase64;
-                    drawPdf(teamBase64);
-                }).catch(err => {
-                    console.error('[PDF] Error loading logos:', err);
-                    drawPdf(null);
-                });
-
-            } catch (error) {
-                console.error("PDF Generation Error:", error);
-                alert("An error occurred while generating the report.");
-            } finally {
-                // Reset button
-                printBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF Report';
-                printBtn.disabled = false;
-            }
-        });
+        printBtn.addEventListener('click', () => generateApplicantPdf(printBtn));
     }
+
+
+    /* ============================================================
+        INIT — kick off all data fetches
+       ============================================================ */
+    loadTournamentReport();
+    loadBestPerformingApplicants();
+    loadBestCommunicationApplicants();
+    loadApplicantRolesChart();
+    loadApplicantStatusChart();
+    loadCurrentPlayers();
+    loadApplicationsTable();
 });
