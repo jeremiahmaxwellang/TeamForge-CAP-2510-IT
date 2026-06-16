@@ -105,9 +105,12 @@ exports.getAllTeamDetails = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            teamName: teamDetails.teamName,
-            teamIcon: teamDetails.teamIcon,
-            teamLogoUrl: resolveTeamLogoUrl(teamDetails.teamIcon)
+            teamName:      teamDetails.teamName,
+            teamIcon:      teamDetails.teamIcon,
+            teamLogoUrl:   resolveTeamLogoUrl(teamDetails.teamIcon),
+            schoolName:    teamDetails.schoolName  || null,
+            schoolIcon:    teamDetails.schoolIcon  || null,
+            schoolIconUrl: resolveSchoolLogoUrl(teamDetails.schoolIcon)
         });
 
     } catch (error) {
@@ -432,5 +435,89 @@ exports.updateBenchmarks = async (req, res) => {
     } catch (error) {
         console.error('Error updating benchmarks:', error);
         res.status(500).json({ success: false, message: 'Failed to update benchmarks.' });
+    }
+};
+
+// Helper shared by school name + icon handlers
+function resolveSchoolLogoUrl(schoolIcon) {
+    return schoolIcon ? `/uploads/school-logos/${schoolIcon}` : null;
+}
+
+exports.changeSchoolName = async (req, res) => {
+    try {
+        const manager = await ensureManager(req, res);
+        if (!manager) return;
+
+        const schoolName = String(req.body?.schoolName || '').trim();
+        if (!schoolName) {
+            return res.status(400).json({ success: false, message: 'Please enter a school name.' });
+        }
+        if (schoolName.length > 260) {
+            return res.status(400).json({ success: false, message: 'School name must not exceed 260 characters.' });
+        }
+
+        await ensureTeamDetailsRow();
+        const [rows] = await db.query('SELECT teamName FROM teamDetails LIMIT 1');
+        if (!rows.length) {
+            return res.status(404).json({ success: false, message: 'Team details row not found.' });
+        }
+
+        await db.query(
+            'UPDATE teamDetails SET schoolName = ? WHERE teamName = ?',
+            [schoolName, rows[0].teamName]
+        );
+
+        return res.status(200).json({ success: true, message: 'School name updated successfully.', schoolName });
+    } catch (error) {
+        console.error('Error updating school name:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update school name.' });
+    }
+};
+
+// ============= School Details (Team Manager only) =============
+exports.changeSchoolIcon = async (req, res) => {
+    try {
+        const manager = await ensureManager(req, res);
+        if (!manager) return;
+
+        const uploadedIcon = req.files && req.files.schoolIcon;
+        if (!uploadedIcon) {
+            return res.status(400).json({ success: false, message: 'Please select an image to upload.' });
+        }
+
+        const allowedMimeTypes = ['image/png', 'image/jpeg'];
+        if (!allowedMimeTypes.includes(uploadedIcon.mimetype)) {
+            return res.status(400).json({ success: false, message: 'Only PNG and JPEG files are allowed.' });
+        }
+
+        const ext = path.extname(uploadedIcon.name || '').toLowerCase();
+        const safeExt = ['.png', '.jpg', '.jpeg'].includes(ext)
+            ? ext
+            : (uploadedIcon.mimetype === 'image/png' ? '.png' : '.jpg');
+        const fileName = `school_${Date.now()}_${Math.round(Math.random() * 1e9)}${safeExt}`;
+        const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'school-logos', fileName);
+
+        await uploadedIcon.mv(uploadPath);
+
+        await ensureTeamDetailsRow();
+        const [rows] = await db.query('SELECT teamName FROM teamDetails LIMIT 1');
+        if (!rows.length) {
+            return res.status(404).json({ success: false, message: 'Team details row not found.' });
+        }
+
+        await db.query(
+            'UPDATE teamDetails SET schoolIcon = ? WHERE teamName = ?',
+            [fileName, rows[0].teamName]
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: 'School logo updated successfully.',
+            schoolIcon: fileName,
+            schoolIconUrl: resolveSchoolLogoUrl(fileName)
+        });
+    } catch (error) {
+        console.error('Error updating school icon:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update school logo.' });
     }
 };

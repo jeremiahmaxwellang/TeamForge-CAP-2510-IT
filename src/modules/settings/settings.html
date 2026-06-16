@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Settings</title>
-	<link rel="stylesheet" href="/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/topbar-universal.css">
     <link rel="stylesheet" href="/settings/static/settings.css">
 
-     <!-- Settings Page JavaScript -->
+    <!-- Settings Page JavaScript -->
     <script src="/settings/static/settings.js" defer></script>
 
     <!-- Topbar JavaScript -->
@@ -18,46 +19,58 @@
     <script src="/js/sidebar.js" defer></script>
 
 </head>
+
 <body>
-	<div class="coach-page">
-		<div class="coach-topbar">
-			<div class="coach-brand">
-				<img src="/images/teamforge_logo.png" alt="TeamForge Logo">
-				<span class="coach-brand-title">TeamForge</span>
-			</div>
-			<div class="coach-team-name">Viridis Arcus (Team Name)</div>
+    <div class="coach-page">
+        <div class="coach-topbar">
+            <div class="coach-brand">
+                <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+                <span class="coach-brand-title">TeamForge</span>
+            </div>
+            <div class="coach-team-name">Viridis Arcus (Team Name)</div>
             <div class="coach-topbar-actions" style="position: relative;">
-                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture" class="coach-profile-icon js-current-user-photo" id="profileDropdownBtn" style="cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
-				<div id="profileDropdownMenu" style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
-                    <a href="/settings" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">Settings</a>
-                    <a href="/logout" style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fef0f0'" onmouseout="this.style.backgroundColor='transparent'">Logout</a>
+                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture"
+                    class="coach-profile-icon js-current-user-photo" id="profileDropdownBtn"
+                    style="cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
+                <div id="profileDropdownMenu"
+                    style="display: none; position: absolute; right: 0; top: 75px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; overflow: hidden; z-index: 1000; font-family: sans-serif;">
+                    <a href="/settings"
+                        style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 500; transition: background 0.2s;"
+                        onmouseover="this.style.backgroundColor='#f5f5f5'"
+                        onmouseout="this.style.backgroundColor='transparent'">Settings</a>
+                    <a href="/logout"
+                        style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-weight: 500; transition: background 0.2s;"
+                        onmouseover="this.style.backgroundColor='#fef0f0'"
+                        onmouseout="this.style.backgroundColor='transparent'">Logout</a>
                 </div>
-			</div>
-		</div>
+            </div>
+        </div>
 
-		<div class="coach-content-wrapper">
+        <div class="coach-content-wrapper">
             <div class="sidebar">
-				<ul></ul>
-			</div>
+                <ul></ul>
+            </div>
 
-			<div class="settings-main-content">
-				
+            <div class="settings-main-content">
+
                 <div class="settings-card profile-banner">
                     <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile" id="settings-profile-photo">
                     <div class="profile-info" style="display: flex; flex-direction: column; gap: 8px;">
-                        
+
                         <div id="name-display-mode">
                             <h2 id="settings-name" class="editable-name" title="Click to edit">Loading Profile...</h2>
                         </div>
-                        
+
                         <div id="name-edit-mode" style="display: none; gap: 10px;">
-                            <input type="text" id="input-firstname" placeholder="First Name" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 18px; font-weight: bold; width: 150px;">
-                            <input type="text" id="input-lastname" placeholder="Last Name" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 18px; font-weight: bold; width: 150px;">
+                            <input type="text" id="input-firstname" placeholder="First Name"
+                                style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 18px; font-weight: bold; width: 150px;">
+                            <input type="text" id="input-lastname" placeholder="Last Name"
+                                style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 18px; font-weight: bold; width: 150px;">
                         </div>
 
                         <p id="settings-role" style="margin: 0; color: #555;">Role: ---</p>
                     </div>
-                    
+
                     <div id="edit-action-buttons" style="display: none; margin-left: auto; gap: 10px;">
                         <button class="btn-cancel" id="btn-cancel-edit">Cancel</button>
                         <button class="btn-confirm" id="btn-save-profile">Save Profile</button>
@@ -87,14 +100,16 @@
 
                 <div class="settings-card" id="team-settings-section" style="display: none;">
                     <h3>Team Settings</h3>
-                    <p style="margin-top: 0; color: #555;">Update your team name and logo. Changes are reflected in the top bar across all users.</p>
+                    <p style="margin-top: 0; color: #555;">Update your team name and logo. Changes are reflected in the
+                        top bar across all users.</p>
 
                     <div class="settings-form-row single">
                         <input type="text" id="team-name-input" maxlength="45" placeholder="Enter team name">
                     </div>
 
                     <div class="settings-form-row single" style="align-items: center;">
-                        <img src="/uploads/team-logos/VA_logo.png" alt="Current Team Logo" id="team-logo-preview" style="width: 90px; height: 90px; object-fit: cover; border-radius: 12px; border: 1px solid #ccc; margin-bottom: 8px;">
+                        <img src="/uploads/team-logos/VA_logo.png" alt="Current Team Logo" id="team-logo-preview"
+                            style="width: 90px; height: 90px; object-fit: cover; border-radius: 12px; border: 1px solid #ccc; margin-bottom: 8px;">
                         <input type="file" id="team-logo-input" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
                     </div>
 
@@ -104,14 +119,45 @@
                     <p id="team-settings-status" class="status-text"></p>
                 </div>
 
-                <div class="settings-card" id="riot-api-key-section" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3 style="margin: 0;">Riot API Key</h3>
-                        <a href="https://developer.riotgames.com/" target="_blank" rel="noopener noreferrer" class="btn-confirm" style="margin-left: auto; text-decoration: none; display: inline-block;">Get a key</a>
-                    </div>
-                    <p id="current-riot-api-key" style="margin-top: 0; color: #555;">Most recent Riot API key: Loading...</p>
+                <!-- School Settings -->
+                <div class="settings-card" id="school-settings-section" style="display: none;">
+                    <h3>School Settings</h3>
+                    <p style="margin-top: 0; color: #555;">Update the school name and logo displayed across the app.</p>
+
                     <div class="settings-form-row single">
-                        <input type="password" id="riot-api-key-input" placeholder="Enter new Riot API key" autocomplete="off">
+                        <input type="text" id="school-name-input" maxlength="260" placeholder="Enter school name">
+                    </div>
+                    <div style="text-align: right; margin-bottom: 12px;">
+                        <button class="btn-confirm" id="btn-save-school-name">Save School Name</button>
+                    </div>
+                    <p id="school-name-status" class="status-text"></p>
+
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0;">
+
+                    <div class="settings-form-row single" style="align-items: center;">
+                        <img src="" alt="Current School Logo" id="school-logo-preview"
+                            style="width: 90px; height: 90px; object-fit: cover; border-radius: 12px; border: 1px solid #ccc; margin-bottom: 8px; display: none;">
+                        <input type="file" id="school-logo-input" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+                    </div>
+                    <div style="text-align: right;">
+                        <button class="btn-confirm" id="btn-save-school-logo">Save School Logo</button>
+                    </div>
+                    <p id="school-logo-status" class="status-text"></p>
+                </div>
+
+                <div class="settings-card" id="riot-api-key-section" style="display: none;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0;">Riot API Key</h3>
+                        <a href="https://developer.riotgames.com/" target="_blank" rel="noopener noreferrer"
+                            class="btn-confirm"
+                            style="margin-left: auto; text-decoration: none; display: inline-block;">Get a key</a>
+                    </div>
+                    <p id="current-riot-api-key" style="margin-top: 0; color: #555;">Most recent Riot API key:
+                        Loading...</p>
+                    <div class="settings-form-row single">
+                        <input type="password" id="riot-api-key-input" placeholder="Enter new Riot API key"
+                            autocomplete="off">
                     </div>
                     <div style="text-align: right;">
                         <button class="btn-confirm" id="btn-update-riot-api-key">Confirm</button>
@@ -121,7 +167,8 @@
 
                 <div class="settings-card" id="academic-requirements-section" style="display: none;">
                     <h3>Academic Requirements</h3>
-                    <p style="margin-top: 0; color: #555;">Set the GPA and CGPA rule that applicants must satisfy during registration. Leave a threshold blank to disable that rule.</p>
+                    <p style="margin-top: 0; color: #555;">Set the GPA and CGPA rule that applicants must satisfy during
+                        registration. Leave a threshold blank to disable that rule.</p>
 
                     <div class="academic-criteria-grid">
                         <strong>Metric</strong>
@@ -135,7 +182,8 @@
                             <option value=">">&gt; (greater than)</option>
                             <option value="<">&lt; (less than)</option>
                         </select>
-                        <input type="number" id="gpa-threshold" class="value-input" min="0" max="5" step="0.01" placeholder="e.g. 2.50">
+                        <input type="number" id="gpa-threshold" class="value-input" min="0" max="5" step="0.01"
+                            placeholder="e.g. 2.50">
 
                         <label for="cgpa-comparator">CGPA</label>
                         <select id="cgpa-comparator" class="comparator-select">
@@ -144,11 +192,13 @@
                             <option value=">">&gt; (greater than)</option>
                             <option value="<">&lt; (less than)</option>
                         </select>
-                        <input type="number" id="cgpa-threshold" class="value-input" min="0" max="5" step="0.01" placeholder="e.g. 2.75">
+                        <input type="number" id="cgpa-threshold" class="value-input" min="0" max="5" step="0.01"
+                            placeholder="e.g. 2.75">
                     </div>
 
                     <div style="text-align: right; margin-top: 20px;">
-                        <button class="btn-confirm" id="btn-save-academic-requirements">Save Academic Requirements</button>
+                        <button class="btn-confirm" id="btn-save-academic-requirements">Save Academic
+                            Requirements</button>
                     </div>
                     <p id="academic-requirements-status" class="status-text"></p>
                 </div>
@@ -168,22 +218,24 @@
 
                             <div class="benchmark-grid" id="benchmarkGrid">
                                 <strong>Metric</strong>
-                                <strong></strong> 
-                                <strong></strong> 
+                                <strong></strong>
+                                <strong></strong>
                                 <div style="display:contents;" id="benchmark-rows-container">
                                     <p style="grid-column: span 3;">Loading metrics...</p>
                                 </div>
                             </div>
 
                             <div style="margin-top: 25px; text-align: right;">
-                                <button class="btn-confirm" id="saveBenchmarksBtn" style="background: #111; color: white;">Confirm Changes</button>
+                                <button class="btn-confirm" id="saveBenchmarksBtn"
+                                    style="background: #111; color: white;">Confirm Changes</button>
                             </div>
                         </div>
                     </details>
                 </div>
 
-			</div>
-		</div>
-	</div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log("i am here");
 
     // --- UI ELEMENTS ---
     const nameDisplayMode = document.getElementById('name-display-mode');
@@ -37,6 +36,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const teamLogoPreview = document.getElementById('team-logo-preview');
     const btnSaveTeamSettings = document.getElementById('btn-save-team-settings');
     const teamSettingsStatus = document.getElementById('team-settings-status');
+
+    const schoolSettingsSection = document.getElementById('school-settings-section');
+    const schoolNameInput       = document.getElementById('school-name-input');
+    const schoolNameStatus      = document.getElementById('school-name-status');
+    const schoolLogoInput       = document.getElementById('school-logo-input');
+    const schoolLogoPreview     = document.getElementById('school-logo-preview');
+    const schoolLogoStatus      = document.getElementById('school-logo-status');
+    const btnSaveSchoolName     = document.getElementById('btn-save-school-name');
+    const btnSaveSchoolLogo     = document.getElementById('btn-save-school-logo');
 
     // New Button Variables
     const editActionButtons = document.getElementById('edit-action-buttons');
@@ -107,6 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Team Settings
     async function loadTeamSettings() {
         if (!teamSettingsSection) return;
 
@@ -129,6 +138,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.error('Failed to load team settings:', error);
             setStatus(teamSettingsStatus, 'Network error while loading team settings.', false);
+        }
+    }
+
+    // School Settings
+    async function loadSchoolSettings() {
+        if (!schoolSettingsSection) return;
+        try {
+            const response = await fetch('/settings/api/all-team-details');
+            const result   = await response.json();
+            if (!result.success) return;
+
+            if (schoolNameInput && result.schoolName) {
+                schoolNameInput.value = result.schoolName;
+            }
+            if (schoolLogoPreview && result.schoolIconUrl) {
+                schoolLogoPreview.src          = result.schoolIconUrl;
+                schoolLogoPreview.style.display = 'block';
+            }
+        } catch (err) {
+            console.error('Failed to load school settings:', err);
         }
     }
 
@@ -220,6 +249,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const userRole = userData.position || userData.role;
+
+            if (userRole === 'Team Manager' && teamSettingsSection) {
+                teamSettingsSection.style.display = 'block';
+                loadTeamSettings();
+
+                // School settings (also manager-only)
+                if (schoolSettingsSection) {
+                    schoolSettingsSection.style.display = 'block';
+                    loadSchoolSettings(); // defined below
+                }
+            }
+
             if (roleText) roleText.textContent = `Role: ${userRole || "Unassigned"}`;
             applyProfilePhoto(userData.profilePhotoUrl || '/uploads/profile-photos/defaultusericon.png');
 
@@ -692,4 +733,84 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
+
+    // Save School Settings
+    if (btnSaveSchoolName) {
+        btnSaveSchoolName.addEventListener('click', async () => {
+            const schoolName = schoolNameInput ? schoolNameInput.value.trim() : '';
+            if (!schoolName) {
+                setStatus(schoolNameStatus, 'Please enter a school name.', false);
+                return;
+            }
+
+            btnSaveSchoolName.disabled     = true;
+            btnSaveSchoolName.textContent  = 'Saving...';
+            setStatus(schoolNameStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/school/name', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ schoolName })
+                });
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    setStatus(schoolNameStatus, result.message || 'Failed to update school name.', false);
+                    return;
+                }
+                setStatus(schoolNameStatus, 'School name updated successfully.', true);
+            } catch (err) {
+                console.error('Failed to update school name:', err);
+                setStatus(schoolNameStatus, 'Network error while saving school name.', false);
+            } finally {
+                btnSaveSchoolName.disabled    = false;
+                btnSaveSchoolName.textContent = 'Save School Name';
+            }
+        });
+    }
+
+    if (btnSaveSchoolLogo) {
+        btnSaveSchoolLogo.addEventListener('click', async () => {
+            const file = schoolLogoInput && schoolLogoInput.files && schoolLogoInput.files[0];
+            if (!file) {
+                setStatus(schoolLogoStatus, 'Please select an image file.', false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('schoolIcon', file);
+
+            btnSaveSchoolLogo.disabled    = true;
+            btnSaveSchoolLogo.textContent = 'Uploading...';
+            setStatus(schoolLogoStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/school/icon', {
+                    method: 'POST',
+                    body:   formData
+                });
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    setStatus(schoolLogoStatus, result.message || 'Failed to update school logo.', false);
+                    return;
+                }
+
+                if (schoolLogoPreview && result.schoolIconUrl) {
+                    schoolLogoPreview.src          = result.schoolIconUrl;
+                    schoolLogoPreview.style.display = 'block';
+                }
+                if (schoolLogoInput) schoolLogoInput.value = '';
+                setStatus(schoolLogoStatus, 'School logo updated successfully.', true);
+            } catch (err) {
+                console.error('Failed to update school logo:', err);
+                setStatus(schoolLogoStatus, 'Network error while uploading school logo.', false);
+            } finally {
+                btnSaveSchoolLogo.disabled    = false;
+                btnSaveSchoolLogo.textContent = 'Save School Logo';
+            }
+        });
+    }
+
 });
