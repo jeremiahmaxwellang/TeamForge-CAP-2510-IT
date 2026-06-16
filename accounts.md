@@ -1,5 +1,8 @@
-TEAM MANAGER
+TEAM MANAGERS
 jeremiah_ang@dlsu.edu.ph
+teamForge123!!
+
+justin_nicolai_lee@dlsu.edu.ph
 teamForge123!!
 
 TEAM COACH

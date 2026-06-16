@@ -140,7 +140,9 @@ app.use('/reports', requireAnyRole(['Team Manager', 'Team Coach']), require('./m
 app.use('/tournaments/static',       express.static(path.join(__dirname, 'modules/tournaments/public'))); // public css and js
 app.use('/tournament', requireRole('Team Coach'), require('./modules/tournaments/tournament_routes')); // tournament routes
 
-
+// =================== Settings Page =================== 
+app.use('/settings/static',       express.static(path.join(__dirname, 'modules/settings/public'))); // public css and js
+app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/settings/settings_routes')); // Settings Routes
 
 // Routes
 app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes'));
@@ -160,7 +162,7 @@ app.use('/team_management', requireRole('Team Manager'), require('./routes/team_
 
 app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
 app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane
-app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./routes/settingsRoutes')); // user settings
+
 
 app.get('/api/user/profile', async (req, res) => {
     try {
