@@ -8,6 +8,8 @@ const mySqlPool = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT,
+    supportBigNumbers: true, // Handles BIGINT safely
+    bigNumberStrings: false  // Converts small enough BIGINTs into standard JS Numbers
 });
 // password stored in /src/.env
 

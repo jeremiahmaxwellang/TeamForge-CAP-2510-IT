@@ -51,12 +51,12 @@ async function ensureManager(req, res) {
 
 async function ensureTeamDetailsRow() {
     const [rows] = await db.query(
-        'SELECT teamName, teamIcon FROM teamDetails LIMIT 1'
+        'SELECT teamName, teamIcon FROM teamdetails LIMIT 1'
     );
 
     if (!rows.length) {
         await db.query(
-            'INSERT INTO teamDetails (teamName, teamIcon) VALUES (?, ?)',
+            'INSERT INTO teamdetails (teamName, teamIcon) VALUES (?, ?)',
             [DEFAULT_TEAM_NAME, DEFAULT_TEAM_LOGO_FILE]
         );
 
@@ -71,7 +71,7 @@ async function ensureTeamDetailsRow() {
 
     if (!rows[0].teamIcon || !rows[0].teamName) {
         await db.query(
-            'UPDATE teamDetails SET teamName = ?, teamIcon = ? WHERE teamName = ?',
+            'UPDATE teamdetails SET teamName = ?, teamIcon = ? WHERE teamName = ?',
             [teamName, teamIcon, rows[0].teamName]
         );
     }
@@ -94,7 +94,7 @@ exports.getPage = (req, res) => {
 exports.getAllTeamDetails = async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT * FROM teamDetails LIMIT 1'
+            'SELECT * FROM teamdetails LIMIT 1'
         );
 
         const teamDetails = rows[0]; // gets the first result
@@ -149,7 +149,7 @@ exports.updateTeamDetails = async (req, res) => {
         await ensureTeamDetailsRow();
 
         const [rows] = await db.query(
-            'SELECT teamName, teamIcon FROM teamDetails LIMIT 1'
+            'SELECT teamName, teamIcon FROM teamdetails LIMIT 1'
         );
 
         const currentTeamName = rows.length ? (rows[0].teamName || DEFAULT_TEAM_NAME) : DEFAULT_TEAM_NAME;
@@ -184,12 +184,12 @@ exports.updateTeamDetails = async (req, res) => {
 
         if (rows.length) {
             await db.query(
-                'UPDATE teamDetails SET teamName = ?, teamIcon = ? WHERE teamName = ?',
+                'UPDATE teamdetails SET teamName = ?, teamIcon = ? WHERE teamName = ?',
                 [nextTeamName, nextTeamIcon, rows[0].teamName]
             );
         } else {
             await db.query(
-                'INSERT INTO teamDetails (teamName, teamIcon) VALUES (?, ?)',
+                'INSERT INTO teamdetails (teamName, teamIcon) VALUES (?, ?)',
                 [nextTeamName, nextTeamIcon]
             );
         }
