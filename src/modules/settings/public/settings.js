@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("i am here");
-    
+
     // --- UI ELEMENTS ---
     const nameDisplayMode = document.getElementById('name-display-mode');
     const nameEditMode = document.getElementById('name-edit-mode');
     const nameText = document.getElementById('settings-name');
-    
+
     const inputFirstname = document.getElementById('input-firstname');
     const inputLastname = document.getElementById('input-lastname');
     const roleText = document.getElementById('settings-role');
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const teamLogoPreview = document.getElementById('team-logo-preview');
     const btnSaveTeamSettings = document.getElementById('btn-save-team-settings');
     const teamSettingsStatus = document.getElementById('team-settings-status');
-    
+
     // New Button Variables
     const editActionButtons = document.getElementById('edit-action-buttons');
     const btnSaveProfile = document.getElementById('btn-save-profile');
@@ -205,11 +205,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- FETCH USER PROFILE ---
     try {
-        const profileRes = await fetch('/api/user/profile'); 
-        
+        const profileRes = await fetch('/api/user/profile');
+
         if (profileRes.ok) {
             const userData = await profileRes.json();
-            
+
             // Populate BOTH the display text and the hidden inputs
             if (userData.firstname && userData.lastname) {
                 nameText.textContent = `${userData.firstname} ${userData.lastname}`;
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (userData.name) {
                 nameText.textContent = userData.name;
             }
-            
+
             const userRole = userData.position || userData.role;
             if (roleText) roleText.textContent = `Role: ${userRole || "Unassigned"}`;
             applyProfilePhoto(userData.profilePhotoUrl || '/uploads/profile-photos/defaultusericon.png');
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Reveal the benchmark section ONLY if they are the Team Coach
             if (userRole === 'Team Coach' && benchmarkSection) {
-                benchmarkSection.style.display = 'block'; 
+                benchmarkSection.style.display = 'block';
                 if (academicRequirementsSection) {
                     academicRequirementsSection.style.display = 'block';
                     loadAcademicRequirements();
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 inputFirstname.value = currentNames[0];
                 inputLastname.value = currentNames.slice(1).join(' '); // Handles multi-word last names
             }
-            
+
             // Swap back to Display Mode
             nameEditMode.style.display = 'none';
             editActionButtons.style.display = 'none';
@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- FETCH & RENDER DATA ---
     async function loadBenchmarksForRole(roleId) {
         if (!container) return;
-        
+
         container.innerHTML = '<p style="grid-column: span 3; color: #666;">Loading metrics...</p>';
         try {
             const res = await fetch(`/settings/api/benchmarks/${roleId}`);
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (data.success && data.benchmarks.length > 0) {
                 let html = '';
-                
+
                 const compOptions = [
                     { val: '>=', text: '≥ (greater than or equal to)' },
                     { val: '<=', text: '≤ (lesser than or equal to)' },
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             rows.forEach(row => {
                 const select = row.querySelector('.comparator-select');
                 const input = row.querySelector('.value-input');
-                
+
                 if (select && input && input.value !== '') {
                     updates.push({
                         metricId: select.getAttribute('data-metric'),
@@ -371,11 +371,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ roleId, updates })
                 });
-                
+
                 const data = await res.json();
                 if (data.success) {
                     saveBtn.textContent = 'Saved!';
-                    saveBtn.style.background = '#28a745'; 
+                    saveBtn.style.background = '#28a745';
                     setTimeout(() => {
                         saveBtn.textContent = 'Confirm Changes';
                         saveBtn.style.background = '#111';
@@ -420,12 +420,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (result.success) {
                     // Instantly update the display text with the new names
                     nameText.textContent = `${firstname} ${lastname}`;
-                    
+
                     // Swap back to Display Mode
                     nameEditMode.style.display = 'none';
                     editActionButtons.style.display = 'none';
                     nameDisplayMode.style.display = 'block';
-                    
+
                     // Show a quick success message on the button before hiding it
                     alert("Profile updated successfully!");
                 } else {
