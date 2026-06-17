@@ -192,8 +192,8 @@ async function fetchRolePositionsByPuuid(puuid) {
                 r1.teamPosition AS primaryTeamPosition,
                 r2.teamPosition AS secondaryTeamPosition
          FROM players p
-         JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-         LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+         JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+         LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
          WHERE p.puuid = ?
          LIMIT 1`,
         [puuid]
@@ -208,8 +208,8 @@ async function fetchRoleContextByUserId(userId) {
                 r1.teamPosition AS primaryTeamPosition,
                 r2.teamPosition AS secondaryTeamPosition
          FROM players p
-         JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-         LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+         JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+         LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
          WHERE p.userId = ?
          LIMIT 1`,
         [userId]
@@ -224,7 +224,7 @@ async function fetchStoredRoleMatchIds(userId, puuid, teamPosition, queueId = nu
     let sql = `
         SELECT m.matchId
         FROM matches m
-        JOIN matchParticipants mp ON mp.matchId = m.matchId
+        JOIN matchparticipants mp ON mp.matchId = m.matchId
         WHERE m.userId = ?
           AND mp.puuid = ?
           AND mp.teamPosition = ?
@@ -275,7 +275,7 @@ async function trimStoredRoleMatchStatistics({ userId, puuid, queueId = null, pr
 
     const placeholders = staleMatchIds.map(() => '?').join(', ');
     const [participantDeleteResult] = await db.query(
-        `DELETE FROM matchParticipants WHERE matchId IN (${placeholders})`,
+        `DELETE FROM matchparticipants WHERE matchId IN (${placeholders})`,
         staleMatchIds
     );
 
@@ -756,7 +756,7 @@ async function storeParticipantDetails(participantData) {
         // console.log(`[STORE PARTICIPANT] Storing participant ${participantData.participantId} from match ${participantData.matchId} - ${participantData.championName}`);
         
         const sql = `
-            INSERT INTO matchParticipants 
+            INSERT INTO matchparticipants 
             (matchId, participantId, puuid, riotIdGameTag, riotIdTagline, queueId, assists, champLevel, championId, championName, 
              creepScore, creepScorePerMinute, damageDealthToBuildings, deaths, dragonKills, goldEarned, goldPerMinute, kda, 
              kills, killParticipation, item0, item1, item2, item3, item4, item5, item6, summoner1Id, summoner2Id, primaryPerkId, secondaryPerkStyleId, neutralMinionsKilled, role, soloKills, 

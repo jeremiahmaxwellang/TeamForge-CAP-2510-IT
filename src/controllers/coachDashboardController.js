@@ -9,8 +9,8 @@ exports.getPlayerList = async (req, res) => {
                    r2.displayedRole AS secondaryRole
             FROM users u 
             JOIN players p ON u.userId = p.userId 
-            JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId 
-            LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId 
+            JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId 
+            LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId 
             WHERE u.position = 'Player' AND u.status = 'Active' 
             ORDER BY r1.roleId ASC
         `;
@@ -62,7 +62,7 @@ exports.getDraft = async (req, res) => {
             SELECT u.userId, p.gameName, u.firstname, u.lastname, r.displayedRole 
             FROM users u 
             JOIN players p ON u.userId = p.userId 
-            JOIN leagueRoles r ON p.primaryRoleId = r.roleId 
+            JOIN leagueroles r ON p.primaryRoleId = r.roleId 
             WHERE u.position = 'Player' AND u.status = 'Active' AND p.isSub = 'F'
             ORDER BY r.roleId ASC
         `;
@@ -111,7 +111,7 @@ exports.getTeamStats = async (req, res) => {
             // Get last 15 matches for this player
             const playerMatchesQuery = `
                 SELECT win, kda
-                FROM matchParticipants
+                FROM matchparticipants
                 WHERE puuid = ?
                 ORDER BY matchId DESC
                 LIMIT 15

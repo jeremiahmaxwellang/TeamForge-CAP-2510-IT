@@ -58,7 +58,7 @@ function invalidateRiotApiKeyCache() {
 async function getStoredActiveKeyRow() {
     const [rows] = await db.query(
         `SELECT credentialId, encryptedSecret, iv, authTag, createdAt, rotatedAt
-         FROM apiCredentials
+         FROM apicredentials
          WHERE provider = ? AND isActive = 1
          ORDER BY COALESCE(rotatedAt, createdAt) DESC, credentialId DESC
          LIMIT 1`,
@@ -128,14 +128,14 @@ async function setActiveRiotApiKey(apiKey, userId) {
     try {
         await connection.beginTransaction();
         await connection.query(
-            `UPDATE apiCredentials
+            `UPDATE apicredentials
              SET isActive = 0
              WHERE provider = ? AND isActive = 1`,
             [RIOT_PROVIDER]
         );
 
         await connection.query(
-            `INSERT INTO apiCredentials (
+            `INSERT INTO apicredentials (
                 provider,
                 encryptedSecret,
                 iv,

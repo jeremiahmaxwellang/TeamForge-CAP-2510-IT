@@ -7,7 +7,7 @@ exports.getPlayerList = async (req, res) => {
             SELECT p.gameName, u.firstname, u.lastname, r1.displayedRole AS primaryRole
             FROM users u 
             JOIN players p ON u.userId = p.userId 
-            JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId 
+            JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId 
             WHERE u.position = 'Player' AND u.status = 'Active' 
             ORDER BY r1.roleId ASC
         `;
