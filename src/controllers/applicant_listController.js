@@ -137,7 +137,7 @@ exports.saveEvaluation = async (req, res) => {
         // 1. Upsert coach evaluation for this applicant so future edits overwrite prior values
         const [existingEvalRows] = await connection.query(
             `SELECT evaluationId
-             FROM applicantEvaluations
+             FROM applicantevaluations
              WHERE userId = ? AND coachId = ?
              ORDER BY evaluationId DESC
              LIMIT 1`,
@@ -146,7 +146,7 @@ exports.saveEvaluation = async (req, res) => {
 
         if (existingEvalRows.length > 0) {
             const updateEvalQuery = `
-                UPDATE applicantEvaluations
+                UPDATE applicantevaluations
                 SET comment = ?,
                     ratingGameSense = ?,
                     ratingCommunication = ?,
@@ -163,7 +163,7 @@ exports.saveEvaluation = async (req, res) => {
             ]);
         } else {
             const insertEvalQuery = `
-                INSERT INTO applicantEvaluations
+                INSERT INTO applicantevaluations
                 (userId, coachId, comment, ratingGameSense, ratingCommunication, ratingChampionPool)
                 VALUES (?, ?, ?, ?, ?, ?)
             `;
@@ -308,7 +308,7 @@ exports.getEvaluationByApplicant = async (req, res) => {
                 ae.ratingChampionPool,
                 ae.evaluatedAt,
                 a.status AS applicationStatus
-             FROM applicantEvaluations ae
+             FROM applicantevaluations ae
              LEFT JOIN applications a ON a.userId = ae.userId
              WHERE ae.userId = ? AND ae.coachId = ?
              ORDER BY ae.evaluationId DESC
@@ -337,7 +337,7 @@ exports.getReportData = async (req, res) => {
             FROM users u
             JOIN players p ON u.userId = p.userId
             JOIN applications a ON u.userId = p.userId
-            LEFT JOIN playerStatistics ps ON ps.userId = u.userId
+            LEFT JOIN playerstatistics ps ON ps.userId = u.userId
             LEFT JOIN metrics m ON ps.metricId = m.metricId
             WHERE a.periodId = (SELECT MAX(periodId) FROM application_periods)
               AND a.status = 'Pending'
