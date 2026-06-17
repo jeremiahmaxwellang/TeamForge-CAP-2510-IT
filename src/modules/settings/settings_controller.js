@@ -457,13 +457,13 @@ exports.changeSchoolName = async (req, res) => {
         }
 
         await ensureTeamDetailsRow();
-        const [rows] = await db.query('SELECT teamName FROM teamDetails LIMIT 1');
+        const [rows] = await db.query('SELECT teamName FROM teamdetails LIMIT 1');
         if (!rows.length) {
             return res.status(404).json({ success: false, message: 'Team details row not found.' });
         }
 
         await db.query(
-            'UPDATE teamDetails SET schoolName = ? WHERE teamName = ?',
+            'UPDATE teamdetails SET schoolName = ? WHERE teamName = ?',
             [schoolName, rows[0].teamName]
         );
 
@@ -500,13 +500,13 @@ exports.changeSchoolIcon = async (req, res) => {
         await uploadedIcon.mv(uploadPath);
 
         await ensureTeamDetailsRow();
-        const [rows] = await db.query('SELECT teamName FROM teamDetails LIMIT 1');
+        const [rows] = await db.query('SELECT teamName FROM teamdetails LIMIT 1');
         if (!rows.length) {
             return res.status(404).json({ success: false, message: 'Team details row not found.' });
         }
 
         await db.query(
-            'UPDATE teamDetails SET schoolIcon = ? WHERE teamName = ?',
+            'UPDATE teamdetails SET schoolIcon = ? WHERE teamName = ?',
             [fileName, rows[0].teamName]
         );
 

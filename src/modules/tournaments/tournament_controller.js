@@ -83,8 +83,8 @@ const getTournamentPlayers = async (req, res) => {
 				lr2.teamPosition AS secondaryRoleName
 			FROM users u
 			INNER JOIN players p ON p.userId = u.userId
-			LEFT JOIN leagueRoles lr1 ON lr1.roleId = p.primaryRoleId
-			LEFT JOIN leagueRoles lr2 ON lr2.roleId = p.secondaryRoleId
+			LEFT JOIN leagueroles lr1 ON lr1.roleId = p.primaryRoleId
+			LEFT JOIN leagueroles lr2 ON lr2.roleId = p.secondaryRoleId
 			WHERE u.position IN ('Player', 'Sub')
 			AND u.status = 'Active'
 			ORDER BY u.firstname ASC, u.lastname ASC
@@ -504,7 +504,7 @@ const getTournaments = async (req, res) => {
 			FROM events t
 			LEFT JOIN event_attendees tp ON tp.eventId = t.eventId
 			LEFT JOIN users u ON u.userId = tp.userId
-			LEFT JOIN leagueRoles lr ON lr.roleId = tp.player_role
+			LEFT JOIN leagueroles lr ON lr.roleId = tp.player_role
             WHERE t.type IN ('Tournament', 'Scrim')
 			ORDER BY t.eventId DESC, tp.is_sub ASC, tp.player_role ASC
 		`;

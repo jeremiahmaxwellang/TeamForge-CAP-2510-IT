@@ -18,7 +18,7 @@ let ensureTablePromise = null;
 async function ensureAcademicRequirementsTable() {
     if (!ensureTablePromise) {
         ensureTablePromise = db.query(`
-            CREATE TABLE IF NOT EXISTS academicRequirements (
+            CREATE TABLE IF NOT EXISTS academicrequirements (
                 requirementId INT UNSIGNED NOT NULL AUTO_INCREMENT,
                 metricKey VARCHAR(20) NOT NULL,
                 comparator ENUM('>', '<', '>=', '<=') NOT NULL,
@@ -117,7 +117,7 @@ async function getAcademicRequirements() {
 
     const [rows] = await db.query(
         `SELECT metricKey, comparator, threshold
-         FROM academicRequirements
+         FROM academicrequirements
          WHERE metricKey IN (?, ?)
          ORDER BY metricKey ASC`,
         ALLOWED_METRICS
@@ -142,14 +142,14 @@ async function updateAcademicRequirements(requirements, userId) {
         for (const requirementEntry of normalizedRequirements) {
             if (!requirementEntry.value) {
                 await connection.query(
-                    'DELETE FROM academicRequirements WHERE metricKey = ?',
+                    'DELETE FROM academicrequirements WHERE metricKey = ?',
                     [requirementEntry.metricKey]
                 );
                 continue;
             }
 
             await connection.query(
-                `INSERT INTO academicRequirements (metricKey, comparator, threshold, updatedBy)
+                `INSERT INTO academicrequirements (metricKey, comparator, threshold, updatedBy)
                  VALUES (?, ?, ?, ?)
                  ON DUPLICATE KEY UPDATE
                     comparator = VALUES(comparator),

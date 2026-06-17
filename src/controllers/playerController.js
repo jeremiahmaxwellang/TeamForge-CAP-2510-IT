@@ -176,7 +176,7 @@ exports.updatePuuid = async (req, res) => {
 };
 
 // Get favorite candidates for a specific role (scoped to logged-in coach)
-exports.getcandidatefavoritesByRole = async (req, res) => {
+exports.getCandidateFavoritesByRole = async (req, res) => {
   try {
     const userRole = req.cookies?.userRole;
     const coachId = Number.parseInt(req.cookies?.userId, 10);
@@ -715,9 +715,9 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
       }
     });
 
-    const matchparticipants = Array.from(deduped.values());
+    const matchParticipants = Array.from(deduped.values());
 
-    if (matchparticipants.length === 0) {
+    if (matchParticipants.length === 0) {
       return res.json({
         success: true,
         message: 'Player has no match data yet',
@@ -727,7 +727,7 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
     }
 
     // Calculate aggregate stats from all matches
-    const playerStats = calculateAggregateStats(matchparticipants);
+    const playerStats = calculateAggregateStats(matchParticipants);
 
     // Fetch benchmarks for the role
     const [benchmarks] = await db.query(
@@ -775,7 +775,7 @@ exports.calculatePlayerStatsFromMatches = async (req, res) => {
       success: true,
       playerId,
       roleId,
-      matchCount: matchparticipants.length,
+      matchCount: matchParticipants.length,
       playerStats: playerStats,
       benchmarkComparison: comparison,
       summary: {
@@ -800,7 +800,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
     if (!playerId) return res.status(400).json({ error: 'playerId is required' });
     if (!roleId) return res.status(400).json({ error: 'roleId is required' });
 
-    // ✅ Fetch the teamPosition for the REQUESTED roleId, not always primary
+    // Fetch the teamPosition for the REQUESTED roleId, not always primary
     const [roleRows] = await db.query(
       `SELECT p.puuid, lr.teamPosition AS requestedTeamPosition
        FROM players p
@@ -815,8 +815,8 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
       return res.status(404).json({ error: 'Player role or PUUID not found' });
     }
 
-    // ✅ Only query matches for the requested role's teamPosition
-    const [matchparticipants] = await db.query(
+    // Only query matches for the requested role's teamPosition
+    const [matchParticipants] = await db.query(
       `SELECT mp.* FROM matchparticipants mp
        JOIN matches m ON mp.matchId = m.matchId
        WHERE mp.puuid = ? AND mp.teamPosition = ?
@@ -825,7 +825,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
       [roleInfo.puuid, roleInfo.requestedTeamPosition]
     );
 
-    if (matchparticipants.length === 0) {
+    if (matchParticipants.length === 0) {
       return res.json({
         success: true,
         message: 'Player has no match data for this role',
@@ -834,7 +834,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
       });
     }
 
-    const playerStats = calculateAggregateStats(matchparticipants);
+    const playerStats = calculateAggregateStats(matchParticipants);
 
     // Fetch benchmarks for the role
     const [benchmarks] = await db.query(
@@ -882,7 +882,7 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
       success: true,
       playerId,
       roleId,
-      matchCount: matchparticipants.length,
+      matchCount: matchParticipants.length,
       playerStats: playerStats,
       benchmarkComparison: comparison,
       summary: {
@@ -900,12 +900,12 @@ exports.calculatePlayerStatsFromMatchesByRole = async (req, res) => {
 /**
  * Helper function to calculate aggregate stats from match participants
  */
-function calculateAggregateStats(matchparticipants) {
-  if (!matchparticipants || matchparticipants.length === 0) {
+function calculateAggregateStats(matchParticipants) {
+  if (!matchParticipants || matchParticipants.length === 0) {
     return {};
   }
 
-  const count = matchparticipants.length;
+  const count = matchParticipants.length;
   let totals = {
     kills: 0, deaths: 0, assists: 0,
     csPerMinute: 0, goldPerMinute: 0,
@@ -920,7 +920,7 @@ function calculateAggregateStats(matchparticipants) {
   let wins = 0;
   const champCount = {};
 
-  matchparticipants.forEach(p => {
+  matchParticipants.forEach(p => {
     totals.kills += Number(p.kills || 0);
     totals.deaths += Number(p.deaths || 0);
     totals.assists += Number(p.assists || 0);
@@ -1009,12 +1009,12 @@ function calculateAggregateStats(matchparticipants) {
 /**
  * Calculate kill participation percentage
  */
-function calculateKillParticipation(matchparticipants) {
-  if (!matchparticipants || matchparticipants.length === 0) return 0;
+function calculateKillParticipation(matchParticipants) {
+  if (!matchParticipants || matchParticipants.length === 0) return 0;
 
-  const avgKillParticipation = matchparticipants.reduce((sum, p) => {
+  const avgKillParticipation = matchParticipants.reduce((sum, p) => {
     return sum + (p.killParticipation || 0);
-  }, 0) / matchparticipants.length;
+  }, 0) / matchParticipants.length;
 
   return (avgKillParticipation * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
@@ -1022,12 +1022,12 @@ function calculateKillParticipation(matchparticipants) {
 /**
  * Calculate vision score share percentage
  */
-function calculateVisionScoreShare(matchparticipants) {
-  if (!matchparticipants || matchparticipants.length === 0) return 0;
+function calculateVisionScoreShare(matchParticipants) {
+  if (!matchParticipants || matchParticipants.length === 0) return 0;
 
-  const avgVisionScoreShare = matchparticipants.reduce((sum, p) => {
+  const avgVisionScoreShare = matchParticipants.reduce((sum, p) => {
     return sum + (p.visionScoreShare || 0);
-  }, 0) / matchparticipants.length;
+  }, 0) / matchParticipants.length;
 
   return (avgVisionScoreShare * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
@@ -1035,12 +1035,12 @@ function calculateVisionScoreShare(matchparticipants) {
 /**
  * Calculate damage share percentage
  */
-function calculateDamageShare(matchparticipants) {
-  if (!matchparticipants || matchparticipants.length === 0) return 0;
+function calculateDamageShare(matchParticipants) {
+  if (!matchParticipants || matchParticipants.length === 0) return 0;
 
-  const avgDamageShare = matchparticipants.reduce((sum, p) => {
+  const avgDamageShare = matchParticipants.reduce((sum, p) => {
     return sum + (p.damageShare || 0);
-  }, 0) / matchparticipants.length;
+  }, 0) / matchParticipants.length;
 
   return (avgDamageShare * 100).toFixed(2); // BUG FIX: Multiply by 100
 }
