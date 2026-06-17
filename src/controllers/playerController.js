@@ -358,7 +358,7 @@ exports.storePlayerStatistic = async (req, res) => {
     }
 
     const sql = `
-      INSERT INTO playerStatistics (userId, metricId, roleId, metricValue, recordedAt)
+      INSERT INTO playerstatistics (userId, metricId, roleId, metricValue, recordedAt)
       VALUES (?, ?, ?, ?, NOW())
       ON DUPLICATE KEY UPDATE
         metricValue = VALUES(metricValue),
@@ -1121,7 +1121,7 @@ async function saveCalculatedStats(userId, roleId, stats) {
       if (metricId && Number.isFinite(numericValue)) {
         queries.push(
           db.query(
-            `INSERT INTO playerStatistics (userId, metricId, roleId, metricValue, recordedAt)
+            `INSERT INTO playerstatistics (userId, metricId, roleId, metricValue, recordedAt)
              VALUES (?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
              metricValue = VALUES(metricValue), recordedAt = VALUES(recordedAt)`,
@@ -1163,7 +1163,7 @@ exports.getStoredStatsComparison = async (req, res) => {
         b.benchmarkValue, 
         b.comparator,
         ps.recordedAt
-      FROM playerStatistics ps
+      FROM playerstatistics ps
       JOIN benchmarks b ON ps.metricId = b.metricId AND ps.roleId = b.roleId
       JOIN metrics m ON ps.metricId = m.metricId
       WHERE ps.userId = ? AND ps.roleId = ?
