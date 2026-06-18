@@ -193,6 +193,118 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// --- Application Period Tab Logic ---
+
+const applicationPeriodPanel = document.getElementById('applicationPeriodPanel');
+const applicantsTable = document.getElementById('applicantsTable');
+
+// Extend your existing tab click handler to show/hide the panel
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.style.color = '#888';
+            b.style.borderBottom = '3px solid transparent';
+        });
+        btn.style.color = '#00f2c3';
+        btn.style.borderBottom = '3px solid #00f2c3';
+
+        if (btn.dataset.status === 'ApplicationPeriod') {
+            applicantsTable.style.display = 'none';
+            applicationPeriodPanel.style.display = 'block';
+            loadCurrentPeriod();
+        } else {
+            applicationPeriodPanel.style.display = 'none';
+            loadApplicants(btn.dataset.status); // your existing function
+        }
+    });
+});
+
+// Load and display the current active application period
+async function loadCurrentPeriod() {
+    const msg = document.getElementById('periodStatusMsg');
+    msg.textContent = '';
+    try {
+        const res = await fetch('/applicant_list/period/current');
+        const data = await res.json();
+        const span = document.getElementById('currentPeriodDates');
+
+        if (data.success && data.period) {
+            const start = new Date(data.period.startDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+            const end   = new Date(data.period.endDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+            span.textContent = `${start} - ${end}`;
+
+            // Pre-fill edit fields
+            document.getElementById('editStartDate').value = data.period.startDate.substring(0, 10);
+            document.getElementById('editEndDate').value   = data.period.endDate.substring(0, 10);
+        } else {
+            span.textContent = 'No active period.';
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Toggle Edit Dates form
+document.getElementById('editDatesBtn').addEventListener('click', () => {
+    const form = document.getElementById('editDatesForm');
+    form.style.display = form.style.display === 'flex' ? 'none' : 'flex';
+});
+document.getElementById('cancelEditDatesBtn').addEventListener('click', () => {
+    document.getElementById('editDatesForm').style.display = 'none';
+});
+
+// Save edited dates
+document.getElementById('saveEditDatesBtn').addEventListener('click', async () => {
+    const msg = document.getElementById('periodStatusMsg');
+    const startDate = document.getElementById('editStartDate').value;
+    const endDate   = document.getElementById('editEndDate').value;
+    if (!startDate || !endDate) return (msg.textContent = 'Both dates are required.');
+
+    const res = await fetch('/applicant_list/period/edit', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startDate, endDate })
+    });
+    const data = await res.json();
+    msg.textContent = data.message || (data.success ? 'Dates updated!' : 'Error updating dates.');
+    if (data.success) {
+        document.getElementById('editDatesForm').style.display = 'none';
+        loadCurrentPeriod();
+    }
+});
+
+// End Application Period
+document.getElementById('endApplicationBtn').addEventListener('click', async () => {
+    const msg = document.getElementById('periodStatusMsg');
+    if (!confirm('Are you sure you want to end the current application period?')) return;
+
+    const res = await fetch('/applicant_list/period/end', { method: 'PUT' });
+    const data = await res.json();
+    msg.textContent = data.message || (data.success ? 'Period ended.' : 'Error ending period.');
+    if (data.success) loadCurrentPeriod();
+});
+
+// Start New Application Period
+document.getElementById('startNewPeriodBtn').addEventListener('click', async () => {
+    const msg = document.getElementById('periodStatusMsg');
+    const startDate = document.getElementById('newStartDate').value;
+    const endDate   = document.getElementById('newEndDate').value;
+    if (!startDate || !endDate) return (msg.textContent = 'Please fill in both dates.');
+
+    const res = await fetch('/applicant_list/period/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startDate, endDate })
+    });
+    const data = await res.json();
+    msg.textContent = data.message || (data.success ? 'New period started!' : 'Error starting period.');
+    if (data.success) {
+        document.getElementById('newStartDate').value = '';
+        document.getElementById('newEndDate').value   = '';
+        loadCurrentPeriod();
+    }
+});
+
 // Load applicants when the page loads
 document.addEventListener("DOMContentLoaded", async () => {
     await fetchAndStoreApplicants();

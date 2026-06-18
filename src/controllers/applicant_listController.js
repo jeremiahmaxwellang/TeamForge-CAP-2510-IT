@@ -366,3 +366,74 @@ exports.getReportData = async (req, res) => {
         res.status(500).json({ success: false, message: 'Database error' });
     }
 };
+
+// GET current (latest) application period
+exports.getCurrentPeriod = async (req, res) => {
+    try {
+        const [rows] = await mySqlPool.query(
+            `SELECT periodId, startDate, endDate FROM application_periods ORDER BY periodId DESC LIMIT 1`
+        );
+        if (!rows.length) return res.json({ success: true, period: null });
+        res.json({ success: true, period: rows[0] });
+    } catch (error) {
+        console.error('Error fetching current period:', error);
+        res.status(500).json({ success: false, message: 'Database error.' });
+    }
+};
+
+// POST start a new application period
+exports.startNewPeriod = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.body;
+        if (!startDate || !endDate)
+            return res.status(400).json({ success: false, message: 'Start and end dates are required.' });
+
+        await mySqlPool.query(
+            `INSERT INTO application_periods (startDate, endDate) VALUES (?, ?)`,
+            [startDate, endDate]
+        );
+        res.json({ success: true, message: 'New application period started!' });
+    } catch (error) {
+        console.error('Error starting period:', error);
+        res.status(500).json({ success: false, message: 'Database error.' });
+    }
+};
+
+// PUT edit dates of the current (latest) period
+exports.editPeriodDates = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.body;
+        if (!startDate || !endDate)
+            return res.status(400).json({ success: false, message: 'Start and end dates are required.' });
+
+        const [result] = await mySqlPool.query(
+            `UPDATE application_periods SET startDate = ?, endDate = ?
+             WHERE periodId = (SELECT MAX(periodId) FROM (SELECT periodId FROM application_periods) AS sub)`,
+            [startDate, endDate]
+        );
+        if (result.affectedRows === 0)
+            return res.status(404).json({ success: false, message: 'No active period found.' });
+
+        res.json({ success: true, message: 'Dates updated successfully!' });
+    } catch (error) {
+        console.error('Error editing period:', error);
+        res.status(500).json({ success: false, message: 'Database error.' });
+    }
+};
+
+// PUT end the current period (sets endDate to today)
+exports.endCurrentPeriod = async (req, res) => {
+    try {
+        const [result] = await mySqlPool.query(
+            `UPDATE application_periods SET endDate = CURDATE()
+             WHERE periodId = (SELECT MAX(periodId) FROM (SELECT periodId FROM application_periods) AS sub)`
+        );
+        if (result.affectedRows === 0)
+            return res.status(404).json({ success: false, message: 'No active period found.' });
+
+        res.json({ success: true, message: 'Application period ended.' });
+    } catch (error) {
+        console.error('Error ending period:', error);
+        res.status(500).json({ success: false, message: 'Database error.' });
+    }
+};
