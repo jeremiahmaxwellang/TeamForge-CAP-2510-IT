@@ -153,6 +153,7 @@ app.use('/register', require("./routes/registerRoutes")); // registration routes
 
 app.get('/applicant_list/getbyemail', require('./controllers/applicant_listController').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
 app.post('/applicant_list/claim_spot', require('./controllers/applicant_listController').claimRosterSpot); // Allow applicants to press the Claim Spot button
+app.get('/applicant_list/report_data', requireAnyRole(['Team Manager', 'Team Coach']), require('./controllers/applicant_listController').getReportData); // Allow both managers and coaches to download applicant report
 app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applicant_listRoutes')); // applicant list routes
 
 app.use('/player_analysis', requireAnyRole(['Team Coach', 'Player']), require('./routes/playerAnalysisRoutes'));
