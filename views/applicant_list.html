@@ -38,6 +38,8 @@
                         <button class="tab-btn active" data-status="Pending" style="background: transparent; color: #00f2c3; border: none; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px 10px; border-bottom: 3px solid #00f2c3;">Pending</button>
                         <button class="tab-btn" data-status="Accepted" style="background: transparent; color: #888; border: none; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px 10px; border-bottom: 3px solid transparent;">Accepted</button>
                         <button class="tab-btn" data-status="Rejected" style="background: transparent; color: #888; border: none; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px 10px; border-bottom: 3px solid transparent;">Rejected</button>
+                 
+<button class="tab-btn" data-status="ApplicationPeriod" style="background: transparent; color: #888; border: none; font-size: 16px; font-weight: bold; cursor: pointer; padding: 5px 10px; border-bottom: 3px solid transparent;">Start Application Period</button>
                     </div>
                     <div class="applicant-header">
                         <h1>Applicants List</h1>
@@ -64,6 +66,48 @@
                         <tbody id="applicantsBody">
                         </tbody>
                     </table>
+
+                    <!-- Application Period Panel (hidden by default) -->
+<div id="applicationPeriodPanel" style="display: none; color: #ccc; font-family: sans-serif;">
+    <h2 style="margin-bottom: 4px;">Application Period</h2>
+    <hr style="border-color: #444; margin-bottom: 20px;">
+
+    <!-- Current Period Info -->
+    <div id="currentPeriodInfo" style="margin-bottom: 30px;">
+        <p style="font-weight: bold; margin-bottom: 6px;">Current Application Period:</p>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="currentPeriodDates" style="font-size: 14px;">Loading...</span>
+            <button id="editDatesBtn" style="background:#28a745; color:white; border:none; padding:6px 14px; border-radius:5px; cursor:pointer; font-size:13px;">Edit Dates</button>
+            <button id="endApplicationBtn" style="background:#dc3545; color:white; border:none; padding:6px 14px; border-radius:5px; cursor:pointer; font-size:13px;">End Application</button>
+        </div>
+
+        <!-- Edit Dates Form (hidden until Edit Dates is clicked) -->
+        <div id="editDatesForm" style="display:none; margin-top: 14px; display:none; gap:12px; align-items:center; flex-wrap:wrap;">
+            <label style="font-size:13px;">Start Date <input type="date" id="editStartDate" style="margin-left:6px; padding:5px; border-radius:4px; border:1px solid #555; background:#1e1e1e; color:#fff;"></label>
+            <label style="font-size:13px;">End Date <input type="date" id="editEndDate" style="margin-left:6px; padding:5px; border-radius:4px; border:1px solid #555; background:#1e1e1e; color:#fff;"></label>
+            <button id="saveEditDatesBtn" style="background:#28a745; color:white; border:none; padding:6px 14px; border-radius:5px; cursor:pointer; font-size:13px;">Save Changes</button>
+            <button id="cancelEditDatesBtn" style="background:#555; color:white; border:none; padding:6px 14px; border-radius:5px; cursor:pointer; font-size:13px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Start New Period Form -->
+    <div>
+        <p style="font-weight: bold; margin-bottom: 10px;">Start New Application Period</p>
+        <div style="display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap;">
+            <div>
+                <label style="font-size:13px; display:block; margin-bottom:4px;">Start Date</label>
+                <input type="date" id="newStartDate" style="padding:6px 10px; border-radius:4px; border:1px solid #555; background:#1e1e1e; color:#fff;">
+            </div>
+            <div>
+                <label style="font-size:13px; display:block; margin-bottom:4px;">End Date</label>
+                <input type="date" id="newEndDate" style="padding:6px 10px; border-radius:4px; border:1px solid #555; background:#1e1e1e; color:#fff;">
+            </div>
+            <button id="startNewPeriodBtn" style="background:#28a745; color:white; border:none; padding:8px 18px; border-radius:5px; cursor:pointer; font-size:14px; font-weight:bold;">Start New Application Period</button>
+        </div>
+    </div>
+
+    <p id="periodStatusMsg" style="margin-top:16px; font-size:13px; color:#00f2c3;"></p>
+</div>
                 </div>
             </div>
         </div>

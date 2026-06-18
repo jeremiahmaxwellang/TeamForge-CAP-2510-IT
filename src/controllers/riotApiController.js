@@ -110,6 +110,7 @@ async function fetchPuuidByName(gameName, tagLine){
 }
 
 // getPuuid is called in riotApiRoutes to connect the backend
+// route: GET /riot/puuid/:gameName/:tagLine
 exports.getPuuid = async (req, res) => {
     try {
         const { gameName, tagLine } = req.params;

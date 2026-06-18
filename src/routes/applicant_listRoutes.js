@@ -44,4 +44,10 @@ router.post('/reject', applicant_listController.rejectApplicant);
 // Get ALL applicants + their stats specifically for the PDF Report
 router.get('/report_data', applicant_listController.getReportData);
 
+// Application Period Routes
+router.get('/period/current',  applicant_listController.getCurrentPeriod);
+router.post('/period/start',   applicant_listController.startNewPeriod);
+router.put('/period/edit',     applicant_listController.editPeriodDates);
+router.put('/period/end',      applicant_listController.endCurrentPeriod);
+
 module.exports = router;
