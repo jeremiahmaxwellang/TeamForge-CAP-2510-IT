@@ -663,43 +663,7 @@
       });
     }
 
-    function setupQueueDropdown() {
-      const queueDropdownBtn = overlayContainer.querySelector("#queueDropdownBtn");
-      const queueDropdownContent = overlayContainer.querySelector("#queueDropdownContent");
-      const queueOptions = overlayContainer.querySelectorAll("#queueDropdownContent a");
 
-      if (!queueDropdownBtn || !queueDropdownContent) {
-        console.log("[QUEUE DROPDOWN] ✗ Queue dropdown button or content not found");
-        return;
-      }
-
-      queueDropdownBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        queueDropdownContent.style.display = queueDropdownContent.style.display === "block" ? "none" : "block";
-      });
-
-      queueOptions.forEach((option) => {
-        option.addEventListener("click", function (e) {
-          e.preventDefault();
-          const queueId = parseInt(this.getAttribute("data-queue"), 10);
-          const queueName = this.textContent;
-
-          queueDropdownBtn.textContent = queueName;
-          queueDropdownContent.style.display = "none";
-
-          // Update shared state
-          state.currentQueueId = queueId;
-
-          refreshOverviewStats(true);
-        });
-      });
-
-      document.addEventListener("click", function (e) {
-        if (!e.target.closest(".dropdown")) {
-          queueDropdownContent.style.display = "none";
-        }
-      });
-    }
 
     if (!overlayContainer) return;
 
@@ -787,8 +751,6 @@
                 loadStoredBenchmarks(userId, roleId);
               }
             }
-
-            setupQueueDropdown();
 
             const overlay = overlayContainer.querySelector(".overlay");
             if (!overlay) return;
