@@ -120,7 +120,7 @@ exports.getAllPlayers = async (req, res) => {
       JOIN players p ON u.userId = p.userId
 	    JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
       JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
-      WHERE u.position = 'Player'
+      WHERE u.position = 'Player' AND status = 'Active'
       ORDER BY primaryRoleId;
     `;
     const [results] = await db.query(sql);

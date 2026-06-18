@@ -5,6 +5,12 @@ teamForge123!!
 justin_nicolai_lee@dlsu.edu.ph
 teamForge123!!
 
+manager1@test.com
+teamForge123!!
+
+manager2@test.com
+teamForge123!!
+
 TEAM COACH
 charles_duelas@dlsu.edu.ph
 teamForge123!!

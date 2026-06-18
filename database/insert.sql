@@ -16,17 +16,24 @@ VALUES
 -- Manager
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
-(
-    1,
-    'jeremiah_ang@dlsu.edu.ph',
+(1,'jeremiah_ang@dlsu.edu.ph','teamForge123!!','Jeremiah','Ang','Team Manager','Cowwrean#cowwrean','Active'),
+(35,
+    'manager1@test.com',
     'teamForge123!!',
-    'Jeremiah',
-    'Ang',
+    'Manager',
+    'One',
     'Team Manager',
-    'Cowwrean#cowwrean',
+    'Manager#1',
     'Active'),
-(
-    25,
+(36,
+    'manager2@test.com',
+    'teamForge123!!',
+    'Manager',
+    'Two',
+    'Team Manager',
+    'Manager#2',
+    'Active'),
+(25,
     'justin_nicolai_lee@dlsu.edu.ph',
     'teamForge123!!',
     'Justin',
