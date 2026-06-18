@@ -32,10 +32,10 @@
   // -----------------------------
 
   /**
-   * Fetches current and peak rank from the backend proxy
-   * @param {string} puuid - The player's unique PUUID
+   * Reads current and peak rank directly from the already-fetched player data
+   * @param {Object} player - The player object returned by /player_analysis/players/:id
    */
-  async function fetchPlayerRanks(puuid) {
+  function fetchPlayerRanks(player) {
     const currentRankEl = document.getElementById('currentRank');
     const peakRankEl = document.getElementById('peakRank');
     const currentRankIconEl = document.getElementById('currentRankIcon');
@@ -58,7 +58,6 @@
 
     function getRankTier(rankValue) {
       if (!rankValue || typeof rankValue !== 'string') return 'unranked';
-
       const firstWord = rankValue.trim().split(/\s+/)[0].toLowerCase();
       return validRankTiers.has(firstWord) ? firstWord : 'unranked';
     }
@@ -69,25 +68,19 @@
     }
 
     try {
-        const response = await fetch(`/riot/rank/${puuid}`);
-        const data = await response.json();
+      const currentRank = player.currentRank || 'Unranked';
+      const peakRank = player.peakRank || 'Unranked';
 
-        if (response.ok) {
-            // Display: "PLATINUM II (45 LP)"
-            currentRankEl.textContent = data.lp > 0 
-                ? `${data.currentRank} (${data.lp} LP)` 
-                : data.currentRank;
-            
-            peakRankEl.textContent = data.peakRank;
-            if (currentRankIconEl) currentRankIconEl.src = getRankIconUrl(data.currentRank);
-            if (peakRankIconEl) peakRankIconEl.src = getRankIconUrl(data.peakRank);
-            console.log(`[RANK] ✅ Updated: ${data.currentRank}`);
-        } else {
-            throw new Error(data.error);
-        }
+      if (currentRankEl) currentRankEl.textContent = currentRank;
+      if (peakRankEl) peakRankEl.textContent = peakRank;
+      if (currentRankIconEl) currentRankIconEl.src = getRankIconUrl(currentRank);
+      if (peakRankIconEl) peakRankIconEl.src = getRankIconUrl(peakRank);
+
+      console.log(`[RANK] Updated from player data — Current: ${currentRank}, Peak: ${peakRank}`);
     } catch (error) {
-        console.error("[RANK] ❌ UI Update Failed:", error);
-        currentRankEl.textContent = "Error";
+      console.error("[RANK] UI Update Failed:", error);
+      if (currentRankEl) currentRankEl.textContent = "Unranked";
+      if (peakRankEl) peakRankEl.textContent = "Unranked";
     }
   }
 
@@ -658,8 +651,8 @@
 
           console.log(`[LOAD PLAYER] Triggering data fetches for PUUID: ${targetPuuid}`);
 
-          // 1. FETCH RANKS (The missing call)
-          fetchPlayerRanks(targetPuuid);
+          // 1. FETCH RANKS (reads currentRank/peakRank directly from player data)
+          fetchPlayerRanks(player);
 
           // 2. FETCH WINRATE
           const currentRoleView = PA.state.currentRoleView || "primary";
