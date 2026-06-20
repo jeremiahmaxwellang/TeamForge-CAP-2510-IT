@@ -3,6 +3,8 @@
 -- (like Discord tags or Riot Game tags) won't cause database errors.
 -- Remove  (Optional): It is safely supported, but removing it keeps your code highly portable and clean.
 
+-- MySQL Workbench Forward Engineering
+
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
@@ -72,6 +74,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`announcements` (
   `title` VARCHAR(254) NULL DEFAULT NULL,
   `content` LONGTEXT NULL DEFAULT NULL,
   `dateCreated` TIMESTAMP NULL DEFAULT NULL,
+  `discordMessageId` LONGTEXT NULL,
   PRIMARY KEY (`announcementId`, `userId`),
   INDEX `fk_announcements_users1_idx` (`userId` ASC) ,
   CONSTRAINT `fk_announcements_users1`

@@ -12,7 +12,7 @@ DROP SCHEMA IF EXISTS `teamforgedb` ;
 -- -----------------------------------------------------
 -- Schema teamforgedb
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `teamforgedb` DEFAULT CHARACTER SET utf8mb3 ;
+CREATE SCHEMA IF NOT EXISTS `teamforgedb` DEFAULT CHARACTER SET utf8mb4 ;
 USE `teamforgedb` ;
 
 -- -----------------------------------------------------
@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`announcements` (
   `title` VARCHAR(254) NULL DEFAULT NULL,
   `content` LONGTEXT NULL DEFAULT NULL,
   `dateCreated` TIMESTAMP NULL DEFAULT NULL,
+  `discordMessageId` LONGTEXT NULL,
   PRIMARY KEY (`announcementId`, `userId`),
   INDEX `fk_announcements_users1_idx` (`userId` ASC) VISIBLE,
   CONSTRAINT `fk_announcements_users1`
