@@ -1,3 +1,8 @@
+/* 
+    register.css
+    - Stylesheet for the Registration page
+*/
+
 * {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
@@ -6,11 +11,12 @@
 html, body {
   height: 100%;
   margin: 0;
-  overflow-y: auto; /* ✅ allows vertical scrolling */
+  overflow-y: auto;
 }
 
+/* Background photo */
 body {
-    background: url("/images/background_photo.png") no-repeat center center / cover;
+    background: url("/images/background_photo.webp") no-repeat center center / cover;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -68,8 +74,6 @@ body {
     padding-right: 30px;
     /* Space for the arrow */
 }
-
-
 
 .registration-box button {
     width: 70%;
