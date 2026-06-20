@@ -2,18 +2,17 @@ const db = require('../../config/database');
 
 const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
 
-// May 23: fixed error "normalizedResult not defined" by fixing type "normalizeResult"
-const normalizedResult = (value) => {
+const normalizeResult = (value) => {
 	if (!value && value !== 0) return 'N/A';
 	const trimmed = String(value).trim();
-	
+
 	// Handle tournament results
 	const upper = trimmed.toUpperCase();
 	if (upper === 'W' || upper === 'L' || upper === 'N/A' || upper === 'NA') return upper === 'NA' ? 'N/A' : upper;
-	
+
 	// Handle scrim results
 	if (trimmed === 'Team 1 Win' || trimmed === 'Team 2 Win' || trimmed === 'N/A') return trimmed;
-	
+
 	return null;
 };
 
@@ -67,7 +66,7 @@ const normalizeRoleId = (roleIdValue, roleNameValue) => {
 
 // Sends the html file
 const getPage = async (req, res) => {
-    res.sendFile('tournament.html', { root: './src/modules/tournaments' }); // Adjust root if your html is somewhere else
+	res.sendFile('tournament.html', { root: './src/modules/tournaments' }); // Adjust root if your html is somewhere else
 };
 
 const getTournamentPlayers = async (req, res) => {
@@ -156,6 +155,14 @@ const createTournament = async (req, res) => {
 
 		const normalizedType = type === 'Scrim' ? 'Scrim' : 'Tournament';
 
+		const normalizedResult = normalizeResult(result);
+		if (normalizedType !== 'Scrim' && !normalizedResult) {
+			return res.status(400).send({
+				success: false,
+				message: 'Result must be W, L, or N/A'
+			});
+		}
+
 		if (!Array.isArray(assignments) || assignments.length === 0) {
 			return res.status(400).send({
 				success: false,
@@ -231,7 +238,7 @@ const createTournament = async (req, res) => {
 
 		// For scrims, set event-level result to N/A and handle results at team level
 		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
-		
+
 		const [insertTournamentResult] = await connection.query(
 			`INSERT INTO events (title_summary, type, start_date, end_date, win, creator_id) VALUES (?, ?, ?, ?, ?, ?)`,
 			[String(name).trim(), normalizedType, normalizedDate, normalizedDate, eventResult, req.cookies.userId]
@@ -419,7 +426,7 @@ const updateTournament = async (req, res) => {
 
 		// For scrims, set event-level result to N/A and handle results at team level
 		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
-		
+
 		await connection.query(
 			`
 			UPDATE events
