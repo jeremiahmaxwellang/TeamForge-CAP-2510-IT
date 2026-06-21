@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', async () => {
+const initTeamBranding = async () => {
     const defaultTeamName = 'Viridis Arcus';
     const fallbackLogoUrl = '/uploads/team-logos/VA_logo.png';
 
@@ -78,4 +78,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error('Unable to load team branding:', error);
     }
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTeamBranding);
+} else {
+    initTeamBranding();
+}

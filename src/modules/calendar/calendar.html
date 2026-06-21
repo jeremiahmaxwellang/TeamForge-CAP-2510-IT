@@ -21,9 +21,13 @@
         <span class="header_title">TeamForge</span>
       </div>
       <div class="team-name">Calendar</div>
-      <div style="display:flex; align-items:center; gap:12px;">
+      <div class="profile-dropdown-container">
         <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile" class="js-current-user-photo"
           id="profileDropdownBtn" style="width:60px;height:60px;border-radius:50%;cursor:pointer;">
+        <div id="profileDropdownMenu" class="profile-dropdown-menu">
+          <a href="/settings">Settings</a>
+          <a href="/logout" class="logout-link">Logout</a>
+        </div>
       </div>
     </div>
 
@@ -251,7 +255,7 @@
 
   <script src="/js/sidebar.js" defer></script>
   <script src="/js/current_user_photo.js"></script>
-  <script src="/js/team_branding.js"></script>
+  <script src="/js/team_branding.js" defer></script>
   <script src="/js/userDropdown.js"></script>
   
   <script src="/calendar/static/calendar.js" defer></script>
