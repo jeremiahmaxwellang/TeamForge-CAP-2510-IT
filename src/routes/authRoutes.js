@@ -217,16 +217,6 @@ router.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-// Signup page
-router.get('/signup', (req, res) => {
-    res.sendFile(path.join(viewsPath, 'signup.html'));
-});
-
-// Registration page
-router.get('/register', (req, res) => {
-    res.sendFile(path.join(viewsPath, 'register.html'));
-});
-
 // Change password page
 router.get('/change_password', requireAnyRole(['Team Manager', 'Team Coach', 'Player', 'Applicant', 'Sub']), (req, res) => {
     res.sendFile(path.join(viewsPath, 'change_password.html'));

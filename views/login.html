@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>TeamForge Login</title>
     <link rel="stylesheet" href="/css/login.css">
-    <script src="/js/recruitment/recruitment.js"></script>
+    <script src="/recruitment/static/recruitment.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const signupText = document.querySelector(".signup-text");
@@ -13,7 +13,7 @@
             if (currentPeriod) {
                 console.log("Active recruitment period:", currentPeriod);
                 signupText.innerHTML =
-                    `<p><div>Applying to the team? </div> <a href="/signup">Click here!</a></p>`
+                    `<p><div>Applying to the team? </div> <a href="/register/signup">Click here!</a></p>`
             } else {
                 console.log("No active recruitment period.");
 

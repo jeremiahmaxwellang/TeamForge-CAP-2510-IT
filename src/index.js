@@ -120,6 +120,9 @@ app.use(express.static(path.join(process.cwd(), './public')));
 
 global.viewsPath = path.join(process.cwd(), 'views');
 
+// =================== Login =================== 
+app.use("/", require("./routes/authRoutes")); // login routes
+
 // =================== Announcements Module =================== 
 app.use('/announcements/static', express.static(path.join(__dirname, 'modules/announcements/public')));
 app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
@@ -131,6 +134,19 @@ app.use('/attendance', requireAnyRole(['Team Manager', 'Team Coach', 'Player']),
 // =================== Calendar Scheduling Module =================== 
 app.use('/calendar/static',      express.static(path.join(__dirname, 'modules/calendar/public')));
 app.use('/calendar', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/calendar_routes')); // calendar routes
+
+// =================== Recruitment Module ===================
+app.use('/recruitment/static',      express.static(path.join(__dirname, 'modules/recruitment/public')));
+app.use('/recruitment', require("./modules/recruitment/recruitment_routes")); // just gets the recruitment period
+
+app.get('/applicant_list/getbyemail', require('./controllers/applicant_listController').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
+app.post('/applicant_list/claim_spot', require('./controllers/applicant_listController').claimRosterSpot); // Allow applicants to press the Claim Spot button
+app.get('/applicant_list/report_data', requireAnyRole(['Team Manager', 'Team Coach']), require('./controllers/applicant_listController').getReportData); // Allow both managers and coaches to download applicant report
+app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applicant_listRoutes')); // applicant list routes
+
+// =================== Register =================== 
+app.use('/register/static',       express.static(path.join(__dirname, 'modules/register/public')));
+app.use('/register', require("./modules/register/registerRoutes")); // register routes
 
 // =================== Reports Module =================== 
 app.use('/reports/static',       express.static(path.join(__dirname, 'modules/reports/public')));
@@ -146,15 +162,6 @@ app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), r
 
 // Routes
 app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes'));
-
-app.use("/", require("./routes/authRoutes")); // login routes
-app.use('/recruitment', require("./routes/recruitmentRoutes")); // recruitment routes
-app.use('/register', require("./routes/registerRoutes")); // registration routes
-
-app.get('/applicant_list/getbyemail', require('./controllers/applicant_listController').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
-app.post('/applicant_list/claim_spot', require('./controllers/applicant_listController').claimRosterSpot); // Allow applicants to press the Claim Spot button
-app.get('/applicant_list/report_data', requireAnyRole(['Team Manager', 'Team Coach']), require('./controllers/applicant_listController').getReportData); // Allow both managers and coaches to download applicant report
-app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applicant_listRoutes')); // applicant list routes
 
 app.use('/player_analysis', requireAnyRole(['Team Coach', 'Player']), require('./routes/playerAnalysisRoutes'));
 app.use('/riot', requireAnyRole(['Team Coach', 'Player']), require('./routes/riotApiRoutes'));

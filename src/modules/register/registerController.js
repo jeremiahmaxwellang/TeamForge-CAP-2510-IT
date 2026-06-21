@@ -1,6 +1,16 @@
-const mySqlPool = require('../config/database');
+const mySqlPool = require('../../config/database');
 const path = require('path');
-const academicRequirementsService = require('../services/academicRequirementsService');
+const academicRequirementsService = require('../../services/academicRequirementsService');
+
+// 1. Serve the Signup page
+exports.getSignupPage = (req, res) => {
+    res.sendFile('signup.html', { root: './src/modules/register' });
+};
+
+// 2. Serve the Register page
+exports.getRegisterPage = (req, res) => {
+    res.sendFile('register.html', { root: './src/modules/register' });
+};
 
 function satisfiesRequirement(value, requirement) {
     if (!requirement || requirement.threshold === null) {
