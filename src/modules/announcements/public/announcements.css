@@ -188,9 +188,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    max-height: 60vh;
-    /* Prevents card from stretching forever */
-    overflow-y: auto;
+    /* allow the list to grow with content so the card expands vertically */
+    max-height: none;
+    overflow-y: visible;
     padding-right: 15px;
 }
 
