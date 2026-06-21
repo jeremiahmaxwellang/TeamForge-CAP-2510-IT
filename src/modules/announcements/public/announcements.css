@@ -245,60 +245,50 @@ body {
     text-overflow: ellipsis;
 }
 
-.ann-action-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
+/* Dropdown menu for announcement actions */
+.ann-actions {
+    display: flex;
     justify-content: flex-end;
 }
 
-.ann-action-trigger {
+.ann-menu-btn {
     background: transparent;
     border: none;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
     padding: 6px 8px;
-    border-radius: 8px;
-    color: #555;
-    transition: background 0.2s;
+    border-radius: 6px;
 }
 
-.ann-action-trigger:hover {
-    background: rgba(0, 0, 0, 0.05);
+.ann-menu-btn:hover {
+    background: rgba(0,0,0,0.05);
 }
 
-.ann-action-menu {
-    position: absolute;
-    right: 0;
-    top: 100%;
+.ann-menu {
     min-width: 120px;
     background: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-    z-index: 10;
-    overflow: hidden;
-    margin-top: 8px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     display: none;
+    z-index: 1100;
+    padding: 6px 6px;
 }
 
-.ann-action-menu.visible {
+.ann-menu-item {
     display: block;
-}
-
-.ann-action-item {
     width: 100%;
-    padding: 10px 14px;
-    border: none;
     text-align: left;
-    background: white;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
     cursor: pointer;
+    border-radius: 6px;
     font-size: 14px;
-    color: #333;
 }
 
-.ann-action-item:hover {
-    background: #f5f5f5;
+.ann-menu-item:hover {
+    background: #f4f7fb;
 }
 
 /* --- MODAL STYLES (Inherited from Settings) --- */

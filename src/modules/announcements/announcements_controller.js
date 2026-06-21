@@ -23,7 +23,7 @@ exports.getAllAnnouncements = async (req, res) => {
             JOIN users u ON a.userId = u.userId
             ORDER BY a.dateCreated DESC
         `;
-        
+
         const [rows] = await mySqlPool.query(query);
         const currentUserId = req.cookies && Number.parseInt(req.cookies.userId, 10);
         const announcements = rows.map(row => ({
