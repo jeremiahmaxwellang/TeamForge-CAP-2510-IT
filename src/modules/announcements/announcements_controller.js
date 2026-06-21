@@ -13,7 +13,6 @@ exports.getAllAnnouncements = async (req, res) => {
         const query = `
             SELECT 
                 a.announcementId, 
-                a.userId AS authorId,
                 a.title, 
                 a.content, 
                 a.dateCreated, 
@@ -23,14 +22,9 @@ exports.getAllAnnouncements = async (req, res) => {
             JOIN users u ON a.userId = u.userId
             ORDER BY a.dateCreated DESC
         `;
-
+        
         const [rows] = await mySqlPool.query(query);
-        const currentUserId = req.cookies && Number.parseInt(req.cookies.userId, 10);
-        const announcements = rows.map(row => ({
-            ...row,
-            isAuthor: Number.isInteger(currentUserId) && currentUserId > 0 && Number.parseInt(row.authorId, 10) === currentUserId
-        }));
-        res.status(200).json({ success: true, announcements });
+        res.status(200).json({ success: true, announcements: rows });
     } catch (error) {
         console.error('Error fetching announcements:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch announcements.' });
@@ -136,75 +130,3 @@ exports.createAnnouncement = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to post announcement.' });
     }
 };
-
-    // 4. Update an existing announcement
-    exports.updateAnnouncement = async (req, res) => {
-        try {
-            const announcementId = Number.parseInt(req.params.id, 10);
-            const { title, content } = req.body;
-            const userId = req.cookies && Number.parseInt(req.cookies.userId, 10);
-
-            if (!announcementId || announcementId <= 0) {
-                return res.status(400).json({ success: false, message: 'Invalid announcement ID.' });
-            }
-
-            if (!userId) {
-                return res.status(401).json({ success: false, message: 'Not logged in.' });
-            }
-
-            if (!title || !content) {
-                return res.status(400).json({ success: false, message: 'Title and content are required.' });
-            }
-
-            const [rows] = await mySqlPool.query('SELECT userId FROM announcements WHERE announcementId = ?', [announcementId]);
-            if (!rows.length) {
-                return res.status(404).json({ success: false, message: 'Announcement not found.' });
-            }
-
-            if (Number.parseInt(rows[0].userId, 10) !== userId) {
-                return res.status(403).json({ success: false, message: 'You are not authorized to edit this announcement.' });
-            }
-
-            await mySqlPool.query(
-                'UPDATE announcements SET title = ?, content = ? WHERE announcementId = ?',
-                [title, content, announcementId]
-            );
-
-            res.status(200).json({ success: true, message: 'Announcement updated successfully.' });
-        } catch (error) {
-            console.error('Error updating announcement:', error);
-            res.status(500).json({ success: false, message: 'Failed to update announcement.' });
-        }
-    };
-
-    // 5. Delete an announcement
-    exports.deleteAnnouncement = async (req, res) => {
-        try {
-            const announcementId = Number.parseInt(req.params.id, 10);
-            const userId = req.cookies && Number.parseInt(req.cookies.userId, 10);
-
-            if (!announcementId || announcementId <= 0) {
-                return res.status(400).json({ success: false, message: 'Invalid announcement ID.' });
-            }
-
-            if (!userId) {
-                return res.status(401).json({ success: false, message: 'Not logged in.' });
-            }
-
-            const [rows] = await mySqlPool.query('SELECT userId FROM announcements WHERE announcementId = ?', [announcementId]);
-            if (!rows.length) {
-                return res.status(404).json({ success: false, message: 'Announcement not found.' });
-            }
-
-            if (Number.parseInt(rows[0].userId, 10) !== userId) {
-                return res.status(403).json({ success: false, message: 'You are not authorized to delete this announcement.' });
-            }
-
-            await mySqlPool.query('DELETE FROM announcements WHERE announcementId = ?', [announcementId]);
-
-            res.status(200).json({ success: true, message: 'Announcement deleted successfully.' });
-        } catch (error) {
-            console.error('Error deleting announcement:', error);
-            res.status(500).json({ success: false, message: 'Failed to delete announcement.' });
-        }
-    };
