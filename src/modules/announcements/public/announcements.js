@@ -39,14 +39,85 @@ document.addEventListener("DOMContentLoaded", async function () {
                     const div = document.createElement('div');
                     div.className = 'announcement-item';
                     div.innerHTML = `
-                        <h3 class="announcement-title" 
-                            data-title="${ann.title.replace(/"/g, '&quot;')}" 
-                            data-meta="Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}" 
-                            data-content="${ann.content.replace(/"/g, '&quot;')}">${ann.title}</h3>
-                        <small style="color: #666;">Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}</small>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                            <div style="flex: 1;">
+                                <h3 class="announcement-title" 
+                                    data-title="${ann.title.replace(/"/g, '&quot;')}" 
+                                    data-meta="Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}" 
+                                    data-content="${ann.content.replace(/"/g, '&quot;')}">${ann.title}</h3>
+                                <small style="color: #666;">Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}</small>
+                            </div>
+                            ${ann.isAuthor ? `
+                                <div class="ann-action-wrapper">
+                                    <button class="ann-action-trigger" aria-label="Announcement actions">⋮</button>
+                                    <div class="ann-action-menu">
+                                        <button class="ann-action-item btn-edit-ann" data-id="${ann.announcementId}">Edit</button>
+                                        <button class="ann-action-item btn-delete-ann" data-id="${ann.announcementId}">Delete</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
                         <p class="announcement-body" style="margin-top: 5px;">${ann.content}</p>
                     `;
                     listContainer.appendChild(div);
+
+                                // Attach edit/delete listeners for this item if the current user is the author
+                                if (ann.isAuthor) {
+                                    const wrapper = div.querySelector('.ann-action-wrapper');
+                                    const trigger = div.querySelector('.ann-action-trigger');
+                                    const menu = div.querySelector('.ann-action-menu');
+                                    const editBtn = div.querySelector('.btn-edit-ann');
+                                    const delBtn = div.querySelector('.btn-delete-ann');
+
+                                    const closeMenu = () => menu.classList.remove('visible');
+                                    const toggleMenu = () => menu.classList.toggle('visible');
+
+                                    trigger.addEventListener('click', (ev) => {
+                                        ev.stopPropagation();
+                                        toggleMenu();
+                                    });
+
+                                    document.addEventListener('click', (ev) => {
+                                        if (!wrapper.contains(ev.target)) {
+                                            closeMenu();
+                                        }
+                                    });
+
+                                    if (editBtn) {
+                                        editBtn.addEventListener('click', (ev) => {
+                                            ev.stopPropagation();
+                                            closeMenu();
+                                            const id = editBtn.getAttribute('data-id');
+                                            document.getElementById('editing-ann-id').value = id;
+                                            document.getElementById('new-ann-title').value = ann.title;
+                                            document.getElementById('new-ann-content').value = ann.content;
+                                            document.getElementById('ann-modal-title').textContent = 'Edit Announcement';
+                                            btnSubmit.textContent = 'Save Changes';
+                                            modal.style.display = 'flex';
+                                        });
+                                    }
+
+                                    if (delBtn) {
+                                        delBtn.addEventListener('click', async (ev) => {
+                                            ev.stopPropagation();
+                                            closeMenu();
+                                            const id = delBtn.getAttribute('data-id');
+                                            if (!confirm('Are you sure you want to delete this announcement?')) return;
+                                            try {
+                                                const resp = await fetch(`/announcements/api/delete/${id}`, { method: 'DELETE' });
+                                                const resData = await resp.json();
+                                                if (resData.success) {
+                                                    fetchAnnouncements();
+                                                } else {
+                                                    alert('Failed to delete announcement: ' + resData.message);
+                                                }
+                                            } catch (err) {
+                                                console.error('Error deleting announcement:', err);
+                                                alert('Failed to delete announcement. See console.');
+                                            }
+                                        });
+                                    }
+                                }
                 });
                 
                 // Attach click listeners to the new titles
@@ -100,6 +171,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             const title = document.getElementById('new-ann-title').value.trim();
             const content = document.getElementById('new-ann-content').value.trim();
+            const editingId = document.getElementById('editing-ann-id').value;
 
             if (!title || !content) {
                 alert("Please fill in both the title and the message.");
@@ -108,23 +180,36 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             try {
                 const payload = { title: title, content: content };
-                
-                const response = await fetch('/announcements/api/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await response.json();
-                
+
+                let response, data;
+                if (editingId) {
+                    // Update existing announcement
+                    response = await fetch(`/announcements/api/update/${editingId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    // Create new announcement
+                    response = await fetch('/announcements/api/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                data = await response.json();
+
                 if (data.success) {
                     modal.style.display = 'none';
                     document.getElementById('new-ann-title').value = '';
                     document.getElementById('new-ann-content').value = '';
-                    
+                    document.getElementById('editing-ann-id').value = '';
+                    document.getElementById('ann-modal-title').textContent = 'Create New Announcement';
+                    btnSubmit.textContent = 'Post Announcement';
                     fetchAnnouncements(); 
                 } else {
-                    alert("Failed to post announcement: " + data.message);
+                    alert("Failed to save announcement: " + data.message);
                 }
             } catch (error) {
                 console.error("Error saving announcement:", error);

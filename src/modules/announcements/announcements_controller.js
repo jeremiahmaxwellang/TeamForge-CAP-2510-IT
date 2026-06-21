@@ -13,6 +13,7 @@ exports.getAllAnnouncements = async (req, res) => {
         const query = `
             SELECT 
                 a.announcementId, 
+                a.userId AS authorId,
                 a.title, 
                 a.content, 
                 a.dateCreated, 
@@ -24,7 +25,12 @@ exports.getAllAnnouncements = async (req, res) => {
         `;
         
         const [rows] = await mySqlPool.query(query);
-        res.status(200).json({ success: true, announcements: rows });
+        const currentUserId = req.cookies && Number.parseInt(req.cookies.userId, 10);
+        const announcements = rows.map(row => ({
+            ...row,
+            isAuthor: Number.isInteger(currentUserId) && currentUserId > 0 && Number.parseInt(row.authorId, 10) === currentUserId
+        }));
+        res.status(200).json({ success: true, announcements });
     } catch (error) {
         console.error('Error fetching announcements:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch announcements.' });
