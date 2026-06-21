@@ -13,6 +13,7 @@ exports.getAllAnnouncements = async (req, res) => {
         const query = `
             SELECT 
                 a.announcementId, 
+                a.userId,
                 a.title, 
                 a.content, 
                 a.dateCreated, 
@@ -22,9 +23,17 @@ exports.getAllAnnouncements = async (req, res) => {
             JOIN users u ON a.userId = u.userId
             ORDER BY a.dateCreated DESC
         `;
-        
+
         const [rows] = await mySqlPool.query(query);
-        res.status(200).json({ success: true, announcements: rows });
+
+        // Determine current user from cookie (if present) and mark ownership
+        const currentUserId = req.cookies && Number.parseInt(req.cookies.userId, 10);
+        const announcements = rows.map(r => ({
+            ...r,
+            isAuthor: Number.isInteger(currentUserId) && currentUserId > 0 && r.userId === currentUserId
+        }));
+
+        res.status(200).json({ success: true, announcements });
     } catch (error) {
         console.error('Error fetching announcements:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch announcements.' });
@@ -136,14 +145,25 @@ exports.updateAnnouncement = async (req, res) => {
     try {
         const announcementId = Number.parseInt(req.params.id, 10);
         const { title, content } = req.body;
-        const userRole = req.cookies && req.cookies.userRole;
+        const currentUserId = req.cookies && Number.parseInt(req.cookies.userId, 10);
 
         if (!Number.isInteger(announcementId) || announcementId <= 0) {
             return res.status(400).json({ success: false, message: 'Invalid announcement id.' });
         }
 
-        if (!['Team Manager', 'Team Coach'].includes(userRole)) {
-            return res.status(403).json({ success: false, message: 'Only team managers and team coaches can edit announcements.' });
+
+        if (!currentUserId) {
+            return res.status(401).json({ success: false, message: 'Not logged in.' });
+        }
+
+        // Ensure the current user is the author
+        const [[existing]] = await mySqlPool.query('SELECT userId FROM announcements WHERE announcementId = ?', [announcementId]);
+        if (!existing) {
+            return res.status(404).json({ success: false, message: 'Announcement not found.' });
+        }
+
+        if (existing.userId !== currentUserId) {
+            return res.status(403).json({ success: false, message: 'Only the author can edit this announcement.' });
         }
 
         if (!title || !content) {
@@ -164,14 +184,24 @@ exports.updateAnnouncement = async (req, res) => {
 exports.deleteAnnouncement = async (req, res) => {
     try {
         const announcementId = Number.parseInt(req.params.id, 10);
-        const userRole = req.cookies && req.cookies.userRole;
+        const currentUserId = req.cookies && Number.parseInt(req.cookies.userId, 10);
 
         if (!Number.isInteger(announcementId) || announcementId <= 0) {
             return res.status(400).json({ success: false, message: 'Invalid announcement id.' });
         }
 
-        if (!['Team Manager', 'Team Coach'].includes(userRole)) {
-            return res.status(403).json({ success: false, message: 'Only team managers and team coaches can delete announcements.' });
+        if (!currentUserId) {
+            return res.status(401).json({ success: false, message: 'Not logged in.' });
+        }
+
+        // Ensure the current user is the author
+        const [[existing]] = await mySqlPool.query('SELECT userId FROM announcements WHERE announcementId = ?', [announcementId]);
+        if (!existing) {
+            return res.status(404).json({ success: false, message: 'Announcement not found.' });
+        }
+
+        if (existing.userId !== currentUserId) {
+            return res.status(403).json({ success: false, message: 'Only the author can delete this announcement.' });
         }
 
         const deleteQuery = `DELETE FROM announcements WHERE announcementId = ?`;

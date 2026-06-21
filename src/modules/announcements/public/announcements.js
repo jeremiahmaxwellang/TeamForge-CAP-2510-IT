@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                                     data-content="${ann.content.replace(/"/g, '&quot;')}">${ann.title}</h3>
                                     <small style="color: #666;">Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}</small>
                                     <p class="announcement-body" style="margin-top: 5px;">${ann.content}</p>
-                                    ${canCreateAnnouncements ? `
+                                    ${ann.isAuthor ? `
                                         <div class="ann-actions" style="margin-top:8px;">
                                             <button class="btn-edit-ann" data-id="${ann.announcementId}">Edit</button>
                                             <button class="btn-delete-ann" data-id="${ann.announcementId}">Delete</button>
@@ -54,8 +54,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                     `;
                     listContainer.appendChild(div);
 
-                                // Attach edit/delete listeners for this item if permitted
-                                if (canCreateAnnouncements) {
+                                // Attach edit/delete listeners for this item if the current user is the author
+                                if (ann.isAuthor) {
                                     const editBtn = div.querySelector('.btn-edit-ann');
                                     const delBtn = div.querySelector('.btn-delete-ann');
 
