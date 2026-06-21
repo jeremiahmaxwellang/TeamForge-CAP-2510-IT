@@ -46,9 +46,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                                     <small style="color: #666;">Posted by ${ann.firstname} ${ann.lastname} on ${formattedDate}</small>
                                     <p class="announcement-body" style="margin-top: 5px;">${ann.content}</p>
                                     ${ann.isAuthor ? `
-                                        <div class="ann-actions" style="margin-top:8px;">
-                                            <button class="btn-edit-ann" data-id="${ann.announcementId}">Edit</button>
-                                            <button class="btn-delete-ann" data-id="${ann.announcementId}">Delete</button>
+                                        <div class="ann-actions" style="margin-top:8px; position: relative;">
+                                            <button class="ann-menu-btn" data-id="${ann.announcementId}" aria-haspopup="true" aria-expanded="false">⋯</button>
+                                            <div class="ann-menu" data-id="${ann.announcementId}" style="display:none; position: absolute; right: 0; top: 28px;">
+                                                <button class="ann-menu-item btn-edit-ann" data-id="${ann.announcementId}">Edit</button>
+                                                <button class="ann-menu-item btn-delete-ann" data-id="${ann.announcementId}">Delete</button>
+                                            </div>
                                         </div>
                                     ` : ''}
                     `;
@@ -56,13 +59,24 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                                 // Attach edit/delete listeners for this item if the current user is the author
                                 if (ann.isAuthor) {
+                                    const menuBtn = div.querySelector('.ann-menu-btn');
+                                    const menu = div.querySelector('.ann-menu');
                                     const editBtn = div.querySelector('.btn-edit-ann');
                                     const delBtn = div.querySelector('.btn-delete-ann');
+
+                                    if (menuBtn && menu) {
+                                        menuBtn.addEventListener('click', (ev) => {
+                                            ev.stopPropagation();
+                                            const isOpen = menu.style.display === 'block';
+                                            // Close any other open menus first
+                                            document.querySelectorAll('.ann-menu').forEach(m => { if (m !== menu) m.style.display = 'none'; });
+                                            menu.style.display = isOpen ? 'none' : 'block';
+                                        });
+                                    }
 
                                     if (editBtn) {
                                         editBtn.addEventListener('click', (ev) => {
                                             ev.stopPropagation();
-                                            // Prefill modal and switch to edit mode
                                             const id = editBtn.getAttribute('data-id');
                                             document.getElementById('editing-ann-id').value = id;
                                             document.getElementById('new-ann-title').value = ann.title;
@@ -70,6 +84,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                                             document.getElementById('ann-modal-title').textContent = 'Edit Announcement';
                                             btnSubmit.textContent = 'Save Changes';
                                             modal.style.display = 'flex';
+                                            // close menu
+                                            if (menu) menu.style.display = 'none';
                                         });
                                     }
 
@@ -200,4 +216,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             document.getElementById('view-announcement-modal').style.display = 'none';
         });
     }
+
+    // Close any open action menus when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.ann-menu').forEach(menu => menu.style.display = 'none');
+    });
 });

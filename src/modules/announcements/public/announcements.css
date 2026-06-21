@@ -245,6 +245,52 @@ body {
     text-overflow: ellipsis;
 }
 
+/* Dropdown menu for announcement actions */
+.ann-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ann-menu-btn {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.ann-menu-btn:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.ann-menu {
+    min-width: 120px;
+    background: white;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    display: none;
+    z-index: 1100;
+    padding: 6px 6px;
+}
+
+.ann-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.ann-menu-item:hover {
+    background: #f4f7fb;
+}
+
 /* --- MODAL STYLES (Inherited from Settings) --- */
 .modal-overlay {
     position: fixed;
