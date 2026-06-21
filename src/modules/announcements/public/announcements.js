@@ -96,7 +96,13 @@ document.addEventListener("DOMContentLoaded", async function () {
                                             if (!confirm('Are you sure you want to delete this announcement?')) return;
                                             try {
                                                 const resp = await fetch(`/announcements/api/delete/${id}`, { method: 'DELETE' });
-                                                const resData = await resp.json();
+                                                    let resData;
+                                                    const contentType = resp.headers.get('Content-Type') || '';
+                                                    if (contentType.includes('application/json')) {
+                                                        resData = await resp.json();
+                                                    } else {
+                                                        throw new Error('Server did not return JSON for delete response.');
+                                                    }
                                                 if (resData.success) {
                                                     fetchAnnouncements();
                                                 } else {
