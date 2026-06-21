@@ -1,0 +1,4 @@
+-- TeamForge Railway DB Version
+-- Change utf8mb3 to utf8mb4: Version 9.4 handles modern character sets natively. Making this change ensures that any special characters or emojis from your players 
+-- (like Discord tags or Riot Game tags) won't cause database errors.
+-- Remove VISIBLE (Optional): It is safely supported, but removing it keeps your code highly portable and clean.
