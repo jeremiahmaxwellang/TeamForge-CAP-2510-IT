@@ -81,12 +81,15 @@
 
     <div id="announcement-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3>Create New Announcement</h3>
+            <h3 id="ann-modal-title">Create New Announcement</h3>
             <label>Title:</label>
             <input type="text" id="new-ann-title" placeholder="Enter announcement title..." required>
 
             <label>Message:</label>
             <textarea id="new-ann-content" placeholder="Type your announcement here..." rows="6" required></textarea>
+
+            <!-- Hidden field used to store editing announcement id (if editing) -->
+            <input type="hidden" id="editing-ann-id" value="">
 
             <div class="modal-actions">
                 <button id="btn-cancel-ann" class="btn-cancel">Cancel</button>

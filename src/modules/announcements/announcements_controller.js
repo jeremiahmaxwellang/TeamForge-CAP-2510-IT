@@ -130,3 +130,56 @@ exports.createAnnouncement = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to post announcement.' });
     }
 };
+
+// 4. Update an existing announcement
+exports.updateAnnouncement = async (req, res) => {
+    try {
+        const announcementId = Number.parseInt(req.params.id, 10);
+        const { title, content } = req.body;
+        const userRole = req.cookies && req.cookies.userRole;
+
+        if (!Number.isInteger(announcementId) || announcementId <= 0) {
+            return res.status(400).json({ success: false, message: 'Invalid announcement id.' });
+        }
+
+        if (!['Team Manager', 'Team Coach'].includes(userRole)) {
+            return res.status(403).json({ success: false, message: 'Only team managers and team coaches can edit announcements.' });
+        }
+
+        if (!title || !content) {
+            return res.status(400).json({ success: false, message: 'Title and content are required.' });
+        }
+
+        const updateQuery = `UPDATE announcements SET title = ?, content = ? WHERE announcementId = ?`;
+        await mySqlPool.query(updateQuery, [title, content, announcementId]);
+
+        res.status(200).json({ success: true, message: 'Announcement updated.' });
+    } catch (error) {
+        console.error('Error updating announcement:', error);
+        res.status(500).json({ success: false, message: 'Failed to update announcement.' });
+    }
+};
+
+// 5. Delete an announcement
+exports.deleteAnnouncement = async (req, res) => {
+    try {
+        const announcementId = Number.parseInt(req.params.id, 10);
+        const userRole = req.cookies && req.cookies.userRole;
+
+        if (!Number.isInteger(announcementId) || announcementId <= 0) {
+            return res.status(400).json({ success: false, message: 'Invalid announcement id.' });
+        }
+
+        if (!['Team Manager', 'Team Coach'].includes(userRole)) {
+            return res.status(403).json({ success: false, message: 'Only team managers and team coaches can delete announcements.' });
+        }
+
+        const deleteQuery = `DELETE FROM announcements WHERE announcementId = ?`;
+        await mySqlPool.query(deleteQuery, [announcementId]);
+
+        res.status(200).json({ success: true, message: 'Announcement deleted.' });
+    } catch (error) {
+        console.error('Error deleting announcement:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete announcement.' });
+    }
+};
