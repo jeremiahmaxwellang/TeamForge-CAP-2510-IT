@@ -11,4 +11,10 @@ router.get('/api/getall', announcementController.getAllAnnouncements);
 // API Route to create a new announcement
 router.post('/api/create', announcementController.createAnnouncement);
 
+// API Route to update an existing announcement
+router.put('/api/update/:id', announcementController.updateAnnouncement);
+
+// API Route to delete an announcement
+router.delete('/api/delete/:id', announcementController.deleteAnnouncement);
+
 module.exports = router;
