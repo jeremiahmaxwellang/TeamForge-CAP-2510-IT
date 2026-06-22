@@ -17,14 +17,14 @@ exports.getAvailability = async (req, res) => {
     try {
         const { date, start, end } = req.query;
 
-        // Fetch active players
+        // Fetch active players (Fixed case-sensitivity for Railway)
         const [players] = await db.query(`
             SELECT u.userId, u.firstname, u.lastname, p.gameName, 
                    r1.displayedRole as primaryRole, r2.displayedRole as secondaryRole
             FROM users u
             JOIN players p ON u.userId = p.userId
-            LEFT JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
-            LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
+            LEFT JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+            LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
             WHERE u.position IN ('Player', 'Sub') AND u.status = 'Active'
         `);
 
