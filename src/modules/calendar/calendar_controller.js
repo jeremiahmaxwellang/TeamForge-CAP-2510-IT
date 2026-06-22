@@ -200,6 +200,7 @@ exports.getEvents = async (req, res) => {
         const [events] = await db.query(`
             SELECT 
                 e.eventId, 
+                e.creator_id,
                 e.title_summary, 
                 e.type, 
                 DATE_FORMAT(e.start_date, '%Y-%m-%d') as start_date, 

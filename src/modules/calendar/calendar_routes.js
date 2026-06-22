@@ -215,6 +215,7 @@ router.get('/api/google-events', async (req, res) => {
         const [savedEvents] = await db.query(`
             SELECT
                 e.eventId,
+                e.creator_id,
                 e.title_summary,
                 e.type,
                 DATE_FORMAT(e.start_date,     '%Y-%m-%d') AS start_date,
