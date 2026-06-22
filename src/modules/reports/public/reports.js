@@ -80,6 +80,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await loadTermDates();
 
+    /* ============================================================
+        STATE VARIABLES 
+       ============================================================ */
+    let allTournamentRows = [];
+    let tournamentResultChart = null;
+    let termCharts = [null, null, null];
+
 
     /* ============================================================
         UTILITY HELPERS

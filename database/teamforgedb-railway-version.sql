@@ -548,13 +548,6 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`academic_terms` (
   PRIMARY KEY (`termId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Insert defaults so the reports don't break on first load
-INSERT INTO `teamforgedb`.`academic_terms` (`termName`, `startDate`, `endDate`) VALUES 
-('Term 1', '2025-05-01', '2025-08-31'),
-('Term 2', '2025-09-01', '2025-12-31'),
-('Term 3', '2026-01-01', '2026-04-30');
-
-
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

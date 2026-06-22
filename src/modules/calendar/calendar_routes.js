@@ -212,7 +212,6 @@ router.get('/api/google-events', async (req, res) => {
         }
 
         // ── 5. Return the now-persisted events in the same shape as /api/events ─
-        // This means the frontend's existing loadEvents() mapping works unchanged.
         const [savedEvents] = await db.query(`
             SELECT
                 e.eventId,
@@ -227,9 +226,11 @@ router.get('/api/google-events', async (req, res) => {
                 e.google_event_id,
                 u.firstname,
                 u.lastname,
-                u.position AS creatorRole
+                u.position AS creatorRole,
+                p.gameName 
             FROM events e
             LEFT JOIN users u ON e.creator_id = u.userId
+            LEFT JOIN players p ON e.creator_id = p.userId
             WHERE e.google_event_id IS NOT NULL
               AND e.start_date BETWEEN ? AND ?
             ORDER BY e.start_date, e.start_datetime
