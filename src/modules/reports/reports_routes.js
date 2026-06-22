@@ -13,6 +13,7 @@ router.get('/applications_total', reports_controller.getApplicationsEachPeriod);
 router.get('/best_performing_applicants', reports_controller.getBestPerformingApplicants);
 router.get('/best_communication_applicants', reports_controller.getBestCommunicationApplicants);
 router.get('/tournament_results', reports_controller.getTournamentResultsReport); // changed to cap2 events table
+router.get('/term_dates', reports_controller.getTermDates);
 
 // Reports
 router.get('/', (req, res) => {

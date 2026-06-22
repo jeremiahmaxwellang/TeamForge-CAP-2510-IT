@@ -17,13 +17,14 @@ exports.getAvailability = async (req, res) => {
     try {
         const { date, start, end } = req.query;
 
+        // Fetch active players
         const [players] = await db.query(`
             SELECT u.userId, u.firstname, u.lastname, p.gameName, 
                    r1.displayedRole as primaryRole, r2.displayedRole as secondaryRole
             FROM users u
             JOIN players p ON u.userId = p.userId
-            LEFT JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
-            LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
+            LEFT JOIN leagueRoles r1 ON p.primaryRoleId = r1.roleId
+            LEFT JOIN leagueRoles r2 ON p.secondaryRoleId = r2.roleId
             WHERE u.position IN ('Player', 'Sub') AND u.status = 'Active'
         `);
 
@@ -34,16 +35,26 @@ exports.getAvailability = async (req, res) => {
 
         const inputStart = new Date(`${date}T${start}`);
         const inputEnd = new Date(`${date}T${end}`);
-        const bufferStart = new Date(inputStart.getTime() - 60 * 60 * 1000); 
-        const bufferEnd = new Date(inputEnd.getTime() + 60 * 60 * 1000);   
+        const bufferStart = new Date(inputStart.getTime() - 60 * 60 * 1000); // 1 hour before
+        const bufferEnd = new Date(inputEnd.getTime() + 60 * 60 * 1000);   // 1 hour after
 
+        // NEW: Query existing event_attendees (Team Events) AND personal events (Google Imports)
         const [events] = await db.query(`
             SELECT ea.userId, e.start_datetime, e.end_datetime
             FROM event_attendees ea
             JOIN events e ON ea.eventId = e.eventId
             WHERE DATE(e.start_datetime) = ? OR DATE(e.end_datetime) = ?
-        `, [date, date]);
+            
+            UNION ALL
+            
+            SELECT e.creator_id AS userId, e.start_datetime, e.end_datetime
+            FROM events e
+            WHERE (DATE(e.start_datetime) = ? OR DATE(e.end_datetime) = ?)
+              AND e.creator_id IS NOT NULL 
+              AND e.type = 'Other'
+        `, [date, date, date, date]);
 
+        // Calculate availability
         const playersWithAvailability = players.map(player => {
             let status = 'Available';
             const playerEvents = events.filter(e => e.userId === player.userId);
@@ -52,10 +63,12 @@ exports.getAvailability = async (req, res) => {
                 const eventStart = new Date(e.start_datetime);
                 const eventEnd = new Date(e.end_datetime);
 
+                // Unavailable: Direct Overlap
                 if (eventStart < inputEnd && eventEnd > inputStart) {
                     status = 'Unavailable';
-                    break; 
+                    break; // Overrides all
                 } 
+                // Semi-available: within 1 hour before or after
                 else if (eventStart < bufferEnd && eventEnd > bufferStart) {
                     status = 'Semi';
                 }
@@ -187,6 +200,7 @@ exports.getEvents = async (req, res) => {
         const [events] = await db.query(`
             SELECT 
                 e.eventId, 
+                e.creator_id,
                 e.title_summary, 
                 e.type, 
                 DATE_FORMAT(e.start_date, '%Y-%m-%d') as start_date, 
@@ -198,9 +212,11 @@ exports.getEvents = async (req, res) => {
                 u.firstname,
                 u.lastname,
                 u.position AS creatorRole,
-                e.google_event_id
+                e.google_event_id,
+                p.gameName 
             FROM events e
             LEFT JOIN users u ON e.creator_id = u.userId
+            LEFT JOIN players p ON e.creator_id = p.userId
         `);
         
         res.json({ success: true, events });

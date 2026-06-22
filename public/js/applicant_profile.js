@@ -244,6 +244,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     state.currentApplicant = applicant;
     state.currentIndex = index;
 
+    // Reset the VOD box when loading a new profile
+    if (document.getElementById('vod-link-input')) {
+        document.getElementById('vod-link-input').value = '';
+        document.getElementById('vod-link-input').dispatchEvent(new Event('input')); 
+    }
+
     const newUrl = `${window.location.pathname}?id=${applicant.userId}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
 
@@ -717,6 +723,56 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     UI.btnPrev.addEventListener('click', () => loadProfile(state.currentIndex > 0 ? state.currentIndex - 1 : state.allApplicants.length - 1));
     UI.btnNext.addEventListener('click', () => loadProfile(state.currentIndex < state.allApplicants.length - 1 ? state.currentIndex + 1 : 0));
+
+    // ==========================================
+    // YOUTUBE VOD EMBEDDER
+    // ==========================================
+    const vodInput = document.getElementById('vod-link-input');
+    const vodBox = document.getElementById('vod-box');
+
+    if (vodInput && vodBox) {
+      vodInput.addEventListener('input', function () {
+        const url = this.value.trim();
+        
+        // If the input is cleared, restore the original placeholder
+        if (!url) {
+          vodBox.innerHTML = `
+            <div style="text-align:center;" id="vod-placeholder">
+                <i class="fas fa-play-circle" style="font-size: 50px; margin-bottom:15px;"></i>
+                <br>VOD SUBMISSION
+            </div>
+          `;
+          return;
+        }
+
+        // Regex to extract the 11-character YouTube Video ID from various URL formats
+        const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        const match = url.match(ytRegex);
+
+        if (match && match[1]) {
+          const videoId = match[1];
+          // Inject the embedded iframe
+          vodBox.innerHTML = `
+            <iframe width="100%" height="100%" 
+                src="https://www.youtube.com/embed/${videoId}" 
+                title="YouTube VOD" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                style="border-radius: 15px;">
+            </iframe>
+          `;
+        } else {
+          // Fallback for invalid links
+          vodBox.innerHTML = `
+            <div style="text-align:center; color: #ff9aa6;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 50px; margin-bottom:15px;"></i>
+                <br>Invalid YouTube Link
+            </div>
+          `;
+        }
+      });
+    }
 
     // ==========================================
     // FETCH AND STORE MATCH STATISTICS

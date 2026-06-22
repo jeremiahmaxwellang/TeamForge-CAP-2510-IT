@@ -317,10 +317,14 @@
                                     <textarea id="ans-goals" readonly placeholder="No answer provided."></textarea>
                                 </div>
                             </div>
-                            <div class="vod-box">
-                                <div style="text-align:center;">
-                                    <i class="fas fa-play-circle" style="font-size: 50px; margin-bottom:15px;"></i>
-                                    <br>VOD SUBMISSION
+                            <div class="vod-container" style="display: flex; flex-direction: column; gap: 12px; position: sticky; top: 20px;">
+                                <input type="text" id="vod-link-input" placeholder="Paste YouTube VOD Link here..." style="width: 100%; padding: 12px; border: 1px solid #4f545c; border-radius: 8px; background: #36393f; color: var(--porcelain); font-family: inherit;">
+                                
+                                <div class="vod-box" id="vod-box" style="position: relative; top: 0;">
+                                    <div style="text-align:center;" id="vod-placeholder">
+                                        <i class="fas fa-play-circle" style="font-size: 50px; margin-bottom:15px;"></i>
+                                        <br>VOD SUBMISSION
+                                    </div>
                                 </div>
                             </div>
                         </div>

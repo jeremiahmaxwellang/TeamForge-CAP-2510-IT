@@ -273,3 +273,41 @@ exports.getTournamentResultsReport = async (req, res) => {
         });
     }
 };
+
+// Fetch Term Dates
+exports.getTermDates = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT termName, DATE_FORMAT(startDate, "%Y-%m-%d") as start, DATE_FORMAT(endDate, "%Y-%m-%d") as end FROM academic_terms ORDER BY termId ASC');
+        
+        // If the table is empty, provide defaults
+        if (rows.length === 0) {
+            return res.json({
+                success: true,
+                termDateRanges: {
+                    'Term 1': { start: '2025-05-01', end: '2025-08-31' },
+                    'Term 2': { start: '2025-09-01', end: '2025-12-31' },
+                    'Term 3': { start: '2026-01-01', end: '2026-04-30' }
+                }
+            });
+        }
+
+        // Map database rows into the format the frontend expects
+        const termDateRanges = {};
+        rows.forEach(row => {
+            termDateRanges[row.termName] = { start: row.start, end: row.end };
+        });
+
+        res.json({ success: true, termDateRanges });
+    } catch (err) {
+        console.error('Error fetching term dates:', err);
+        // Fallback to defaults if the table doesn't exist yet
+        res.json({
+            success: true,
+            termDateRanges: {
+                'Term 1': { start: '2025-05-01', end: '2025-08-31' },
+                'Term 2': { start: '2025-09-01', end: '2025-12-31' },
+                'Term 3': { start: '2026-01-01', end: '2026-04-30' }
+            }
+        });
+    }
+};

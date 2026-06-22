@@ -51,40 +51,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     /* ============================================================
-        CONSTANTS
+        CONSTANTS & TERM DATES
        ============================================================ */
     const tournamentResultColors = {
         Wins:   '#128b0d',
         Losses: '#841a14'
     };
 
-    const defaultTermDateRanges = {
+    // Default values until the database loads
+    let termDateRanges = {
         'Term 1': { start: '2025-05-01', end: '2025-08-31' },
         'Term 2': { start: '2025-09-01', end: '2025-12-31' },
         'Term 3': { start: '2026-01-01', end: '2026-04-30' }
     };
 
-    const configuredTermDateRanges =
-        window.TeamForgeReportsConfig && window.TeamForgeReportsConfig.termDateRanges;
+    // Dynamically fetch term dates from the database
+    const loadTermDates = async () => {
+        try {
+            const res = await fetch('/reports/term_dates');
+            const data = await res.json();
+            if (data.success && data.termDateRanges) {
+                termDateRanges = data.termDateRanges;
+            }
+        } catch (err) {
+            console.warn('[Reports] Could not load term dates from database:', err);
+        }
+    };
 
-    const hasValidConfiguredTerms = configuredTermDateRanges
-        && typeof configuredTermDateRanges === 'object'
-        && ['Term 1', 'Term 2', 'Term 3'].every((term) => {
-            const entry = configuredTermDateRanges[term];
-            return entry && typeof entry.start === 'string' && typeof entry.end === 'string';
-        });
-
-    const termDateRanges = hasValidConfiguredTerms
-        ? configuredTermDateRanges
-        : defaultTermDateRanges;
-
+    await loadTermDates();
 
     /* ============================================================
-        STATE
+        STATE VARIABLES 
        ============================================================ */
-    let allTournamentRows    = [];
+    let allTournamentRows = [];
     let tournamentResultChart = null;
-    const termCharts          = [null, null, null];
+    let termCharts = [null, null, null];
 
 
     /* ============================================================
@@ -737,11 +738,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             const data = await res.json();
             if (!data.success) throw new Error('Failed to fetch report data');
 
+            // --- NEW SAFETY CHECK: Prevent downloading blank PDFs ---
+            if (!data.applicants || data.applicants.length === 0) {
+                alert('No applicant data available. Please ensure applicants have been evaluated in the database first.');
+                return;
+            }
+
             // Group applicants by role
             const byRole = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+            let foundRoles = false;
+
             data.applicants.forEach((app) => {
-                if (byRole[app.roleId]) byRole[app.roleId].push(app);
+                // Fallback in case the Railway DB column is mapped as primaryRoleId instead of roleId
+                const rId = app.roleId || app.primaryRoleId || app.role_id;
+                if (byRole[rId]) {
+                    byRole[rId].push(app);
+                    foundRoles = true;
+                }
             });
+
+            if (!foundRoles) {
+                alert('Applicant data exists, but no valid roles were found to generate the tables.');
+                return;
+            }
+            // --------------------------------------------------------
 
             const { jsPDF } = window.jspdf;
             const doc       = new jsPDF();
@@ -760,23 +780,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Sort by hierarchical metrics descending
                 roleApps.sort((a, b) => {
                     for (const m of metrics) {
-                        const diff = (Number(b.stats[m.key]) || 0) - (Number(a.stats[m.key]) || 0);
+                        const statsA = a.stats || {};
+                        const statsB = b.stats || {};
+                        const diff = (Number(statsB[m.key]) || 0) - (Number(statsA[m.key]) || 0);
                         if (diff !== 0) return diff;
                     }
                     return 0;
                 });
 
                 const head = [['Rank', 'Riot ID', ...metrics.map((m) => m.label)]];
-                const body = roleApps.map((app, idx) => [
-                    `#${idx + 1}`,
-                    app.riotId,
-                    ...metrics.map((m) => {
-                        const val = Number(app.stats[m.key] || 0);
-                        if (m.key.includes('Share') || m.key.includes('Participation')) return `${val.toFixed(1)}%`;
-                        if (m.key === 'averageTotalDamageTaken') return val.toLocaleString();
-                        return val.toFixed(2);
-                    })
-                ]);
+                const body = roleApps.map((app, idx) => {
+                    const stats = app.stats || {}; // Extra safety against missing stats object
+                    return [
+                        `#${idx + 1}`,
+                        app.riotId || 'Unknown',
+                        ...metrics.map((m) => {
+                            const val = Number(stats[m.key] || 0);
+                            if (m.key.includes('Share') || m.key.includes('Participation')) return `${val.toFixed(1)}%`;
+                            if (m.key === 'averageTotalDamageTaken') return val.toLocaleString();
+                            return val.toFixed(2);
+                        })
+                    ];
+                });
 
                 doc.setFontSize(12);
                 doc.setTextColor(0, 0, 0);

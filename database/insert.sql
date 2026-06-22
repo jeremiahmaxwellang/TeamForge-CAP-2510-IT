@@ -1034,3 +1034,8 @@ VALUES
 (57, 6, 5, 'Present', 'N', 'Team 1'),
 (57, 9, 2, 'Excused', 'Y', 'Sub'),
 (57, 17, 5, 'Excused', 'Y', 'Sub');
+
+INSERT INTO `teamforgedb`.`academic_terms` (`termName`, `startDate`, `endDate`) VALUES 
+('Term 1', '2025-05-01', '2025-08-31'),
+('Term 2', '2025-09-01', '2025-12-31'),
+('Term 3', '2026-01-01', '2026-04-30');
