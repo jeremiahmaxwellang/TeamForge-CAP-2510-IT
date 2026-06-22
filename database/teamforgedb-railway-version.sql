@@ -72,8 +72,9 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`announcements` (
   `content` LONGTEXT NULL DEFAULT NULL,
   `dateCreated` TIMESTAMP NULL DEFAULT NULL,
   `discordMessageId` LONGTEXT NULL,
+  `emailMessageId` VARCHAR(255) NULL,
   PRIMARY KEY (`announcementId`, `userId`),
-  INDEX `fk_announcements_users1_idx` (`userId` ASC) ,
+  INDEX `fk_announcements_users1_idx` (`userId` ASC),
   CONSTRAINT `fk_announcements_users1`
     FOREIGN KEY (`userId`)
     REFERENCES `teamforgedb`.`users` (`userId`))
@@ -535,6 +536,23 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `teamforgedb`.`academic_terms`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teamforgedb`.`academic_terms` (
+  `termId` INT NOT NULL AUTO_INCREMENT,
+  `termName` VARCHAR(50) NOT NULL,
+  `startDate` DATE NOT NULL,
+  `endDate` DATE NOT NULL,
+  PRIMARY KEY (`termId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insert defaults so the reports don't break on first load
+INSERT INTO `teamforgedb`.`academic_terms` (`termName`, `startDate`, `endDate`) VALUES 
+('Term 1', '2025-05-01', '2025-08-31'),
+('Term 2', '2025-09-01', '2025-12-31'),
+('Term 3', '2026-01-01', '2026-04-30');
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

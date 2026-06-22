@@ -215,20 +215,24 @@ router.get('/api/google-events', async (req, res) => {
         // This means the frontend's existing loadEvents() mapping works unchanged.
         const [savedEvents] = await db.query(`
             SELECT
-                eventId,
-                title_summary,
-                type,
-                DATE_FORMAT(start_date,     '%Y-%m-%d') AS start_date,
-                DATE_FORMAT(start_datetime, '%H:%i')    AS start_time,
-                DATE_FORMAT(end_datetime,   '%H:%i')    AS end_time,
-                location,
-                videoLink,
-                win,
-                google_event_id
-            FROM events
-            WHERE google_event_id IS NOT NULL
-              AND start_date BETWEEN ? AND ?
-            ORDER BY start_date, start_datetime
+                e.eventId,
+                e.title_summary,
+                e.type,
+                DATE_FORMAT(e.start_date,     '%Y-%m-%d') AS start_date,
+                DATE_FORMAT(e.start_datetime, '%H:%i')    AS start_time,
+                DATE_FORMAT(e.end_datetime,   '%H:%i')    AS end_time,
+                e.location,
+                e.videoLink,
+                e.win,
+                e.google_event_id,
+                u.firstname,
+                u.lastname,
+                u.position AS creatorRole
+            FROM events e
+            LEFT JOIN users u ON e.creator_id = u.userId
+            WHERE e.google_event_id IS NOT NULL
+              AND e.start_date BETWEEN ? AND ?
+            ORDER BY e.start_date, e.start_datetime
         `, [
             timeMin.toISOString().substring(0, 10),
             timeMax.toISOString().substring(0, 10)
