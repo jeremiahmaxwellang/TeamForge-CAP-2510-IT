@@ -273,7 +273,9 @@ exports.rejectApplicant = async (req, res) => {
         }
 
         const updateQuery = `UPDATE applications SET status = 'Rejected' WHERE userId = ?`;
-        const [result] = await db.query(updateQuery, [applicantId]);
+        
+        // Changed db.query to mySqlPool.query
+        const [result] = await mySqlPool.query(updateQuery, [applicantId]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Applicant not found or already processed.' });
