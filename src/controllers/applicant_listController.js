@@ -111,19 +111,26 @@ exports.getApplicantByEmail = async (req, res) => {
     }
 };
 
+
+// Get Team Details
+async function getTeamName() {
+    const [rows] = await mySqlPool.query('SELECT teamName FROM teamdetails LIMIT 1');
+    return rows.length ? rows[0].teamName : '';
+}
+
 // Save Coach Evaluation (Ratings, Notes, and Status)
 exports.saveEvaluation = async (req, res) => {
     // We use a transaction so if one query fails, it cancels both to prevent corrupted data
     const connection = await mySqlPool.getConnection();
-    
+
     try {
-        const { 
-            userId, 
-            notes, 
-            gameSense, 
-            communication, 
-            champPool, 
-            status 
+        const {
+            userId,
+            notes,
+            gameSense,
+            communication,
+            champPool,
+            status
         } = req.body;
 
         const coachId = req.cookies && req.cookies.userId;
@@ -182,13 +189,15 @@ exports.saveEvaluation = async (req, res) => {
         await connection.commit();
 
         // AUTOMATED EMAIL LOGIC 
+        const teamName = await getTeamName();
+
         try {
             // 1. Fetch the applicant's name and email
             const [userRows] = await connection.query('SELECT firstname, email FROM users WHERE userId = ?', [userId]);
-            
+
             if (userRows.length > 0) {
                 const user = userRows[0];
-                
+
                 // 2. Set up the email sender
                 const transporter = nodemailer.createTransport({
                     service: 'gmail',
@@ -203,11 +212,11 @@ exports.saveEvaluation = async (req, res) => {
                 let text = '';
 
                 if (status === 'Accepted') {
-                    subject = 'Congratulations! Welcome to Viridis Arcus';
-                    text = `Hi ${user.firstname},\n\nGreat news! The coaching staff has reviewed your application and you have been accepted into Viridis Arcus.\n\nPlease log in to your dashboard to claim your roster spot and view your new team access.\n\nWelcome to the team!\n- TeamForge Management`;
+                    subject = `Congratulations! Welcome to ${teamName}`;
+                    text = `Hi ${user.firstname},\n\nGreat news! The coaching staff has reviewed your application and you have been accepted into ${teamName}.\n\nPlease log in to your dashboard to claim your roster spot and view your new team access.\n\nWelcome to the team!\n- TeamForge Management`;
                 } else if (status === 'Rejected') {
-                    subject = 'Viridis Arcus Application Update';
-                    text = `Hi ${user.firstname},\n\nThank you for applying to Viridis Arcus. We appreciate the time you took to share your stats and gameplay with us.\n\nUnfortunately, we have decided to move forward with other candidates who better fit our current roster needs at this time. We wish you the best of luck in your future matches.\n\n- TeamForge Management`;
+                    subject = `${teamName} Application Update`;
+                    text = `Hi ${user.firstname},\n\nThank you for applying to ${teamName}. We appreciate the time you took to share your stats and gameplay with us.\n\nUnfortunately, we have decided to move forward with other candidates who better fit our current roster needs at this time. We wish you the best of luck in your future matches.\n\n- TeamForge Management`;
                 }
 
                 // 4. Send the email
@@ -226,7 +235,7 @@ exports.saveEvaluation = async (req, res) => {
             // since the database update was already successful!
             console.error('[Email System] Failed to send email:', emailError);
         }
-        
+
         res.status(200).json({ success: true, message: 'Evaluation securely saved!' });
     } catch (error) {
         await connection.rollback();
@@ -267,13 +276,13 @@ exports.claimRosterSpot = async (req, res) => {
 exports.rejectApplicant = async (req, res) => {
     try {
         const { applicantId } = req.body;
-        
+
         if (!applicantId) {
             return res.status(400).json({ success: false, message: 'Applicant ID is required.' });
         }
 
         const updateQuery = `UPDATE applications SET status = 'Rejected' WHERE userId = ?`;
-        
+
         // Changed db.query to mySqlPool.query
         const [result] = await mySqlPool.query(updateQuery, [applicantId]);
 
@@ -345,7 +354,7 @@ exports.getReportData = async (req, res) => {
               AND a.status = 'Pending'
         `;
         const [rows] = await mySqlPool.query(query);
-        
+
         // Group the flat SQL rows into structured objects per applicant
         const applicantsMap = {};
         rows.forEach(row => {
@@ -361,7 +370,7 @@ exports.getReportData = async (req, res) => {
                 applicantsMap[row.userId].stats[row.metricName] = row.metricValue;
             }
         });
-        
+
         res.json({ success: true, applicants: Object.values(applicantsMap) });
     } catch (error) {
         console.error("Error fetching report data:", error);
