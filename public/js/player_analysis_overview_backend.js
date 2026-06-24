@@ -507,6 +507,7 @@
         throw err;
       });
   }
+
   // Fetch recent matches from database (cached data)
   function fetchRecentMatchesFromDatabase(puuid, queueId, teamPosition = null) {
     console.log(`[FETCH MATCHES DB] Starting database fetch for PUUID: ${puuid}, Queue: ${queueId}, TeamPosition: ${teamPosition || "all"}`);
@@ -591,7 +592,8 @@
         throw err;
       });
   }
-  // Load one player’s details into the main page + triggers data fetches
+
+  // Load one player's details into the main page + triggers data fetches
   function loadPlayer(playerId) {
     console.log(`[LOAD PLAYER] Loading player: ${playerId}`);
 
@@ -609,15 +611,15 @@
           if (btn) {
             btn.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
             btn.setAttribute("data-player-id", player.userId);
-              btn.setAttribute("data-puuid", puuid);
+            btn.setAttribute("data-puuid", puuid);
 
-              // store primary role id so frontend can send role context when storing metrics
-              if (player.primaryRoleId) btn.setAttribute("data-primary-role-id", player.primaryRoleId);
-              if (player.secondaryRoleId) btn.setAttribute("data-secondary-role-id", player.secondaryRoleId);
-              if (player.riotTeamPosition1) btn.setAttribute("data-primary-team-position", player.riotTeamPosition1);
-              if (player.riotTeamPosition2) btn.setAttribute("data-secondary-team-position", player.riotTeamPosition2);
-              if (player.primaryRole) btn.setAttribute("data-primary-role-name", player.primaryRole);
-              if (player.secondaryRole) btn.setAttribute("data-secondary-role-name", player.secondaryRole);
+            // store primary role id so frontend can send role context when storing metrics
+            if (player.primaryRoleId) btn.setAttribute("data-primary-role-id", player.primaryRoleId);
+            if (player.secondaryRoleId) btn.setAttribute("data-secondary-role-id", player.secondaryRoleId);
+            if (player.riotTeamPosition1) btn.setAttribute("data-primary-team-position", player.riotTeamPosition1);
+            if (player.riotTeamPosition2) btn.setAttribute("data-secondary-team-position", player.riotTeamPosition2);
+            if (player.primaryRole) btn.setAttribute("data-primary-role-name", player.primaryRole);
+            if (player.secondaryRole) btn.setAttribute("data-secondary-role-name", player.secondaryRole);
           }
 
           const profileImg = document.querySelector('.profile-img');
@@ -642,6 +644,41 @@
               primaryRoleId: player.primaryRoleId || null
             }
           }));
+
+          // -----------------------------------------------
+          // CANDIDATE FAVORITE: Populate role dropdown
+          // -----------------------------------------------
+          const roleSelect = document.getElementById("candidateFavoriteRoleSelect");
+          if (roleSelect) {
+            roleSelect.innerHTML = `<option value="" disabled selected>Select role</option>`;
+
+            if (player.primaryRoleId && player.primaryRole) {
+              const opt = document.createElement("option");
+              opt.value = player.primaryRoleId;
+              opt.textContent = player.primaryRole;
+              roleSelect.appendChild(opt);
+            }
+
+            if (
+              player.secondaryRoleId &&
+              player.secondaryRole &&
+              player.secondaryRoleId !== player.primaryRoleId
+            ) {
+              const opt = document.createElement("option");
+              opt.value = player.secondaryRoleId;
+              opt.textContent = player.secondaryRole;
+              roleSelect.appendChild(opt);
+            }
+          }
+
+          // Reset star and message on player change
+          const favBtn = document.getElementById("candidateFavoriteBtn");
+          const favMsg = document.getElementById("candidateFavoriteMessage");
+          if (favBtn) {
+            favBtn.textContent = "☆";
+            favBtn.setAttribute("aria-pressed", "false");
+          }
+          if (favMsg) favMsg.textContent = "Pick up to 2 candidates per role.";
         };
 
         // Helper to trigger all data fetches once PUUID is known
@@ -754,6 +791,83 @@
   // MAIN PAGE: populate dropdown
   // -----------------------------
   document.addEventListener("DOMContentLoaded", function () {
+
+    // -----------------------------------------------
+    // CANDIDATE FAVORITE: star button + role select
+    // -----------------------------------------------
+    const roleSelect = document.getElementById("candidateFavoriteRoleSelect");
+    const favBtn = document.getElementById("candidateFavoriteBtn");
+    const favMsg = document.getElementById("candidateFavoriteMessage");
+
+    function updateFavoriteStar(roleId) {
+      const playerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+      if (!playerId || !roleId) return;
+
+      fetch(`/player_analysis/candidate-favorites/${roleId}`)
+        .then(res => res.json())
+        .then(data => {
+          const isFav = data.favorites?.some(f => String(f.userId) === String(playerId));
+          if (favBtn) {
+            favBtn.textContent = isFav ? "★" : "☆";
+            favBtn.setAttribute("aria-pressed", isFav ? "true" : "false");
+          }
+          if (favMsg) {
+            favMsg.textContent = `${data.count ?? 0} / 2 candidates selected for this role.`;
+          }
+        })
+        .catch(err => console.error("[CANDIDATE FAV] Error checking favorite status:", err));
+    }
+
+    if (roleSelect) {
+      roleSelect.addEventListener("change", function () {
+        updateFavoriteStar(this.value);
+      });
+    }
+
+    if (favBtn) {
+      favBtn.addEventListener("click", function () {
+        const playerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+        const roleId = roleSelect?.value;
+
+        if (!roleId) {
+          if (favMsg) favMsg.textContent = "Please select a role first.";
+          return;
+        }
+
+        if (!playerId) {
+          if (favMsg) favMsg.textContent = "No player selected.";
+          return;
+        }
+
+        fetch("/player_analysis/candidate-favorites/toggle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            candidateUserId: Number(playerId),
+            roleId: Number(roleId)
+          })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              const isNowFav = data.action === "added";
+              favBtn.textContent = isNowFav ? "★" : "☆";
+              favBtn.setAttribute("aria-pressed", isNowFav ? "true" : "false");
+              if (favMsg) favMsg.textContent = `${data.count} / 2 candidates selected for this role.`;
+            } else {
+              if (favMsg) favMsg.textContent = data.error || "Could not update favorite.";
+            }
+          })
+          .catch(err => {
+            console.error("[CANDIDATE FAV] Error toggling favorite:", err);
+            if (favMsg) favMsg.textContent = "Error updating favorite. Try again.";
+          });
+      });
+    }
+
+    // -----------------------------------------------
+    // PLAYER DROPDOWN: load players list
+    // -----------------------------------------------
     fetch("/player_analysis/players")
       .then((res) => res.json())
       .then((players) => {
@@ -770,21 +884,21 @@
         });
 
         if (players.length > 0) {
-            // NEW: Check if a specific player ID was passed in the URL from the Dashboard
-            const urlParams = new URLSearchParams(window.location.search);
-            const targetId = urlParams.get('id');
-            
-            let selectedUserId = players[0].userId; // Default to first player
-            
-            if (targetId) {
-                // Try to find the matching player
-                const match = players.find(p => p.userId == targetId);
-                if (match) {
-                    selectedUserId = match.userId;
-                }
+          // NEW: Check if a specific player ID was passed in the URL from the Dashboard
+          const urlParams = new URLSearchParams(window.location.search);
+          const targetId = urlParams.get('id');
+
+          let selectedUserId = players[0].userId; // Default to first player
+
+          if (targetId) {
+            // Try to find the matching player
+            const match = players.find(p => p.userId == targetId);
+            if (match) {
+              selectedUserId = match.userId;
             }
-            
-            loadPlayer(selectedUserId);
+          }
+
+          loadPlayer(selectedUserId);
         }
       })
       .catch((err) => console.error("[LOAD PLAYERS] ✗ Error loading player list:", err));
