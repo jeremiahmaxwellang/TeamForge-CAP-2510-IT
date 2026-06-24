@@ -2,7 +2,7 @@ USE teamforgedb;
 
 -- Team Details
 INSERT INTO teamdetails(teamName, teamIcon, schoolName, schoolIcon)
-VALUES ('My Team', 'VA_logo.png', 'Ateneo De Manila University', 'dlsu_logo.png');
+VALUES ('My Team', 'VA_logo.png', 'My University', 'dlsu_logo.png');
 
 -- League Roles
 INSERT INTO leagueroles(roleId, displayedRole, role, teamPosition)
@@ -55,7 +55,45 @@ VALUES
     'Team Coach',
     'AgentDuelly#agentduelly',
     'Active'
-);
+),
+(
+    37,
+    'coach1@test.com',
+    'teamForge123!!',
+    'Coach',
+    'One',
+    'Team Coach',
+    'coach#1',
+    'Active'),
+    
+(
+    38,
+    'coach2@test.com',
+    'teamForge123!!',
+    'Coach',
+    'Two',
+    'Team Coach',
+    'coach#2',
+    'Active'),
+(
+    39,
+    'coach3@test.com',
+    'teamForge123!!',
+    'Coach',
+    'Three',
+    'Team Coach',
+    'coach#3',
+    'Active'),
+(
+    40,
+    'coach4@test.com',
+    'teamForge123!!',
+    'Coach',
+    'Four',
+    'Team Coach',
+    'coach#4',
+    'Active')
+    ;
 
 -- Players
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
@@ -346,7 +384,7 @@ VALUES
 INSERT INTO application_periods (periodId, startDate, endDate) VALUES
 (1, '2025-09-01', '2025-09-13'),
 (2, '2026-01-26', '2026-02-07'),
-(3, '2026-03-21', '2026-04-04'); -- period 3
+(3, '2026-05-04', '2026-08-15'); -- period 3
 
 -- -----------------------------------------------------
 -- APPLICANTS (Bad)
