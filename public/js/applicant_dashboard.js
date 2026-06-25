@@ -12,7 +12,7 @@ async function loadApplicantDashboard() {
     try {
         // Get user info from localStorage/sessionStorage if available
         const userInfo = JSON.parse(localStorage.getItem('user')) || JSON.parse(sessionStorage.getItem('user'));
-        
+
         if (!userInfo || !userInfo.email) {
             showError('User information not found. Please login again.');
             setTimeout(() => {
@@ -31,16 +31,16 @@ async function loadApplicantDashboard() {
 
 
         const text = await response.text();
-console.log('Raw response:', text);  // See what the server actually returned
+        // console.log('Raw response:', text);  // See what the server actually returned
 
-const data = JSON.parse(text); // Then parse manually
-        
+        const data = JSON.parse(text); // Then parse manually
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         // const data = await response.json();
-        
+
         if (data.success && data.applicant) {
             displayApplicantDetails(data.applicant);
         } else {
@@ -57,7 +57,7 @@ function displayApplicantDetails(applicant) {
     const loadingDiv = document.getElementById('loading');
     const contentDiv = document.getElementById('content');
     const detailsBody = document.getElementById('applicantDetailsBody');
-    
+
     loadingDiv.style.display = 'none';
 
     // Update the top status badge 
@@ -65,9 +65,9 @@ function displayApplicantDetails(applicant) {
     if (topBadge) {
         const currentStatus = applicant.applicationStatus || 'Pending';
         topBadge.textContent = currentStatus;
-        
+
         // Reset base styles
-        topBadge.style.backgroundColor = ''; 
+        topBadge.style.backgroundColor = '';
         topBadge.style.color = '';
 
         // Apply colors based on status
@@ -85,7 +85,7 @@ function displayApplicantDetails(applicant) {
             topBadge.style.color = '#856404';
         }
     }
-    
+
     const details = [
         { field: 'First Name', value: escapeHtml(applicant.firstname) },
         { field: 'Last Name', value: escapeHtml(applicant.lastname) },
@@ -99,14 +99,14 @@ function displayApplicantDetails(applicant) {
         { field: 'Year Level', value: escapeHtml(applicant.yearLevel) },
         { field: 'Application Status', value: `<strong>${escapeHtml(applicant.applicationStatus || 'Pending')}</strong>` }
     ];
-    
+
     detailsBody.innerHTML = details.map(detail => `
         <tr>
             <td><strong>${detail.field}</strong></td>
             <td>${detail.value}</td>
         </tr>
     `).join('');
-    
+
     contentDiv.style.display = 'block';
 }
 
@@ -114,7 +114,7 @@ function displayApplicantDetails(applicant) {
 function showError(message) {
     const loadingDiv = document.getElementById('loading');
     const errorDiv = document.getElementById('error');
-    
+
     loadingDiv.style.display = 'none';
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
@@ -145,10 +145,10 @@ if (btnClaimSpot) {
         try {
             const response = await fetch('/claim_spot', { method: 'POST' });
             const result = await response.json();
-            
+
             if (result.success) {
                 // Success! Redirect them to their new player profile
-                window.location.href = result.redirect; 
+                window.location.href = result.redirect;
             } else {
                 alert("Error: " + result.message);
                 btnClaimSpot.textContent = "Claim Roster Spot & View Player Profile";

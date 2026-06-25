@@ -24,7 +24,7 @@ exports.getCurrentPlayers = async (req, res) => {
             FROM users u
             JOIN players p ON u.userId = p.userId
             JOIN leagueroles l ON p.primaryRoleId = l.roleId
-            WHERE u.position = 'Player'
+            WHERE u.position = 'Player' AND status = 'Active'
             GROUP BY l.roleId, l.displayedRole
             ORDER BY l.roleId;
         `);
