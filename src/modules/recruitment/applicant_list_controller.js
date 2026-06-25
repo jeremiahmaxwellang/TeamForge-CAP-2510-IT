@@ -223,10 +223,10 @@ exports.saveEvaluation = async (req, res) => {
 
                 if (status === 'Accepted') {
                     subject = `Congratulations! Welcome to ${teamName}`;
-                    text = `Hi ${user.firstname},\n\nGreat news! The coaching staff has reviewed your application and you have been accepted into ${teamName}.\n\nPlease log in to your dashboard to claim your roster spot and view your new team access.\n\nWelcome to the team!\n- TeamForge Management`;
+                    text = `Hi ${user.firstname},\n\nGreat news! The coaching staff has reviewed your application and you have been accepted into ${teamName}.\n\nPlease log in to your dashboard to claim your roster spot and view your new team access.\n\nWelcome to the team!\n- ${teamName} Management`;
                 } else if (status === 'Rejected') {
                     subject = `${teamName} Application Update`;
-                    text = `Hi ${user.firstname},\n\nThank you for applying to ${teamName}. We appreciate the time you took to share your stats and gameplay with us.\n\nUnfortunately, we have decided to move forward with other candidates who better fit our current roster needs at this time. We wish you the best of luck in your future matches.\n\n- TeamForge Management`;
+                    text = `Hi ${user.firstname},\n\nThank you for applying to ${teamName}. We appreciate the time you took to share your stats and gameplay with us.\n\nUnfortunately, we have decided to move forward with other candidates who better fit our current roster needs at this time. We wish you the best of luck in your future matches.\n\n- ${teamName} Management`;
                 }
 
                 // 4. Send the email
