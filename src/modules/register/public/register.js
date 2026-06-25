@@ -72,7 +72,8 @@ async function submitRegistration() {
     const password = sessionStorage.getItem('password');
     
     // Get registration form data
-    const fullname = document.getElementById('fullName')?.value || '';
+    const firstName = document.getElementById('firstName')?.value || '';
+    const lastName = document.getElementById('lastName')?.value || '';
     const riotId = document.getElementById('riotId')?.value || '';
     const discord = document.getElementById('discord')?.value || '';
     const photoInput = document.getElementById('profilePhoto');
@@ -87,11 +88,6 @@ async function submitRegistration() {
 
     const currentPeriod = document.getElementById('currentPeriod')?.value || '';
 
-    // Split full name into first and last name
-    const nameParts = fullname.trim().split(/\s+/);
-    const firstname = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : fullname.trim();
-    const lastname = nameParts.length > 1 ? nameParts[nameParts.length - 1] : fullname.trim();
-
     // Validation
     if (!email || !password) {
         alert('Session expired. Please sign up again.');
@@ -99,9 +95,9 @@ async function submitRegistration() {
         return;
     }
 
-    if (!fullname || !riotId || !discord || !gpa || !cgpa || !photoFile || !yearLevel) {
+    if (!firstName || !lastName || !riotId || !discord || !gpa || !cgpa || !photoFile || !yearLevel) {
         alert('Please fill in all registration fields');
-        console.log('Missing fields:', { fullname, riotId, discord, gpa, cgpa, hasPhoto: Boolean(photoFile), yearLevel });
+        console.log('Missing fields:', { firstName, lastName, riotId, discord, gpa, cgpa, hasPhoto: Boolean(photoFile), yearLevel });
         return;
     }
 
@@ -133,8 +129,8 @@ async function submitRegistration() {
         const formData = new FormData();
         formData.append('email', email);
         formData.append('password', password);
-        formData.append('firstname', firstname);
-        formData.append('lastname', lastname);
+        formData.append('firstname', firstName);
+        formData.append('lastname', lastName);
         formData.append('riotId', riotId);
         formData.append('discord', discord);
         formData.append('gpa', parsedGpa);
