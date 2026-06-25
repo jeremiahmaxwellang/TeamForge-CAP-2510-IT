@@ -168,9 +168,15 @@ exports.createUser = async (req, res) => {
         ]);
 
         // Insert into applicants table
+        // const insertApplicantQuery = `
+        //     INSERT INTO applications (periodId, userId, primaryRoleId) VALUES
+        //     (?, ?, ?)
+        // `;
+
+        // Temp for testing: Auto accept Applicants
         const insertApplicantQuery = `
-            INSERT INTO applications (periodId, userId, primaryRoleId) VALUES
-            (?, ?, ?)
+            INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+            (?, ?, ?, 'Accepted')
         `;
 
         await mySqlPool.query(insertApplicantQuery, [
