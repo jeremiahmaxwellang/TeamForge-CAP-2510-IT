@@ -143,7 +143,7 @@ if (btnClaimSpot) {
         btnClaimSpot.disabled = true;
 
         try {
-            const response = await fetch('/applicant_list/claim_spot', { method: 'POST' });
+            const response = await fetch('/claim_spot', { method: 'POST' });
             const result = await response.json();
             
             if (result.success) {
