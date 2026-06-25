@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamForge - Applicant Profile</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/topbar-universal.css">
+    <link rel="stylesheet" href="/css/radar-chart.css">
+
+    <link rel="stylesheet" href="/recruitment/static/applicant_profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="/js/radar-chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="header_container">
+            <div class="logo" title="Back to your dashboard" role="link" tabindex="0">
+                <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
+                <span class="header_title">TeamForge</span>
+            </div>
+            <div class="team-name">Viridis Arcus (Team Name)</div>
+            <div class="profile-dropdown-container">
+                <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture"
+                    class="profile-icon js-current-user-photo" id="profileDropdownBtn"
+                    style="cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
+                <div id="profileDropdownMenu" class="profile-dropdown-menu">
+                    <a href="/settings">Settings</a>
+                    <a href="/logout" class="logout-link">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+
+            <div class="sidebar">
+                <ul></ul>
+            </div>
+
+
+            <div class="main-content">
+
+                <div class="header-title-section">
+                    <h2>Applicant Profile</h2>
+                </div>
+
+                <div class="profile-top-section">
+
+                    <div class="white-card">
+                        <div style="display:flex; align-items:center; margin-bottom: 5px;">
+                            <select id="applicant-dropdown" class="applicant-select">
+                                <option>Loading...</option>
+                            </select>
+                            <i class="fas fa-caret-down"
+                                style="font-size: 20px; margin-left: -20px; pointer-events: none; color: #b9bbbe;"></i>
+                        </div>
+
+                        <div id="app-name" class="real-name">Loading Real Name...</div>
+
+                        <div class="role-toggle-container">
+                            <button id="btn-primary-role" class="role-btn active">
+                                Primary: <br><strong id="text-primary-role">-</strong>
+                            </button>
+                            <button id="btn-secondary-role" class="role-btn">
+                                Secondary: <br><strong id="text-secondary-role">-</strong>
+                            </button>
+                        </div>
+
+                        <div class="contact-section">
+                            <h4>Contact Information</h4>
+                            <div class="contact-grid">
+                                <div>
+                                    <span class="info-label">Email:</span>
+                                    <span id="app-email" class="info-value">email@example.com</span>
+                                </div>
+                                <div>
+                                    <span class="info-label">Discord:</span>
+                                    <span id="app-discord" class="info-value">discord#1234</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-column">
+
+                        <div class="white-card" style="padding: 15px;">
+                            <div class="rank-box-content">
+                                <div class="rank-group">
+                                    <img id="img-current-rank" class="rank-img">
+                                    <div class="rank-text">
+                                        <h5>Current Rank:</h5>
+                                        <span id="text-current-rank">Diamond 2</span>
+                                    </div>
+                                </div>
+
+                                <div class="vertical-divider"></div>
+
+                                <div class="rank-group">
+                                    <img id="img-peak-rank" class="rank-img">
+                                    <div class="rank-text">
+                                        <h5>Peak Rank:</h5>
+                                        <span id="text-peak-rank">Master</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="white-card">
+                            <div class="student-section">
+                                <h4>Student Information</h4>
+                                <div class="student-grid">
+                                    <div>
+                                        <span class="info-label">Year Level:</span>
+                                        <span id="student-year" class="info-value">2</span>
+                                    </div>
+                                    <div>
+                                        <span class="info-label">Course & College:</span>
+                                        <span id="student-course" class="info-value">BSIT</span>
+                                    </div>
+                                    <div>
+                                        <span class="info-label">GPA Last Term:</span>
+                                        <span id="student-gpa" class="info-value">3.5</span>
+                                    </div>
+                                    <div>
+                                        <span class="info-label">CGPA:</span>
+                                        <span id="student-cgpa" class="info-value">3.0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="stats-bar-container">
+                    <div class="stats-bar">
+                        <button id="btn-prev-applicant" class="nav-arrow"><i class="fas fa-chevron-left"></i></button>
+
+                        <div class="stat-content">
+
+                            <div class="fetch-button-container">
+                                <div id="timerInfo">Ready to fetch recent matches.</div>
+                                <button id="fetchMatchStatsBtn" class="fetch-match-stats-btn">Fetch Match Stats</button>
+                            </div>
+
+                            <div class="stat-content">
+                                <div class="stat-group">
+                                    <div id="stat-winrate" class="stat-big" style="color: #4CAF50;">--% WR</div>
+                                    <small>Last 15 Games</small>
+                                </div>
+                                <div class="stat-divider"></div>
+                                <div class="stat-group">
+                                    <div id="stat-kda" class="stat-big">-- KDA</div>
+                                    <small>Ratio</small>
+                                </div>
+                                <div class="stat-divider"></div>
+                                <div class="stat-group">
+                                    <small style="display:block; margin-bottom:5px;">Top 3 Champions</small>
+                                    <div id="top-champs-container" style="display:flex; gap:10px;">
+                                        <span>Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="btn-next-applicant" class="nav-arrow"><i
+                                    class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="profile-grid">
+                        <div class="white-card">
+                            <span class="card-header">Try-Out Evaluation</span>
+                            <div class="rating-grid">
+                                <div></div>
+                                <div class="rating-header">1</div>
+                                <div class="rating-header">2</div>
+                                <div class="rating-header">3</div>
+                                <div class="rating-header">4</div>
+                                <div class="rating-header">5</div>
+
+                                <div class="rating-label">Game Sense</div>
+                                <div class="radio-group"><input type="radio" name="gameSense" value="1"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="gameSense" value="2"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="gameSense" value="3"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="gameSense" value="4"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="gameSense" value="5"
+                                        class="custom-radio"></div>
+
+                                <div class="rating-label">Communication</div>
+                                <div class="radio-group"><input type="radio" name="communication" value="1"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="communication" value="2"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="communication" value="3"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="communication" value="4"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="communication" value="5"
+                                        class="custom-radio"></div>
+
+                                <div class="rating-label">Champion Pool</div>
+                                <div class="radio-group"><input type="radio" name="champPool" value="1"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="champPool" value="2"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="champPool" value="3"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="champPool" value="4"
+                                        class="custom-radio"></div>
+                                <div class="radio-group"><input type="radio" name="champPool" value="5"
+                                        class="custom-radio"></div>
+                            </div>
+
+                            <label style="font-weight:bold; display:block; margin-top:20px;">Comments from the
+                                Coach:</label>
+                            <textarea id="eval-comment" class="eval-comment"
+                                placeholder="Enter a comment here"></textarea>
+
+                            <div style="text-align:right; margin-top:15px;">
+                                <button id="btn-confirm-eval"
+                                    style="padding:8px 25px; border:1px solid #333; background:white; border-radius:5px; cursor:pointer; font-weight:bold;">Confirm</button>
+                            </div>
+                        </div>
+
+                        <div class="white-card comparison-container">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="card-header" style="margin:0; border:none;">Comparison Tool</span>
+                                <select id="comparison-select" style="padding:5px;">
+                                    <option value="benchmark">vs Expected Stats</option>
+                                </select>
+                            </div>
+                            <div id="radar-chart" style="width: 100%; height: 280px; margin: 0 auto;"></div>
+                            <div id="stats-list" style="margin-top: 15px; overflow-y: auto; max-height: 350px;">
+                                <div style="text-align: center; color: #888; padding: 20px;">Select an applicant to load
+                                    comparison stats...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interview-wrapper">
+                        <span class="card-header"> Applicant Interview</span>
+                        <div class="interview-grid">
+                            <div class="interview-questions">
+                                <div class="question-block">
+                                    <label>Why do you want to join this team, and what interests you most about being
+                                        part
+                                        of it?</label>
+                                    <textarea id="ans-join" readonly placeholder="No answer provided."></textarea>
+                                </div>
+                                <div class="question-block">
+                                    <label>What skills, strengths, or experiences do you think you can contribute to the
+                                        team?</label>
+                                    <textarea id="ans-skills" readonly placeholder="No answer provided."></textarea>
+                                </div>
+                                <div class="question-block">
+                                    <label>How do you usually handle teamwork, feedback, or disagreements within a
+                                        group?</label>
+                                    <textarea id="ans-teamwork" readonly placeholder="No answer provided."></textarea>
+                                </div>
+                                <div class="question-block">
+                                    <label>What are your goals as a team member, and how do you see yourself
+                                        growing?</label>
+                                    <textarea id="ans-goals" readonly placeholder="No answer provided."></textarea>
+                                </div>
+                            </div>
+                            <div class="vod-container"
+                                style="display: flex; flex-direction: column; gap: 12px; position: sticky; top: 20px;">
+                                <input type="text" id="vod-link-input" placeholder="Paste YouTube VOD Link here..."
+                                    style="width: 100%; padding: 12px; border: 1px solid #4f545c; border-radius: 8px; background: #36393f; color: var(--porcelain); font-family: inherit;">
+
+                                <div class="vod-box" id="vod-box" style="position: relative; top: 0;">
+                                    <div style="text-align:center;" id="vod-placeholder">
+                                        <i class="fas fa-play-circle" style="font-size: 50px; margin-bottom:15px;"></i>
+                                        <br>VOD SUBMISSION
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-action btn-accept">Accept</button>
+            <button class="btn-action btn-reject">Reject</button>
+        </div>
+
+        <script src="/js/current_user_photo.js"></script>
+        <script src="/js/team_branding.js"></script>
+
+        <!-- <script src="/js/applicant_profile.js"></script> -->
+        <script src="/recruitment/static/applicant_profile.js"></script>
+
+        <script src="/js/sidebar.js"></script>
+        <script src="/js/userDropdown.js"></script>
+</body>
+
+</html>

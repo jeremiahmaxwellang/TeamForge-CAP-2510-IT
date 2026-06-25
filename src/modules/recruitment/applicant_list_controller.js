@@ -1,5 +1,15 @@
-const mySqlPool = require('../config/database');
+const mySqlPool = require('../../config/database');
 const nodemailer = require('nodemailer');
+
+// 1. Serve the Applicant List
+exports.getApplicantListPage = (req, res) => {
+    res.sendFile('applicant_list.html', { root: './src/modules/recruitment' });
+};
+
+// 1. Serve the Applicant Profile
+exports.getApplicantProfile = (req, res) => {
+    res.sendFile('applicant_profile.html', { root: './src/modules/recruitment' });
+};
 
 // Get all applicants
 exports.getAllApplicants = async (req, res) => {

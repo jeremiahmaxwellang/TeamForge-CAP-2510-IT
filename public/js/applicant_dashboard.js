@@ -27,13 +27,19 @@ async function loadApplicantDashboard() {
         document.getElementById('userInfo').style.display = 'block';
 
         // Fetch applicant's details
-        const response = await fetch(`/applicant_list/getbyemail?email=${encodeURIComponent(userInfo.email)}`);
+        const response = await fetch(`/get-my-application?email=${encodeURIComponent(userInfo.email)}`);
+
+
+        const text = await response.text();
+console.log('Raw response:', text);  // See what the server actually returned
+
+const data = JSON.parse(text); // Then parse manually
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
+        // const data = await response.json();
         
         if (data.success && data.applicant) {
             displayApplicantDetails(data.applicant);

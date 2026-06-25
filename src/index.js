@@ -139,10 +139,12 @@ app.use('/calendar', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), r
 app.use('/recruitment/static',      express.static(path.join(__dirname, 'modules/recruitment/public')));
 app.use('/recruitment', require("./modules/recruitment/recruitment_routes")); // just gets the recruitment period
 
-app.get('/applicant_list/getbyemail', require('./controllers/applicant_listController').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
-app.post('/applicant_list/claim_spot', require('./controllers/applicant_listController').claimRosterSpot); // Allow applicants to press the Claim Spot button
-app.get('/applicant_list/report_data', requireAnyRole(['Team Manager', 'Team Coach']), require('./controllers/applicant_listController').getReportData); // Allow both managers and coaches to download applicant report
-app.use('/applicant_list', requireRole('Team Coach'), require('./routes/applicant_listRoutes')); // applicant list routes
+app.use('/applicant_list', requireRole('Team Coach'), require('./modules/recruitment/applicant_list_routes')); // applicant list routes
+
+app.get('/get-my-application', require('./modules/recruitment/applicant_list_controller').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
+app.post('/applicant_list/claim_spot', require('./modules/recruitment/applicant_list_controller').claimRosterSpot); // Allow applicants to press the Claim Spot button
+app.get('/applicant_list/report_data', requireAnyRole(['Team Manager', 'Team Coach']), require('./modules/recruitment/applicant_list_controller').getReportData); // Allow both managers and coaches to download applicant report
+
 
 // =================== Register =================== 
 app.use('/register/static',       express.static(path.join(__dirname, 'modules/register/public')));
