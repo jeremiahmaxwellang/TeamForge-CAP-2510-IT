@@ -1083,6 +1083,102 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     /* ============================================================
+        ATTENDANCE SUMMARY — FETCH & RENDER
+       ============================================================ */
+    const loadAttendanceSummary = async (semester = 'current') => {
+        try {
+            const res  = await fetch(`/reports/attendance_summary?semester=${semester}`);
+            const json = await res.json();
+
+            if (!json.success) {
+                console.error('Attendance summary error:', json.message);
+                return;
+            }
+
+            const { totalEvents, totalAbsences, top5 } = json.data;
+
+            // Stat boxes
+            const eventsEl   = document.getElementById('totalEventsCount');
+            const absencesEl = document.getElementById('totalAbsencesCount');
+            if (eventsEl)   eventsEl.textContent   = totalEvents;
+            if (absencesEl) absencesEl.textContent = totalAbsences;
+
+            // Top-5 table
+            const tbody = document.getElementById('absences-table-body');
+            if (!tbody) return;
+
+            if (!top5 || top5.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No absences recorded.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = top5.map((row) => {
+                const pct        = Number(row.absencePercentage);
+                const pctClass   = pct >= 50 ? 'absence-pct-red' : '';
+                const pctLabel   = `${pct}% (${row.absences} out of ${row.invitedEvents} events)`;
+                return `
+                    <tr>
+                        <td>${row.absences}</td>
+                        <td>${row.lateCount}</td>
+                        <td>${row.fullName}</td>
+                        <td>${row.riotId}</td>
+                        <td>${row.position ?? '—'}</td>
+                        <td class="${pctClass}">${pctLabel}</td>
+                    </tr>
+                `;
+            }).join('');
+
+        } catch (err) {
+            console.error('Error loading attendance summary:', err);
+        }
+    };
+
+    // Wire up the semester dropdown
+    const attendanceSemesterSelect = document.getElementById('attendanceSemesterSelect');
+    if (attendanceSemesterSelect) {
+        attendanceSemesterSelect.addEventListener('change', () => {
+            loadAttendanceSummary(attendanceSemesterSelect.value);
+        });
+    }
+
+    // Wire up the Download Report button for attendance
+    const generateAttendancePdfBtn = document.getElementById('generateAttendancePdfBtn');
+    if (generateAttendancePdfBtn) {
+        generateAttendancePdfBtn.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.text('Attendance Summary Report', 14, 18);
+            doc.setFontSize(11);
+            doc.text(`Semester: ${attendanceSemesterSelect ? attendanceSemesterSelect.options[attendanceSemesterSelect.selectedIndex].text : 'Current Semester'}`, 14, 28);
+
+            const totalEventsVal   = document.getElementById('totalEventsCount')?.textContent   ?? '—';
+            const totalAbsencesVal = document.getElementById('totalAbsencesCount')?.textContent ?? '—';
+            doc.text(`Total Events: ${totalEventsVal}    Total Absences: ${totalAbsencesVal}`, 14, 36);
+
+            const tbody = document.getElementById('absences-table-body');
+            const rows  = [];
+            if (tbody) {
+                tbody.querySelectorAll('tr').forEach((tr) => {
+                    rows.push(Array.from(tr.querySelectorAll('td')).map((td) => td.textContent.trim()));
+                });
+            }
+
+            doc.autoTable({
+                startY: 44,
+                head: [['Absences', 'Late', 'Full Name', 'Riot ID', 'Position', '% of Absences']],
+                body: rows,
+                styles: { fontSize: 9 },
+                headStyles: { fillColor: [192, 38, 59] }
+            });
+
+            doc.save('attendance_report.pdf');
+        });
+    }
+
+
+    /* ============================================================
         EVENT LISTENERS
        ============================================================ */
     if (applyTournamentRangeBtn) {
@@ -1147,4 +1243,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadApplicantStatusChart();
     loadCurrentPlayers();
     loadApplicationsTable();
+    loadAttendanceSummary();
 });

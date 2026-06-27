@@ -274,6 +274,125 @@ exports.getTournamentResultsReport = async (req, res) => {
     }
 };
 
+// ─────────────────────────────────────────────────────────────────
+// GET Attendance Summary
+//   - Total events for the selected semester (Scrim + Tournament +
+//     Meeting + Other that the user was explicitly invited to)
+//   - Total absences across all those events
+//   - Top 5 players with the most absences, with late count,
+//     full name, Riot ID, position, and absence percentage
+//
+// Query param: ?semester=current | previous
+//   Resolves against academic_terms rows ordered by termId DESC.
+//   "current"  = latest term  (termId MAX)
+//   "previous" = second-latest term
+//   If academic_terms is empty, falls back to the current calendar year.
+// ─────────────────────────────────────────────────────────────────
+exports.getAttendanceSummary = async (req, res) => {
+    try {
+        const semester = req.query.semester || 'current';
+
+        // ── 1. Resolve the date range from academic_terms ──────────────
+        const [termRows] = await db.query(
+            `SELECT termId, termName, startDate, endDate
+             FROM academic_terms
+             ORDER BY termId DESC
+             LIMIT 2`
+        );
+
+        let startDate, endDate;
+
+        if (termRows.length === 0) {
+            // Fallback: whole current year
+            const year = new Date().getFullYear();
+            startDate  = `${year}-01-01`;
+            endDate    = `${year}-12-31`;
+        } else if (semester === 'previous' && termRows.length >= 2) {
+            startDate = termRows[1].startDate;
+            endDate   = termRows[1].endDate;
+        } else {
+            // 'current' or only one term exists
+            startDate = termRows[0].startDate;
+            endDate   = termRows[0].endDate;
+        }
+
+        // ── 2. Total distinct events in range that had at least one attendee ──
+        const [[{ totalEvents }]] = await db.query(
+            `SELECT COUNT(DISTINCT e.eventId) AS totalEvents
+             FROM events e
+             JOIN event_attendees ea ON ea.eventId = e.eventId
+             WHERE e.start_date BETWEEN ? AND ?`,
+            [startDate, endDate]
+        );
+
+        // ── 3. Total absences (Absent only) across all those events ──
+        const [[{ totalAbsences }]] = await db.query(
+            `SELECT COUNT(*) AS totalAbsences
+             FROM event_attendees ea
+             JOIN events e ON e.eventId = ea.eventId
+             WHERE ea.attendance_status = 'Absent'
+               AND e.start_date BETWEEN ? AND ?`,
+            [startDate, endDate]
+        );
+
+        // ── 4. Top 5 players with most absences ────────────────────────
+        //   - absences      : count of Absent rows for this user in range
+        //   - late          : count of Late rows for this user in range
+        //   - invitedEvents : distinct events user was invited to in range
+        //   - absencePct    : absences / invitedEvents * 100
+        const [top5] = await db.query(
+            `SELECT
+                u.userId,
+                TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, ''))) AS fullName,
+                CONCAT(COALESCE(p.gameName, ''), '#', COALESCE(p.tagLine, ''))        AS riotId,
+                l.displayedRole                                                         AS position,
+
+                COUNT(CASE WHEN ea.attendance_status = 'Absent'  THEN 1 END) AS absences,
+                COUNT(CASE WHEN ea.attendance_status = 'Late'    THEN 1 END) AS lateCount,
+                COUNT(ea.eventId)                                              AS invitedEvents,
+
+                ROUND(
+                    COUNT(CASE WHEN ea.attendance_status = 'Absent' THEN 1 END) * 100.0
+                    / NULLIF(COUNT(ea.eventId), 0),
+                    0
+                ) AS absencePercentage
+
+             FROM event_attendees ea
+             JOIN events  e  ON e.eventId   = ea.eventId
+             JOIN users   u  ON u.userId    = ea.userId
+             LEFT JOIN players p ON p.userId = u.userId
+             LEFT JOIN leagueroles l ON l.roleId = p.primaryRoleId
+
+             WHERE e.start_date BETWEEN ? AND ?
+               AND u.position IN ('Player', 'Sub')
+
+             GROUP BY u.userId, fullName, riotId, position
+             HAVING absences > 0
+             ORDER BY absences DESC, absencePercentage DESC
+             LIMIT 5`,
+            [startDate, endDate]
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                totalEvents:   Number(totalEvents),
+                totalAbsences: Number(totalAbsences),
+                dateRange:     { startDate, endDate },
+                top5
+            }
+        });
+
+    } catch (err) {
+        console.error('Error fetching attendance summary:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Error fetching attendance summary',
+            error: err.message
+        });
+    }
+};
+
 // Fetch Term Dates
 exports.getTermDates = async (req, res) => {
     try {
