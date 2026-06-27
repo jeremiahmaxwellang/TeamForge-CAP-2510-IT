@@ -829,18 +829,20 @@
     const dropdownBtn = document.getElementById("player-dropdown-btn");
     const dropdownMenu = document.querySelector(".player-dropdown-menu");
 
-    const dropdownWrapper =
-      dropdownBtn?.closest(".player-dropdown") ||
-      dropdownBtn?.parentElement ||
-      dropdownMenu?.parentElement;
-
-    if (dropdownWrapper) {
-      dropdownWrapper.style.display = "none";
-      return;
+    // Hide only the dropdown list
+    if (dropdownMenu) {
+      dropdownMenu.style.display = "none";
+      dropdownMenu.innerHTML = "";
     }
 
-    if (dropdownBtn) dropdownBtn.style.display = "none";
-    if (dropdownMenu) dropdownMenu.style.display = "none";
+    // Keep the button visible as the player's Riot ID display
+    if (dropdownBtn) {
+      dropdownBtn.style.display = "";
+      dropdownBtn.disabled = true;
+      dropdownBtn.style.cursor = "default";
+      dropdownBtn.setAttribute("aria-expanded", "false");
+      dropdownBtn.classList.add("readonly-player-display");
+    }
   }
 
   function buildPlayerProfileUrl(player) {
@@ -1024,8 +1026,6 @@
           const data = await res.json();
 
           if (data.success && data.player) {
-            hidePlayerDropdownForPlayerUser();
-
             const playerUrl = buildPlayerProfileUrl(data.player);
 
             window.history.replaceState(
@@ -1034,7 +1034,9 @@
               playerUrl
             );
 
-            loadPlayer(data.player.userId);
+            loadPlayer(data.player.userId).then(() => {
+              hidePlayerDropdownForPlayerUser();
+            });
             return true;
           }
         }

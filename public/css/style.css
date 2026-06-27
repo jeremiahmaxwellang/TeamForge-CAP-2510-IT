@@ -499,6 +499,12 @@ header h1, header h2 {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+.readonly-player-display {
+  pointer-events: none;
+  opacity: 1;
+  cursor: default;
+}
+
 .profile-dropdown-menu a {
     display: block;
     padding: 14px 18px;
