@@ -825,6 +825,30 @@
     if (favMsg) favMsg.style.display = "none";
   }
 
+  function hidePlayerDropdownForPlayerUser() {
+    const dropdownBtn = document.getElementById("player-dropdown-btn");
+    const dropdownMenu = document.querySelector(".player-dropdown-menu");
+
+    // Hide only the dropdown list
+    if (dropdownMenu) {
+      dropdownMenu.style.display = "none";
+      dropdownMenu.innerHTML = "";
+    }
+
+    // Keep the button visible as the player's Riot ID display
+    if (dropdownBtn) {
+      dropdownBtn.style.display = "";
+      dropdownBtn.disabled = true;
+      dropdownBtn.style.cursor = "default";
+      dropdownBtn.setAttribute("aria-expanded", "false");
+      dropdownBtn.classList.add("readonly-player-display");
+    }
+  }
+
+  function buildPlayerProfileUrl(player) {
+    return `/player_analysis/profile/${encodeURIComponent(player.gameName)}/${encodeURIComponent(player.tagLine)}`;
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
 
     // -----------------------------------------------
@@ -914,41 +938,120 @@
     }
 
     // -----------------------------------------------
-    // PLAYER DROPDOWN: load players list
+    // PLAYER PROFILE LOADING
+    // - Player users: no dropdown, load own Riot account only
+    // - Coach/Admin users: show dropdown and allow selecting players
     // -----------------------------------------------
-    fetch("/player_analysis/players")
-      .then((res) => res.json())
-      .then((players) => {
-        const dropdownMenu = document.querySelector(".player-dropdown-menu");
-        if (!dropdownMenu) return;
 
-        dropdownMenu.innerHTML = "";
-        players.forEach((player) => {
-          const link = document.createElement("a");
-          link.href = "#";
-          link.textContent = `${player.gameName} (${player.primaryRole})`;
-          link.addEventListener("click", () => loadPlayer(player.userId));
-          dropdownMenu.appendChild(link);
-        });
+    function loadPlayerDropdownForStaff() {
+      fetch("/player_analysis/players")
+        .then((res) => res.json())
+        .then((players) => {
+          const dropdownMenu = document.querySelector(".player-dropdown-menu");
+          if (!dropdownMenu) return;
 
-        if (players.length > 0) {
-          // NEW: Check if a specific player ID was passed in the URL from the Dashboard
-          const urlParams = new URLSearchParams(window.location.search);
-          const targetId = urlParams.get('id');
+          dropdownMenu.innerHTML = "";
 
-          let selectedUserId = players[0].userId; // Default to first player
+          players.forEach((player) => {
+            const link = document.createElement("a");
 
-          if (targetId) {
-            // Try to find the matching player
-            const match = players.find(p => p.userId == targetId);
-            if (match) {
-              selectedUserId = match.userId;
+            const playerUrl = buildPlayerProfileUrl(player);
+
+            link.href = playerUrl;
+            link.textContent = `${player.gameName}#${player.tagLine} (${player.primaryRole})`;
+
+            link.addEventListener("click", function (event) {
+              event.preventDefault();
+
+              window.history.pushState(
+                { playerId: player.userId },
+                "",
+                playerUrl
+              );
+
+              loadPlayer(player.userId);
+            });
+
+            dropdownMenu.appendChild(link);
+          });
+
+          if (players.length > 0) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pathParts = window.location.pathname.split("/").filter(Boolean);
+
+            let targetUsername = urlParams.get("username");
+            let targetTag = urlParams.get("tag");
+            const targetId = urlParams.get("id");
+
+            // Supports /player_analysis/profile/:gameName/:tagLine
+            if (pathParts[0] === "player_analysis" && pathParts[1] === "profile") {
+              targetUsername = decodeURIComponent(pathParts[2] || "");
+              targetTag = decodeURIComponent(pathParts[3] || "");
             }
-          }
 
-          loadPlayer(selectedUserId);
+            let selectedPlayer = players[0];
+
+            if (targetUsername && targetTag) {
+              const match = players.find(
+                (p) =>
+                  String(p.gameName).toLowerCase() === String(targetUsername).toLowerCase() &&
+                  String(p.tagLine).toLowerCase() === String(targetTag).toLowerCase()
+              );
+
+              if (match) selectedPlayer = match;
+            } else if (targetId) {
+              const match = players.find((p) => String(p.userId) === String(targetId));
+              if (match) selectedPlayer = match;
+            }
+
+            const playerUrl = buildPlayerProfileUrl(selectedPlayer);
+
+            window.history.replaceState(
+              { playerId: selectedPlayer.userId },
+              "",
+              playerUrl
+            );
+
+            loadPlayer(selectedPlayer.userId);
+          }
+        })
+        .catch((err) => console.error("[LOAD PLAYERS] ✗ Error loading player list:", err));
+    }
+
+    // First, check if the logged-in user is a Player.
+    // If yes, hide dropdown and load only their own Riot account.
+    fetch("/player_analysis/current-player")
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+
+          if (data.success && data.player) {
+            const playerUrl = buildPlayerProfileUrl(data.player);
+
+            window.history.replaceState(
+              { playerId: data.player.userId },
+              "",
+              playerUrl
+            );
+
+            loadPlayer(data.player.userId).then(() => {
+              hidePlayerDropdownForPlayerUser();
+            });
+            return true;
+          }
+        }
+
+        return false;
+      })
+      .then((loadedOwnPlayer) => {
+        if (!loadedOwnPlayer) {
+          loadPlayerDropdownForStaff();
         }
       })
-      .catch((err) => console.error("[LOAD PLAYERS] ✗ Error loading player list:", err));
+      .catch((err) => {
+        console.error("[CURRENT PLAYER] Could not load own profile:", err);
+        loadPlayerDropdownForStaff();
+      });
+
   });
 })(); // End of IIFE

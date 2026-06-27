@@ -154,6 +154,56 @@ exports.getPlayerById = async (req, res) => {
   }
 };
 
+// Fetch the logged-in player's own profile
+exports.getCurrentPlayerProfile = async (req, res) => {
+  try {
+    const userRole = req.cookies?.userRole;
+    const userId = Number.parseInt(req.cookies?.userId, 10);
+
+    if (userRole !== 'Player') {
+      return res.status(403).json({
+        success: false,
+        error: 'Only Player users can access their own player profile here.'
+      });
+    }
+
+    if (!Number.isInteger(userId)) {
+      return res.status(401).json({
+        success: false,
+        error: 'Unauthorized'
+      });
+    }
+
+    const sql = `
+      SELECT u.*, p.*, 
+      r1.displayedRole AS primaryRole, r1.role AS riotRole1, r1.teamPosition AS riotTeamPosition1,
+      r2.displayedRole AS secondaryRole, r2.role AS riotRole2, r2.teamPosition AS riotTeamPosition2
+      FROM users u
+      JOIN players p ON u.userId = p.userId
+      JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
+      JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
+      WHERE u.userId = ? AND u.position = 'Player';
+    `;
+
+    const [results] = await db.query(sql, [userId]);
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Player profile not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      player: results[0]
+    });
+  } catch (err) {
+    console.error('[CURRENT PLAYER PROFILE] Error:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 // Update puuid
 exports.updatePuuid = async (req, res) => {
   try {

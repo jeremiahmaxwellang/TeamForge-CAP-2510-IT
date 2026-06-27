@@ -16,6 +16,9 @@ const scrimsController          = require('../controllers/player_analysis/scrims
 // GET all players
 router.get('/players', playerController.getAllPlayers);
 
+// GET logged-in player's own profile
+router.get('/current-player', playerController.getCurrentPlayerProfile);
+
 // GET /player_analysis/players/:id [fetch player by ID]
 router.get('/players/:id', playerController.getPlayerById);
 
@@ -162,6 +165,11 @@ router.post(
 
 
 // ============ HTML ROUTES ============
+
+// /player_analysis/profile/:gameName/:tagLine
+router.get('/profile/:gameName/:tagLine', async function(req, res) {
+  res.sendFile(path.join(viewsPath, 'player_analysis.html'));
+});
 
 // /player_analysis
 router.get('/', async function(req, res) {
