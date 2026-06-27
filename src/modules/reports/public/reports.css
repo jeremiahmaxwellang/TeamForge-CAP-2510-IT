@@ -1,842 +1,858 @@
+/* ═══════════════════════════════════════════════════════
+   REPORTS PAGE — Dark theme matching screenshot
+   Color palette:
+     --bg-page    : #1e2027   (outermost dark)
+     --bg-shell   : #252830   (shell / content area)
+     --bg-card    : #2d3038   (card surface)
+     --bg-card-alt: #32363f   (slightly lighter card)
+     --accent-green: #22c55e  (Download / Apply buttons)
+     --accent-red  : #c0263b  (warnings, red headers)
+     --accent-gold : #e8b84b  (gold header cell)
+     --text-primary: #f0f2f5
+     --text-muted  : #9ca3af
+═══════════════════════════════════════════════════════ */
+
+/* ── Base Page ── */
 .reports-page {
-    width: 100%;
-    min-height: 100vh;
-    background-color: var(--porcelain);
+  width: 100%;
+  min-height: 100vh;
+  background-color: #1e2027;
 }
 
-.print-report-btn {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    z-index: 1200;
-    border: none;
-    border-radius: 999px;
-    padding: 10px 18px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    cursor: pointer;
-    background: #1a1a2e;
-    color: #fff;
-    box-shadow: 0 8px 22px rgba(26, 26, 46, 0.25);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.print-report-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 26px rgba(26, 26, 46, 0.32);
-}
-
-.print-report-btn:active {
-    transform: translateY(0);
-}
-
+/* ── Topbar ── */
 .manager-topbar {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--carbon-black);
-    padding: 10px 20px;
-    color: var(--porcelain);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #111318;
+  padding: 0 24px;
+  height: 72px;
+  color: #f0f2f5;
 }
 
 .manager-brand {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 100px;
-    height: 100px;
-    margin-right: 10px;
-    text-decoration: none;
-    color: var(--porcelain);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
+  color: #f0f2f5;
+  gap: 10px;
 }
 
 .manager-brand img {
-    width: 100px;
-    height: 100px;
-    margin-right: 10px;
-    margin-left: 20px;
+  width: 48px;
+  height: 48px;
 }
 
 .manager-brand-title {
-    font-family: var(--font-road-rage);
-    font-size: 48px;
-    margin-left: 30px;
-    color: var(--porcelain);
+  font-family: var(--font-road-rage, 'Impact', sans-serif);
+  font-size: 32px;
+  color: #f0f2f5;
+  letter-spacing: 1px;
 }
 
 .manager-team-name {
-    font-size: 36px;
-    color: var(--porcelain);
-    margin-left: auto;
-    margin-right: 20px;
+  font-size: 20px;
+  color: #f0f2f5;
+  font-weight: 500;
+  margin-left: auto;
+  margin-right: 20px;
 }
 
 .manager-topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.logout-btn {
-    display: inline-block;
-    padding: 10px 14px;
-    border-radius: 10px;
-    text-decoration: none;
-    color: var(--porcelain);
-    background: #2b2d31;
-    border: 1px solid #5b6069;
-    font-weight: 600;
-}
-
-.logout-btn:hover {
-    background: #3b3f46;
-}
-
+/* Profile dropdown */
 .profile-dropdown-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 #profileDropdownBtn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: var(--iron-gray);
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: border-color 0.2s;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #444;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+  object-fit: cover;
+}
+
+#profileDropdownBtn:hover {
+  border-color: #22c55e;
 }
 
 .profile-dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 75px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    width: 160px;
-    overflow: hidden;
-    z-index: 1000;
-    font-family: sans-serif;
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 54px;
+  background: #2d3038;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  width: 160px;
+  overflow: hidden;
+  z-index: 1000;
 }
 
 .profile-dropdown-menu a {
-    display: block;
-    padding: 12px 16px;
-    color: #333;
-    text-decoration: none;
-    border-bottom: 1px solid #eee;
-    font-weight: 500;
-    transition: background 0.2s;
+  display: block;
+  padding: 12px 16px;
+  color: #f0f2f5;
+  text-decoration: none;
+  border-bottom: 1px solid #3a3f4a;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background 0.2s;
 }
 
 .profile-dropdown-menu a:hover {
-    background-color: #f5f5f5;
+  background-color: #3a3f4a;
 }
 
 .profile-dropdown-menu .logout-link {
-    color: #dc3545;
-    border-bottom: none;
+  color: #f87171;
+  border-bottom: none;
 }
 
 .profile-dropdown-menu .logout-link:hover {
-    background-color: #fef0f0;
+  background-color: #3f2929;
 }
 
+/* ── Layout ── */
 .manager-content-wrapper {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 .reports-sidebar {
-    min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 72px);
+  background-color: #111318;
 }
 
 .reports-sidebar ul li a.active {
-    background-color: #f0f0f0;
-    border-radius: 5px;
-    color: var(--carbon-black);
-}
-
-.reports-sidebar ul li a.active img {
-    filter: invert(1);
+  background-color: #2d3038;
+  border-radius: 5px;
+  color: #f0f2f5;
 }
 
 .reports-main-content {
-    flex-grow: 1;
-    background-color: var(--gunmetal);
-    min-height: calc(100vh - 120px);
+  flex-grow: 1;
+  background-color: #1e2027;
+  min-height: calc(100vh - 72px);
 }
 
+/* ── Shell ── */
 .reports-shell {
-    margin: 20px;
-    padding: 24px;
-    border-radius: 20px;
-    background: var(--porcelain);
+  margin: 20px;
+  padding: 20px 24px 32px;
+  border-radius: 16px;
+  background: #252830;
 }
 
+/* ── Page Title ── */
 h1.page-title {
-    margin: 0 0 18px;
-    font-size: 30px;
-    color: var(--carbon-black);
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #f0f2f5;
 }
 
-.tournament-report-card {
-    margin-bottom: 0;
+.page-title-divider {
+  border: none;
+  border-top: 1px solid #3a3f4a;
+  margin: 0 0 20px;
 }
 
-.reports-top-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
+/* ── Section Headings ── */
+.section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f0f2f5;
+  margin: 0 0 12px;
+  letter-spacing: 0.2px;
 }
 
-.compact-pie-card {
-    min-height: 220px;
+.section-header-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 24px 0 12px;
 }
 
-.reports-priority-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
-    align-items: start;
+.section-header-row .section-heading {
+  margin: 0;
+  white-space: nowrap;
 }
 
-.tournament-report-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
+/* Period / semester select */
+.period-select {
+  border: 1px solid #3a3f4a;
+  border-radius: 6px;
+  background: #2d3038;
+  color: #f0f2f5;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
-.tournament-report-controls label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #1a1a2e;
-}
-
-.tournament-report-controls input[type='date'] {
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 6px 8px;
-    font-size: 13px;
-    color: #1a1a2e;
-    background: #fff;
-}
-
-.tournament-report-controls button {
-    border: none;
-    border-radius: 6px;
-    padding: 7px 12px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    background: #1a1a2e;
-    color: #fff;
-}
-
-.tournament-report-controls button.secondary {
-    background: #6b7280;
-}
-
-.tournament-report-body {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.tournament-report-actions {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.secondary-action-btn {
-    padding: 8px 16px; 
-    background-color: #1f77b4; 
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold; 
-    font-size: 13px; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-    display: flex; 
-    align-items: center; 
-    gap: 8px;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.secondary-action-btn:hover {
-    background: #eef2ff;
-    border-color: #c7d2fe;
-}
-
-#tournamentRangeSummary {
-    margin: 0;
-    font-size: 13px;
-    color: #374151;
-}
-
-.tournament-result-details,
-.term-result-details {
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    background: #f9fafb;
-    padding: 10px;
-    font-size: 12px;
-    color: #1f2937;
-}
-
-.tournament-detail-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.tournament-detail-item {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #fff;
-    padding: 8px;
-}
-
-.tournament-detail-title {
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: #111827;
-}
-
-.tournament-detail-meta {
-    margin: 0;
-    line-height: 1.35;
-    color: #374151;
-}
-
-.tournament-empty-msg {
-    margin: 0;
-    font-style: italic;
-    color: #6b7280;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-}
-
+/* ── Card base ── */
 .card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 14px 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #2d3038;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .card-title {
-    font-size: 15px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 14px;
-    color: #1a1a2e;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 12px;
+  color: #f0f2f5;
 }
 
-.col-span-2 {
-    grid-column: span 2;
+/* ── Download / action buttons ── */
+.dl-btn {
+  padding: 7px 14px;
+  background-color: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+.dl-btn:hover {
+  background-color: #16a34a;
 }
 
-thead tr {
-    background: #1a1a2e;
-    color: #fff;
+/* Card header row (title + button side by side) */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-thead th {
-    padding: 8px 10px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 13px;
+/* ══════════════════════════════════════
+   SECTION 1 — TEAM STATISTICS GRID
+   3 columns: [tournament 2fr] [players 1.3fr] [rec 1fr]
+══════════════════════════════════════ */
+.team-stats-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.3fr 1fr;
+  gap: 14px;
+  margin-bottom: 0;
 }
 
-tbody tr {
-    border-bottom: 1px solid #e5e7eb;
+/* Tournament card */
+.tournament-report-card {
+  /* nothing extra */
 }
 
-tbody tr:last-child {
-    border-bottom: none;
+.tournament-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
-tbody td {
-    padding: 8px 10px;
-    color: #1a1a2e;
+.tournament-card-header .card-title {
+  margin-bottom: 0;
 }
 
-.rank-num {
-    font-weight: 700;
-    color: #6b7280;
+/* Two-column layout inside the tournament card */
+.tournament-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
 }
 
-.wr-badge {
-    display: inline-block;
-    background: #e8b84b;
-    color: #1a1a2e;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
-.role-table thead tr {
-    background: #c0263b;
-}
-
-.role-table .red-cell {
-    background: #c0263b;
-    color: #fff;
-    font-weight: 700;
-}
-
-.role-table .gold-cell {
-    background: #e8b84b;
-    color: #1a1a2e;
-    font-weight: 700;
-}
-
-.players-left-zero {
-    color: #c0263b;
-    font-weight: 700;
-}
-
-.comms-1,
-.comms-2,
-.comms-3,
-.comms-4,
-.comms-5 {
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 4px;
-    display: inline-block;
-}
-
-.comms-1 {
-    background: #b91c1c;
-    color: #fff;
-}
-
-.comms-2 {
-    background: #ea580c;
-    color: #fff;
-}
-
-.comms-3 {
-    background: #facc15;
-    color: #1a1a2e;
-}
-
-.comms-4 {
-    background: #84cc16;
-    color: #1a1a2e;
-}
-
-.comms-5 {
-    background: #16a34a;
-    color: #fff;
-}
-
+/* Chart side */
 .chart-wrap {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .chart-wrap canvas {
-    max-width: 160px;
-    max-height: 160px;
+  max-width: 140px;
+  max-height: 140px;
 }
 
+/* Controls side */
+.tournament-controls-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.controls-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.date-row {
+  display: flex;
+  gap: 10px;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.date-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.date-field input[type='date'] {
+  border: 1px solid #3a3f4a;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 12px;
+  color: #f0f2f5;
+  background: #1e2027;
+  width: 130px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.apply-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #22c55e;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.apply-btn:hover { background: #16a34a; }
+
+.reset-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #4b5563;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.reset-btn:hover { background: #374151; }
+
+.range-summary {
+  margin: 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Legend */
 .legend {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #d1d5db;
 }
 
 .legend-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.rec-box {
-    background: #fff;
-    border-radius: 12px;
-    padding: 12px 14px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+/* Team Players card */
+.team-players-card {
+  /* nothing extra */
 }
 
-.rec-box .card-title {
-    margin-bottom: 8px;
+/* Recommended Action card */
+.rec-card {
+  /* nothing extra */
 }
 
-.rec-box p {
-    color: #c0263b;
-    font-weight: 600;
-    font-size: 13px;
-    line-height: 1.5;
+.rec-text {
+  color: #f59e0b;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
 }
 
-.apps-table thead tr {
-    background: #c0263b;
+/* ══════════════════════════════════════
+   SECTION 2 — RECRUITMENT
+══════════════════════════════════════ */
+
+/* Top sub-row: [applications 2fr] [roles pie 1fr] [acceptance pie 1fr] */
+.recruitment-top-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
-.right-col {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.applications-card {
+  /* nothing extra */
 }
 
-.left-col {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.compact-pie-card {
+  /* nothing extra */
 }
 
-.reports-priority-row .card-title {
-    margin-bottom: 10px;
+.compact-pie-card .chart-wrap canvas {
+  max-width: 120px;
+  max-height: 120px;
 }
 
-.reports-priority-row .role-table th,
-.reports-priority-row .role-table td {
-    font-size: 11px;
-    padding: 6px 8px;
+/* Bottom sub-row: [best performing 1fr] [best comms 1fr] */
+.recruitment-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 0;
 }
 
-.applications-card,
-.best-performing-card,
-.best-communication-card {
-    padding: 8px 10px;
+/* ══════════════════════════════════════
+   SECTION 3 — ATTENDANCE SUMMARY
+══════════════════════════════════════ */
+
+/* [stat boxes col auto] [absences table 1fr] */
+.attendance-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 14px;
+  align-items: start;
 }
 
-.applications-card .card-title,
-.best-performing-card .card-title,
-.best-communication-card .card-title {
-    margin-bottom: 7px;
-    font-size: 16px;
+.attendance-stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.applications-card table,
-.best-performing-card table,
-.best-communication-card table {
-    font-size: 14px;
+.stat-box {
+  padding: 16px;
 }
 
-.applications-card thead th,
-.best-performing-card thead th,
-.best-communication-card thead th {
-    padding: 4px 6px;
-    line-height: 1.05;
-    font-size: 13px;
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #9ca3af;
+  margin-bottom: 10px;
 }
 
-.applications-card tbody td,
-.best-performing-card tbody td,
-.best-communication-card tbody td {
-    padding: 4px 6px;
-    line-height: 1.05;
+.stat-value {
+  font-size: 40px;
+  font-weight: 800;
+  color: #f0f2f5;
+  line-height: 1;
 }
 
+.absences-card {
+  /* nothing extra */
+}
+
+.business-rule-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+
+.absence-pct-red {
+  color: #f87171;
+  font-weight: 700;
+}
+
+.th-sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: #9ca3af;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+/* ══════════════════════════════════════
+   TABLE STYLES
+══════════════════════════════════════ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead tr {
+  background: #1e2027;
+}
+
+thead th {
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: #d1d5db;
+  border-bottom: 1px solid #3a3f4a;
+}
+
+tbody tr {
+  border-bottom: 1px solid #3a3f4a;
+  transition: background 0.15s;
+}
+
+tbody tr:hover {
+  background: #32363f;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody td {
+  padding: 8px 10px;
+  color: #d1d5db;
+}
+
+/* Role table (team players) */
+.role-table thead tr {
+  background: #c0263b;
+}
+
+.role-table thead th {
+  color: #fff;
+}
+
+.role-table .gold-cell {
+  background: #e8b84b;
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+.role-table .red-cell {
+  background: #c0263b;
+  color: #fff;
+  font-weight: 700;
+}
+
+.players-left-zero {
+  color: #f87171;
+  font-weight: 700;
+}
+
+/* Rank number */
+.rank-num {
+  font-weight: 700;
+  color: #6b7280;
+}
+
+/* Winrate badge */
+.wr-badge {
+  display: inline-block;
+  background: #e8b84b;
+  color: #1a1a2e;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Comms rating badges */
+.comms-1, .comms-2, .comms-3, .comms-4, .comms-5 {
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 12px;
+}
+.comms-1 { background: #b91c1c; color: #fff; }
+.comms-2 { background: #ea580c; color: #fff; }
+.comms-3 { background: #facc15; color: #1a1a2e; }
+.comms-4 { background: #84cc16; color: #1a1a2e; }
+.comms-5 { background: #16a34a; color: #fff; }
+
+/* ══════════════════════════════════════
+   TERM BREAKDOWN MODAL
+══════════════════════════════════════ */
 .term-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1300;
-    display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: none;
 }
 
 .term-modal.show {
-    display: block;
+  display: block;
 }
 
 .term-modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(17, 24, 39, 0.55);
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
 }
 
 .term-modal-content {
-    position: relative;
-    width: min(980px, calc(100% - 28px));
-    max-height: calc(100vh - 40px);
-    margin: 20px auto;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 24px 60px rgba(17, 24, 39, 0.28);
-    padding: 18px;
-    overflow: auto;
+  position: relative;
+  width: min(980px, calc(100% - 28px));
+  max-height: calc(100vh - 40px);
+  margin: 20px auto;
+  background: #2d3038;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  padding: 18px;
+  overflow: auto;
 }
 
 .term-modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .term-modal-header h2 {
-    margin: 0;
-    font-size: 22px;
-    color: #111827;
+  margin: 0;
+  font-size: 20px;
+  color: #f0f2f5;
 }
 
 .term-modal-close {
-    border: 1px solid #d1d5db;
-    background: #fff;
-    color: #1f2937;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    font-size: 22px;
-    line-height: 1;
-    cursor: pointer;
+  border: 1px solid #3a3f4a;
+  background: #32363f;
+  color: #f0f2f5;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .term-modal-close:hover {
-    background: #f3f4f6;
+  background: #4b5563;
 }
 
 .term-reports-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .term-report-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 12px;
-    background: #fcfdff;
+  border: 1px solid #3a3f4a;
+  border-radius: 12px;
+  padding: 12px;
+  background: #252830;
 }
 
 .term-report-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .term-report-top h3 {
-    margin: 0;
-    font-size: 16px;
-    color: #1f2937;
+  margin: 0;
+  font-size: 15px;
+  color: #f0f2f5;
 }
 
 .term-select {
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: #fff;
-    padding: 6px 8px;
-    font-size: 13px;
-    color: #1f2937;
+  border: 1px solid #3a3f4a;
+  border-radius: 8px;
+  background: #2d3038;
+  color: #f0f2f5;
+  padding: 5px 8px;
+  font-size: 13px;
 }
 
 .term-chart-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .term-chart-wrap canvas {
-    width: 190px !important;
-    height: 190px !important;
+  width: 180px !important;
+  height: 180px !important;
+}
+
+.term-result-details {
+  border: 1px solid #3a3f4a;
+  border-radius: 8px;
+  background: #1e2027;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #d1d5db;
+  margin-top: 8px;
 }
 
 .term-summary {
-    margin: 10px 0 0;
-    font-size: 13px;
-    color: #374151;
-    text-align: center;
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
 }
 
 .term-modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 
 .save-term-report-btn {
-    border: none;
-    border-radius: 10px;
-    background: #1a1a2e;
-    color: #fff;
-    font-weight: 700;
-    font-size: 13px;
-    padding: 10px 14px;
-    cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-term-report-btn:hover {
+  background: #16a34a;
 }
 
 .save-term-report-btn:disabled {
-    opacity: 0.7;
-    cursor: wait;
+  opacity: 0.6;
+  cursor: wait;
 }
 
 body.term-modal-open {
-    overflow: hidden;
+  overflow: hidden;
 }
 
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
 @media (max-width: 1200px) {
-    .manager-team-name {
-        font-size: 26px;
-    }
+  .team-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 
-    .reports-top-row {
-        grid-template-columns: 1fr 1fr;
-    }
+  .rec-card {
+    grid-column: span 2;
+  }
 
-    .tournament-report-card {
-        grid-column: span 2;
-    }
+  .recruitment-top-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 
-    .reports-priority-row {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .right-col {
-        grid-column: span 2;
-    }
-
-    .left-col {
-        grid-column: span 2;
-    }
+  .applications-card {
+    grid-column: span 2;
+  }
 }
 
 @media (max-width: 900px) {
-    .manager-topbar {
-        flex-wrap: wrap;
-        gap: 10px;
-        padding: 10px 12px;
-    }
+  .manager-topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+    height: auto;
+  }
 
-    .manager-brand {
-        width: auto;
-        height: auto;
-    }
+  .manager-brand img {
+    width: 36px;
+    height: 36px;
+  }
 
-    .manager-brand img {
-        width: 70px;
-        height: 70px;
-        margin-left: 0;
-    }
+  .manager-brand-title {
+    font-size: 24px;
+  }
 
-    .manager-brand-title {
-        font-size: 36px;
-        margin-left: 8px;
-    }
+  .manager-team-name {
+    order: 3;
+    width: 100%;
+    font-size: 16px;
+    margin: 0;
+  }
 
-    .manager-team-name {
-        order: 3;
-        width: 100%;
-        font-size: 22px;
-        margin: 0;
-    }
+  .manager-content-wrapper {
+    flex-direction: column;
+  }
 
-    .manager-content-wrapper {
-        flex-direction: column;
-    }
+  .reports-sidebar {
+    width: 100%;
+    min-height: 0;
+  }
 
-    .reports-sidebar {
-        width: 100%;
-        min-height: 0;
-    }
+  .reports-main-content {
+    min-height: auto;
+  }
 
-    .reports-sidebar ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        justify-content: center;
-    }
+  .reports-shell {
+    margin: 10px;
+    padding: 12px;
+  }
 
-    .reports-sidebar ul li a {
-        width: 120px;
-        margin-bottom: 0;
-        padding: 8px 6px;
-    }
+  .team-stats-grid,
+  .recruitment-top-grid,
+  .recruitment-bottom-grid,
+  .attendance-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .reports-main-content {
-        min-height: auto;
-    }
+  .rec-card,
+  .applications-card {
+    grid-column: span 1;
+  }
 
-    .reports-shell {
-        margin: 12px;
-        padding: 14px;
-    }
+  .attendance-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .reports-top-row {
-        grid-template-columns: 1fr;
-    }
+  .tournament-two-col {
+    grid-template-columns: 1fr;
+  }
 
-    .tournament-report-card {
-        grid-column: span 1;
-    }
+  .term-reports-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .reports-priority-row {
-        grid-template-columns: 1fr;
-    }
-
-    .left-col,
-    .right-col {
-        grid-column: span 1;
-    }
-
-    .chart-wrap {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .tournament-report-controls {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .print-report-btn {
-        right: 14px;
-        bottom: 14px;
-        padding: 9px 16px;
-    }
-
-    .term-reports-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .term-report-top {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .term-chart-wrap canvas {
-        width: 170px !important;
-        height: 170px !important;
-    }
+  .term-report-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

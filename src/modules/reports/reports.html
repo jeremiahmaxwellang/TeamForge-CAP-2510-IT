@@ -27,6 +27,8 @@
 
 <body>
   <div class="reports-page">
+
+    <!-- ── Topbar ── -->
     <div class="manager-topbar">
       <a href="/manager_dashboard.html" class="manager-brand">
         <img src="/images/teamforge_logo.png" alt="TeamForge Logo">
@@ -41,7 +43,6 @@
             class="js-current-user-photo"
             id="profileDropdownBtn"
           >
-
           <div id="profileDropdownMenu" class="profile-dropdown-menu">
             <a href="/settings">Settings</a>
             <a href="/logout" class="logout-link">Logout</a>
@@ -51,40 +52,149 @@
     </div>
 
     <div class="manager-content-wrapper">
+
+      <!-- ── Sidebar ── -->
       <div class="sidebar reports-sidebar">
         <ul></ul>
       </div>
 
+      <!-- ── Main Content ── -->
       <main class="reports-main-content">
         <div class="reports-shell">
           <h1 class="page-title">Reports Dashboard</h1>
+          <hr class="page-title-divider">
 
-          <div class="reports-top-row">
+          <!-- ══════════════════════════════════════
+               SECTION 1 — TEAM STATISTICS
+          ══════════════════════════════════════ -->
+          <h2 class="section-heading">Team Statistics</h2>
+
+          <div class="team-stats-grid">
+
+            <!-- Tournament Results -->
             <section class="card tournament-report-card">
-              <div class="card-title">Tournament Results Report</div>
-              <div class="tournament-report-controls">
-                <label for="tournamentStartDate">Start Date</label>
-                <input type="date" id="tournamentStartDate" />
-                <label for="tournamentEndDate">End Date</label>
-                <input type="date" id="tournamentEndDate" />
-                <button type="button" id="applyTournamentRange">Apply</button>
-                <button type="button" id="resetTournamentRange" class="secondary">Reset</button>
+              <div class="tournament-card-header">
+                <div class="card-title">Tournament Results Report</div>
+                <button type="button" id="openTermBreakdownBtn" class="dl-btn">Download Report</button>
               </div>
 
-              <div class="tournament-report-body">
+              <div class="tournament-two-col">
+                <!-- Chart left -->
                 <div class="chart-wrap">
                   <canvas id="tournamentResultChart"></canvas>
                   <div class="legend" id="tournament-result-legend"></div>
                 </div>
-                <p id="tournamentRangeSummary">Showing all tournaments.</p>
-                <div class="tournament-report-actions">
-                  <button type="button" id="openTermBreakdownBtn" class="secondary-action-btn">View Tournament Report</button>
+
+                <!-- Controls right -->
+                <div class="tournament-controls-right">
+                  <p class="controls-label">Select Tournament Range</p>
+                  <div class="date-row">
+                    <div class="date-field">
+                      <label for="tournamentStartDate">Start Date</label>
+                      <input type="date" id="tournamentStartDate" />
+                    </div>
+                    <div class="date-field">
+                      <label for="tournamentEndDate">End Date</label>
+                      <input type="date" id="tournamentEndDate" />
+                    </div>
+                  </div>
+                  <div class="btn-row">
+                    <button type="button" id="applyTournamentRange" class="apply-btn">Apply</button>
+                    <button type="button" id="resetTournamentRange" class="reset-btn">Reset</button>
+                  </div>
+                  <p id="tournamentRangeSummary" class="range-summary">Showing all tournaments.</p>
                 </div>
               </div>
             </section>
 
+            <!-- Current Number of Team Players -->
+            <section class="card team-players-card">
+              <div class="card-title">Current Number of Team Players</div>
+              <table class="role-table">
+                <thead>
+                  <tr>
+                    <th>Role</th>
+                    <th>Current Players</th>
+                    <th class="gold-cell">Num of Graduating</th>
+                    <th class="red-cell">Players left after term</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Top</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                  </tr>
+                  <tr>
+                    <td>Jungle</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                  </tr>
+                  <tr>
+                    <td>Mid</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                  </tr>
+                  <tr>
+                    <td>AD Carry</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                  </tr>
+                  <tr>
+                    <td>Support</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                    <td class="players-left-zero">0</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <!-- Recommended Action -->
+            <section class="card rec-card">
+              <div class="card-title">Recommended Action</div>
+              <p id="recommended-action-text" class="rec-text">Loading recommendation...</p>
+            </section>
+
+          </div><!-- /team-stats-grid -->
+
+
+          <!-- ══════════════════════════════════════
+               SECTION 2 — RECRUITMENT
+          ══════════════════════════════════════ -->
+          <div class="section-header-row">
+            <h2 class="section-heading">Recruitment</h2>
+            <select id="recruitmentPeriodSelect" class="period-select">
+              <option value="">Recruitment Period: May 4 – Aug 15, 2026</option>
+            </select>
+          </div>
+
+          <!-- Top sub-row: Applications table + two pie charts -->
+          <div class="recruitment-top-grid">
+
+            <section class="card applications-card">
+              <div class="card-title">Number of Applications (Last 12 months)</div>
+              <table id="applications-table">
+                <thead>
+                  <tr>
+                    <th>Recruitment Period</th>
+                    <th>No. of Applicants</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="2" style="text-align:center;">None found</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
             <section class="card compact-pie-card">
-              <div class="card-title">Percentage by Role</div>
+              <div class="card-title">Roles Applied</div>
               <div class="chart-wrap">
                 <canvas id="roleChart"></canvas>
                 <div class="legend" id="role-legend"></div>
@@ -92,165 +202,169 @@
             </section>
 
             <section class="card compact-pie-card">
-              <div class="card-title" id="status-report-label">Percentage of Accepted Applicants</div>
+              <div class="card-title" id="status-report-label">Acceptance Rate</div>
               <div class="chart-wrap">
                 <canvas id="acceptChart"></canvas>
                 <div class="legend" id="status-legend"></div>
               </div>
             </section>
+
+          </div><!-- /recruitment-top-grid -->
+
+          <!-- Bottom sub-row: Best Performing + Best Communication side by side -->
+          <div class="recruitment-bottom-grid">
+
+            <section class="card best-performing-card">
+              <div class="card-header-row">
+                <div class="card-title" style="margin:0;">Best Performing Applicants Report</div>
+                <button type="button" id="generatePdfBtn" class="dl-btn">Download Report</button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Player</th>
+                    <th>Winrate</th>
+                    <th>Role Applied</th>
+                  </tr>
+                </thead>
+                <tbody id="best-performing-table-body">
+                  <tr>
+                    <td class="rank-num">1</td>
+                    <td>Egresados</td>
+                    <td><span class="wr-badge">70%</span></td>
+                    <td>Top</td>
+                  </tr>
+                  <tr>
+                    <td class="rank-num">2</td>
+                    <td>Curriculo</td>
+                    <td><span class="wr-badge">52%</span></td>
+                    <td>Jungle</td>
+                  </tr>
+                  <tr>
+                    <td class="rank-num">3</td>
+                    <td>Vinculacion</td>
+                    <td><span class="wr-badge">51%</span></td>
+                    <td>Support</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section class="card best-communication-card">
+              <div class="card-title">Applicants with the Best Communication</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Player</th>
+                    <th>Comms Rating</th>
+                    <th>Role Applied</th>
+                  </tr>
+                </thead>
+                <tbody id="best-communication-table-body">
+                  <tr>
+                    <td class="rank-num">1</td>
+                    <td>Egresados</td>
+                    <td><span class="comms-5">5</span></td>
+                    <td>Top</td>
+                  </tr>
+                  <tr>
+                    <td class="rank-num">2</td>
+                    <td>Curriculo</td>
+                    <td><span class="comms-5">5</span></td>
+                    <td>Jungle</td>
+                  </tr>
+                  <tr>
+                    <td class="rank-num">3</td>
+                    <td>Vinculacion</td>
+                    <td><span class="comms-4">4</span></td>
+                    <td>Support</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+          </div><!-- /recruitment-bottom-grid -->
+
+
+          <!-- ══════════════════════════════════════
+               SECTION 3 — ATTENDANCE SUMMARY
+          ══════════════════════════════════════ -->
+          <div class="section-header-row">
+            <h2 class="section-heading">Attendance Summary</h2>
+            <select id="attendanceSemesterSelect" class="period-select">
+              <option value="current">Current Semester</option>
+              <option value="prev">Previous Semester</option>
+            </select>
           </div>
 
-          <div class="reports-priority-row">
-            <div class="left-col">
-              <div class="card applications-card">
-                <div class="card-title">Number of Applications</div>
-                <table classa="apps-table" id="applications-table">
-                  <thead>
-                    <tr>
-                      <th>Recruitment Period</th>
-                      <th>No. of Applicants</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colspan="2" style="text-align:center;">None found</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="attendance-grid">
 
-              <div class="card best-performing-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; width: 100%;">
-                  <div class="card-title" style="margin: 0;">Best Performing Applicants</div>
-                  <button type="button" id="generatePdfBtn" style="padding: 8px 16px; background-color: #1f77b4; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-file-pdf"></i> Download Applicant Report
-                  </button>
-                </div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Player</th>
-                      <th>Winrate (Last 15 Games as Role)</th>
-                      <th>Role Applied</th>
-                    </tr>
-                  </thead>
-                  <tbody id="best-performing-table-body">
-                    <tr>
-                      <td class="rank-num">1</td>
-                      <td>Egresados</td>
-                      <td><span class="wr-badge">70%</span></td>
-                      <td>Top</td>
-                    </tr>
-                    <tr>
-                      <td class="rank-num">2</td>
-                      <td>Curriculo</td>
-                      <td><span class="wr-badge">52%</span></td>
-                      <td>Jungle</td>
-                    </tr>
-                    <tr>
-                      <td class="rank-num">3</td>
-                      <td>Vinculacion</td>
-                      <td><span class="wr-badge">51%</span></td>
-                      <td>Support</td>
-                    </tr>
-                  </tbody>
-                </table>
+            <!-- Stat boxes column -->
+            <div class="attendance-stats-col">
+              <div class="card stat-box">
+                <div class="stat-label">TOTAL EVENTS</div>
+                <div class="stat-value" id="totalEventsCount">20</div>
               </div>
-
-              <div class="card best-communication-card">
-                <div class="card-title">Applicants with the best communication</div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Player</th>
-                      <th>Comms Rating</th>
-                      <th>Role Applied</th>
-                    </tr>
-                  </thead>
-                  <tbody id="best-communication-table-body">
-                    <tr>
-                      <td class="rank-num">1</td>
-                      <td>Egresados</td>
-                      <td><span class="comms-5">5</span></td>
-                      <td>Top</td>
-                    </tr>
-                    <tr>
-                      <td class="rank-num">2</td>
-                      <td>Curriculo</td>
-                      <td><span class="comms-5">5</span></td>
-                      <td>Jungle</td>
-                    </tr>
-                    <tr>
-                      <td class="rank-num">3</td>
-                      <td>Vinculacion</td>
-                      <td><span class="comms-4">4</span></td>
-                      <td>Support</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="card stat-box">
+                <div class="stat-label">TOTAL ABSENCES</div>
+                <div class="stat-value" id="totalAbsencesCount">15</div>
               </div>
             </div>
 
-            <div class="right-col">
-              <div class="card">
-                <div class="card-title">Current Number of Team Players</div>
-                <table class="role-table">
-                  <thead>
-                    <tr>
-                      <th>Role</th>
-                      <th>No. of Current Players</th>
-                      <th class="gold-cell">Number of graduating / leaving</th>
-                      <th class="red-cell">Players left after semester</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Top</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                    </tr>
-                    <tr>
-                      <td>Mid</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                    </tr>
-                    <tr>
-                      <td>Jungle</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                    </tr>
-                    <tr>
-                      <td>AD Carry</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                    </tr>
-                    <tr>
-                      <td>Support</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                      <td class="players-left-zero">0</td>
-                    </tr>
-                  </tbody>
-                </table>
+            <!-- Absences table -->
+            <section class="card absences-card">
+              <div class="card-header-row">
+                <div class="card-title" style="margin:0;">Top 5 Players with Most Absences</div>
+                <button type="button" id="generateAttendancePdfBtn" class="dl-btn">Download Report</button>
               </div>
-
-              <div class="rec-box">
-                <div class="card-title">Recommended Action</div>
-                <p id="recommended-action-text">Loading recommendation...</p>
+              <table id="absences-table">
+                <thead>
+                  <tr>
+                    <th>Absences</th>
+                    <th>Late</th>
+                    <th>Full Name</th>
+                    <th>Riot ID</th>
+                    <th>Position</th>
+                    <th>Percentage of Absences <span class="th-sub">(only count total events they were invited to, not all scrims/tourney)</span></th>
+                  </tr>
+                </thead>
+                <tbody id="absences-table-body">
+                  <tr>
+                    <td>10</td>
+                    <td>2</td>
+                    <td>Obi Wan Kenobi</td>
+                    <td>Obiwan#123</td>
+                    <td>Mid</td>
+                    <td class="absence-pct-red">50% (10 out of 20 events)</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>0</td>
+                    <td>Sheev Palpatine</td>
+                    <td>The Emperor#123</td>
+                    <td>AD Carry</td>
+                    <td class="absence-pct-red">50% (5 out of 10 events)</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="business-rule-note">
+                Business rule:<br>
+                • mark red if 50% and below
               </div>
-            </div>
-          </div>
+            </section>
 
-        </div>
+          </div><!-- /attendance-grid -->
+
+        </div><!-- /reports-shell -->
       </main>
-    </div>
+    </div><!-- /manager-content-wrapper -->
 
+
+    <!-- ══════════════════════════════════════
+         TERM BREAKDOWN MODAL (unchanged)
+    ══════════════════════════════════════ -->
     <div id="termBreakdownModal" class="term-modal" aria-hidden="true">
       <div class="term-modal-backdrop" data-close-term-modal></div>
       <section class="term-modal-content" role="dialog" aria-modal="true" aria-labelledby="termModalTitle">
@@ -314,6 +428,7 @@
         </div>
       </section>
     </div>
-  </div>
+
+  </div><!-- /reports-page -->
 </body>
 </html>
