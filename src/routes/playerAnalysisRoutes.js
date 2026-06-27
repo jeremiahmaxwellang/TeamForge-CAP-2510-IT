@@ -128,10 +128,37 @@ router.post('/stats/store', playerController.storePlayerStatistic);
 // Compare stored stats (from playerStatistics table) to benchmarks
 router.get('/stats/stored-comparison', playerController.getStoredStatsComparison);
 
+function requireTeamCoach(req, res, next) {
+  const userRole = req.cookies?.userRole;
+
+  if (userRole !== 'Team Coach') {
+    return res.status(403).json({
+      success: false,
+      error: 'Only Team Coach can access candidate favorites.'
+    });
+  }
+
+  next();
+}
+
 // Candidate favorites (max 2 per role, per coach)
-router.get('/candidate-favorites', playerController.getCandidateFavorites);
-router.get('/candidate-favorites/:roleId', playerController.getCandidateFavoritesByRole);
-router.post('/candidate-favorites/toggle', playerController.toggleCandidateFavorite);
+router.get(
+  '/candidate-favorites',
+  requireTeamCoach,
+  playerController.getCandidateFavorites
+);
+
+router.get(
+  '/candidate-favorites/:roleId',
+  requireTeamCoach,
+  playerController.getCandidateFavoritesByRole
+);
+
+router.post(
+  '/candidate-favorites/toggle',
+  requireTeamCoach,
+  playerController.toggleCandidateFavorite
+);
 
 
 // ============ HTML ROUTES ============

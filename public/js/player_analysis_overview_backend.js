@@ -790,6 +790,41 @@
   // -----------------------------
   // MAIN PAGE: populate dropdown
   // -----------------------------
+
+  function getCookieValue(name) {
+    const cookies = document.cookie ? document.cookie.split("; ") : [];
+
+    for (const cookie of cookies) {
+      const [key, ...valueParts] = cookie.split("=");
+
+      if (key === name) {
+        return decodeURIComponent(valueParts.join("="));
+      }
+    }
+
+    return "";
+  }
+
+  function canUseCandidateFavorites() {
+    return getCookieValue("userRole").trim() === "Team Coach";
+  }
+
+  function hideCandidateFavoriteControls() {
+    const roleSelect = document.getElementById("candidateFavoriteRoleSelect");
+    const favBtn = document.getElementById("candidateFavoriteBtn");
+    const favMsg = document.getElementById("candidateFavoriteMessage");
+
+    // Hide the "Candidate Role" label
+    const roleLabel =
+      document.getElementById("candidateFavoriteRoleLabel") ||
+      document.querySelector('label[for="candidateFavoriteRoleSelect"]');
+
+    if (roleLabel) roleLabel.style.display = "none";
+    if (roleSelect) roleSelect.style.display = "none";
+    if (favBtn) favBtn.style.display = "none";
+    if (favMsg) favMsg.style.display = "none";
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
 
     // -----------------------------------------------
@@ -799,13 +834,26 @@
     const favBtn = document.getElementById("candidateFavoriteBtn");
     const favMsg = document.getElementById("candidateFavoriteMessage");
 
+    const hasCandidateFavoritePermission = canUseCandidateFavorites();
+
+    if (!hasCandidateFavoritePermission) {
+      hideCandidateFavoriteControls();
+    }
+
     function updateFavoriteStar(roleId) {
+      if (!canUseCandidateFavorites()) return;
+
       const playerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
       if (!playerId || !roleId) return;
 
       fetch(`/player_analysis/candidate-favorites/${roleId}`)
-        .then(res => res.json())
+        .then(res => {
+          if (res.status === 403) return null;
+          return res.json();
+        })
         .then(data => {
+          if (!data) return;
+
           const isFav = data.favorites?.some(f => String(f.userId) === String(playerId));
           if (favBtn) {
             favBtn.textContent = isFav ? "★" : "☆";
@@ -818,13 +866,13 @@
         .catch(err => console.error("[CANDIDATE FAV] Error checking favorite status:", err));
     }
 
-    if (roleSelect) {
+    if (hasCandidateFavoritePermission && roleSelect) {
       roleSelect.addEventListener("change", function () {
         updateFavoriteStar(this.value);
       });
     }
 
-    if (favBtn) {
+    if (hasCandidateFavoritePermission && favBtn) {
       favBtn.addEventListener("click", function () {
         const playerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
         const roleId = roleSelect?.value;
