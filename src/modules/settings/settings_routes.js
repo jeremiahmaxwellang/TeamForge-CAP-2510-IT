@@ -10,6 +10,17 @@ function requireCoachOnly(req, res, next) {
     return next();
 }
 
+function requireManagerOrCoach(req, res, next) {
+    const role = req.cookies && req.cookies.userRole;
+    if (role !== 'Team Manager' && role !== 'Team Coach') {
+        return res.status(403).json({
+            success: false,
+            message: 'Only Team Managers and Team Coaches can access these settings.'
+        });
+    }
+    return next();
+}
+
 // Serve the HTML page
 router.get('/', settingsController.getPage);
 router.get('/api/all-team-details', settingsController.getAllTeamDetails);
@@ -24,8 +35,13 @@ router.get('/api/team-details', settingsController.getTeamDetails);
 router.post('/api/team-details', settingsController.updateTeamDetails);
 router.get('/api/riot-api-key', settingsController.getRiotApiKeyStatus);
 router.post('/api/riot-api-key', settingsController.updateRiotApiKey);
+
+// For the dynamic academic terms
 router.get('/api/academic-requirements', requireCoachOnly, settingsController.getAcademicRequirements);
 router.post('/api/academic-requirements', requireCoachOnly, settingsController.updateAcademicRequirements);
+
+router.get('/api/academic-terms', requireManagerOrCoach, settingsController.getAcademicTerms);
+router.post('/api/academic-terms', requireManagerOrCoach, settingsController.updateAcademicTerms);
 
 // API Endpoints
 router.get('/api/benchmarks/:roleId', requireCoachOnly, settingsController.getBenchmarksByRole);

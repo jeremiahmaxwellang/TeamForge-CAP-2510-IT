@@ -2,6 +2,7 @@ const db = require("../../config/database");
 const path = require('path');
 const riotApiKeyService = require('../../services/riotApiKeyService');
 const academicRequirementsService = require('../../services/academicRequirementsService');
+const academicTermsService = require('../../services/academicTermsService');
 
 const DEFAULT_TEAM_NAME = 'My Team';
 const DEFAULT_TEAM_LOGO_FILE = 'VA_logo.png';
@@ -16,6 +17,21 @@ async function getAuthenticatedUser(req) {
     );
 
     return rows.length ? rows[0] : null;
+}
+
+async function ensureManagerOrCoach(req, res) {
+    const user = await getAuthenticatedUser(req);
+    const allowedRoles = ['Team Manager', 'Team Coach'];
+
+    if (!user || !allowedRoles.includes(user.position)) {
+        res.status(403).json({
+            success: false,
+            message: 'Only Team Managers and Team Coaches can manage academic terms.'
+        });
+        return null;
+    }
+
+    return user;
 }
 
 async function ensureCoach(req, res) {
@@ -374,6 +390,58 @@ exports.updateAcademicRequirements = async (req, res) => {
         return res.status(error.statusCode || 500).json({
             success: false,
             message: error.message || 'Failed to update academic requirements.'
+        });
+    }
+};
+
+exports.getAcademicTerms = async (req, res) => {
+    try {
+        const user = await ensureManagerOrCoach(req, res);
+        if (!user) return;
+
+        const terms = await academicTermsService.getAcademicTerms();
+
+        return res.status(200).json({
+            success: true,
+            terms
+        });
+    } catch (error) {
+        console.error('Error fetching academic terms:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch academic terms.'
+        });
+    }
+};
+
+exports.updateAcademicTerms = async (req, res) => {
+    try {
+        const user = await ensureManagerOrCoach(req, res);
+        if (!user) return;
+
+        const terms = req.body && req.body.terms;
+
+        if (!Array.isArray(terms)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid academic terms payload.'
+            });
+        }
+
+        const updatedTerms = await academicTermsService.updateAcademicTerms(terms, user.userId);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Academic terms updated successfully.',
+            terms: updatedTerms
+        });
+    } catch (error) {
+        console.error('Error updating academic terms:', error);
+
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || 'Failed to update academic terms.'
         });
     }
 };
