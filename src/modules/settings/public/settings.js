@@ -5,6 +5,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const nameEditMode = document.getElementById('name-edit-mode');
     const nameText = document.getElementById('settings-name');
 
+    // --- Making the Academic Terms Dynamic ---
+    const academicTermsSection = document.getElementById('academic-terms-section');
+    const term1StartInput = document.getElementById('term-1-start');
+    const term1EndInput = document.getElementById('term-1-end');
+    const term2StartInput = document.getElementById('term-2-start');
+    const term2EndInput = document.getElementById('term-2-end');
+    const term3StartInput = document.getElementById('term-3-start');
+    const term3EndInput = document.getElementById('term-3-end');
+    const btnSaveAcademicTerms = document.getElementById('btn-save-academic-terms');
+    const academicTermsStatus = document.getElementById('academic-terms-status');
+
     const inputFirstname = document.getElementById('input-firstname');
     const inputLastname = document.getElementById('input-lastname');
     const roleText = document.getElementById('settings-role');
@@ -232,6 +243,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // --- DYNAMIC ACADEMIC TERMS ---
+    function populateAcademicTerms(terms) {
+        const termMap = {};
+
+        (terms || []).forEach((term) => {
+            termMap[term.termName] = term;
+        });
+
+        if (term1StartInput) term1StartInput.value = termMap['Term 1']?.startDate || '';
+        if (term1EndInput) term1EndInput.value = termMap['Term 1']?.endDate || '';
+
+        if (term2StartInput) term2StartInput.value = termMap['Term 2']?.startDate || '';
+        if (term2EndInput) term2EndInput.value = termMap['Term 2']?.endDate || '';
+
+        if (term3StartInput) term3StartInput.value = termMap['Term 3']?.startDate || '';
+        if (term3EndInput) term3EndInput.value = termMap['Term 3']?.endDate || '';
+    }
+
+    async function loadAcademicTerms() {
+        if (!academicTermsSection) return;
+
+        setStatus(academicTermsStatus, 'Loading academic terms...', true);
+
+        try {
+            const response = await fetch('/settings/api/academic-terms');
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                setStatus(academicTermsStatus, result.message || 'Failed to load academic terms.', false);
+                return;
+            }
+
+            populateAcademicTerms(result.terms);
+            setStatus(academicTermsStatus, 'Academic terms loaded.', true);
+        } catch (error) {
+            console.error('Failed to load academic terms:', error);
+            setStatus(academicTermsStatus, 'Network error while loading academic terms.', false);
+        }
+    }
+
     // --- FETCH USER PROFILE ---
     try {
         const profileRes = await fetch('/api/user/profile');
@@ -267,6 +318,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if ((userRole === 'Team Manager' || userRole === 'Team Coach') && riotApiKeySection) {
                 riotApiKeySection.style.display = 'block';
                 loadRiotApiKeyStatus();
+            }
+
+            if ((userRole === 'Team Manager' || userRole === 'Team Coach') && academicTermsSection) {
+                academicTermsSection.style.display = 'block';
+                loadAcademicTerms();
             }
 
             if (userRole === 'Team Manager' && teamSettingsSection) {

@@ -1,4 +1,39 @@
 /* Inherit core dashboard styles */
+.academic-terms-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+.academic-terms-table th,
+.academic-terms-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e5e5;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.academic-terms-table th {
+    font-weight: 700;
+    color: #111;
+    background: #f7f7f7;
+}
+
+.academic-terms-table td:first-child {
+    font-weight: 600;
+    width: 140px;
+}
+
+.academic-terms-table input[type="date"] {
+    width: 100%;
+    max-width: 220px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
 .coach-page {
     width: 100%;
     min-height: 100vh;
