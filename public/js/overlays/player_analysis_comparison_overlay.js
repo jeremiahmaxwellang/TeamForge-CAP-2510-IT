@@ -536,17 +536,32 @@ const FALLBACK_SCALES = {
     const formatNum = (num) => Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
 
     let html = `
-  <div class="comparison-legend">
-      <div class="legend-item">
-          <span class="legend-box legend-good"></span>
-          <span>Better Performance</span>
-      </div>
-      <div class="legend-item">
-          <span class="legend-box legend-bad"></span>
-          <span>Worse Performance</span>
-      </div>
-  </div>
+    <div class="comparison-legend">
+        <div class="legend-item">
+            <span class="legend-box legend-good"></span>
+            <span>Better Performance</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-box legend-bad"></span>
+            <span>Worse Performance</span>
+        </div>
+    </div>
 
+    <table class="comparison-table" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="border-bottom: 2px solid #ddd;">
+                <th style="padding: 10px; width: 33%; font-size: 16px;">
+                    ${p1Name}
+                    <span style="color:#1f77b4; font-size:14px;">(${p1Role})</span>
+                </th>
+                <th style="padding: 10px; width: 34%;">Metric</th>
+                <th style="padding: 10px; width: 33%; font-size: 16px;">
+                    ${p2Name}
+                    <span style="color:#1f77b4; font-size:14px;">(${p2Role})</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
 `;
 
     // === TOP HALF: POSITIVE INDICATORS (Higher is Better) ===
