@@ -258,9 +258,6 @@ h1.page-title {
 }
 
 /* Tournament card */
-.tournament-report-card {
-  /* nothing extra */
-}
 
 .tournament-card-header {
   display: flex;
@@ -395,16 +392,6 @@ h1.page-title {
   flex-shrink: 0;
 }
 
-/* Team Players card */
-.team-players-card {
-  /* nothing extra */
-}
-
-/* Recommended Action card */
-.rec-card {
-  /* nothing extra */
-}
-
 .rec-text {
   color: #f59e0b;
   font-weight: 600;
@@ -423,14 +410,6 @@ h1.page-title {
   grid-template-columns: 2fr 1fr 1fr;
   gap: 14px;
   margin-bottom: 14px;
-}
-
-.applications-card {
-  /* nothing extra */
-}
-
-.compact-pie-card {
-  /* nothing extra */
 }
 
 .compact-pie-card .chart-wrap canvas {
@@ -482,10 +461,6 @@ h1.page-title {
   font-weight: 800;
   color: #f0f2f5;
   line-height: 1;
-}
-
-.absences-card {
-  /* nothing extra */
 }
 
 .business-rule-note {

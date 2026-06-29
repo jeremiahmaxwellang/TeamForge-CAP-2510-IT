@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const res = await fetch('settings/api/all-team-details');
             const data = await res.json();
             if (data.success) {
-                teamName    = data.teamName    || teamName;
+                teamName = data.teamName || teamName;
                 teamLogoUrl = data.teamLogoUrl || teamLogoUrl;
             }
         } catch (err) {
@@ -25,24 +25,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     /* ============================================================
         DOM REFS
        ============================================================ */
-    const tournamentStartDateInput  = document.getElementById('tournamentStartDate');
-    const tournamentEndDateInput    = document.getElementById('tournamentEndDate');
-    const applyTournamentRangeBtn   = document.getElementById('applyTournamentRange');
-    const resetTournamentRangeBtn   = document.getElementById('resetTournamentRange');
-    const tournamentRangeSummary    = document.getElementById('tournamentRangeSummary');
-    const tournamentResultLegend    = document.getElementById('tournament-result-legend');
-    const printReportBtn            = document.getElementById('printReportBtn');
-    const openTermBreakdownBtn      = document.getElementById('openTermBreakdownBtn');
-    const termBreakdownModal        = document.getElementById('termBreakdownModal');
-    const closeTermBreakdownBtn     = document.getElementById('closeTermBreakdownBtn');
-    const saveTermReportBtn         = document.getElementById('saveTermReportBtn');
-    const termSelectElements        = Array.from(document.querySelectorAll('.term-select'));
-    const termSummaryElements       = [
+    const tournamentStartDateInput = document.getElementById('tournamentStartDate');
+    const tournamentEndDateInput = document.getElementById('tournamentEndDate');
+    const applyTournamentRangeBtn = document.getElementById('applyTournamentRange');
+    const resetTournamentRangeBtn = document.getElementById('resetTournamentRange');
+    const tournamentRangeSummary = document.getElementById('tournamentRangeSummary');
+    const tournamentResultLegend = document.getElementById('tournament-result-legend');
+    const printReportBtn = document.getElementById('printReportBtn');
+    const openTermBreakdownBtn = document.getElementById('openTermBreakdownBtn');
+    const termBreakdownModal = document.getElementById('termBreakdownModal');
+    const closeTermBreakdownBtn = document.getElementById('closeTermBreakdownBtn');
+    const saveTermReportBtn = document.getElementById('saveTermReportBtn');
+    const termSelectElements = Array.from(document.querySelectorAll('.term-select'));
+    const termSummaryElements = [
         document.getElementById('termSummary1'),
         document.getElementById('termSummary2'),
         document.getElementById('termSummary3')
     ];
-    const termResultDetailElements  = [
+    const termResultDetailElements = [
         document.getElementById('termResultDetails1'),
         document.getElementById('termResultDetails2'),
         document.getElementById('termResultDetails3')
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         CONSTANTS & TERM DATES
        ============================================================ */
     const tournamentResultColors = {
-        Wins:   '#128b0d',
+        Wins: '#128b0d',
         Losses: '#841a14'
     };
 
@@ -121,11 +121,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const escapeHtml = (value) => String(value)
-        .replace(/&/g,  '&amp;')
-        .replace(/</g,  '&lt;')
-        .replace(/>/g,  '&gt;')
-        .replace(/"/g,  '&quot;')
-        .replace(/'/g,  '&#39;');
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 
     const normalizeResultLabel = (resultValue) => {
         const normalized = String(resultValue || '').trim().toUpperCase();
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let losses = 0;
         rows.forEach((row) => {
             const v = String(row.result || '').trim().toUpperCase();
-            if (v === 'W') wins   += 1;
+            if (v === 'W') wins += 1;
             if (v === 'L') losses += 1;
         });
         return { wins, losses };
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const waitForImageLoad = (imgEl) => new Promise((resolve) => {
         if (!imgEl) { resolve(); return; }
         if (imgEl.complete && imgEl.naturalWidth > 0) { resolve(); return; }
-        imgEl.addEventListener('load',  resolve, { once: true });
+        imgEl.addEventListener('load', resolve, { once: true });
         imgEl.addEventListener('error', resolve, { once: true });
     });
 
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         img.crossOrigin = 'anonymous';
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            canvas.width  = img.width;
+            canvas.width = img.width;
             canvas.height = img.height;
             canvas.getContext('2d').drawImage(img, 0, 0);
             resolve(canvas.toDataURL('image/png'));
@@ -177,9 +177,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         img.src = imageUrl;
     });
 
+    /**
+ * Builds and returns a DOM header element for html2canvas-based PDF exports.
+ * Mirrors the layout of drawPdfHeader for visual consistency.
+ *
+ * @param {string} subtitle - Report title shown below the team name
+ * @returns {{ header: HTMLElement, footer: HTMLElement, imageEls: HTMLImageElement[] }}
+ */
+    const buildDomExportHeader = (subtitle) => {
+        const header = document.createElement('div');
+        Object.assign(header.style, {
+            display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
+            gap: '12px', padding: '4px 0 16px'
+        });
+
+        const logoImg = document.createElement('img');
+        logoImg.src = teamLogoUrl;
+        logoImg.alt = 'Team Logo';
+        Object.assign(logoImg.style, { width: '72px', height: '72px', objectFit: 'contain' });
+
+        const textWrapper = document.createElement('div');
+        Object.assign(textWrapper.style, { display: 'flex', flexDirection: 'column', justifyContent: 'center' });
+
+        const teamHeading = document.createElement('h1');
+        teamHeading.textContent = teamName;
+        Object.assign(teamHeading.style, { margin: '0', fontSize: '20px', color: '#1f77b4' });
+
+        const subtitleEl = document.createElement('p');
+        subtitleEl.textContent = subtitle;
+        Object.assign(subtitleEl.style, { margin: '4px 0 0', fontSize: '14px', color: '#323232' });
+
+        textWrapper.append(teamHeading, subtitleEl);
+
+        const rightLogos = document.createElement('div');
+        Object.assign(rightLogos.style, { display: 'flex', gap: '8px', marginLeft: 'auto', alignItems: 'center' });
+
+        const makeLogo = (src, alt) => {
+            const img = document.createElement('img');
+            img.src = src; img.alt = alt;
+            Object.assign(img.style, { width: '60px', height: '60px', objectFit: 'contain' });
+            return img;
+        };
+
+        const dlsuImg = makeLogo('/images/dlsu_logo.png', 'DLSU Logo');
+        const teamforgeImg = makeLogo('/images/teamforge_logo_white.png', 'TeamForge Logo');
+        rightLogos.append(dlsuImg, teamforgeImg);
+
+        header.append(logoImg, textWrapper, rightLogos);
+
+        const footer = document.createElement('p');
+        footer.textContent = 'powered by TeamForge';
+        Object.assign(footer.style, {
+            margin: '18px 0 0', textAlign: 'center',
+            fontSize: '14px', fontWeight: '600', color: '#1f2937'
+        });
+
+        return { header, footer, imageEls: [logoImg, dlsuImg, teamforgeImg] };
+    };
 
     /* ============================================================
-        PDF HEADER BUILDER  (shared by both PDF generators)
+        OLD PDF HEADER BUILDER  (shared by both PDF generators)
 
         Draws the standard report header onto a jsPDF document:
           [team logo]  Team Name          [DLSU logo] [TeamForge logo]
@@ -192,13 +249,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         @returns {number}          - Y coordinate to start body content after the divider
        ============================================================ */
     const drawPdfHeader = (doc, { team, dlsu, teamforge }, subtitle) => {
-        const LOGO_X      = 14;
-        const LOGO_Y      = 10;
-        const LOGO_SIZE   = 18;
+        const LOGO_X = 14;
+        const LOGO_Y = 10;
+        const LOGO_SIZE = 18;
         const TEXT_INDENT = team ? LOGO_X + LOGO_SIZE + 4 : LOGO_X;
-        const RIGHT_X     = 160;
-        const RIGHT_SIZE  = 12;
-        const DIVIDER_Y   = 32;
+        const RIGHT_X = 160;
+        const RIGHT_SIZE = 12;
+        const DIVIDER_Y = 32;
 
         if (team) {
             try { doc.addImage(team, 'PNG', LOGO_X, LOGO_Y, LOGO_SIZE, LOGO_SIZE); }
@@ -214,7 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         doc.text(subtitle, TEXT_INDENT, 28);
 
         if (dlsu) {
-            try { doc.addImage(dlsu, 'PNG', RIGHT_X,      LOGO_Y, RIGHT_SIZE, RIGHT_SIZE); }
+            try { doc.addImage(dlsu, 'PNG', RIGHT_X, LOGO_Y, RIGHT_SIZE, RIGHT_SIZE); }
             catch (e) { console.warn('[PDF] Could not add DLSU logo:', e); }
         }
 
@@ -250,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const rowDate = normalizeDateOnly(row.tournamentDate);
         if (!rowDate) return false;
         if (startDate && rowDate < startDate) return false;
-        if (endDate   && rowDate > endDate)   return false;
+        if (endDate && rowDate > endDate) return false;
         return true;
     });
 
@@ -259,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!termRange) return [];
 
         const startDate = normalizeDateOnly(`${termRange.start}T00:00:00`);
-        const endDate   = normalizeDateOnly(`${termRange.end}T00:00:00`);
+        const endDate = normalizeDateOnly(`${termRange.end}T00:00:00`);
         if (!startDate || !endDate) return [];
 
         return getRowsInDateRange(startDate, endDate);
@@ -326,17 +383,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         targetEl.innerHTML = `
             <ul class="tournament-detail-list">
                 ${sortedRows.map((row) => {
-                    const title       = String(row.name || row.tournamentName || row.title || 'Untitled Tournament').trim() || 'Untitled Tournament';
-                    const dateLabel   = formatDateLabel(row.tournamentDate) || 'Unknown date';
-                    const resultLabel = normalizeResultLabel(row.result);
-                    return `
+            const title = String(row.name || row.tournamentName || row.title || 'Untitled Tournament').trim() || 'Untitled Tournament';
+            const dateLabel = formatDateLabel(row.tournamentDate) || 'Unknown date';
+            const resultLabel = normalizeResultLabel(row.result);
+            return `
                         <li class="tournament-detail-item">
                             <div class="tournament-detail-title">${escapeHtml(title)}</div>
                             <p class="tournament-detail-meta">Date: ${escapeHtml(dateLabel)}</p>
                             <p class="tournament-detail-meta">Result: ${escapeHtml(resultLabel)}</p>
                         </li>
                     `;
-                }).join('')}
+        }).join('')}
             </ul>
         `;
     };
@@ -352,7 +409,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyTournamentRange = () => {
         const startValue = tournamentStartDateInput ? tournamentStartDateInput.value : '';
-        const endValue   = tournamentEndDateInput   ? tournamentEndDateInput.value   : '';
+        const endValue = tournamentEndDateInput ? tournamentEndDateInput.value : '';
 
         if ((startValue && !endValue) || (!startValue && endValue)) {
             alert('Please select both start and end dates.');
@@ -364,9 +421,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const startDate     = startValue ? normalizeDateOnly(`${startValue}T00:00:00`) : null;
-        const endDate       = endValue   ? normalizeDateOnly(`${endValue}T00:00:00`)   : null;
-        const filteredRows  = getRowsInDateRange(startDate, endDate);
+        const startDate = startValue ? normalizeDateOnly(`${startValue}T00:00:00`) : null;
+        const endDate = endValue ? normalizeDateOnly(`${endValue}T00:00:00`) : null;
+        const filteredRows = getRowsInDateRange(startDate, endDate);
         const { wins, losses } = countWinLoss(filteredRows);
 
         renderTournamentLegend();
@@ -379,11 +436,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         TOURNAMENT — TERM CHARTS
        ============================================================ */
     const renderTermChart = (chartIndex, termName) => {
-        const canvasEl  = document.getElementById(termChartCanvasIds[chartIndex]);
+        const canvasEl = document.getElementById(termChartCanvasIds[chartIndex]);
         const summaryEl = termSummaryElements[chartIndex];
         if (!canvasEl || !summaryEl) return;
 
-        const rowsInTerm       = getRowsInTerm(termName);
+        const rowsInTerm = getRowsInTerm(termName);
         const { wins, losses } = countWinLoss(rowsInTerm);
 
         if (termCharts[chartIndex]) termCharts[chartIndex].destroy();
@@ -432,7 +489,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const response = await fetch('/reports/tournament_results');
-            const data     = await response.json();
+            const data = await response.json();
 
             if (!response.ok || !data.success) {
                 throw new Error(data.message || 'Failed to load tournament report');
@@ -487,41 +544,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!printReportBtn) return;
 
         const originalLabel = printReportBtn.textContent;
-        printReportBtn.disabled  = true;
+        printReportBtn.disabled = true;
         printReportBtn.textContent = 'Preparing...';
 
         try {
-            const target          = document.querySelector('.reports-shell') || document.body;
+            const target = document.querySelector('.reports-shell') || document.body;
             const originalDisplay = printReportBtn.style.display;
 
             printReportBtn.style.display = 'none';
 
             const canvas = await html2canvas(target, {
-                useCORS:      true,
+                useCORS: true,
                 backgroundColor: '#ffffff',
-                width:        target.scrollWidth,
-                height:       target.scrollHeight,
-                scrollX:      0,
-                scrollY:      -window.scrollY,
-                windowWidth:  target.scrollWidth,
+                width: target.scrollWidth,
+                height: target.scrollHeight,
+                scrollX: 0,
+                scrollY: -window.scrollY,
+                windowWidth: target.scrollWidth,
                 windowHeight: target.scrollHeight,
-                scale:        2
+                scale: 2
             });
 
             printReportBtn.style.display = originalDisplay;
 
-            const link       = document.createElement('a');
-            const timestamp  = new Date().toISOString().replace(/[:.]/g, '-');
-            link.download    = `reports-screenshot-${timestamp}.png`;
-            link.href        = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `reports-screenshot-${timestamp}.png`;
+            link.href = canvas.toDataURL('image/png');
             link.click();
         } catch (error) {
             console.error('Failed to capture screenshot:', error);
             alert('Failed to capture screenshot. Please try again.');
         } finally {
             printReportBtn.style.display = '';
-            printReportBtn.disabled      = false;
-            printReportBtn.textContent   = originalLabel;
+            printReportBtn.disabled = false;
+            printReportBtn.textContent = originalLabel;
         }
     };
 
@@ -542,19 +599,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const target = document.querySelector('.term-modal-content');
         if (!target) return;
 
-        const originalLabel         = saveTermReportBtn.textContent;
-        const originalSaveDisplay   = saveTermReportBtn.style.display;
-        const originalCloseDisplay  = closeTermBreakdownBtn ? closeTermBreakdownBtn.style.display : '';
-        const originalMaxHeight     = target.style.maxHeight;
-        const originalOverflow      = target.style.overflow;
-        const originalScrollTop     = target.scrollTop;
-        const termSelectDisplays    = termSelectElements.map((el) => ({ element: el, display: el.style.display }));
+        const originalLabel = saveTermReportBtn.textContent;
+        const originalSaveDisplay = saveTermReportBtn.style.display;
+        const originalCloseDisplay = closeTermBreakdownBtn ? closeTermBreakdownBtn.style.display : '';
+        const originalMaxHeight = target.style.maxHeight;
+        const originalOverflow = target.style.overflow;
+        const originalScrollTop = target.scrollTop;
+        const termSelectDisplays = termSelectElements.map((el) => ({ element: el, display: el.style.display }));
 
         let exportHeader = null;
         let exportFooter = null;
 
-        saveTermReportBtn.disabled     = true;
-        saveTermReportBtn.textContent  = 'Saving...';
+        saveTermReportBtn.disabled = true;
+        saveTermReportBtn.textContent = 'Saving...';
 
         try {
             // Hide UI controls from the capture
@@ -562,111 +619,67 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (closeTermBreakdownBtn) closeTermBreakdownBtn.style.display = 'none';
             termSelectDisplays.forEach(({ element }) => { element.style.display = 'none'; });
 
-            // ── Build export header (DOM-based for html2canvas) ──────────
-            exportHeader = document.createElement('div');
-            Object.assign(exportHeader.style, {
-                display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
-                gap: '12px', padding: '4px 0 16px'
-            });
-
-            const exportLogo = document.createElement('img');
-            exportLogo.src             = teamLogoUrl;
-            exportLogo.alt             = 'Team Logo';
-            Object.assign(exportLogo.style, { width: '72px', height: '72px', objectFit: 'contain' });
-
-            const headerTextWrapper = document.createElement('div');
-            Object.assign(headerTextWrapper.style, { display: 'flex', flexDirection: 'column', justifyContent: 'center' });
-
-            const teamNameHeading = document.createElement('h1');
-            teamNameHeading.textContent = teamName;
-            Object.assign(teamNameHeading.style, { margin: '0', fontSize: '20px', color: '#1f77b4' });
-
-            const reportTitleHeading = document.createElement('p');
-            reportTitleHeading.textContent = 'Team Tournament Breakdown Report';
-            Object.assign(reportTitleHeading.style, { margin: '4px 0 0', fontSize: '14px', color: '#323232' });
-
-            headerTextWrapper.append(teamNameHeading, reportTitleHeading);
-
-            const rightLogosWrapper = document.createElement('div');
-            Object.assign(rightLogosWrapper.style, { display: 'flex', gap: '8px', marginLeft: 'auto', alignItems: 'center' });
-
-            const makeSideLogoEl = (src, alt) => {
-                const img = document.createElement('img');
-                img.src = src; img.alt = alt;
-                Object.assign(img.style, { width: '60px', height: '60px', objectFit: 'contain' });
-                return img;
-            };
-
-            const dlsuLogoImg      = makeSideLogoEl('/images/dlsu_logo.png',              'DLSU Logo');
-            const teamforgeLogoImg = makeSideLogoEl('/images/teamforge_logo_white.png',   'TeamForge Logo');
-
-            rightLogosWrapper.append(dlsuLogoImg, teamforgeLogoImg);
-            exportHeader.append(exportLogo, headerTextWrapper, rightLogosWrapper);
-
-            exportFooter = document.createElement('p');
-            exportFooter.textContent = 'powered by TeamForge';
-            Object.assign(exportFooter.style, {
-                margin: '18px 0 0', textAlign: 'center',
-                fontSize: '14px', fontWeight: '600', color: '#1f2937'
-            });
+            const { header: exportHeader, footer: exportFooter, imageEls } = buildDomExportHeader('Team Tournament Breakdown Report');
 
             target.insertBefore(exportHeader, target.firstChild);
             target.appendChild(exportFooter);
 
             // Expand modal so html2canvas captures the full content
             target.style.maxHeight = 'none';
-            target.style.overflow  = 'visible';
-            target.scrollTop       = 0;
+            target.style.overflow = 'visible';
+            target.scrollTop = 0;
 
-            await Promise.all([
-                waitForImageLoad(exportLogo),
-                waitForImageLoad(dlsuLogoImg),
-                waitForImageLoad(teamforgeLogoImg)
-            ]);
+            // await Promise.all([
+            //     waitForImageLoad(exportLogo),
+            //     waitForImageLoad(dlsuLogoImg),
+            //     waitForImageLoad(teamforgeLogoImg)
+            // ]);
             await waitForNextPaint();
 
             const canvas = await html2canvas(target, {
-                useCORS:      true,
+                useCORS: true,
                 backgroundColor: '#ffffff',
-                width:        target.scrollWidth,
-                height:       target.scrollHeight,
-                windowWidth:  target.scrollWidth,
+                width: target.scrollWidth,
+                height: target.scrollHeight,
+                windowWidth: target.scrollWidth,
                 windowHeight: target.scrollHeight,
-                scrollX:      0,
-                scrollY:      0,
-                scale:        2,
+                scrollX: 0,
+                scrollY: 0,
+                scale: 2,
                 ignoreElements: (el) => {
                     if (!el) return false;
-                    if (el.id === 'saveTermReportBtn')    return true;
+                    if (el.id === 'saveTermReportBtn') return true;
                     if (el.id === 'closeTermBreakdownBtn') return true;
                     if (el.classList && el.classList.contains('term-select')) return true;
                     return false;
                 }
             });
 
-            const imageData  = canvas.toDataURL('image/png');
-            const { jsPDF }  = window.jspdf;
-            const pdf        = new jsPDF({
+            const imageData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
                 orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
-                unit:        'mm',
-                format:      'a4'
+                unit: 'mm',
+                format: 'a4'
             });
 
-            const pageWidth    = pdf.internal.pageSize.getWidth();
-            const pageHeight   = pdf.internal.pageSize.getHeight();
-            const imgWidthMm   = canvas.width  * 0.264583;
-            const imgHeightMm  = canvas.height * 0.264583;
-            const ratio        = Math.min(pageWidth / imgWidthMm, pageHeight / imgHeightMm);
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imgWidthMm = canvas.width * 0.264583;
+            const imgHeightMm = canvas.height * 0.264583;
+            const ratio = Math.min(pageWidth / imgWidthMm, pageHeight / imgHeightMm);
 
             pdf.addImage(
                 imageData, 'PNG',
-                (pageWidth  - imgWidthMm  * ratio) / 2,
+                (pageWidth - imgWidthMm * ratio) / 2,
                 (pageHeight - imgHeightMm * ratio) / 2,
                 imgWidthMm * ratio,
                 imgHeightMm * ratio,
                 undefined, 'FAST'
             );
-            pdf.save('End_of_Year_Tournament_Results_Report.pdf');
+
+            const safeTeamName = teamName.replace(/\s+/g, '_');
+            pdf.save(`${safeTeamName}_Tournament_Results_Report.pdf`);
 
         } catch (error) {
             console.error('Failed to save term report screenshot:', error);
@@ -679,12 +692,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (closeTermBreakdownBtn) closeTermBreakdownBtn.style.display = originalCloseDisplay;
 
             target.style.maxHeight = originalMaxHeight;
-            target.style.overflow  = originalOverflow;
-            target.scrollTop       = originalScrollTop;
+            target.style.overflow = originalOverflow;
+            target.scrollTop = originalScrollTop;
 
             termSelectDisplays.forEach(({ element, display }) => { element.style.display = display; });
 
-            saveTermReportBtn.disabled    = false;
+            saveTermReportBtn.disabled = false;
             saveTermReportBtn.textContent = originalLabel;
         }
     };
@@ -695,46 +708,46 @@ document.addEventListener('DOMContentLoaded', async () => {
        ============================================================ */
     const ROLE_METRICS = {
         1: [ // Top
-            { key: 'averageTotalDamageTaken',   label: 'Tanking'     },
-            { key: 'averageDamageShare',         label: 'Dmg Share'   },
-            { key: 'averageKDA',                 label: 'KDA'         },
-            { key: 'averageCsPerMinute',         label: 'CS/Min'      }
+            { key: 'averageTotalDamageTaken', label: 'Tanking' },
+            { key: 'averageDamageShare', label: 'Dmg Share' },
+            { key: 'averageKDA', label: 'KDA' },
+            { key: 'averageCsPerMinute', label: 'CS/Min' }
         ],
         2: [ // Jungle
-            { key: 'averageKillParticipation',   label: 'KP'          },
-            { key: 'averageVisionScorePerMinute',label: 'Vision/Min'  },
-            { key: 'averageKDA',                 label: 'KDA'         },
-            { key: 'averageDragonKills',         label: 'Dragons'     }
+            { key: 'averageKillParticipation', label: 'KP' },
+            { key: 'averageVisionScorePerMinute', label: 'Vision/Min' },
+            { key: 'averageKDA', label: 'KDA' },
+            { key: 'averageDragonKills', label: 'Dragons' }
         ],
         3: [ // Mid
-            { key: 'averageDamageShare',         label: 'Dmg Share'   },
-            { key: 'averageKillParticipation',   label: 'KP'          },
-            { key: 'averageKDA',                 label: 'KDA'         },
-            { key: 'averageCsPerMinute',         label: 'CS/Min'      }
+            { key: 'averageDamageShare', label: 'Dmg Share' },
+            { key: 'averageKillParticipation', label: 'KP' },
+            { key: 'averageKDA', label: 'KDA' },
+            { key: 'averageCsPerMinute', label: 'CS/Min' }
         ],
         4: [ // ADC
-            { key: 'averageDamageShare',         label: 'Dmg Share'   },
-            { key: 'averageGoldPerMinute',       label: 'Gold/Min'    },
-            { key: 'averageKDA',                 label: 'KDA'         },
-            { key: 'averageCsPerMinute',         label: 'CS/Min'      }
+            { key: 'averageDamageShare', label: 'Dmg Share' },
+            { key: 'averageGoldPerMinute', label: 'Gold/Min' },
+            { key: 'averageKDA', label: 'KDA' },
+            { key: 'averageCsPerMinute', label: 'CS/Min' }
         ],
         5: [ // Support
-            { key: 'averageVisionScoreShare',    label: 'Vision Share'},
-            { key: 'averageKillParticipation',   label: 'KP'          },
-            { key: 'averageAssists',             label: 'Assists'     },
-            { key: 'averageWardsPlaced',         label: 'Wards Placed'}
+            { key: 'averageVisionScoreShare', label: 'Vision Share' },
+            { key: 'averageKillParticipation', label: 'KP' },
+            { key: 'averageAssists', label: 'Assists' },
+            { key: 'averageWardsPlaced', label: 'Wards Placed' }
         ]
     };
 
     const ROLE_NAMES = { 1: 'Top', 2: 'Jungle', 3: 'Mid', 4: 'ADC', 5: 'Support' };
 
     const generateApplicantPdf = async (printBtn) => {
-        const originalText   = printBtn.innerHTML;
-        printBtn.innerHTML   = 'Generating PDF...';
-        printBtn.disabled    = true;
+        const originalText = printBtn.innerHTML;
+        printBtn.innerHTML = 'Generating PDF...';
+        printBtn.disabled = true;
 
         try {
-            const res  = await fetch('/applicant_list/report_data');
+            const res = await fetch('/applicant_list/report_data');
             const data = await res.json();
             if (!data.success) throw new Error('Failed to fetch report data');
 
@@ -764,11 +777,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             // --------------------------------------------------------
 
             const { jsPDF } = window.jspdf;
-            const doc       = new jsPDF();
+            const doc = new jsPDF();
 
             // Load all logos then draw
-            const logos  = await loadStandardLogos();
-            let startY   = drawPdfHeader(doc, logos, 'Applicant Performance Report');
+            const logos = await loadStandardLogos();
+            let startY = drawPdfHeader(doc, logos, 'Applicant Performance Report');
 
             // One table per role
             for (let roleId = 1; roleId <= 5; roleId++) {
@@ -809,13 +822,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 doc.text(`${ROLE_NAMES[roleId]} Lane Candidates`, 14, startY);
 
                 doc.autoTable({
-                    startY:     startY + 4,
+                    startY: startY + 4,
                     head,
                     body,
-                    theme:      'grid',
+                    theme: 'grid',
                     headStyles: { fillColor: [42, 45, 51] },
-                    margin:     { left: 14, right: 14 },
-                    styles:     { fontSize: 10 }
+                    margin: { left: 14, right: 14 },
+                    styles: { fontSize: 10 }
                 });
 
                 startY = doc.lastAutoTable.finalY + 15;
@@ -830,7 +843,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('An error occurred while generating the report.');
         } finally {
             printBtn.innerHTML = originalText;
-            printBtn.disabled  = false;
+            printBtn.disabled = false;
         }
     };
 
@@ -843,7 +856,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!tbody) return;
 
         try {
-            const res  = await fetch('/reports/best_performing_applicants');
+            const res = await fetch('/reports/best_performing_applicants');
             const data = await res.json();
 
             if (!Array.isArray(data) || data.length === 0) {
@@ -852,10 +865,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             tbody.innerHTML = data.map((applicant, idx) => {
-                const winrate       = Number.parseFloat(applicant.winrate);
-                const fmtWinrate    = Number.isFinite(winrate) ? `${winrate.toFixed(1)}%` : '0.0%';
+                const winrate = Number.parseFloat(applicant.winrate);
+                const fmtWinrate = Number.isFinite(winrate) ? `${winrate.toFixed(1)}%` : '0.0%';
                 const applicantName = applicant.applicantName || 'Applicant';
-                const roleApplied   = applicant.roleApplied   || 'N/A';
+                const roleApplied = applicant.roleApplied || 'N/A';
 
                 return `
                     <tr>
@@ -877,7 +890,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!tbody) return;
 
         try {
-            const res  = await fetch('/reports/best_communication_applicants');
+            const res = await fetch('/reports/best_communication_applicants');
             const data = await res.json();
 
             if (!Array.isArray(data) || data.length === 0) {
@@ -886,10 +899,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             tbody.innerHTML = data.map((applicant, idx) => {
-                const comms       = Number.parseFloat(applicant.communicationRating);
-                const rounded     = Number.isFinite(comms) ? Math.max(1, Math.min(5, Math.round(comms))) : 0;
-                const commsClass  = rounded >= 1 && rounded <= 5 ? `comms-${rounded}` : '';
-                const ratingHtml  = commsClass
+                const comms = Number.parseFloat(applicant.communicationRating);
+                const rounded = Number.isFinite(comms) ? Math.max(1, Math.min(5, Math.round(comms))) : 0;
+                const commsClass = rounded >= 1 && rounded <= 5 ? `comms-${rounded}` : '';
+                const ratingHtml = commsClass
                     ? `<span class="${commsClass}">${rounded}</span>`
                     : `<span>${rounded}</span>`;
 
@@ -921,17 +934,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadApplicantRolesChart = async () => {
         try {
-            const res  = await fetch('/reports/applicant_roles');
+            const res = await fetch('/reports/applicant_roles');
             const data = await res.json();
 
-            const labels      = data.map((p) => p.displayedRole);
+            const labels = data.map((p) => p.displayedRole);
             const percentages = data.map((p) => p.role_percentage);
-            const roleColors  = {
-                Top:        '#3b82f6',
-                Mid:        '#f59e0b',
-                Jungle:     '#9ca3af',
+            const roleColors = {
+                Top: '#3b82f6',
+                Mid: '#f59e0b',
+                Jungle: '#9ca3af',
                 'AD Carry': '#f97316',
-                Support:    '#128b0d'
+                Support: '#128b0d'
             };
 
             new Chart(document.getElementById('roleChart'), {
@@ -961,14 +974,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadApplicantStatusChart = async () => {
         try {
-            const res  = await fetch('/reports/applicant_statuses');
+            const res = await fetch('/reports/applicant_statuses');
             const data = await res.json();
 
-            const labels       = data.map((a) => a.status);
-            const percentages  = data.map((a) => a.status_percentage);
+            const labels = data.map((a) => a.status);
+            const percentages = data.map((a) => a.status_percentage);
             const statusColors = {
                 Accepted: '#128b0d',
-                Pending:  '#f59e0b',
+                Pending: '#f59e0b',
                 Rejected: '#841a14'
             };
 
@@ -1003,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', async () => {
        ============================================================ */
     const loadCurrentPlayers = async () => {
         try {
-            const res  = await fetch('/reports/current_players');
+            const res = await fetch('/reports/current_players');
             const data = await res.json();
 
             const tbody = document.querySelector('.role-table tbody');
@@ -1019,23 +1032,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Build recommendation text
-            const allRoles     = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
+            const allRoles = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
             const criticalRoles = [];
-            const lowRoles      = [];
-            const missingRoles  = [];
+            const lowRoles = [];
+            const missingRoles = [];
 
             allRoles.forEach((role) => {
                 const entry = data.find((p) => p.displayedRole === role);
-                if (!entry)                              missingRoles.push(role);
+                if (!entry) missingRoles.push(role);
                 else if (Number(entry.players_left) === 0) criticalRoles.push(role);
                 else if (Number(entry.players_left) === 1) lowRoles.push(role);
             });
 
-            const recEl      = document.getElementById('recommended-action-text');
+            const recEl = document.getElementById('recommended-action-text');
             if (!recEl) return;
 
             const urgentRoles = [...new Set([...missingRoles, ...criticalRoles])];
-            const parts       = [];
+            const parts = [];
 
             if (urgentRoles.length > 0) {
                 parts.push(`Urgently recruit ${urgentRoles.join(', ')} player${urgentRoles.length > 1 ? 's' : ''} — no remaining players after this semester.`);
@@ -1059,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', async () => {
        ============================================================ */
     const loadApplicationsTable = async () => {
         try {
-            const res  = await fetch('/reports/applications_total');
+            const res = await fetch('/reports/applications_total');
             const data = await res.json();
 
             const tbody = document.querySelector('#applications-table tbody');
@@ -1068,7 +1081,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const options = { year: 'numeric', month: 'short', day: 'numeric' };
             tbody.innerHTML = data.map((a) => {
                 const start = new Date(a.startDate).toLocaleDateString('en-US', options);
-                const end   = new Date(a.endDate).toLocaleDateString('en-US', options);
+                const end = new Date(a.endDate).toLocaleDateString('en-US', options);
                 return `
                     <tr>
                         <td>${start} - ${end}</td>
@@ -1087,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
        ============================================================ */
     const loadAttendanceSummary = async (semester = 'current') => {
         try {
-            const res  = await fetch(`/reports/attendance_summary?semester=${semester}`);
+            const res = await fetch(`/reports/attendance_summary?semester=${semester}`);
             const json = await res.json();
 
             if (!json.success) {
@@ -1098,9 +1111,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { totalEvents, totalAbsences, top5 } = json.data;
 
             // Stat boxes
-            const eventsEl   = document.getElementById('totalEventsCount');
+            const eventsEl = document.getElementById('totalEventsCount');
             const absencesEl = document.getElementById('totalAbsencesCount');
-            if (eventsEl)   eventsEl.textContent   = totalEvents;
+            if (eventsEl) eventsEl.textContent = totalEvents;
             if (absencesEl) absencesEl.textContent = totalAbsences;
 
             // Top-5 table
@@ -1113,9 +1126,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             tbody.innerHTML = top5.map((row) => {
-                const pct        = Number(row.absencePercentage);
-                const pctClass   = pct >= 50 ? 'absence-pct-red' : '';
-                const pctLabel   = `${pct}% (${row.absences} out of ${row.invitedEvents} events)`;
+                const pct = Number(row.absencePercentage);
+                const pctClass = pct >= 50 ? 'absence-pct-red' : '';
+                const pctLabel = `${pct}% (${row.absences} out of ${row.invitedEvents} events)`;
                 return `
                     <tr>
                         <td>${row.absences}</td>
@@ -1141,39 +1154,68 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Wire up the Download Report button for attendance
+    // DOWNLOAD ATTENDANCE REPORT
     const generateAttendancePdfBtn = document.getElementById('generateAttendancePdfBtn');
     if (generateAttendancePdfBtn) {
-        generateAttendancePdfBtn.addEventListener('click', () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+        generateAttendancePdfBtn.addEventListener('click', async () => {
+            const originalText = generateAttendancePdfBtn.textContent;
+            generateAttendancePdfBtn.textContent = 'Generating...';
+            generateAttendancePdfBtn.disabled = true;
 
-            doc.setFontSize(16);
-            doc.text('Attendance Summary Report', 14, 18);
-            doc.setFontSize(11);
-            doc.text(`Semester: ${attendanceSemesterSelect ? attendanceSemesterSelect.options[attendanceSemesterSelect.selectedIndex].text : 'Current Semester'}`, 14, 28);
+            try {
+                if (!window.jspdf || typeof window.jspdf.jsPDF !== 'function') {
+                    alert('PDF export tool is not available right now.');
+                    return;
+                }
 
-            const totalEventsVal   = document.getElementById('totalEventsCount')?.textContent   ?? '—';
-            const totalAbsencesVal = document.getElementById('totalAbsencesCount')?.textContent ?? '—';
-            doc.text(`Total Events: ${totalEventsVal}    Total Absences: ${totalAbsencesVal}`, 14, 36);
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-            const tbody = document.getElementById('absences-table-body');
-            const rows  = [];
-            if (tbody) {
-                tbody.querySelectorAll('tr').forEach((tr) => {
-                    rows.push(Array.from(tr.querySelectorAll('td')).map((td) => td.textContent.trim()));
+                // ── Shared branded header ──────────────────────────────
+                const logos = await loadStandardLogos();
+                const semesterLabel = attendanceSemesterSelect
+                    ? attendanceSemesterSelect.options[attendanceSemesterSelect.selectedIndex].text
+                    : 'Current Semester';
+                let startY = drawPdfHeader(doc, logos, `Attendance Summary Report — ${semesterLabel}`);
+
+                // ── Stat summary line ──────────────────────────────────
+                const totalEventsVal = document.getElementById('totalEventsCount')?.textContent ?? '—';
+                const totalAbsencesVal = document.getElementById('totalAbsencesCount')?.textContent ?? '—';
+
+                doc.setFontSize(10);
+                doc.setTextColor(50, 50, 50);
+                doc.text(`Total Events: ${totalEventsVal}    Total Absences: ${totalAbsencesVal}`, 14, startY);
+                startY += 8;
+
+                // ── Top-5 absences table ───────────────────────────────
+                const tbody = document.getElementById('absences-table-body');
+                const rows = [];
+                if (tbody) {
+                    tbody.querySelectorAll('tr').forEach((tr) => {
+                        rows.push(Array.from(tr.querySelectorAll('td')).map((td) => td.textContent.trim()));
+                    });
+                }
+
+                doc.autoTable({
+                    startY,
+                    head: [['Absences', 'Late', 'Full Name', 'Riot ID', 'Position', '% of Absences']],
+                    body: rows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [42, 45, 51] },   // matches applicant report
+                    styles: { fontSize: 9 },
+                    margin: { left: 14, right: 14 }
                 });
+
+                const safeTeamName = teamName.replace(/\s+/g, '_');
+                doc.save(`${safeTeamName}_Attendance_Report.pdf`);
+
+            } catch (err) {
+                console.error('Attendance PDF error:', err);
+                alert('Failed to generate attendance report.');
+            } finally {
+                generateAttendancePdfBtn.textContent = originalText;
+                generateAttendancePdfBtn.disabled = false;
             }
-
-            doc.autoTable({
-                startY: 44,
-                head: [['Absences', 'Late', 'Full Name', 'Riot ID', 'Position', '% of Absences']],
-                body: rows,
-                styles: { fontSize: 9 },
-                headStyles: { fillColor: [192, 38, 59] }
-            });
-
-            doc.save('attendance_report.pdf');
         });
     }
 
@@ -1188,7 +1230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (resetTournamentRangeBtn) {
         resetTournamentRangeBtn.addEventListener('click', () => {
             if (tournamentStartDateInput) tournamentStartDateInput.value = '';
-            if (tournamentEndDateInput)   tournamentEndDateInput.value   = '';
+            if (tournamentEndDateInput) tournamentEndDateInput.value = '';
             applyTournamentRange();
         });
     }
