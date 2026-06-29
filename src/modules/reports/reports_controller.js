@@ -316,14 +316,16 @@ exports.getAttendanceSummary = async (req, res) => {
             endDate   = termRows[0].endDate;
         }
 
-        // ── 2. Total distinct events in range that had at least one attendee ──
+        // ── 2. Total distinct events in range ──────────────────────────────
         const [[{ totalEvents }]] = await db.query(
-            `SELECT COUNT(DISTINCT e.eventId) AS totalEvents
-             FROM events e
-             JOIN event_attendees ea ON ea.eventId = e.eventId
-             WHERE e.start_date BETWEEN ? AND ?`,
+            `SELECT COUNT(*) AS totalEvents
+            FROM events e
+            WHERE type != 'Other'
+            AND e.start_date BETWEEN ? AND ?`,
             [startDate, endDate]
         );
+
+        console.log(endDate);
 
         // ── 3. Total absences (Absent only) across all those events ──
         const [[{ totalAbsences }]] = await db.query(
