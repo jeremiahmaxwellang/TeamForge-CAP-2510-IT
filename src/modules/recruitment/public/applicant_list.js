@@ -64,7 +64,7 @@ function renderApplicantList() {
         return status === currentStatusView;
     });
 
-    if (filteredApplicants.length === 0) {
+    if (filteredApplicants.length === 0 && currentStatusView != 'ApplicationPeriod') {
         // Hide table and show a friendly empty message
         if (applicantsTable) applicantsTable.style.display = 'none';
         loadingDiv.textContent = `No applicants found in the ${currentStatusView} tab.`;
@@ -76,6 +76,8 @@ function renderApplicantList() {
     loadingDiv.style.display = 'none';
     if (errorDiv) errorDiv.style.display = 'none';
     if (applicantsTable) applicantsTable.style.display = 'table';
+
+    if(currentStatusView === 'ApplicationPeriod') applicantsTable.style.display = 'none';
 
     // Map data to your exact table rows
     applicantsBody.innerHTML = filteredApplicants.map(applicant => {
@@ -214,7 +216,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
             loadCurrentPeriod();
         } else {
             applicationPeriodPanel.style.display = 'none';
-            loadApplicants(btn.dataset.status); // your existing function
         }
     });
 });
