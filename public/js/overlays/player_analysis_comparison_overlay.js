@@ -536,16 +536,6 @@ const FALLBACK_SCALES = {
     const formatNum = (num) => Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
 
     let html = `
-    <div class="comparison-legend">
-        <div class="legend-item">
-            <span class="legend-box legend-good"></span>
-            <span>Better Performance</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-box legend-bad"></span>
-            <span>Worse Performance</span>
-        </div>
-    </div>
 
     <table class="comparison-table" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 20px;">
         <thead>
