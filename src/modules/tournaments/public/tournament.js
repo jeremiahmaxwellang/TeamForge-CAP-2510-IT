@@ -91,18 +91,23 @@
 		const roleId = Number.parseInt(assignment.roleId, 10);
 		const matchingPlayer = state.players.find((player) => player.userId === playerId);
 
+		let playerObj;
 		if (matchingPlayer) {
-			return matchingPlayer;
+			playerObj = { ...matchingPlayer };
+		} else {
+			playerObj = {
+				userId: playerId,
+				name: assignment.playerName,
+				primaryRole: assignment.role,
+				secondaryRole: null,
+				primaryRoleId: Number.isInteger(roleId) ? roleId : null,
+				secondaryRoleId: null
+			};
 		}
-
-		return {
-			userId: playerId,
-			name: assignment.playerName,
-			primaryRole: assignment.role,
-			secondaryRole: null,
-			primaryRoleId: Number.isInteger(roleId) ? roleId : null,
-			secondaryRoleId: null
-		};
+        
+        // Attach the champion name from the existing assignment
+        playerObj.championName = assignment.championName || '';
+        return playerObj;
 	};
 
 	const resolveAssignmentRole = (assignment) => {
@@ -149,24 +154,12 @@
 		tournamentTypeSelect.value = tournament.type || 'Tournament';
 		team2Label.textContent = tournament.type === 'Scrim' ? 'Team 2' : 'Sub';
 
-		// Handle result display based on event type
 		let displayResult = tournament.result || 'N/A';
 		if (tournament.type === 'Scrim') {
-			// For scrims, determine result from team-level data
 			const team1Assignment = tournament.assignments.find(a => a.team === 'Team 1');
 			const team2Assignment = tournament.assignments.find(a => a.team === 'Team 2');
 			const team1Result = team1Assignment?.teamWin;
 			const team2Result = team2Assignment?.teamWin;
-			
-			// Debug: Log the team results for edit modal
-			console.log('Edit modal scrim result calculation:', {
-				tournamentId: tournament.tournamentId,
-				team1Result,
-				team2Result,
-				team1Assignment,
-				team2Assignment,
-				allAssignments: tournament.assignments
-			});
 			
 			if (team1Result === 'W' && team2Result === 'L') {
 				displayResult = 'Team 1 Win';
@@ -233,15 +226,20 @@
 		if (!player) {
 			return `
 				<div class="role-label">${role}</div>
-				<span class="slot-empty">Drop player here</span>
+				<span class="slot-empty" style="color: var(--muted); font-size: 0.85rem;">Drop player here</span>
 			`;
 		}
 
+        const champValue = player.championName || '';
+
 		return `
 			<div class="role-label">${role}</div>
-			<div class="slot-player">
-				<span>${player.name}</span>
-				<button type="button" class="remove-assignment" data-team="${team}" data-role="${role}" aria-label="Remove">x</button>
+			<div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end; width: 65%;">
+				<div class="slot-player">
+					<span>${player.name}</span>
+					<button type="button" class="remove-assignment" data-team="${team}" data-role="${role}" aria-label="Remove">x</button>
+				</div>
+                <input type="text" class="champ-input" data-team="${team}" data-role="${role}" placeholder="Champion" value="${champValue}" style="width: 100%; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: 0.8rem; box-sizing: border-box;" />
 			</div>
 		`;
 	};
@@ -268,7 +266,22 @@
 
 		attachRemoveHandlers();
 		attachDropHandlers();
+        attachChampInputHandlers();
 	};
+
+    const attachChampInputHandlers = () => {
+        document.querySelectorAll('.champ-input').forEach((input) => {
+            input.addEventListener('input', (event) => {
+                const team = event.target.dataset.team;
+                const role = event.target.dataset.role;
+                if (team === 'Team 1' && state.team1[role]) {
+                    state.team1[role].championName = event.target.value;
+                } else if (state.sub[role]) {
+                    state.sub[role].championName = event.target.value;
+                }
+            });
+        });
+    };
 
 	const renderFilters = () => {
 		roleFilterGroup.innerHTML = '';
@@ -443,6 +456,8 @@
 				if (!data) return;
 
 				const droppedPlayer = JSON.parse(data);
+                droppedPlayer.championName = ''; // Initialize champion string
+
 				const targetRole = slot.dataset.role;
 				const targetTeam = slot.dataset.team;
 
@@ -482,7 +497,8 @@
 					playerId: teamPlayer.userId,
 					role,
 					roleId: teamPlayer.primaryRole === role ? teamPlayer.primaryRoleId : teamPlayer.secondaryRoleId,
-					team: 'Team 1'
+					team: 'Team 1',
+                    championName: teamPlayer.championName || null
 				});
 			}
 
@@ -492,7 +508,8 @@
 					playerId: subPlayer.userId,
 					role,
 					roleId: subPlayer.primaryRole === role ? subPlayer.primaryRoleId : subPlayer.secondaryRoleId,
-					team: isScrim ? 'Team 2' : 'Sub'
+					team: isScrim ? 'Team 2' : 'Sub',
+                    championName: subPlayer.championName || null
 				});
 			}
 		});
@@ -532,13 +549,6 @@
 		}
 
 		const assignments = toAssignments();
-		
-		// Debug: Log assignments to see what's being sent
-		console.log('Tournament Type:', type);
-		console.log('Assignments:', assignments);
-		console.log('Team 1 assignments:', assignments.filter(a => a.team === 'Team 1'));
-		console.log('Team 2 assignments:', assignments.filter(a => a.team === 'Team 2'));
-		console.log('Sub assignments:', assignments.filter(a => a.team === 'Sub'));
 
 		try {
 			const endpoint = isEditMode
@@ -638,42 +648,33 @@
 				tournament.assignments
 					.filter((item) => item.team === teamName)
 					.forEach((item) => {
-						roleMap.set(item.role, item.playerName);
+						roleMap.set(item.role, item);
 					});
 
 				return ROLE_ORDER.map((role) => {
-					const playerName = roleMap.get(role);
+					const data = roleMap.get(role);
+					const playerName = data ? data.playerName : null;
+                    const champName = data && data.championName ? data.championName : '-';
 					return `
-						<div class="detail-role-row">
+						<div class="detail-role-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; gap: 8px;">
 							<span class="detail-role-name">${role}</span>
+                            <span style="color: var(--primary); font-size: 0.85rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${champName}</span>
 							${
 								playerName
-									? `<span class="detail-player-chip">${playerName}</span>`
-									: '<span class="detail-empty">No player</span>'
+									? `<span class="detail-player-chip" style="justify-self: end; max-width: 100%;">${playerName}</span>`
+									: '<span class="detail-empty" style="justify-self: end;">No player</span>'
 							}
 						</div>
 					`;
 				}).join('');
 			};
 
-			// Calculate display result based on event type
 			let displayResult = tournament.result;
 			if (tournament.type === 'Scrim') {
-				// For scrims, determine result from team-level data
 				const team1Assignment = tournament.assignments.find(a => a.team === 'Team 1');
 				const team2Assignment = tournament.assignments.find(a => a.team === 'Team 2');
 				const team1Result = team1Assignment?.teamWin;
 				const team2Result = team2Assignment?.teamWin;
-				
-				// Debug: Log the team results
-				console.log('Scrim result calculation:', {
-					tournamentId: tournament.tournamentId,
-					team1Result,
-					team2Result,
-					team1Assignment,
-					team2Assignment,
-					allAssignments: tournament.assignments
-				});
 				
 				if (team1Result === 'W' && team2Result === 'L') {
 					displayResult = 'Team 1 Win';
@@ -691,11 +692,19 @@
 				</div>
 				<div class="details-teams-layout">
 					<section class="detail-team-column">
-						<h4>Team 1</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; margin-bottom: 10px; font-weight: 700; font-size: 0.85rem; color: var(--muted); padding: 0 0.5rem;">
+                            <span>Team 1</span>
+                            <span style="text-align: center;">Champ</span>
+                            <span style="text-align: right;">Player</span>
+                        </div>
 						${buildTeamRows('Team 1')}
 					</section>
 					<section class="detail-team-column">
-						<h4>${tournament.type === 'Scrim' ? 'Team 2' : 'Sub'}</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; margin-bottom: 10px; font-weight: 700; font-size: 0.85rem; color: var(--muted); padding: 0 0.5rem;">
+                            <span>${tournament.type === 'Scrim' ? 'Team 2' : 'Sub'}</span>
+                            <span style="text-align: center;">Champ</span>
+                            <span style="text-align: right;">Player</span>
+                        </div>
 						${buildTeamRows(tournament.type === 'Scrim' ? 'Team 2' : 'Sub')}
 					</section>
 				</div>
@@ -786,18 +795,15 @@
 			const isScrim = tournamentTypeSelect.value === 'Scrim';
 			team2Label.textContent = isScrim ? 'Team 2' : 'Sub';
 			
-			// Update result options based on event type
 			tournamentResultSelect.innerHTML = '';
 			
 			if (isScrim) {
-				// Scrim results: Team-based
 				tournamentResultSelect.innerHTML = `
 					<option value="N/A">N/A</option>
 					<option value="Team 1 Win">Team 1 Win</option>
 					<option value="Team 2 Win">Team 2 Win</option>
 				`;
 			} else {
-				// Tournament results: Overall W/L/N/A
 				tournamentResultSelect.innerHTML = `
 					<option value="N/A">N/A</option>
 					<option value="W">W</option>

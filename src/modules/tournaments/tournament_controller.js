@@ -131,13 +131,6 @@ const createTournament = async (req, res) => {
 	try {
 		const { name, tournamentDate, result, type, assignments } = req.body;
 
-		// Debug: Log received data
-		console.log('Received tournament data:', { name, tournamentDate, result, type });
-		console.log('Received assignments:', assignments);
-		console.log('Team 1 assignments:', assignments?.filter(a => a.team === 'Team 1'));
-		console.log('Team 2 assignments:', assignments?.filter(a => a.team === 'Team 2'));
-		console.log('Sub assignments:', assignments?.filter(a => a.team === 'Sub'));
-
 		if (!name || !String(name).trim()) {
 			return res.status(400).send({
 				success: false,
@@ -236,7 +229,6 @@ const createTournament = async (req, res) => {
 
 		await connection.beginTransaction();
 
-		// For scrims, set event-level result to N/A and handle results at team level
 		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
 
 		const [insertTournamentResult] = await connection.query(
@@ -251,12 +243,12 @@ const createTournament = async (req, res) => {
 			const roleId = normalizeRoleId(item.roleId, item.role);
 			const isSub = item.team === 'Sub' ? 'Y' : 'N';
 			const team = item.team;
+            const championName = item.championName ? String(item.championName).trim() : null;
 
 			if (!Number.isInteger(playerId) || playerId <= 0) {
 				throw new Error('Invalid player assignment received');
 			}
 
-			// Determine team-level result for scrims
 			let teamResult = 'N/A';
 			if (normalizedType === 'Scrim') {
 				if (normalizedResult === 'Team 1 Win' && team === 'Team 1') {
@@ -272,10 +264,10 @@ const createTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team, win)
-				VALUES (?, ?, ?, ?, ?, ?)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team, win, championName)
+				VALUES (?, ?, ?, ?, ?, ?, ?)
 				`,
-				[tournamentId, playerId, roleId, isSub, team, teamResult]
+				[tournamentId, playerId, roleId, isSub, team, teamResult, championName]
 			);
 		}
 
@@ -424,7 +416,6 @@ const updateTournament = async (req, res) => {
 			});
 		}
 
-		// For scrims, set event-level result to N/A and handle results at team level
 		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
 
 		await connection.query(
@@ -443,12 +434,12 @@ const updateTournament = async (req, res) => {
 			const roleId = normalizeRoleId(item.roleId, item.role);
 			const isSub = item.team === 'Sub' ? 'Y' : 'N';
 			const team = item.team;
+            const championName = item.championName ? String(item.championName).trim() : null;
 
 			if (!Number.isInteger(playerId) || playerId <= 0) {
 				throw new Error('Invalid player assignment received');
 			}
 
-			// Determine team-level result for scrims
 			let teamResult = 'N/A';
 			if (normalizedType === 'Scrim') {
 				if (normalizedResult === 'Team 1 Win' && team === 'Team 1') {
@@ -464,10 +455,10 @@ const updateTournament = async (req, res) => {
 
 			await connection.query(
 				`
-				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team, win)
-				VALUES (?, ?, ?, ?, ?, ?)
+				INSERT INTO event_attendees (eventId, userId, player_role, is_sub, team, win, championName)
+				VALUES (?, ?, ?, ?, ?, ?, ?)
 				`,
-				[tournamentId, playerId, roleId, isSub, team, teamResult]
+				[tournamentId, playerId, roleId, isSub, team, teamResult, championName]
 			);
 		}
 
@@ -505,6 +496,7 @@ const getTournaments = async (req, res) => {
 				tp.player_role AS roleId,
 				tp.team,
 				tp.win AS teamWin,
+                tp.championName,
 				u.firstname,
 				u.lastname,
 				lr.teamPosition AS roleName
@@ -539,7 +531,8 @@ const getTournaments = async (req, res) => {
 					roleId: row.roleId,
 					team: row.team,
 					teamWin: row.teamWin,
-					role: mapRoleName(row.roleName) || 'Unknown'
+					role: mapRoleName(row.roleName) || 'Unknown',
+                    championName: row.championName || ''
 				});
 			}
 		});

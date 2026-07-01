@@ -517,6 +517,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
   `is_sub` ENUM('Y', 'N') NULL DEFAULT 'N',
   `team` ENUM('Team 1', 'Team 2', 'Sub') NOT NULL DEFAULT 'Team 1',
   `win` ENUM('W', 'L', 'N/A') NOT NULL DEFAULT 'N/A' COMMENT 'use this to indicate who won',
+  `championName` VARCHAR(100) NULL,
   PRIMARY KEY (`eventId`, `userId`),
   INDEX `fk_event_attendees_users2_idx` (`userId` ASC) ,
   INDEX `fk_event_attendees_leagueroles2_idx` (`player_role` ASC) ,
