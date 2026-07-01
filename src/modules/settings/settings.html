@@ -91,6 +91,31 @@
                     <p id="password-status" class="status-text"></p>
                 </div>
 
+                <div class="settings-card" id="stats-display-section">
+                    <h3>Stat Display Preferences</h3>
+                    <p style="margin-top: 0; color: #555;">Customize which performance metrics are visible on the player analysis dashboard.</p>
+                    
+                    <div class="settings-form-row" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="toggle-kda" class="stat-toggle" checked> KDA & Kill Participation
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="toggle-farm" class="stat-toggle" checked> CS/Min & Gold/Min
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="toggle-vision" class="stat-toggle" checked> Vision & Warding
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="toggle-damage" class="stat-toggle" checked> Damage Share & Mitigation
+                        </label>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 15px;">
+                        <button class="btn-confirm" id="btn-save-stats-toggles">Save Preferences</button>
+                    </div>
+                    <p id="stats-toggle-status" class="status-text"></p>
+                </div>
+
                 <div class="settings-card" id="team-settings-section" style="display: none;">
                     <h3>Team Settings</h3>
                     <p style="margin-top: 0; color: #555;">Update your team name and logo. Changes are reflected in the

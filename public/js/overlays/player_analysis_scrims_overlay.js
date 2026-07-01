@@ -93,13 +93,18 @@ window.initScrimsTab = function (userId) {
               <div class="eval-player-title" id="eval-title-${eventId}">
                 Evaluation:
               </div>
-              <div class="eval-range-hint">
-                <span>1 lowest</span>
-                <span>5 highest</span>
-              </div>
-              <div class="inline-col-labels">
+              <div class="inline-col-labels" style="align-items: flex-end;">
                 <div></div>
-                ${[1,2,3,4,5].map(n => `<div class="inline-col-label">${n}</div>`).join('')}
+                ${[1,2,3,4,5].map(n => {
+                  let subLabel = '';
+                  if (n === 1) subLabel = '<div style="font-size: 10px; font-weight: normal; color: #8892a0; margin-top: 2px;">Low</div>';
+                  if (n === 5) subLabel = '<div style="font-size: 10px; font-weight: normal; color: #8892a0; margin-top: 2px;">High</div>';
+                  
+                  return `<div class="inline-col-label" style="text-align: center; line-height: 1.1;">
+                            <div>${n}</div>
+                            ${subLabel}
+                          </div>`;
+                }).join('')}
               </div>
               <div class="inline-rating-grid">
                 <div class="rating-label">Game Sense</div>

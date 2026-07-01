@@ -47,4 +47,7 @@ router.post('/api/academic-terms', requireManagerOrCoach, settingsController.upd
 router.get('/api/benchmarks/:roleId', requireCoachOnly, settingsController.getBenchmarksByRole);
 router.post('/api/benchmarks/update', requireCoachOnly, settingsController.updateBenchmarks);
 
+router.get('/api/display-preferences', settingsController.getDisplayPreferences);
+router.post('/api/display-preferences', settingsController.updateDisplayPreferences);
+
 module.exports = router;

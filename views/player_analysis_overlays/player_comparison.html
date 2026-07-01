@@ -54,6 +54,27 @@
                         <div style="width: 20px; height: 20px; background-color: #ff7f0e; border-radius: 3px;"></div>
                         <span style="color: #ffffff;">Player 2</span>
                     </div>
+
+                    <!-- Candidate Controls for Player 2 -->
+                    <div id="p2-candidate-wrap" style="display: none; flex-direction: column; gap: 6px; margin-top: 15px; width: 100%;">
+                        <div style="display: flex; gap: 8px; align-items: stretch; width: 100%;">
+                            <button id="p2FavoriteBtn" type="button" aria-pressed="false" title="Mark as candidate favorite"
+                                style="width: 42px; height: 42px; flex-shrink: 0; border: 1px solid #d3d6dc; border-radius: 10px; background: #ffffff; color: #6b7280; font-size: 24px; line-height: 1; cursor: pointer;">☆</button>
+                            <textarea id="p2FavoriteMemo" placeholder="Memo: Why this player?" disabled
+                                style="flex: 1; height: 42px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 12px; resize: none; opacity: 0.5; cursor: not-allowed; transition: opacity 0.2s;"></textarea>
+                        </div>
+                        <div id="p2FavoriteMsg" style="font-size: 11px; color: var(--muted); text-align: left;"></div>
+                    </div>
+
+                    <!-- External Player Search -->
+                    <div class="external-search-container" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; width: 100%;">
+                        <label style="font-size: 11px; color: var(--muted); margin-bottom: 5px; display: block; text-align: left;">COMPARE EXTERNAL PLAYER</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="externalRiotId" placeholder="GameName#TagLine" style="flex: 1; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; outline: none;">
+                            <button id="externalSearchBtn" style="padding: 8px 12px; border-radius: 6px; background: #ff7f0e; color: #fff; border: none; font-weight: bold; cursor: pointer; font-size: 12px; transition: opacity 0.2s;">Search</button>
+                        </div>
+                        <div id="externalSearchStatus" style="font-size: 11px; color: var(--muted); margin-top: 6px; text-align: left; height: 14px;"></div>
+                    </div>
                 </div>
             </div>
 

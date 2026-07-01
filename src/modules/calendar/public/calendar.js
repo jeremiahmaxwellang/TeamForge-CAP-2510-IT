@@ -253,7 +253,7 @@ function renderWeek() {
 
   const timeCol = document.createElement('div');
   timeCol.className = 'time-col';
-  const hours = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM'];
+  const hours = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM'];
   const startHour = 7;
   hours.forEach(h => {
     const slot = document.createElement('div');
@@ -279,7 +279,13 @@ function renderWeek() {
 
     eventsForDate(ds).forEach(ev => {
       const startMin = timeToMin(ev.start);
-      const endMin = timeToMin(ev.end);
+      let endMin = timeToMin(ev.end);
+      
+      // Prevent negative heights if an event ends exactly at midnight (00:00)
+      if (endMin === 0 && startMin > 0) {
+          endMin = 24 * 60; // Treat as 24:00 (1440 minutes)
+      }
+
       const dayStartMin = startHour * 60;
       const topPx = ((startMin - dayStartMin) / 60) * 48;
       const heightPx = ((endMin - startMin) / 60) * 48;
