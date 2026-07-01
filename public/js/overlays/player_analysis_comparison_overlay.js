@@ -202,9 +202,35 @@ window.initComparisonTab = function () {
             // Reset the dropdown visually
             if (p2Select) p2Select.value = "";
 
-            // Hide the candidate star (since they aren't on the team)
+            // Grey out the candidate star (since they aren't on the team)
             const wrap = document.getElementById('p2-candidate-wrap');
-            if (wrap) wrap.style.display = 'none';
+            if (wrap) {
+                wrap.style.display = 'flex'; // Keep the layout intact
+                
+                const favBtn = document.getElementById('p2FavoriteBtn');
+                const favMemo = document.getElementById('p2FavoriteMemo');
+                const favMsg = document.getElementById('p2FavoriteMsg');
+
+                if (favBtn) {
+                    favBtn.disabled = true;
+                    favBtn.style.opacity = "0.5";
+                    favBtn.style.cursor = "not-allowed";
+                    favBtn.textContent = "☆"; // Ensure it's unstarred
+                    favBtn.setAttribute("aria-pressed", "false");
+                }
+                
+                if (favMemo) {
+                    favMemo.disabled = true;
+                    favMemo.style.opacity = "0.5";
+                    favMemo.style.cursor = "not-allowed";
+                    favMemo.value = ""; // Clear any previous text
+                    favMemo.placeholder = "External players cannot be favorited.";
+                }
+                
+                if (favMsg) {
+                    favMsg.textContent = ""; // Clear the X / 2 message
+                }
+            }
             
             // Inject the data and draw the chart!
             player2Data = externalMock;
