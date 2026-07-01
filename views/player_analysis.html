@@ -25,8 +25,6 @@
     <script src="/js/overlays/player_analysis_champion_overlay.js"></script>
     <script src="/js/overlays/player_analysis_scrims_overlay.js"></script>
     <script src="/js/overlays/player_analysis_summary_overlay.js"></script>
-
-
 </head>
 
 <body>
@@ -42,7 +40,6 @@
                 <img src="/uploads/profile-photos/defaultusericon.png" alt="Profile Picture"
                     class="js-current-user-photo" id="profileDropdownBtn"
                     style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--iron-gray); cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;">
-
                 <div id="profileDropdownMenu" class="profile-dropdown-menu">
                     <a href="/settings">Settings</a>
                     <a href="/logout" class="logout-link">Logout</a>
@@ -60,6 +57,8 @@
             <!-- Main content -->
             <div class="main-content">
                 <section class="player_info_section">
+
+                    <!-- Left card: photo, name, contact, student info -->
                     <div class="player-info">
                         <div class="profile_with_details">
                             <div>
@@ -71,7 +70,6 @@
                                     <button class="player-dropdown-btn" id="player-dropdown-btn">
                                         No Player Found
                                     </button>
-
                                     <div class="player-dropdown-menu" id="player-dropdown-menu">
                                     </div>
                                 </div>
@@ -98,36 +96,31 @@
                                     role.</p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="rank_and_student_info">
-                        <div class="rank_container">
-
-                            <div class="vertical_line"></div>
-
-                            <!-- will show the current rank fetched from the database -->
-                            <img id="currentRankIcon" alt="Rank Icon"
-                                class="rank_icon">
-                            <div class="current_rank">
-                                <h3>Current Rank:</h3>
-                                <p id="currentRank">Loading Current Rank...</p>
-                            </div>
-
-                            <div class="vertical_line"></div>
-                            <!-- will show the peak rank fetched from the database -->
-                            <img id="peakRankIcon" alt="Rank Icon" class="rank_icon">
-                            <div class="peak_rank">
-                                <h3>Peak Rank:</h3>
-                                <p id="peakRank">Loading Peak Rank...</p>
-                            </div>
-                        </div>
-
-                        <div class="student_info_container">
+                        <!-- Student info combined into player-info card -->
+                        <div class="student_info_container" style="margin-top: 16px;">
                             <h3>Student Information:</h3>
-                            <!-- <p id="schoolId"></p> -->
                             <p id="course"></p>
                             <p id="year"></p>
                         </div>
+                    </div>
+
+                    <!-- Right: rank sits directly in section, no wrapper -->
+                    <div class="rank_container" style="margin: 20px 0 20px 0; align-self: flex-start;">
+                        <div class="vertical_line"></div>
+                        <img id="currentRankIcon" alt="Rank Icon" class="rank_icon">
+                        <div class="current_rank">
+                            <h3>Current Rank:</h3>
+                            <p id="currentRank">Loading Current Rank...</p>
+                        </div>
+                        <div class="vertical_line"></div>
+                        <img id="peakRankIcon" alt="Rank Icon" class="rank_icon">
+                        <div class="peak_rank">
+                            <h3>Peak Rank:</h3>
+                            <p id="peakRank">Loading Peak Rank...</p>
+                        </div>
+                    </div>
+
                 </section>
 
                 <section class="tabs">

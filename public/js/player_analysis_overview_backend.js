@@ -1018,6 +1018,15 @@
         .catch((err) => console.error("[LOAD PLAYERS] ✗ Error loading player list:", err));
     }
 
+    // Auto-open Overview tab once, after the first player finishes loading
+    let overviewAutoOpened = false;
+    document.addEventListener("playeranalysis:player-changed", function () {
+      if (!overviewAutoOpened) {
+        overviewAutoOpened = true;
+        if (overviewButton) overviewButton.click();
+      }
+    });
+
     // First, check if the logged-in user is a Player.
     // If yes, hide dropdown and load only their own Riot account.
     fetch("/player_analysis/current-player")

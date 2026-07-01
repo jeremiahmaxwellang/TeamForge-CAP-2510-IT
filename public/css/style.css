@@ -329,6 +329,16 @@ header h1, header h2 {
     color: var(--porcelain);
 }
 
+.player-info .student_info_container {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 12px;
+    background-color: transparent;
+    border-radius: 0;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* Styles of the Tabs for Details Section */
 /* Tabs bar */
 .tabs {
