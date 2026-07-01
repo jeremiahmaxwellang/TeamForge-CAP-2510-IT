@@ -139,16 +139,28 @@ header h1, header h2 {
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 /* Left Rectangle Container Column */
 .player-info {
-    margin: 20px;
+    margin: 20px 20px 0;
     padding: 20px;
     background-color: #2f3136;
     border-radius: 20px;
     height: auto;
-    display: inline-block;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.player-info > .profile_with_details,
+.player-info > .player_contact,
+.player-info > .student_info_container {
+    flex: 1 1 260px;
+    min-width: 240px;
 }
 
 .profile-img {
@@ -181,7 +193,7 @@ header h1, header h2 {
 }
 
 .player_contact {
-    margin-top: 10px;
+    margin-top: 0;
 }
 
 .player_contact h3 {
@@ -261,12 +273,16 @@ header h1, header h2 {
 /* Player's Current and Peak Rank */
 /* Top Container for Right Side */
 .rank_container {
-    margin-top: 20px;
+    width: auto;
+    margin: 0 20px 20px;
     padding: 20px;
     background-color: #2f3136;
     border-radius: 20px;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
 }
 
 .rank_and_student_info .rank_container .current_rank, .peak_rank {
@@ -335,7 +351,7 @@ header h1, header h2 {
     background-color: transparent;
     border-radius: 0;
     display: block;
-    width: 100%;
+    width: auto;
     box-sizing: border-box;
 }
 
