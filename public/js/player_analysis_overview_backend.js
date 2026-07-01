@@ -791,23 +791,15 @@
   // MAIN PAGE: populate dropdown
   // -----------------------------
 
-  function getCookieValue(name) {
-    const cookies = document.cookie ? document.cookie.split("; ") : [];
-
-    for (const cookie of cookies) {
-      const [key, ...valueParts] = cookie.split("=");
-
-      if (key === name) {
-        return decodeURIComponent(valueParts.join("="));
-      }
+async function canUseCandidateFavorites() {
+    try {
+        const res = await fetch('/api/current-role');
+        const data = await res.json();
+        return data.role === 'Team Coach';
+    } catch {
+        return false;
     }
-
-    return "";
-  }
-
-  function canUseCandidateFavorites() {
-    return getCookieValue("userRole").trim() === "Team Coach";
-  }
+}
 
   function hideCandidateFavoriteControls() {
     const roleSelect = document.getElementById("candidateFavoriteRoleSelect");
@@ -849,7 +841,7 @@
     return `/player_analysis/profile/${encodeURIComponent(player.gameName)}/${encodeURIComponent(player.tagLine)}`;
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
 
     // -----------------------------------------------
     // CANDIDATE FAVORITE: star button + role select
@@ -858,7 +850,7 @@
     const favBtn = document.getElementById("candidateFavoriteBtn");
     const favMsg = document.getElementById("candidateFavoriteMessage");
 
-    const hasCandidateFavoritePermission = canUseCandidateFavorites();
+    const hasCandidateFavoritePermission = await canUseCandidateFavorites();
 
     if (!hasCandidateFavoritePermission) {
       hideCandidateFavoriteControls();
