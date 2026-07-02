@@ -277,7 +277,7 @@ header h1, header h2 {
 /* Player's Current and Peak Rank */
 /* Top Container for Right Side */
 .rank_container {
-    width: auto;
+    width: fit-content;
     margin: 0 20px 20px;
     padding: 20px;
     background-color: #2f3136;
@@ -287,6 +287,7 @@ header h1, header h2 {
     flex-wrap: wrap;
     gap: 12px;
     align-items: center;
+    color: #fff;
 }
 
 .rank_and_student_info .rank_container .current_rank, .peak_rank {
@@ -322,7 +323,6 @@ header h1, header h2 {
 .rank_icon {
     height: 90px;
     width: 90px;
-    padding-left: 10px;
 }
 
 /* Student's Information */
