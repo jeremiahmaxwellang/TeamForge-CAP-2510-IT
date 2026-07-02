@@ -172,6 +172,8 @@ header h1, header h2 {
 .player-info .player-details {
     display: flex;
     flex-direction: column;
+    border-right: 1px solid #fff;
+    padding-right: 15px;
 }
 
 .player-info .profile_with_details {
@@ -194,6 +196,8 @@ header h1, header h2 {
 
 .player_contact {
     margin-top: 0;
+    border-right: 1px solid #fff;
+    padding-right: 15px;
 }
 
 .player_contact h3 {
@@ -346,7 +350,6 @@ header h1, header h2 {
 }
 
 .player-info .student_info_container {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 12px;
     background-color: transparent;
     border-radius: 0;
