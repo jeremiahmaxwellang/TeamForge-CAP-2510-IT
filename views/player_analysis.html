@@ -75,25 +75,31 @@
                                 </div>
                                 <p id="primaryRole"></p>
                                 <p id="secondaryRole"></p>
+                                <div class="player_contact_details" style="margin-top: 12px;">
+                                    <h3>Contact Information:</h3>
+                                    <p id="email">Email:</p>
+                                    <p id="discord">Discord:</p>
+                                </div>
                             </div>
                         </div>
 
                         <div class="player_contact">
-                            <h3>Contact Information:</h3>
-                            <p id="email">Email:</p>
-                            <p id="discord">Discord:</p>
-                            <div class="candidate-favorite-wrap"
-                                style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px;">
-                                <label class="candidate_role_label" for="candidateFavoriteRoleSelect">Candidate
-                                    Role</label>
+                            <div class="candidate-favorite-wrap" style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+                                <label class="candidate_role_label" for="candidateFavoriteRoleSelect">Candidate Role</label>
                                 <select id="candidateFavoriteRoleSelect" class="candidate_role_dropdown_">
                                     <option value="" disabled selected>Select role</option>
                                 </select>
-                                <button id="candidateFavoriteBtn" type="button" aria-pressed="false"
-                                    title="Mark as candidate favorite"
-                                    style="width: fit-content; min-width: 42px; height: 42px; border: 1px solid #d3d6dc; border-radius: 10px; background: #ffffff; color: #6b7280; font-size: 24px; line-height: 1; cursor: pointer;">☆</button>
-                                <p class="candidate_message" id="candidateFavoriteMessage">Pick up to 2 candidates per
-                                    role.</p>
+                                <!-- Flex container holding both the Star Button and Memo Textbox -->
+                                <div style="display: flex; gap: 8px; align-items: stretch;">
+                                    <button id="candidateFavoriteBtn" type="button" aria-pressed="false"
+                                        title="Mark as candidate favorite"
+                                        style="width: 42px; height: 42px; flex-shrink: 0; border: 1px solid #d3d6dc; border-radius: 10px; background: #ffffff; color: #6b7280; font-size: 24px; line-height: 1; cursor: pointer;">☆</button>
+                                    
+                                    <textarea id="candidateFavoriteMemo" placeholder="Memo: Why this player?" disabled
+                                        style="flex: 0 0 auto; width: auto; min-width: 160px; max-width: 420px; min-height: 80px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: #ffffff; font-family: inherit; font-size: 12px; resize: both; overflow: auto; opacity: 0.5; cursor: not-allowed; transition: opacity 0.2s;"></textarea>
+                                </div>
+
+                                <p class="candidate_message" id="candidateFavoriteMessage">Pick up to 2 candidates per role.</p>
                             </div>
                         </div>
 
@@ -106,7 +112,7 @@
                     </div>
 
                     <!-- Right: rank sits directly in section, no wrapper -->
-                    <div class="rank_container" style="margin: 20px 0 20px 0; align-self: flex-start;">
+                    <div class="rank_container">
                         <div class="vertical_line"></div>
                         <img id="currentRankIcon" alt="Rank Icon" class="rank_icon">
                         <div class="current_rank">

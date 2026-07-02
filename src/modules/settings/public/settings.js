@@ -869,4 +869,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // --- STAT DISPLAY PREFERENCES ---
+    const btnSaveStatsToggles = document.getElementById('btn-save-stats-toggles');
+    const statsToggleStatus = document.getElementById('stats-toggle-status');
+
+    // 1. Load preferences on page load
+    async function loadStatPreferences() {
+        try {
+            const response = await fetch('/settings/api/display-preferences');
+            const result = await response.json();
+            
+            if (result.success && result.preferences) {
+                document.getElementById('toggle-kda').checked = result.preferences.show_kda ?? true;
+                document.getElementById('toggle-farm').checked = result.preferences.show_farm ?? true;
+                document.getElementById('toggle-vision').checked = result.preferences.show_vision ?? true;
+                document.getElementById('toggle-damage').checked = result.preferences.show_damage ?? true;
+            }
+        } catch (error) {
+            console.error('Failed to load stat preferences:', error);
+        }
+    }
+    
+    // Call this immediately to populate the checkboxes
+    loadStatPreferences();
+
+    // 2. Save preferences on click
+    if (btnSaveStatsToggles) {
+        btnSaveStatsToggles.addEventListener('click', async () => {
+            const preferences = {
+                show_kda: document.getElementById('toggle-kda').checked,
+                show_farm: document.getElementById('toggle-farm').checked,
+                show_vision: document.getElementById('toggle-vision').checked,
+                show_damage: document.getElementById('toggle-damage').checked
+            };
+
+            btnSaveStatsToggles.disabled = true;
+            btnSaveStatsToggles.textContent = 'Saving...';
+            setStatus(statsToggleStatus, '', false);
+
+            try {
+                const response = await fetch('/settings/api/display-preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preferences })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    setStatus(statsToggleStatus, 'Preferences saved successfully.', true);
+                } else {
+                    setStatus(statsToggleStatus, result.message || 'Failed to save preferences.', false);
+                }
+            } catch (error) {
+                setStatus(statsToggleStatus, 'Network error while saving.', false);
+            } finally {
+                btnSaveStatsToggles.disabled = false;
+                btnSaveStatsToggles.textContent = 'Save Preferences';
+            }
+        });
+    }
+
 });

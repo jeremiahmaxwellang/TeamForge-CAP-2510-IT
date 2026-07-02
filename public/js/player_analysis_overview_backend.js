@@ -802,19 +802,13 @@ async function canUseCandidateFavorites() {
 }
 
   function hideCandidateFavoriteControls() {
-    const roleSelect = document.getElementById("candidateFavoriteRoleSelect");
-    const favBtn = document.getElementById("candidateFavoriteBtn");
-    const favMsg = document.getElementById("candidateFavoriteMessage");
-
-    // Hide the "Candidate Role" label
-    const roleLabel =
-      document.getElementById("candidateFavoriteRoleLabel") ||
-      document.querySelector('label[for="candidateFavoriteRoleSelect"]');
-
-    if (roleLabel) roleLabel.style.display = "none";
-    if (roleSelect) roleSelect.style.display = "none";
-    if (favBtn) favBtn.style.display = "none";
-    if (favMsg) favMsg.style.display = "none";
+    // Select the parent wrapper that holds the label, dropdown, button, and message
+    const favoriteWrap = document.querySelector('.candidate-favorite-wrap');
+    
+    // Hide the entire block at once so it leaves no empty gaps
+    if (favoriteWrap) {
+        favoriteWrap.style.display = "none";
+    }
   }
 
   function hidePlayerDropdownForPlayerUser() {
@@ -870,13 +864,25 @@ async function canUseCandidateFavorites() {
         .then(data => {
           if (!data) return;
 
-          const isFav = data.favorites?.some(f => String(f.userId) === String(playerId));
+          // Check if this player is in the favorites array and grab their memo
+          const favData = data.favorites?.find(f => String(f.userId) === String(playerId));
+          const isFav = !!favData;
+
           if (favBtn) {
             favBtn.textContent = isFav ? "★" : "☆";
             favBtn.setAttribute("aria-pressed", isFav ? "true" : "false");
           }
           if (favMsg) {
             favMsg.textContent = `${data.count ?? 0} / 2 candidates selected for this role.`;
+          }
+
+          // Handle the Memo Textbox State
+          const favMemo = document.getElementById("candidateFavoriteMemo");
+          if (favMemo) {
+            favMemo.disabled = !isFav;
+            favMemo.style.opacity = isFav ? "1" : "0.5";
+            favMemo.style.cursor = isFav ? "text" : "not-allowed";
+            favMemo.value = favData?.memo || "";
           }
         })
         .catch(err => console.error("[CANDIDATE FAV] Error checking favorite status:", err));
@@ -918,6 +924,20 @@ async function canUseCandidateFavorites() {
               favBtn.textContent = isNowFav ? "★" : "☆";
               favBtn.setAttribute("aria-pressed", isNowFav ? "true" : "false");
               if (favMsg) favMsg.textContent = `${data.count} / 2 candidates selected for this role.`;
+
+              // Dynamically lock or unlock the memo box
+              const favMemo = document.getElementById("candidateFavoriteMemo");
+              if (favMemo) {
+                favMemo.disabled = !isNowFav;
+                favMemo.style.opacity = isNowFav ? "1" : "0.5";
+                favMemo.style.cursor = isNowFav ? "text" : "not-allowed";
+                
+                if (!isNowFav) {
+                  favMemo.value = ""; // Clear text if unfavorited
+                } else {
+                  favMemo.focus(); // Prompt coach to start typing
+                }
+              }
             } else {
               if (favMsg) favMsg.textContent = data.error || "Could not update favorite.";
             }
@@ -926,6 +946,27 @@ async function canUseCandidateFavorites() {
             console.error("[CANDIDATE FAV] Error toggling favorite:", err);
             if (favMsg) favMsg.textContent = "Error updating favorite. Try again.";
           });
+      });
+    }
+
+    const favMemo = document.getElementById("candidateFavoriteMemo");
+    if (hasCandidateFavoritePermission && favMemo) {
+      favMemo.addEventListener("blur", function () {
+        const playerId = document.getElementById("player-dropdown-btn")?.getAttribute("data-player-id");
+        const roleId = roleSelect?.value;
+
+        // Don't save if it's disabled or missing context
+        if (!playerId || !roleId || this.disabled) return;
+
+        fetch("/player_analysis/candidate-favorites/memo", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            candidateUserId: Number(playerId),
+            roleId: Number(roleId),
+            memo: this.value
+          })
+        }).catch(err => console.error("[CANDIDATE FAV] Error saving memo:", err));
       });
     }
 

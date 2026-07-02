@@ -589,3 +589,40 @@ exports.changeSchoolIcon = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Failed to update school logo.' });
     }
 };
+
+exports.getDisplayPreferences = async (req, res) => {
+    try {
+        const user = await getAuthenticatedUser(req);
+        if (!user) return res.status(401).json({ success: false, message: 'Not logged in.' });
+
+        const [rows] = await db.query('SELECT display_preferences FROM users WHERE userId = ?', [user.userId]);
+        
+        // Parse the JSON string from the database (or return defaults if null)
+        const preferences = rows.length && rows[0].display_preferences 
+            ? JSON.parse(rows[0].display_preferences) 
+            : { show_kda: true, show_farm: true, show_vision: true, show_damage: true };
+
+        return res.status(200).json({ success: true, preferences });
+    } catch (error) {
+        console.error('Error fetching preferences:', error);
+        return res.status(500).json({ success: false, message: 'Server error.' });
+    }
+};
+
+exports.updateDisplayPreferences = async (req, res) => {
+    try {
+        const user = await getAuthenticatedUser(req);
+        if (!user) return res.status(401).json({ success: false, message: 'Not logged in.' });
+
+        const { preferences } = req.body;
+        if (!preferences) return res.status(400).json({ success: false, message: 'No preferences provided.' });
+
+        // Save as a JSON string in the database
+        await db.query('UPDATE users SET display_preferences = ? WHERE userId = ?', [JSON.stringify(preferences), user.userId]);
+
+        return res.status(200).json({ success: true, message: 'Preferences updated.' });
+    } catch (error) {
+        console.error('Error updating preferences:', error);
+        return res.status(500).json({ success: false, message: 'Server error.' });
+    }
+};

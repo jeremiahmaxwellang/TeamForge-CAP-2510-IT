@@ -25,12 +25,13 @@ exports.getPlayerList = async (req, res) => {
 // 2. Fetch Latest Scrims
 exports.getLatestScrims = async (req, res) => {
     try {
-        // Gets the latest Scrim events and the list of participating players.
+        // Added IFNULL and DATE_FORMAT to cleanly pull the start time component
         const query = `
             SELECT
                 e.eventId AS scrimId,
                 e.title_summary AS name,
                 COALESCE(e.start_datetime, e.start_date) AS date,
+                IFNULL(DATE_FORMAT(e.start_datetime, '%l:%i %p'), 'N/A') AS startTime,
                 e.length,
                 e.videoLink,
                 CASE

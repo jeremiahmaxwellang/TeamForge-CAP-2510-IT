@@ -159,6 +159,92 @@ window.initComparisonTab = function () {
         else if (val) loadPlayerData(parseInt(val, 10), 2);
       });
     }
+
+    // === EXTERNAL PLAYER SEARCH LOGIC ===
+    const extInput = document.getElementById("externalRiotId");
+    const extBtn = document.getElementById("externalSearchBtn");
+    const extStatus = document.getElementById("externalSearchStatus");
+
+    if (extBtn && extInput) {
+      extBtn.addEventListener("click", () => {
+        const val = extInput.value.trim();
+        if (!val.includes("#")) {
+          extStatus.textContent = "Please use GameName#TagLine format.";
+          extStatus.style.color = "#f44336";
+          return;
+        }
+        
+        const [gameName, tagLine] = val.split("#");
+        extStatus.textContent = "Crunching stats from Riot API... (Please wait)";
+        extStatus.style.color = "#1f77b4";
+        extBtn.disabled = true;
+        extBtn.style.opacity = "0.5";
+
+        Backend.fetchExternalPlayerStats(gameName, tagLine)
+          .then(stats => {
+            extStatus.textContent = "Success! Player loaded.";
+            extStatus.style.color = "#4CAF50";
+            extBtn.disabled = false;
+            extBtn.style.opacity = "1";
+
+            // Build a fake database object for the external player
+            const externalMock = {
+              id: "external",
+              gameName: gameName,
+              tagLine: tagLine,
+              primaryRole: "External",
+              tier: "External",
+              rank: "Player",
+              profilePhoto: null,
+              stats: stats
+            };
+            
+            // Reset the dropdown visually
+            if (p2Select) p2Select.value = "";
+
+            // Grey out the candidate star (since they aren't on the team)
+            const wrap = document.getElementById('p2-candidate-wrap');
+            if (wrap) {
+                wrap.style.display = 'flex'; // Keep the layout intact
+                
+                const favBtn = document.getElementById('p2FavoriteBtn');
+                const favMemo = document.getElementById('p2FavoriteMemo');
+                const favMsg = document.getElementById('p2FavoriteMsg');
+
+                if (favBtn) {
+                    favBtn.disabled = true;
+                    favBtn.style.opacity = "0.5";
+                    favBtn.style.cursor = "not-allowed";
+                    favBtn.textContent = "☆"; // Ensure it's unstarred
+                    favBtn.setAttribute("aria-pressed", "false");
+                }
+                
+                if (favMemo) {
+                    favMemo.disabled = true;
+                    favMemo.style.opacity = "0.5";
+                    favMemo.style.cursor = "not-allowed";
+                    favMemo.value = ""; // Clear any previous text
+                    favMemo.placeholder = "External players cannot be favorited.";
+                }
+                
+                if (favMsg) {
+                    favMsg.textContent = ""; // Clear the X / 2 message
+                }
+            }
+            
+            // Inject the data and draw the chart!
+            player2Data = externalMock;
+            updatePlayerCard(externalMock, 2);
+            if (player1Data?.stats) updateComparison();
+          })
+          .catch(err => {
+            extStatus.textContent = err.message || "Failed to fetch external player.";
+            extStatus.style.color = "#f44336";
+            extBtn.disabled = false;
+            extBtn.style.opacity = "1";
+          });
+      });
+    }
   }
 
   // Updates one player card (name, role, rank, photo) and role toggle controls for player 1.
@@ -279,6 +365,109 @@ window.initComparisonTab = function () {
                 loadPlayerData(player.userId || player.id, 1, activeComparisonRoleId);
             });
         }
+
+        // INJECT CANDIDATE FAVORITE FOR PLAYER 2 IN THE OVERLAY
+        if (playerNumber === 2) {
+            let favContainer = document.getElementById('overlay-p2-favorite');
+            
+            if (!favContainer) {
+                favContainer = document.createElement('div');
+                favContainer.id = 'overlay-p2-favorite';
+                favContainer.style.display = 'none'; // Hidden until coach role is confirmed
+                favContainer.style.flexDirection = 'column';
+                favContainer.style.gap = '8px';
+                favContainer.style.marginTop = '15px';
+                favContainer.style.width = '100%';
+                
+                // Insert underneath the rank text
+                if (rankEl) {
+                    rankEl.parentNode.insertBefore(favContainer, rankEl.nextSibling);
+                }
+            }
+
+            // Hide completely if Player 2 is a Benchmark (not a real player) or missing ID
+            if (player.id === "coach-benchmark" || !player.userId) {
+                favContainer.style.display = 'none';
+                syncPlayerCardWidths();
+            } else {
+                Backend.checkCoachRole().then(isCoach => {
+                    if (!isCoach) {
+                        favContainer.style.display = 'none';
+                        syncPlayerCardWidths();
+                        return;
+                    }
+                    
+                    favContainer.style.display = 'flex';
+                    
+                    // Inject the Star and Memo UI
+                    favContainer.innerHTML = `
+                        <div style="display: flex; gap: 6px; align-items: stretch; justify-content: center; width: 100%;">
+                            <button id="p2FavBtn" type="button" aria-pressed="false" title="Mark as candidate favorite" style="width: 38px; height: 38px; flex-shrink: 0; border: 1px solid #444; border-radius: 6px; background: #2a2d33; color: #fff; font-size: 20px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">☆</button>
+                            <textarea id="p2FavMemo" placeholder="Memo: Why this player?" disabled style="flex: 1; height: 38px; padding: 8px 10px; border-radius: 6px; border: 1px solid #444; background: #1a1c20; color: #fff; font-family: inherit; font-size: 12px; resize: none; opacity: 0.5; cursor: not-allowed; transition: opacity 0.2s;"></textarea>
+                        </div>
+                        <p id="p2FavMsg" style="font-size: 11px; color: #8892a0; margin: 0; text-align: center;">Pick up to 2 candidates per role.</p>
+                    `;
+
+                    const p2Id = player.userId;
+                    // Always save relative to Player 1's currently active role (the role they are comparing against)
+                    const currentRoleId = activeComparisonRoleId || (player1Data ? player1Data.primaryRoleId : 1); 
+
+                    const p2FavBtn = document.getElementById('p2FavBtn');
+                    const p2FavMemo = document.getElementById('p2FavMemo');
+                    const p2FavMsg = document.getElementById('p2FavMsg');
+
+                    // Fetch current favorited state
+                    Backend.fetchFavoriteStatus(currentRoleId).then(data => {
+                        if (!data) return;
+                        const favData = data.favorites?.find(f => String(f.userId) === String(p2Id));
+                        const isFav = !!favData;
+
+                        p2FavBtn.textContent = isFav ? "★" : "☆";
+                        p2FavBtn.style.color = isFav ? "#FFD700" : "#fff";
+                        p2FavBtn.setAttribute("aria-pressed", isFav ? "true" : "false");
+                        p2FavMsg.textContent = `${data.count ?? 0} / 2 candidates selected for this role.`;
+
+                        p2FavMemo.disabled = !isFav;
+                        p2FavMemo.style.opacity = isFav ? "1" : "0.5";
+                        p2FavMemo.style.cursor = isFav ? "text" : "not-allowed";
+                        p2FavMemo.value = favData?.memo || "";
+                        
+                        syncPlayerCardWidths(); // Re-sync height of both cards
+                    });
+
+                    // Toggle Favorite Click
+                    p2FavBtn.addEventListener('click', () => {
+                        Backend.toggleFavorite(p2Id, currentRoleId).then(data => {
+                            if (data.success) {
+                                const isNowFav = data.action === "added";
+                                p2FavBtn.textContent = isNowFav ? "★" : "☆";
+                                p2FavBtn.style.color = isNowFav ? "#FFD700" : "#fff";
+                                p2FavBtn.setAttribute("aria-pressed", isNowFav ? "true" : "false");
+                                p2FavMsg.textContent = `${data.count} / 2 candidates selected for this role.`;
+
+                                p2FavMemo.disabled = !isNowFav;
+                                p2FavMemo.style.opacity = isNowFav ? "1" : "0.5";
+                                p2FavMemo.style.cursor = isNowFav ? "text" : "not-allowed";
+                                
+                                if (!isNowFav) {
+                                    p2FavMemo.value = ""; // Clear on unfavorite
+                                } else {
+                                    p2FavMemo.focus(); // Focus to type immediately
+                                }
+                            } else {
+                                p2FavMsg.textContent = data.error || "Could not update favorite.";
+                            }
+                        });
+                    });
+
+                    // Save Memo on Blur
+                    p2FavMemo.addEventListener('blur', () => {
+                        if (p2FavMemo.disabled) return;
+                        Backend.saveMemo(p2Id, currentRoleId, p2FavMemo.value);
+                    });
+                });
+            }
+        }
     }
     
     if (rankEl) rankEl.textContent = player.tier ? `${player.tier} ${player.rank}` : "Unranked";
@@ -300,11 +489,14 @@ window.initComparisonTab = function () {
     Backend.fetchPlayer(playerId)
       .then((player) => {
         if (playerNumber === 1) {
-          player1Data = player;
-          // Set active role, defaulting to 1 (Top) if the player has no assigned role
-          activeComparisonRoleId = forceRoleId || player.primaryRoleId || 1; 
-          updatePlayerCard(player, 1);
-        } else {
+            player1Data.stats = stats;
+            if (selectedPlayer2 === "coach-benchmark") {
+              loadCoachBenchmark();
+            } else if (player1Data?.stats && player2Data?.stats) {
+              updatePlayerCard(player2Data, 2); // <--- to refresh Player 2's favorite state based on P1's role context
+              updateComparison();
+            }
+          } else {
           player2Data = player;
           updatePlayerCard(player, 2);
         }

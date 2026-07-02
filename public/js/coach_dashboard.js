@@ -328,12 +328,16 @@ async function loadScrims() {
                 const badgeClass = isWin ? 'badge-w' : 'badge-l';
                 const badgeText = isWin ? 'W' : 'L';
                 
+                // Combine Start Time and Total Length cleanly within the single column cell
+                const durationText = s.length ? `(${s.length})` : '';
+                const displayTime = `${s.startTime || 'N/A'} ${durationText}`.trim();
+                
                 html += `
                     <tr style="border-bottom: 1px solid #333;">
                         <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${index + 1}</td>
                         <td style="padding: 12px 10px; font-weight: 600; color: #fff;">${s.name}</td>
                         <td style="padding: 12px 10px; color: #fff;">${scrimDate}</td>
-                        <td style="padding: 12px 10px; color: #fff;">${s.length || 'N/A'}</td>
+                        <td style="padding: 12px 10px; color: #fff;">${displayTime}</td>
                         <td style="padding: 12px 10px; color: #fff; font-size: 13px;">${s.teamMembers || 'N/A'}</td>
                         <td style="padding: 12px 10px; text-align: center;">
                             <span class="scrim-badge ${badgeClass}">${badgeText}</span>
