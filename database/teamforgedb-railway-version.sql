@@ -169,6 +169,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`players` (
   `teamId` INT NULL DEFAULT NULL,
   `yearLevel` VARCHAR(45) NULL DEFAULT NULL,
   `profilePhoto` VARCHAR(260) NULL DEFAULT NULL,
+  `vodLink` VARCHAR(2048) NULL DEFAULT NULL,
   `isSub` ENUM('T', 'F') NULL DEFAULT NULL,
   PRIMARY KEY (`userId`),
   INDEX `fk_players_leagueRoles1_idx` (`primaryRoleId` ASC) ,

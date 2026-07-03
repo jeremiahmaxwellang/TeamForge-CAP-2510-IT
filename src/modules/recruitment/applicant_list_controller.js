@@ -32,6 +32,7 @@ exports.getAllApplicants = async (req, res) => {
                 p.lastGPA,
                 p.CGPA,
                 p.puuid,
+                p.vodLink,
                 a.status AS applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
@@ -86,6 +87,7 @@ exports.getApplicantByEmail = async (req, res) => {
                 p.lastGPA,
                 p.CGPA,
                 p.puuid,
+                p.vodLink,
                 a.status AS applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
@@ -140,7 +142,8 @@ exports.saveEvaluation = async (req, res) => {
             gameSense,
             communication,
             champPool,
-            status
+            status,
+            vodLink
         } = req.body;
 
         const coachId = req.cookies && req.cookies.userId;
@@ -195,6 +198,15 @@ exports.saveEvaluation = async (req, res) => {
             WHERE userId = ?
         `;
         await connection.query(updateStatusQuery, [status, userId]);
+
+        // 3. Persist the VOD link against the applicant profile
+        if (userId) {
+            const normalizedVodLink = typeof vodLink === 'string' ? vodLink.trim() : null;
+            await connection.query(
+                `UPDATE players SET vodLink = ? WHERE userId = ?`,
+                [normalizedVodLink || null, userId]
+            );
+        }
 
         await connection.commit();
 

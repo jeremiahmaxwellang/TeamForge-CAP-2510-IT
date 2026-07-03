@@ -245,9 +245,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     state.currentIndex = index;
 
     // Reset the VOD box when loading a new profile
-    if (document.getElementById('vod-link-input')) {
-        document.getElementById('vod-link-input').value = '';
-        document.getElementById('vod-link-input').dispatchEvent(new Event('input')); 
+    const vodInput = document.getElementById('vod-link-input');
+    if (vodInput) {
+      vodInput.value = applicant.vodLink || '';
+      vodInput.dispatchEvent(new Event('input'));
     }
 
     const newUrl = `${window.location.pathname}?id=${applicant.userId}`;
@@ -953,7 +954,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         gameSense: gameSenseEl ? parseInt(gameSenseEl.value, 10) : 0,
         communication: commsEl ? parseInt(commsEl.value, 10) : 0,
         champPool: champPoolEl ? parseInt(champPoolEl.value, 10) : 0,
-        status: finalStatus
+        status: finalStatus,
+        vodLink: document.getElementById('vod-link-input')?.value?.trim() || null
       };
 
       try {
