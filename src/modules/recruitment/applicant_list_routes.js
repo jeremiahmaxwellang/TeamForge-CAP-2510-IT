@@ -40,6 +40,9 @@ router.get('/getbyemail', applicant_list_controller.getApplicantByEmail);
 // URL: /applicant_list/details/4
 router.get('/details/:id', playerController.getPlayerById);
 
+// Save the latest VOD link for an applicant profile
+router.post('/vod', applicant_list_controller.saveVodLink);
+
 // Save Coach Evaluation (Accept/Reject & Notes)
 router.post('/evaluate', applicant_list_controller.saveEvaluation);
 

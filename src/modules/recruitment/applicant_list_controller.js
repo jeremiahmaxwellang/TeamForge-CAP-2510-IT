@@ -31,7 +31,7 @@ exports.getAllApplicants = async (req, res) => {
                 p.yearLevel,      
                 p.lastGPA,
                 p.CGPA,
-                p.puuid,
+                a.vodLink,
                 a.status AS applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
@@ -86,6 +86,7 @@ exports.getApplicantByEmail = async (req, res) => {
                 p.lastGPA,
                 p.CGPA,
                 p.puuid,
+                a.vodLink,
                 a.status AS applicationStatus
             FROM users u
             JOIN players p ON u.userId = p.userId
@@ -128,6 +129,33 @@ async function getTeamName() {
     return rows.length ? rows[0].teamName : '';
 }
 
+// Save the VOD link for an applicant profile
+exports.saveVodLink = async (req, res) => {
+    try {
+        const { userId, vodLink } = req.body;
+        const effectiveUserId = userId || req.cookies?.userId;
+
+        if (!effectiveUserId) {
+            return res.status(400).json({ success: false, message: 'User ID is required.' });
+        }
+
+        const normalizedVodLink = typeof vodLink === 'string' ? vodLink.trim() : null;
+
+        await mySqlPool.query(
+            `UPDATE applications
+             SET vodLink = ?
+             WHERE userId = ?
+             AND periodId = (SELECT MAX(periodId) FROM application_periods)`,
+            [normalizedVodLink || null, effectiveUserId]
+        );
+
+        res.status(200).json({ success: true, message: 'VOD link saved.' });
+    } catch (error) {
+        console.error('Error saving VOD link:', error);
+        res.status(500).json({ success: false, message: 'Database error while saving VOD link.' });
+    }
+};
+
 // Save Coach Evaluation (Ratings, Notes, and Status)
 exports.saveEvaluation = async (req, res) => {
     // We use a transaction so if one query fails, it cancels both to prevent corrupted data
@@ -140,7 +168,8 @@ exports.saveEvaluation = async (req, res) => {
             gameSense,
             communication,
             champPool,
-            status
+            status,
+            vodLink
         } = req.body;
 
         const coachId = req.cookies && req.cookies.userId;
@@ -195,6 +224,18 @@ exports.saveEvaluation = async (req, res) => {
             WHERE userId = ?
         `;
         await connection.query(updateStatusQuery, [status, userId]);
+
+        // 3. Persist the VOD link against the applicant's application record
+        if (userId) {
+            const normalizedVodLink = typeof vodLink === 'string' ? vodLink.trim() : null;
+            await connection.query(
+                `UPDATE applications
+                 SET vodLink = ?
+                 WHERE userId = ?
+                 AND periodId = (SELECT MAX(periodId) FROM application_periods)`,
+                [normalizedVodLink || null, userId]
+            );
+        }
 
         await connection.commit();
 

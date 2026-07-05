@@ -47,6 +47,71 @@ document.addEventListener("DOMContentLoaded", async function () {
     benchmarks: []
   };
 
+  let vodSaveTimer = null;
+
+  async function saveVodLinkToServer(userId, vodLink) {
+    if (!userId) return;
+
+    try {
+      const response = await fetch('/applicant_list/vod', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, vodLink })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.warn('[APPLICANT] Failed to save VOD link:', errorText);
+      }
+    } catch (error) {
+      console.warn('[APPLICANT] Error saving VOD link:', error);
+    }
+  }
+
+  // Helper function to update VOD box preview
+  function updateVodBoxDisplay(url) {
+    const vodBox = document.getElementById('vod-box');
+    if (!vodBox) return;
+
+    // If the input is cleared, restore the original placeholder
+    if (!url) {
+      vodBox.innerHTML = `
+        <div style="text-align:center;" id="vod-placeholder">
+            <i class="fas fa-play-circle" style="font-size: 50px; margin-bottom:15px;"></i>
+            <br>VOD SUBMISSION
+        </div>
+      `;
+      return;
+    }
+
+    // Regex to extract the 11-character YouTube Video ID from various URL formats
+    const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(ytRegex);
+
+    if (match && match[1]) {
+      const videoId = match[1];
+      // Inject the embedded iframe
+      vodBox.innerHTML = `
+        <iframe width="100%" height="100%" 
+            src="https://www.youtube.com/embed/${videoId}" 
+            title="YouTube VOD" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+            style="border-radius: 15px;">
+        </iframe>
+      `;
+    } else {
+      // Fallback for invalid links
+      vodBox.innerHTML = `
+        <div style="text-align:center; color: #ff9aa6;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 50px; margin-bottom:15px;"></i>
+            <br>Invalid YouTube Link
+        </div>
+      `;
+    }
+  }
+
   // DOM Elements Map (Fixed IDs to match HTML)
   const UI = {
     name: document.getElementById('app-name'),
@@ -245,9 +310,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     state.currentIndex = index;
 
     // Reset the VOD box when loading a new profile
-    if (document.getElementById('vod-link-input')) {
-        document.getElementById('vod-link-input').value = '';
-        document.getElementById('vod-link-input').dispatchEvent(new Event('input')); 
+    const vodInput = document.getElementById('vod-link-input');
+    if (vodInput) {
+      vodInput.value = applicant.vodLink || '';
+      // Update the preview display immediately
+      updateVodBoxDisplay(applicant.vodLink || '');
     }
 
     const newUrl = `${window.location.pathname}?id=${applicant.userId}`;
@@ -734,42 +801,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       vodInput.addEventListener('input', function () {
         const url = this.value.trim();
         
-        // If the input is cleared, restore the original placeholder
-        if (!url) {
-          vodBox.innerHTML = `
-            <div style="text-align:center;" id="vod-placeholder">
-                <i class="fas fa-play-circle" style="font-size: 50px; margin-bottom:15px;"></i>
-                <br>VOD SUBMISSION
-            </div>
-          `;
-          return;
-        }
+        // Update the preview display
+        updateVodBoxDisplay(url);
 
-        // Regex to extract the 11-character YouTube Video ID from various URL formats
-        const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        const match = url.match(ytRegex);
-
-        if (match && match[1]) {
-          const videoId = match[1];
-          // Inject the embedded iframe
-          vodBox.innerHTML = `
-            <iframe width="100%" height="100%" 
-                src="https://www.youtube.com/embed/${videoId}" 
-                title="YouTube VOD" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-                style="border-radius: 15px;">
-            </iframe>
-          `;
-        } else {
-          // Fallback for invalid links
-          vodBox.innerHTML = `
-            <div style="text-align:center; color: #ff9aa6;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 50px; margin-bottom:15px;"></i>
-                <br>Invalid YouTube Link
-            </div>
-          `;
+        // Save to server after a short delay
+        if (state.currentApplicant?.userId) {
+          clearTimeout(vodSaveTimer);
+          vodSaveTimer = setTimeout(() => saveVodLinkToServer(state.currentApplicant.userId, url || null), 300);
         }
       });
     }
@@ -953,7 +991,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         gameSense: gameSenseEl ? parseInt(gameSenseEl.value, 10) : 0,
         communication: commsEl ? parseInt(commsEl.value, 10) : 0,
         champPool: champPoolEl ? parseInt(champPoolEl.value, 10) : 0,
-        status: finalStatus
+        status: finalStatus,
+        vodLink: document.getElementById('vod-link-input')?.value?.trim() || null
       };
 
       try {

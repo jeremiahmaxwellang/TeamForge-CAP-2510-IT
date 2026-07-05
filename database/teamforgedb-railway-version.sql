@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`applications` (
   `userId` INT UNSIGNED NOT NULL,
   `primaryRoleId` INT NOT NULL,
   `status` VARCHAR(45) NOT NULL DEFAULT 'Pending',
+  `vodLink` LONGTEXT NULL DEFAULT NULL,
   PRIMARY KEY (`periodId`, `userId`),
   INDEX `fk_applications_players1_idx` (`userId` ASC) ,
   INDEX `fk_applications_leagueRoles1_idx` (`primaryRoleId` ASC) ,
