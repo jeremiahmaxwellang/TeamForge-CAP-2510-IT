@@ -87,6 +87,19 @@ exports.createUser = async (req, res) => {
             });
         }
 
+        // Validate GPA range (DECIMAL(6,2) max value is 9999.99)
+        if (parsedGpa < 0 || parsedGpa > 9999.99) {
+            return res.status(400).json({
+                message: 'GPA must be between 0 and 9999.99'
+            });
+        }
+
+        if (parsedCgpa < 0 || parsedCgpa > 9999.99) {
+            return res.status(400).json({
+                message: 'CGPA must be between 0 and 9999.99'
+            });
+        }
+
         const academicRequirements = await academicRequirementsService.getAcademicRequirements();
 
         if (!satisfiesRequirement(parsedGpa, academicRequirements.gpa)) {
@@ -130,6 +143,19 @@ exports.createUser = async (req, res) => {
 
         const gameName = riotIdParts[0].trim();
         const tagLine = riotIdParts[1].trim();
+
+        // Validate tagline length (League of Legends tagline limit is 5 characters)
+        if (tagLine.length > 5) {
+            return res.status(400).json({
+                message: 'Tagline cannot exceed 5 characters'
+            });
+        }
+
+        if (tagLine.length === 0) {
+            return res.status(400).json({
+                message: 'Tagline cannot be empty'
+            });
+        }
 
         await uploadedPhoto.mv(uploadPath);
 
@@ -244,6 +270,23 @@ exports.createUser = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating user:', error);
+
+        // Handle out-of-range value errors (e.g., GPA/CGPA exceeding DECIMAL(6,2) limits)
+        if (error.code === 'ER_WARN_DATA_OUT_OF_RANGE') {
+            const columnMatch = error.sqlMessage && error.sqlMessage.match(/column '(\w+)'/);
+            const columnName = columnMatch ? columnMatch[1] : 'value';
+            return res.status(400).json({
+                message: `${columnName} value is out of range. Maximum allowed is 9999.99`
+            });
+        }
+
+        // Handle duplicate entry errors
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({
+                message: 'This account information already exists in the system'
+            });
+        }
+
         res.status(500).json({
             message: 'Error creating user',
             error: error.message
