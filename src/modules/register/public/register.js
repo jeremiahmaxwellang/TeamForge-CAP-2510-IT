@@ -148,7 +148,17 @@ async function submitRegistration() {
             body: formData
         });
 
-        const data = await response.json();
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        let data;
+        
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            // If not JSON, try to parse as text
+            const text = await response.text();
+            data = { message: text || 'Unknown error occurred' };
+        }
 
         if (response.ok) {
             alert('Registration successful!');
@@ -161,7 +171,7 @@ async function submitRegistration() {
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred during registration');
+        alert('An error occurred during registration: ' + (error.message || 'Please try again'));
     }
 }
 
