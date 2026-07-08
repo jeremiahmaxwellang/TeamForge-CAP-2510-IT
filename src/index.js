@@ -12,9 +12,21 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb' }));
 app.use(fileUpload({
     createParentPath: true,
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 50 * 1024 * 1024 },
     abortOnLimit: true
 }));
+
+// Middleware to handle file upload errors and return JSON
+app.use((err, req, res, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE' || (err.message && err.message.includes('File size'))) {
+        return res.status(413).json({
+            success: false,
+            message: 'File size exceeds the maximum allowed limit of 50MB'
+        });
+    }
+    next(err);
+});
+
 app.use(cookieParser());
 
 function requireRole(requiredRole) {

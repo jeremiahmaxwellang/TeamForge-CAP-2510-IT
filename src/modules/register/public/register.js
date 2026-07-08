@@ -107,11 +107,40 @@ async function submitRegistration() {
         return;
     }
 
+    // Validate Riot ID format and tagline length
+    const riotIdParts = riotId.split('#');
+    if (riotIdParts.length !== 2) {
+        alert('Invalid Riot ID format. Please use format: gameName#tagLine');
+        return;
+    }
+
+    const tagLine = riotIdParts[1].trim();
+    if (tagLine.length === 0) {
+        alert('Tagline cannot be empty');
+        return;
+    }
+
+    if (tagLine.length > 5) {
+        alert('Tagline cannot exceed 5 characters');
+        return;
+    }
+
     const parsedGpa = Number.parseFloat(gpa);
     const parsedCgpa = Number.parseFloat(cgpa);
 
     if (!Number.isFinite(parsedGpa) || !Number.isFinite(parsedCgpa)) {
         alert('Please enter valid GPA and CGPA values.');
+        return;
+    }
+
+    // Validate GPA range (DECIMAL(6,2) max value is 9999.99)
+    if (parsedGpa < 0 || parsedGpa > 9999.99) {
+        alert('GPA must be between 0 and 9999.99');
+        return;
+    }
+
+    if (parsedCgpa < 0 || parsedCgpa > 9999.99) {
+        alert('CGPA must be between 0 and 9999.99');
         return;
     }
 
@@ -148,7 +177,17 @@ async function submitRegistration() {
             body: formData
         });
 
-        const data = await response.json();
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        let data;
+        
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            // If not JSON, try to parse as text
+            const text = await response.text();
+            data = { message: text || 'Unknown error occurred' };
+        }
 
         if (response.ok) {
             alert('Registration successful!');
@@ -161,7 +200,7 @@ async function submitRegistration() {
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred during registration');
+        alert('An error occurred during registration: ' + (error.message || 'Please try again'));
     }
 }
 
