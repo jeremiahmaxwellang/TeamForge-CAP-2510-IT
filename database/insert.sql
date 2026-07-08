@@ -2,7 +2,7 @@ USE teamforgedb;
 
 -- Team Details
 INSERT INTO teamdetails(teamName, teamIcon, schoolName, schoolIcon)
-VALUES ('My Team', 'VA_logo.png', 'My University', 'dlsu_logo.png');
+VALUES ('My Team', 'Team_Logo.png', 'My University', 'school_logo.png');
 
 -- League Roles
 INSERT INTO leagueroles(roleId, displayedRole, role, teamPosition)
@@ -17,31 +17,9 @@ VALUES
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
 (1,'jeremiah_ang@dlsu.edu.ph','teamForge123!!','Jeremiah','Ang','Team Manager','Cowwrean#cowwrean','Active'),
-(35,
-    'manager1@test.com',
-    'teamForge123!!',
-    'Manager',
-    'One',
-    'Team Manager',
-    'Manager#1',
-    'Active'),
-(36,
-    'manager2@test.com',
-    'teamForge123!!',
-    'Manager',
-    'Two',
-    'Team Manager',
-    'Manager#2',
-    'Active'),
-(25,
-    'justin_nicolai_lee@dlsu.edu.ph',
-    'teamForge123!!',
-    'Justin',
-    'Lee',
-    'Team Manager',
-    'justinlee#1234',
-    'Active'
-);
+(35,'manager1@test.com','teamForge123!!','Manager','One','Team Manager','Manager#1','Active'),
+(36,'manager2@test.com','teamForge123!!','Manager','Two','Team Manager','Manager#2','Active'),
+(25,'justin_nicolai_lee@dlsu.edu.ph','teamForge123!!','Justin','Lee','Team Manager','justinlee#1234','Active');
 
 -- Coach 
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
