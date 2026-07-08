@@ -247,6 +247,18 @@ window.initComparisonTab = function () {
     }
   }
 
+  function getDisplayRank(player) {
+    if (player?.currentRank && String(player.currentRank).trim()) {
+      return String(player.currentRank).trim();
+    }
+
+    const tier = player?.tier ? String(player.tier).trim() : "";
+    const rank = player?.rank ? String(player.rank).trim() : "";
+    const fallbackRank = [tier, rank].filter(Boolean).join(" ").trim();
+
+    return fallbackRank || "Unranked";
+  }
+
   // Updates one player card (name, role, rank, photo) and role toggle controls for player 1.
   function updatePlayerCard(player, playerNumber) {
     const prefix = playerNumber === 1 ? "player1" : "player2";
@@ -470,7 +482,7 @@ window.initComparisonTab = function () {
         }
     }
     
-    if (rankEl) rankEl.textContent = player.tier ? `${player.tier} ${player.rank}` : "Unranked";
+    if (rankEl) rankEl.textContent = getDisplayRank(player);
 
     const pfpEl = document.getElementById(`pfp-${prefix}`);
     if (pfpEl) {
