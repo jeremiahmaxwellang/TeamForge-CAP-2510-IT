@@ -5,5 +5,7 @@ public/uploads/profile-photos/*
 !public/uploads/profile-photos/defaultusericon.png
 public/uploads/team-logos/*
 !public/uploads/team-logos/Team_Logo.png
+public/uploads/school-logos/*
+!public/uploads/school-logos/school_logo.png
 src/modules/google_apis/credentials.json
 repomix-output.xml

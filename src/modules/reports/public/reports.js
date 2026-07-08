@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         TEAM BRANDING
        ============================================================ */
     let teamName = 'My Team';
-    let teamLogoUrl = '/uploads/team-logos/default.png';
+    let teamLogoUrl = '/uploads/team-logos/Team_Logo.png';
+    let schoolName = 'My University';
+    let schoolLogoUrl = '/uploads/school-logos/school_logo.png'; // fallback if DB has no schoolIcon set
 
     const loadTeamDetails = async () => {
         try {
@@ -13,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.success) {
                 teamName = data.teamName || teamName;
                 teamLogoUrl = data.teamLogoUrl || teamLogoUrl;
+                schoolName = data.schoolName || schoolName;
+                schoolLogoUrl = data.schoolIconUrl || schoolLogoUrl;
             }
         } catch (err) {
             console.warn('[Team Branding] Could not load team details:', err);
@@ -219,7 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return img;
         };
 
-        const dlsuImg = makeLogo('/images/dlsu_logo.png', 'DLSU Logo');
+        const dlsuImg = makeLogo(schoolLogoUrl, `${schoolName} Logo`);
         const teamforgeImg = makeLogo('/images/teamforge_logo_white.png', 'TeamForge Logo');
         rightLogos.append(dlsuImg, teamforgeImg);
 
@@ -293,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadStandardLogos = async () => {
         const [team, dlsu, teamforge] = await Promise.all([
             loadImageAsBase64(teamLogoUrl),
-            loadImageAsBase64('/images/dlsu_logo.png'),
+            loadImageAsBase64(schoolLogoUrl),
             loadImageAsBase64('/images/teamforge_logo_white.png')
         ]);
         return { team, dlsu, teamforge };

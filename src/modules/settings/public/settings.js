@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function applyTeamBranding(teamName, teamLogoUrl) {
         const resolvedTeamName = (teamName || '').trim() || 'Viridis Arcus';
-        const resolvedTeamLogoUrl = (teamLogoUrl || '').trim() || '/uploads/team-logos/VA_logo.png';
+        const resolvedTeamLogoUrl = (teamLogoUrl || '').trim() || '/uploads/team-logos/Team_Logo.png';
 
         document.querySelectorAll('.manager-team-name, .coach-team-name, .team-name').forEach((el) => {
             el.classList.add('js-team-identity');
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             textEl.textContent = resolvedTeamName;
             logoEl.onerror = () => {
-                logoEl.src = '/uploads/team-logos/VA_logo.png';
+                logoEl.src = '/uploads/team-logos/Team_Logo.png';
             };
             logoEl.src = resolvedTeamLogoUrl;
         });
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (teamNameInput) teamNameInput.value = result.teamName || 'Viridis Arcus';
-            if (teamLogoPreview) teamLogoPreview.src = result.teamLogoUrl || '/uploads/team-logos/VA_logo.png';
+            if (teamLogoPreview) teamLogoPreview.src = result.teamLogoUrl || '/uploads/team-logos/Team_Logo.png';
             applyTeamBranding(result.teamName, result.teamLogoUrl);
 
             setStatus(teamSettingsStatus, 'Team settings loaded.', true);
@@ -733,7 +733,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 if (teamNameInput) teamNameInput.value = result.teamName || 'Viridis Arcus';
-                if (teamLogoPreview) teamLogoPreview.src = result.teamLogoUrl || '/uploads/team-logos/VA_logo.png';
+                if (teamLogoPreview) teamLogoPreview.src = result.teamLogoUrl || '/uploads/team-logos/Team_Logo.png';
                 if (teamLogoInput) teamLogoInput.value = '';
 
                 applyTeamBranding(result.teamName, result.teamLogoUrl);
