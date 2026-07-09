@@ -40,6 +40,33 @@ exports.getAllAnnouncements = async (req, res) => {
     }
 };
 
+// 3. Fetch latest announcement from the database
+exports.getLatestAnnouncement = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                a.announcementId, 
+                a.userId AS authorId,
+                a.title, 
+                a.content, 
+                a.dateCreated, 
+                u.firstname, 
+                u.lastname 
+            FROM announcements a
+            JOIN users u ON a.userId = u.userId
+            ORDER BY a.dateCreated DESC
+            LIMIT 1
+        `;
+
+        const [rows] = await mySqlPool.query(query);
+
+        res.status(200).json({ success: true, announcement: rows[0] || null });
+    } catch (error) {
+        console.error('Error fetching announcement:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch announcement.' });
+    }
+};
+
 // 3. Create a new announcement
 exports.createAnnouncement = async (req, res) => {
     try {

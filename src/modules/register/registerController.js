@@ -196,73 +196,22 @@ exports.createUser = async (req, res) => {
         ]);
 
         // Insert into applicants table
-        // const insertApplicantQuery = `
-        //     INSERT INTO applications (periodId, userId, primaryRoleId) VALUES
-        //     (?, ?, ?)
-        // `;
+        const insertApplicantQuery = `
+            INSERT INTO applications (periodId, userId, primaryRoleId) VALUES
+            (?, ?, ?)
+        `;
 
         // Temp for testing: Auto accept Applicants
-        const insertApplicantQuery = `
-            INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
-            (?, ?, ?, 'Accepted')
-        `;
+        // const insertApplicantQuery = `
+        //     INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
+        //     (?, ?, ?, 'Accepted')
+        // `;
 
         await mySqlPool.query(insertApplicantQuery, [
             parsedCurrentPeriod,
             userId,
             parsedPrimaryRole
         ]);
-
-        // Temp for testing: Email for auto acceptance
-       
-        async function getTeamName() {
-            const [rows] = await mySqlPool.query('SELECT teamName FROM teamdetails LIMIT 1');
-            return rows.length ? rows[0].teamName : '';
-        }
-
-        const teamName = await getTeamName();
-
-        try {
-            // 1. Fetch the applicant's name and email
-            const [userRows] = await mySqlPool.query('SELECT firstname, email FROM users WHERE userId = ?', [userId]);
-
-            if (userRows.length > 0) {
-                const user = userRows[0];
-
-                // 2. Set up the email sender
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: process.env.EMAIL_USER,
-                        pass: process.env.EMAIL_PASS
-                    }
-                });
-
-                // 3. Draft the email based on the Coach's decision
-                let subject = '';
-                let text = '';
-
-
-                subject = `Congratulations! Welcome to ${teamName}`;
-                text = `Hi ${user.firstname},\n\nGreat news! The coaching staff has reviewed your application and you have been accepted into ${teamName}.\n\nPlease log in to your dashboard to claim your roster spot and view your new team access.\n\nWelcome to the team!\n- ${teamName} Management`;
-
-
-                // 4. Send the email
-                if (subject && text) {
-                    await transporter.sendMail({
-                        from: `"TeamForge" <${process.env.EMAIL_USER}>`,
-                        to: user.email,
-                        subject: subject,
-                        text: text
-                    });
-                    console.log(`[Email System] Acceptance notification sent to ${user.email}`);
-                }
-            }
-        } catch (emailError) {
-            // If the email fails, we just log it. We don't want to crash the whole app 
-            // since the database update was already successful!
-            console.error('[Email System] Failed to send email:', emailError);
-        }
 
         res.status(201).json({
             message: 'User and player created successfully',

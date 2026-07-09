@@ -1,83 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Applicant Dashboard</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
+        :root {
+            --bg-page: #3a3d45;
+            --bg-card: #26282f;
+            --bg-card-alt: #2b2e36;
+            --accent-red: #e53935;
+            --text-primary: #f5f5f5;
+            --text-secondary: #b8bcc4;
+            --text-muted: #8a8e98;
+            --border-subtle: #3a3d46;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
+            background-color: var(--bg-page);
+            padding: 24px;
+            margin: 0;
+            color: var(--text-primary);
         }
+
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
+
+        .header-row h1 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        /* ---------- Card base ---------- */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 10px;
+            padding: 20px 24px;
+        }
+
+        .card h2, .card h3 {
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        /* ---------- My Application card ---------- */
         .user-info {
-            background-color: #f0f0f0;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
+
         .user-info p {
-            margin: 5px 0;
-            color: #666;
+            margin: 6px 0;
+            color: var(--text-primary);
         }
+
+        .user-info p strong {
+            font-weight: bold;
+        }
+
         .status-badge {
             display: inline-block;
-            padding: 8px 16px;
+            padding: 6px 16px;
             border-radius: 20px;
             font-weight: bold;
             background-color: #fff3cd;
             color: #856404;
-            margin-top: 10px;
+            margin-top: 6px;
+            font-size: 14px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+
+        /* ---------- Two column layout ---------- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            align-items: start;
             margin-top: 20px;
         }
-        th {
-            background-color: #4CAF50;
+
+        @media (max-width: 720px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ---------- Application details table ---------- */
+        .table-scroll {
+            width: 100%;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 4px;
+        }
+
+        thead th {
+            background-color: var(--accent-red);
             color: white;
-            padding: 12px;
+            padding: 10px 14px;
             text-align: left;
             font-weight: bold;
-            border: 1px solid #ddd;
+            position: sticky;
+            top: 0;
         }
-        td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
+
+        thead th:first-child {
+            border-radius: 6px 0 0 6px;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+
+        thead th:last-child {
+            border-radius: 0 6px 6px 0;
         }
-        tr:hover {
-            background-color: #f0f0f0;
+
+        tbody td {
+            padding: 8px 14px;
+            border: none;
+            color: var(--text-secondary);
         }
+
+        tbody td:first-child {
+            color: var(--text-primary);
+        }
+
+        /* ---------- Announcement card ---------- */
+        .announcement-body p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0 0 14px 0;
+            white-space: pre-wrap;
+        }
+
+        .announcement-meta {
+            color: var(--text-muted);
+            font-size: 12px;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 10px;
+            margin-top: 4px;
+        }
+
+        /* ---------- Loading / error ---------- */
         .loading {
             text-align: center;
             padding: 20px;
-            color: #666;
+            color: var(--text-secondary);
         }
+
         .error {
-            color: red;
+            color: #ff8a80;
             text-align: center;
             padding: 20px;
-            background-color: #ffebee;
-            border-radius: 4px;
+            background-color: #3d2323;
+            border-radius: 6px;
         }
+
         .logout-btn {
             background-color: #d32f2f;
             color: white;
@@ -87,54 +181,67 @@
             cursor: pointer;
             font-size: 14px;
         }
+
         .logout-btn:hover {
             background-color: #b71c1c;
         }
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <div class="header-row">
-            <h1>Applicant Dashboard</h1>
-        </div>
-        
-        <div id="userInfo" class="user-info" style="display: none;">
+        <div id="loading" class="loading">Loading your application...</div>
+        <div id="error" class="error" style="display: none;"></div>
+
+        <!-- My Application card -->
+        <div id="userInfo" class="card user-info" style="display: none;">
+            <h2>My Application</h2>
             <p><strong>Name:</strong> <span id="userName"></span></p>
             <p><strong>Email:</strong> <span id="userEmail"></span></p>
             <p><strong>Application Status:</strong></p>
             <span class="status-badge" id="statusBadge">Pending</span>
-        </div>
 
-        <div id="loading" class="loading">Loading your application...</div>
-        <div id="error" class="error" style="display: none;"></div>
-        
-        <div id="content" style="display: none;">
-            <h2>Your Application Details</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody id="applicantDetailsBody">
-                </tbody>
-            </table>
-        </div>
-        <div id="actionContainer" style="display: none; text-align: center; margin-top: 30px;">
+                    <div id="actionContainer" style="display: none; text-align: center; margin-top: 30px;">
             <h3 style="color: #4CAF50;">Congratulations! You have been accepted to the roster.</h3>
-            <button id="btnClaimSpot" style="background-color: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <button id="btnClaimSpot"
+                style="background-color: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                 Claim Roster Spot & View Player Profile
             </button>
         </div>
+        </div>
+
+
+
+        <div class="dashboard-grid">
+            <!-- Application details -->
+            <div id="content" class="card" style="display: none;">
+                <h3>Your Application Details</h3>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicantDetailsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Latest announcement -->
+            <div id="announcementCard" class="card announcement-body" style="display: none;">
+                <h3>Latest Announcement</h3>
+                <div id="announcementContent"></div>
+                <div id="announcementMeta" class="announcement-meta"></div>
+            </div>
+        </div>
+
+
     </div>
 
     <script src="/js/applicant_dashboard.js"></script>
 </body>
+
 </html>

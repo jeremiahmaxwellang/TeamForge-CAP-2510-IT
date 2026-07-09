@@ -136,6 +136,7 @@ global.viewsPath = path.join(process.cwd(), 'views');
 app.use("/", require("./routes/authRoutes")); // login routes
 
 // =================== Announcements Module =================== 
+app.get('/get-latest-announcement', require('./modules/announcements/announcements_controller').getLatestAnnouncement);
 app.use('/announcements/static', express.static(path.join(__dirname, 'modules/announcements/public')));
 app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
 

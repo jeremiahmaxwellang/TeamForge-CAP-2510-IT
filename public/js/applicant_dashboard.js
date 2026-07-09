@@ -110,6 +110,50 @@ function displayApplicantDetails(applicant) {
     contentDiv.style.display = 'block';
 }
 
+// Load and display the single most recent announcement
+async function loadLatestAnnouncement() {
+    const announcementCard = document.getElementById('announcementCard');
+    const announcementContent = document.getElementById('announcementContent');
+    const announcementMeta = document.getElementById('announcementMeta');
+
+    try {
+        const response = await fetch('/get-latest-announcement');
+        const text = await response.text();
+        const data = JSON.parse(text);
+
+        if (!response.ok || !data.success || !data.announcement) {
+            // Fail quietly - just don't show the card if there's nothing to show
+            announcementCard.style.display = 'none';
+            return;
+        }
+
+        const announcement = data.announcement;
+
+        // Title is optional depending on your schema usage
+        const titleHtml = announcement.title
+            ? `<p style="color: var(--text-primary); font-weight: bold; margin-bottom: 8px;">${escapeHtml(announcement.title)}</p>`
+            : '';
+
+        announcementContent.innerHTML = `${titleHtml}<p>${escapeHtml(announcement.content)}</p>`;
+
+        const fullName = [announcement.firstname, announcement.lastname].filter(Boolean).join(' ');
+        const postedBy = fullName ? escapeHtml(fullName) : 'Coach';
+        const dateStr = announcement.dateCreated
+            ? new Date(announcement.dateCreated).toLocaleString('en-US', {
+                month: 'numeric', day: 'numeric', year: '2-digit',
+                hour: 'numeric', minute: '2-digit'
+            })
+            : '';
+
+        announcementMeta.textContent = `Posted by ${postedBy}${dateStr ? ' | ' + dateStr : ''}`;
+
+        announcementCard.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading announcement:', error);
+        announcementCard.style.display = 'none';
+    }
+}
+
 // Show error message
 function showError(message) {
     const loadingDiv = document.getElementById('loading');
@@ -162,4 +206,7 @@ if (btnClaimSpot) {
 }
 
 // Load dashboard when the page loads
-document.addEventListener('DOMContentLoaded', loadApplicantDashboard);
+document.addEventListener('DOMContentLoaded', () => {
+    loadApplicantDashboard();
+    loadLatestAnnouncement();
+});
