@@ -28,6 +28,10 @@ let playerColors = {};
 let colorIndex = 0;
 
 let events = [];
+// Visible filters for legend-driven filtering
+let visibleTypes = { Scrim: true, Tournament: true, Meeting: true };
+let visiblePlayers = new Set();
+let _legendListenerAttached = false;
 
 // ── UTILS ────────────────────────────────────────────────
 const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -35,7 +39,21 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 
 function dateStr(y, m, d) { return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
 function today() { const t = new Date(); return dateStr(t.getFullYear(), t.getMonth(), t.getDate()); }
-function eventsForDate(ds) { return events.filter(e => e.date === ds); }
+// Returns whether an event should be shown based on the active legend filters
+function isEventVisible(ev) {
+  if (!ev) return true;
+  // Team event types are filtered by type
+  if (['Scrim', 'Tournament', 'Meeting'].includes(ev.type)) {
+    return !!visibleTypes[ev.type];
+  }
+  // Everything else is grouped by creator/player
+  const name = ev.creatorName || 'Unknown Player';
+  // If we haven't built any player filters yet, default to visible
+  if (visiblePlayers.size === 0) return true;
+  return visiblePlayers.has(name);
+}
+
+function eventsForDate(ds) { return events.filter(e => e.date === ds && isEventVisible(e)); }
 function timeToMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
 function formatTime12(t) { const [h, m] = t.split(':').map(Number); const ap = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${String(m).padStart(2, '0')}${ap}`; }
 function getEventColor(type) { return TYPE_COLORS[type] || TYPE_COLORS.Default; }
@@ -79,6 +97,15 @@ function updateColorsAndLegend() {
     e.color = processEventColor(e);
   });
 
+  // Reconcile visiblePlayers set with the players we currently have
+  const players = Object.keys(playerColors);
+  if (visiblePlayers.size === 0) {
+    players.forEach(p => visiblePlayers.add(p));
+  } else {
+    // Remove players that no longer exist
+    visiblePlayers = new Set([...visiblePlayers].filter(p => players.includes(p)));
+  }
+
   renderLegend();
 }
 
@@ -87,17 +114,22 @@ function renderLegend() {
   if (!container) return;
   
   let html = '';
+  // (controls are placed per-section below)
   
   // Team Events Legend
   html += `
     <div class="sidebar-section">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span class="sidebar-label" style="margin:0">Team Events</span>
+        <div style="display:flex;gap:6px;">
+          <button class="legend-btn" data-action="show-team">Show All</button>
+          <button class="legend-btn" data-action="clear-team">Clear All</button>
+        </div>
       </div>
       <div class="calendar-list">
-        <div class="cal-item"><div class="cal-dot checked" style="background:${TYPE_COLORS.Scrim};"></div>Scrim</div>
-        <div class="cal-item"><div class="cal-dot checked" style="background:${TYPE_COLORS.Tournament};"></div>Tournament</div>
-        <div class="cal-item"><div class="cal-dot checked" style="background:${TYPE_COLORS.Meeting};"></div>Meeting</div>
+        <div class="cal-item legend-item ${visibleTypes.Scrim ? 'selected' : ''}" data-type="Scrim"><div class="cal-dot ${visibleTypes.Scrim ? 'checked' : ''}" style="background:${TYPE_COLORS.Scrim};"></div>Scrim</div>
+        <div class="cal-item legend-item ${visibleTypes.Tournament ? 'selected' : ''}" data-type="Tournament"><div class="cal-dot ${visibleTypes.Tournament ? 'checked' : ''}" style="background:${TYPE_COLORS.Tournament};"></div>Tournament</div>
+        <div class="cal-item legend-item ${visibleTypes.Meeting ? 'selected' : ''}" data-type="Meeting"><div class="cal-dot ${visibleTypes.Meeting ? 'checked' : ''}" style="background:${TYPE_COLORS.Meeting};"></div>Meeting</div>
       </div>
     </div>
   `;
@@ -109,16 +141,77 @@ function renderLegend() {
       <div class="sidebar-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <span class="sidebar-label" style="margin:0">Player Schedules</span>
+          <div style="display:flex;gap:6px;">
+            <button class="legend-btn" data-action="show-players">Show All</button>
+            <button class="legend-btn" data-action="clear-players">Clear All</button>
+          </div>
         </div>
         <div class="calendar-list">
     `;
     players.forEach(player => {
-      html += `<div class="cal-item"><div class="cal-dot checked" style="background:${playerColors[player]};"></div>${player}</div>`;
+      // Use encodeURIComponent to keep attribute-safe strings
+      const safe = encodeURIComponent(player);
+      const checked = visiblePlayers.has(player);
+      const selClass = checked ? 'selected' : '';
+      const dotCls = checked ? 'cal-dot checked' : 'cal-dot';
+      html += `<div class="cal-item legend-item ${selClass}" data-player="${safe}"><div class="${dotCls}" style="background:${playerColors[player]};"></div>${player}</div>`;
     });
     html += `</div></div>`;
   }
   
   container.innerHTML = html;
+
+  // Attach a single delegated click handler to the legend container
+  if (!_legendListenerAttached) {
+    _legendListenerAttached = true;
+    container.addEventListener('click', (e) => {
+      // If a control button was clicked (Show All / Clear All)
+      const ctrl = e.target.closest('[data-action]');
+      if (ctrl) {
+        const act = ctrl.dataset.action;
+        const players = Object.keys(playerColors);
+        if (act === 'show-team') {
+          Object.keys(visibleTypes).forEach(k => visibleTypes[k] = true);
+        } else if (act === 'clear-team') {
+          Object.keys(visibleTypes).forEach(k => visibleTypes[k] = false);
+        } else if (act === 'show-players') {
+          visiblePlayers = new Set(players);
+        } else if (act === 'clear-players') {
+          visiblePlayers = new Set();
+        }
+        // Re-render legend so DOM reflects new selected state
+        renderLegend();
+        render();
+        return;
+      }
+
+      const item = e.target.closest('.legend-item');
+      if (!item) return;
+
+      // Team event types
+      if (item.dataset.type) {
+        const t = item.dataset.type;
+        visibleTypes[t] = !visibleTypes[t];
+        const dot = item.querySelector('.cal-dot');
+        if (dot) dot.classList.toggle('checked', !!visibleTypes[t]);
+        item.classList.toggle('selected', !!visibleTypes[t]);
+        render();
+        return;
+      }
+
+      // Player entries
+      if (item.dataset.player) {
+        const p = decodeURIComponent(item.dataset.player);
+        if (visiblePlayers.has(p)) visiblePlayers.delete(p);
+        else visiblePlayers.add(p);
+        const dot = item.querySelector('.cal-dot');
+        if (dot) dot.classList.toggle('checked', visiblePlayers.has(p));
+        item.classList.toggle('selected', visiblePlayers.has(p));
+        render();
+        return;
+      }
+    });
+  }
 }
 
 // ── NAVIGATION ───────────────────────────────────────────
@@ -163,12 +256,12 @@ function updateCount() {
   const y = currentDate.getFullYear(), m = currentDate.getMonth();
   let count;
   if (currentView === 'month') {
-    count = events.filter(e => { const d = new Date(e.date); return d.getFullYear() === y && d.getMonth() === m; }).length;
+    count = events.filter(e => { const d = new Date(e.date); return d.getFullYear() === y && d.getMonth() === m && isEventVisible(e); }).length;
   } else {
     const d = new Date(currentDate);
     const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
     const sat = new Date(sun); sat.setDate(sun.getDate() + 6);
-    count = events.filter(e => { const dd = new Date(e.date); return dd >= sun && dd <= sat; }).length;
+    count = events.filter(e => { const dd = new Date(e.date); return dd >= sun && dd <= sat && isEventVisible(e); }).length;
   }
   document.getElementById('eventsCount').textContent = `${count} events total`;
 }

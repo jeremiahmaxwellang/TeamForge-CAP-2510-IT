@@ -188,6 +188,47 @@ body {
   border-color: transparent;
 }
 
+/* Selected legend item styling */
+.cal-item.selected {
+  background: rgba(255,255,255,0.06);
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Dim unselected legend items for clarity */
+.cal-item:not(.selected) {
+  opacity: 0.6;
+}
+
+.cal-item .cal-dot {
+  transition: opacity .15s, transform .12s;
+}
+
+.cal-item:not(.selected) .cal-dot {
+  opacity: 0.5;
+}
+
+/* Legend control buttons */
+.legend-controls {
+  padding: 0 8px;
+}
+.legend-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.legend-btn:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.08);
+}
+.legend-btn:active {
+  transform: translateY(1px);
+}
+
 .tournament-list {
   display: flex;
   flex-direction: column;
