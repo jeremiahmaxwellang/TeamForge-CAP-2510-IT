@@ -515,11 +515,11 @@ INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
 
 
 -- -----------------------------------------------------
--- EVENTS: SCRIMS
+-- EVENTS: SCRIMS (dates spread Aug 2025 -> Jul 20 2026)
 -- -----------------------------------------------------
 -- Scrim Event 1
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Justice League', 'Scrim', 'Online', '2026-03-01', '2026-03-01', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Justice League', 'Scrim', 'Online', '2025-08-01', '2025-08-01', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (18, 4, 1, 'Present', 'N', 'Team 1'), (18, 7, 2, 'Present', 'N', 'Team 1'), (18, 3, 3, 'Present', 'N', 'Team 1'), (18, 5, 4, 'Present', 'N', 'Team 1'), (18, 6, 5, 'Present', 'N', 'Team 1'),
@@ -527,7 +527,7 @@ VALUES (18, 4, 1, 'Present', 'N', 'Team 1'), (18, 7, 2, 'Present', 'N', 'Team 1'
 
 -- Scrim Event 2
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Avengers', 'Scrim', 'Online', '2026-03-02', '2026-03-02', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Avengers', 'Scrim', 'Online', '2025-09-05', '2025-09-05', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (19, 13, 1, 'Present', 'N', 'Team 1'), (19, 14, 2, 'Present', 'N', 'Team 1'), (19, 15, 3, 'Present', 'N', 'Team 1'), (19, 9, 4, 'Present', 'N', 'Team 1'), (19, 17, 5, 'Present', 'N', 'Team 1'),
@@ -535,7 +535,7 @@ VALUES (19, 13, 1, 'Present', 'N', 'Team 1'), (19, 14, 2, 'Present', 'N', 'Team 
 
 -- Scrim Event 3
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. X-Men', 'Scrim', 'Online', '2026-03-03', '2026-03-03', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. X-Men', 'Scrim', 'Online', '2025-10-10', '2025-10-10', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (20, 4, 1, 'Present', 'N', 'Team 1'), (20, 7, 2, 'Present', 'N', 'Team 1'), (20, 15, 3, 'Present', 'N', 'Team 1'), (20, 5, 4, 'Present', 'N', 'Team 1'), (20, 6, 5, 'Present', 'N', 'Team 1'),
@@ -543,7 +543,7 @@ VALUES (20, 4, 1, 'Present', 'N', 'Team 1'), (20, 7, 2, 'Present', 'N', 'Team 1'
 
 -- Scrim Event 4
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Fantastic Four', 'Scrim', 'Online', '2026-03-04', '2026-03-04', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Fantastic Four', 'Scrim', 'Online', '2025-11-15', '2025-11-15', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (21, 13, 1, 'Present', 'N', 'Team 1'), (21, 14, 2, 'Present', 'N', 'Team 1'), (21, 3, 3, 'Present', 'N', 'Team 1'), (21, 16, 4, 'Present', 'N', 'Team 1'), (21, 6, 5, 'Present', 'N', 'Team 1'),
@@ -551,7 +551,7 @@ VALUES (21, 13, 1, 'Present', 'N', 'Team 1'), (21, 14, 2, 'Present', 'N', 'Team 
 
 -- Scrim Event 5
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Guardians of the Galaxy', 'Scrim', 'Online', '2026-03-05', '2026-03-05', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Guardians of the Galaxy', 'Scrim', 'Online', '2025-12-20', '2025-12-20', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (22, 4, 1, 'Present', 'N', 'Team 1'), (22, 7, 2, 'Present', 'N', 'Team 1'), (22, 14, 3, 'Present', 'N', 'Team 1'), (22, 9, 4, 'Present', 'N', 'Team 1'), (22, 17, 5, 'Present', 'N', 'Team 1'),
@@ -559,7 +559,7 @@ VALUES (22, 4, 1, 'Present', 'N', 'Team 1'), (22, 7, 2, 'Present', 'N', 'Team 1'
 
 -- Scrim Event 6
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Teen Titans', 'Scrim', 'Online', '2026-03-06', '2026-03-06', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Teen Titans', 'Scrim', 'Online', '2026-01-24', '2026-01-24', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (23, 13, 1, 'Present', 'N', 'Team 1'), (23, 7, 2, 'Present', 'N', 'Team 1'), (23, 15, 3, 'Present', 'N', 'Team 1'), (23, 5, 4, 'Present', 'N', 'Team 1'), (23, 6, 5, 'Present', 'N', 'Team 1'),
@@ -567,7 +567,7 @@ VALUES (23, 13, 1, 'Present', 'N', 'Team 1'), (23, 7, 2, 'Present', 'N', 'Team 1
 
 -- Scrim Event 7
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Watchmen', 'Scrim', 'Online', '2026-03-07', '2026-03-07', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Watchmen', 'Scrim', 'Online', '2026-03-01', '2026-03-01', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (24, 4, 1, 'Present', 'N', 'Team 1'), (24, 14, 2, 'Present', 'N', 'Team 1'), (24, 3, 3, 'Present', 'N', 'Team 1'), (24, 16, 4, 'Present', 'N', 'Team 1'), (24, 17, 5, 'Present', 'N', 'Team 1'),
@@ -575,7 +575,7 @@ VALUES (24, 4, 1, 'Present', 'N', 'Team 1'), (24, 14, 2, 'Present', 'N', 'Team 1
 
 -- Scrim Event 8
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Incredibles', 'Scrim', 'Online', '2026-03-08', '2026-03-08', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Incredibles', 'Scrim', 'Online', '2026-04-05', '2026-04-05', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (25, 13, 1, 'Present', 'N', 'Team 1'), (25, 7, 2, 'Present', 'N', 'Team 1'), (25, 14, 3, 'Present', 'N', 'Team 1'), (25, 9, 4, 'Present', 'N', 'Team 1'), (25, 6, 5, 'Present', 'N', 'Team 1'),
@@ -583,7 +583,7 @@ VALUES (25, 13, 1, 'Present', 'N', 'Team 1'), (25, 7, 2, 'Present', 'N', 'Team 1
 
 -- Scrim Event 9
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Defenders', 'Scrim', 'Online', '2026-03-09', '2026-03-09', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Defenders', 'Scrim', 'Online', '2026-05-10', '2026-05-10', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (26, 4, 1, 'Present', 'N', 'Team 1'), (26, 7, 2, 'Present', 'N', 'Team 1'), (26, 15, 3, 'Present', 'N', 'Team 1'), (26, 5, 4, 'Present', 'N', 'Team 1'), (26, 17, 5, 'Present', 'N', 'Team 1'),
@@ -591,11 +591,15 @@ VALUES (26, 4, 1, 'Present', 'N', 'Team 1'), (26, 7, 2, 'Present', 'N', 'Team 1'
 
 -- Scrim Event 10
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Dark Avengers', 'Scrim', 'Online', '2026-03-10', '2026-03-10', 'N/A', 'evaluated', 2);
+VALUES ('UST Teletigers vs. Dark Avengers', 'Scrim', 'Online', '2026-06-15', '2026-06-15', 'N/A', 'evaluated', 2);
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (27, 13, 1, 'Present', 'N', 'Team 1'), (27, 14, 2, 'Present', 'N', 'Team 1'), (27, 3, 3, 'Present', 'N', 'Team 1'), (27, 16, 4, 'Present', 'N', 'Team 1'), (27, 6, 5, 'Present', 'N', 'Team 1'),
 (27, 4, 1, 'Present', 'N', 'Team 2'), (27, 7, 2, 'Present', 'N', 'Team 2'), (27, 15, 3, 'Present', 'N', 'Team 2'), (27, 5, 4, 'Present', 'N', 'Team 2'), (27, 17, 5, 'Present', 'N', 'Team 2');
+
+-- Scrim Event 11: UST Teletigers In-house (Focus on New Talent)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
+VALUES (58, 'Teletigers Alpha vs. Teletigers Beta', 'Scrim', 'Online', '2026-07-01', '2026-07-01', 'N/A', 'evaluated', 2);
 
 -- Scrim 1 (eventId = 18) – 5star bad
 INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
@@ -691,9 +695,7 @@ VALUES
 -- ADDITIONAL SCRIMS FOR NEW PLAYERS
 -- -----------------------------------------------------
 
--- Scrim Event 11: UST Teletigers In-house (Focus on New Talent)
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES (58, 'VA Alpha vs. VA Beta', 'Scrim', 'Online', '2026-04-27', '2026-04-27', 'N/A', 'evaluated', 2);
+
 
 -- Attendees for Event 58
 -- Team 1 (Alpha): New Players Philippines, Easy Eddie, Panix, MORS + Existing Maple
@@ -713,7 +715,7 @@ VALUES
 
 -- Scrim Event 12: UST Teletigers vs. Gen.G (Trialing New Jungle/Top)
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES (59, 'UST Teletigers vs. Gen.G', 'Scrim', 'Online', '2026-04-28', '2026-04-28', 'N/A', 'evaluated', 2);
+VALUES (59, 'UST Teletigers vs. Gen.G', 'Scrim', 'Online', '2026-07-07', '2026-07-07', 'N/A', 'evaluated', 2);
 
 -- Attendees for Event 59
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
@@ -727,7 +729,7 @@ VALUES
 
 -- Scrim Event 13: UST Teletigers vs. T1 (Trialing New Core)
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES (60, 'UST Teletigers vs. T1', 'Scrim', 'Online', '2026-04-29', '2026-04-29', 'N/A', 'evaluated', 2);
+VALUES (60, 'UST Teletigers vs. T1', 'Scrim', 'Online', '2026-07-13', '2026-07-13', 'N/A', 'evaluated', 2);
 
 -- Attendees for Event 60
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
@@ -966,103 +968,103 @@ INSERT INTO `teamforgedb`.`academic_terms` (`termName`, `startDate`, `endDate`) 
 ('Term 3', '2026-08-03', '2026-12-19');
 
 
--- =====================================================
--- SCHOOL CLASS SCHEDULES (Term: 2026-05-04 to 2026-08-15)
--- One event row per class, per week, for enrolled players only.
--- userIds 28, 29, 31, 32, 33 excluded (no schoolId/course - not enrolled).
--- Only Hoshiyo (userId 13) - one of the three enrolled Top laners -
--- has a Monday class; Philippines (26) is free every Monday.
--- Earliest class start time is now 9:00 AM (no more 7am/8am classes).
--- =====================================================
-
--- include start_time and end_time, do not make them 12:00am
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
+-- Populates start_datetime / end_datetime (and start_date / end_date) with the
+-- actual class times parsed out of each title, instead of defaulting to 12:00am.
+INSERT INTO events (title_summary, type, location, start_date, start_datetime, end_date, end_datetime, win, status, creator_id)
 WITH RECURSIVE weeks AS (
     SELECT 0 AS wk
     UNION ALL
     SELECT wk + 1 FROM weeks WHERE wk < 14
 ),
-class_schedule (userId, weekday_offset, title_summary, location) AS (
+class_schedule (userId, weekday_offset, title_summary, location, start_time, end_time) AS (
     VALUES
     -- userId 3: VA Tartaros (BSCS-SE)
-    ROW(3, 1, 'Class: Data Structures and Algorithms (9:00-10:30 AM)', 'Room CS-301'),
-    ROW(3, 2, 'Class: Software Engineering I (1:00-2:30 PM)', 'Room CS-302'),
-    ROW(3, 3, 'Class: Database Systems (10:00-11:30 AM)', 'Room CS-301'),
-    ROW(3, 4, 'Class: Web Development (2:00-3:30 PM)', 'Room CS-303'),
+    ROW(3, 1, 'Class: Data Structures and Algorithms (9:00-10:30 AM)', 'Room CS-301', '09:00:00', '10:30:00'),
+    ROW(3, 2, 'Class: Software Engineering I (1:00-2:30 PM)', 'Room CS-302', '13:00:00', '14:30:00'),
+    ROW(3, 3, 'Class: Database Systems (10:00-11:30 AM)', 'Room CS-301', '10:00:00', '11:30:00'),
+    ROW(3, 4, 'Class: Web Development (2:00-3:30 PM)', 'Room CS-303', '14:00:00', '15:30:00'),
 
-    -- userId 4: Hoshiyo - Top laner, busy Mondays
-    ROW(13, 0, 'Class: Networking Fundamentals (9:00-10:30 AM)', 'Room CS-201'),
-    ROW(13, 2, 'Class: Discrete Mathematics (10:00-11:30 AM)', 'Room CS-202'),
-    ROW(13, 3, 'Class: Programming Logic (1:00-2:30 PM)', 'Room CS-201'),
-    ROW(13, 5, 'Class: Information Security (9:00-10:30 AM)', 'Room CS-203'),
+    -- userId 13: Hoshiyo - Top laner, busy Mondays
+    ROW(13, 0, 'Class: Networking Fundamentals (9:00-10:30 AM)', 'Room CS-201', '09:00:00', '10:30:00'),
+    ROW(13, 2, 'Class: Discrete Mathematics (10:00-11:30 AM)', 'Room CS-202', '10:00:00', '11:30:00'),
+    ROW(13, 3, 'Class: Programming Logic (1:00-2:30 PM)', 'Room CS-201', '13:00:00', '14:30:00'),
+    ROW(13, 5, 'Class: Information Security (9:00-10:30 AM)', 'Room CS-203', '09:00:00', '10:30:00'),
 
     -- userId 5: Kalachuchi (BSIT)
-    ROW(5, 1, 'Class: Capstone Project I (3:00-4:30 PM)', 'Room IT-401'),
-    ROW(5, 3, 'Class: IT Elective 3 (9:00-10:30 AM)', 'Room IT-402'),
-    ROW(5, 4, 'Class: Systems Integration (1:00-2:30 PM)', 'Room IT-401'),
+    ROW(5, 1, 'Class: Capstone Project I (3:00-4:30 PM)', 'Room IT-401', '15:00:00', '16:30:00'),
+    ROW(5, 3, 'Class: IT Elective 3 (9:00-10:30 AM)', 'Room IT-402', '09:00:00', '10:30:00'),
+    ROW(5, 4, 'Class: Systems Integration (1:00-2:30 PM)', 'Room IT-401', '13:00:00', '14:30:00'),
 
     -- userId 6: VA Crowned (BSND)
-    ROW(6, 0, 'Class: Related Learning Experience (9:00-11:00 AM)', 'ND Clinic'),
-    ROW(6, 1, 'Class: Nursing Care Management (9:00-10:30 AM)', 'Room ND-301'),
-    ROW(6, 2, 'Class: Anatomy and Physiology (10:00-11:30 AM)', 'Room ND-302'),
-    ROW(6, 4, 'Class: Community Health Nursing (1:00-2:30 PM)', 'Room ND-301'),
+    ROW(6, 0, 'Class: Related Learning Experience (9:00-11:00 AM)', 'ND Clinic', '09:00:00', '11:00:00'),
+    ROW(6, 1, 'Class: Nursing Care Management (9:00-10:30 AM)', 'Room ND-301', '09:00:00', '10:30:00'),
+    ROW(6, 2, 'Class: Anatomy and Physiology (10:00-11:30 AM)', 'Room ND-302', '10:00:00', '11:30:00'),
+    ROW(6, 4, 'Class: Community Health Nursing (1:00-2:30 PM)', 'Room ND-301', '13:00:00', '14:30:00'),
 
     -- userId 7: 5star (BSIT)
-    ROW(7, 0, 'Class: Capstone Project I (9:00-10:30 AM)', 'Room IT-401'),
-    ROW(7, 1, 'Class: IT Elective 2 (1:00-2:30 PM)', 'Room IT-402'),
-    ROW(7, 3, 'Class: Systems Administration (10:00-11:30 AM)', 'Room IT-403'),
-    ROW(7, 5, 'Class: Mobile App Development (9:00-10:30 AM)', 'Room IT-401'),
+    ROW(7, 0, 'Class: Capstone Project I (9:00-10:30 AM)', 'Room IT-401', '09:00:00', '10:30:00'),
+    ROW(7, 1, 'Class: IT Elective 2 (1:00-2:30 PM)', 'Room IT-402', '13:00:00', '14:30:00'),
+    ROW(7, 3, 'Class: Systems Administration (10:00-11:30 AM)', 'Room IT-403', '10:00:00', '11:30:00'),
+    ROW(7, 5, 'Class: Mobile App Development (9:00-10:30 AM)', 'Room IT-401', '09:00:00', '10:30:00'),
 
     -- userId 8: VA Mushi (BSIT)
-    ROW(8, 0, 'Class: Intro to Computing (9:00-10:30 AM)', 'Room IT-101'),
-    ROW(8, 2, 'Class: Data Structures (10:00-11:30 AM)', 'Room IT-102'),
-    ROW(8, 4, 'Class: Object-Oriented Programming (1:00-2:30 PM)', 'Room IT-101'),
+    ROW(8, 0, 'Class: Intro to Computing (9:00-10:30 AM)', 'Room IT-101', '09:00:00', '10:30:00'),
+    ROW(8, 2, 'Class: Data Structures (10:00-11:30 AM)', 'Room IT-102', '10:00:00', '11:30:00'),
+    ROW(8, 4, 'Class: Object-Oriented Programming (1:00-2:30 PM)', 'Room IT-101', '13:00:00', '14:30:00'),
 
     -- userId 9: lancr (BSIT)
-    ROW(9, 1, 'Class: Discrete Structures (9:00-10:30 AM)', 'Room IT-103'),
-    ROW(9, 2, 'Class: Networking 1 (1:00-2:30 PM)', 'Room IT-104'),
-    ROW(9, 3, 'Class: Web Systems (10:00-11:30 AM)', 'Room IT-103'),
-    ROW(9, 5, 'Class: Elective 1 (9:00-10:30 AM)', 'Room IT-101'),
+    ROW(9, 1, 'Class: Discrete Structures (9:00-10:30 AM)', 'Room IT-103', '09:00:00', '10:30:00'),
+    ROW(9, 2, 'Class: Networking 1 (1:00-2:30 PM)', 'Room IT-104', '13:00:00', '14:30:00'),
+    ROW(9, 3, 'Class: Web Systems (10:00-11:30 AM)', 'Room IT-103', '10:00:00', '11:30:00'),
+    ROW(9, 5, 'Class: Elective 1 (9:00-10:30 AM)', 'Room IT-101', '09:00:00', '10:30:00'),
 
     -- userId 14: The Blueprint (BS-ST)
-    ROW(14, 0, 'Class: Sports Science Fundamentals (9:00-10:30 AM)', 'Room ST-201'),
-    ROW(14, 1, 'Class: Anatomy for Sports (10:00-11:30 AM)', 'Room ST-202'),
-    ROW(14, 3, 'Class: Exercise Physiology (1:00-2:30 PM)', 'Room ST-201'),
+    ROW(14, 0, 'Class: Sports Science Fundamentals (9:00-10:30 AM)', 'Room ST-201', '09:00:00', '10:30:00'),
+    ROW(14, 1, 'Class: Anatomy for Sports (10:00-11:30 AM)', 'Room ST-202', '10:00:00', '11:30:00'),
+    ROW(14, 3, 'Class: Exercise Physiology (1:00-2:30 PM)', 'Room ST-201', '13:00:00', '14:30:00'),
 
     -- userId 15: Stellar (BSND)
-    ROW(15, 0, 'Class: Related Learning Experience (9:00-11:00 AM)', 'ND Clinic'),
-    ROW(15, 2, 'Class: Maternal and Child Nursing (10:00-11:30 AM)', 'Room ND-401'),
-    ROW(15, 4, 'Class: Nursing Research (1:00-2:30 PM)', 'Room ND-402'),
-    ROW(15, 5, 'Class: Community Health Nursing II (9:00-10:30 AM)', 'Room ND-401'),
+    ROW(15, 0, 'Class: Related Learning Experience (9:00-11:00 AM)', 'ND Clinic', '09:00:00', '11:00:00'),
+    ROW(15, 2, 'Class: Maternal and Child Nursing (10:00-11:30 AM)', 'Room ND-401', '10:00:00', '11:30:00'),
+    ROW(15, 4, 'Class: Nursing Research (1:00-2:30 PM)', 'Room ND-402', '13:00:00', '14:30:00'),
+    ROW(15, 5, 'Class: Community Health Nursing II (9:00-10:30 AM)', 'Room ND-401', '09:00:00', '10:30:00'),
 
     -- userId 16: one of wun (BSCS-ST)
-    ROW(16, 0, 'Class: Data Structures and Algorithms (9:00-10:30 AM)', 'Room CS-201'),
-    ROW(16, 1, 'Class: Discrete Mathematics (10:00-11:30 AM)', 'Room CS-202'),
-    ROW(16, 3, 'Class: Programming Logic (1:00-2:30 PM)', 'Room CS-201'),
+    ROW(16, 0, 'Class: Data Structures and Algorithms (9:00-10:30 AM)', 'Room CS-201', '09:00:00', '10:30:00'),
+    ROW(16, 1, 'Class: Discrete Mathematics (10:00-11:30 AM)', 'Room CS-202', '10:00:00', '11:30:00'),
+    ROW(16, 3, 'Class: Programming Logic (1:00-2:30 PM)', 'Room CS-201', '13:00:00', '14:30:00'),
 
     -- userId 17: Maple (BSIS)
-    ROW(17, 1, 'Class: Systems Analysis and Design (9:00-10:30 AM)', 'Room IS-401'),
-    ROW(17, 2, 'Class: IT Project Management (1:00-2:30 PM)', 'Room IS-402'),
-    ROW(17, 4, 'Class: Capstone Project II (10:00-11:30 AM)', 'Room IS-401'),
-    ROW(17, 5, 'Class: Elective 4 (9:00-10:30 AM)', 'Room IS-401'),
+    ROW(17, 1, 'Class: Systems Analysis and Design (9:00-10:30 AM)', 'Room IS-401', '09:00:00', '10:30:00'),
+    ROW(17, 2, 'Class: IT Project Management (1:00-2:30 PM)', 'Room IS-402', '13:00:00', '14:30:00'),
+    ROW(17, 4, 'Class: Capstone Project II (10:00-11:30 AM)', 'Room IS-401', '10:00:00', '11:30:00'),
+    ROW(17, 5, 'Class: Elective 4 (9:00-10:30 AM)', 'Room IS-401', '09:00:00', '10:30:00'),
 
     -- userId 26: Philippines (BSIT) - Top laner, NO Monday class
-    ROW(26, 1, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301'),
-    ROW(26, 2, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302'),
-    ROW(26, 3, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301'),
-    ROW(26, 4, 'Class: IT Elective 1 (9:00-10:30 AM)', 'Room IT-303'),
+    ROW(26, 1, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301', '09:00:00', '10:30:00'),
+    ROW(26, 2, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302', '13:00:00', '14:30:00'),
+    ROW(26, 3, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301', '10:00:00', '11:30:00'),
+    ROW(26, 4, 'Class: IT Elective 1 (9:00-10:30 AM)', 'Room IT-303', '09:00:00', '10:30:00'),
 
     -- userId 27: Easy Eddie (BSIT)
-    ROW(27, 0, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301'),
-    ROW(27, 2, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302'),
-    ROW(27, 4, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301')
+    ROW(27, 0, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301', '09:00:00', '10:30:00'),
+    ROW(27, 2, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302', '13:00:00', '14:30:00'),
+    ROW(27, 4, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301', '10:00:00', '11:30:00')
 )
 SELECT
     cs.title_summary,
     'Other' AS type,
     cs.location,
-    DATE_ADD('2026-05-04', INTERVAL (w.wk * 7 + cs.weekday_offset) DAY) AS start_date,
-    DATE_ADD('2026-05-04', INTERVAL (w.wk * 7 + cs.weekday_offset) DAY) AS end_date,
+    DATE_ADD('2026-08-03', INTERVAL (w.wk * 7 + cs.weekday_offset) DAY) AS start_date,
+    TIMESTAMP(
+        DATE_ADD('2026-08-03', INTERVAL (w.wk * 7 + cs.weekday_offset) DAY),
+        cs.start_time
+    ) AS start_datetime,
+    DATE_ADD('2026-08-03', INTERVAL (w.wk * 7 + cs.weekday_offset) DAY) AS end_date,
+    TIMESTAMP(
+        DATE_ADD('2026-08-03', INTERVAL (w.wk * 7 + cs.weekday_offset) DAY),
+        cs.end_time
+    ) AS end_datetime,
     'N/A' AS win,
     'scheduled' AS status,
     cs.userId AS creator_id
