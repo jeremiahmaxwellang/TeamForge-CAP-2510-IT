@@ -45,16 +45,7 @@ VALUES
 (3,'tartaros@gmail.com','teamForge123!!','Jotaro','Joestar','Player','hailrain#hailrain','Active'),
 (4,'haimehen@gmail.com','teamForge123!!','Jaime','Henry','Player','Coww2#coww2','Deactivated'),
 (5,'kalachuchi@gmail.com','teamForge123!!','Wendy','Chuchi','Player','Cowwean#cowwrean','Active'),
-(
-    6,
-    'vacrowned@gmail.com',
-    'teamForge123!!',
-    'Crow',
-    'Ned',
-    'Player',
-    'syl#syl',
-    'Active'
-),
+(6,'vacrowned@gmail.com','teamForge123!!','Crow','Ned','Player','syl#syl','Active'),
 (
     7,
     '5starprod@gmail.com',
@@ -518,88 +509,96 @@ INSERT INTO benchmarks (metricId, roleId, benchmarkValue, comparator) VALUES
 -- EVENTS: SCRIMS (dates spread Aug 2025 -> Jul 20 2026)
 -- -----------------------------------------------------
 -- Scrim Event 1
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Justice League', 'Scrim', 'Online', '2025-08-01', '2025-08-01', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Justice League', 'Scrim', 'Online', '2025-08-01', '2025-08-01', 'N/A', 'evaluated', 2, '2025-08-01 18:00:00', '2025-08-01 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (18, 4, 1, 'Present', 'N', 'Team 1'), (18, 7, 2, 'Present', 'N', 'Team 1'), (18, 3, 3, 'Present', 'N', 'Team 1'), (18, 5, 4, 'Present', 'N', 'Team 1'), (18, 6, 5, 'Present', 'N', 'Team 1'),
 (18, 13, 1, 'Present', 'N', 'Team 2'), (18, 14, 2, 'Present', 'N', 'Team 2'), (18, 15, 3, 'Present', 'N', 'Team 2'), (18, 9, 4, 'Present', 'N', 'Team 2'), (18, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 2
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Avengers', 'Scrim', 'Online', '2025-09-05', '2025-09-05', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Avengers', 'Scrim', 'Online', '2025-09-05', '2025-09-05', 'N/A', 'evaluated', 2, '2025-09-05 18:00:00', '2025-09-05 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (19, 13, 1, 'Present', 'N', 'Team 1'), (19, 14, 2, 'Present', 'N', 'Team 1'), (19, 15, 3, 'Present', 'N', 'Team 1'), (19, 9, 4, 'Present', 'N', 'Team 1'), (19, 17, 5, 'Present', 'N', 'Team 1'),
 (19, 4, 1, 'Present', 'N', 'Team 2'), (19, 7, 2, 'Present', 'N', 'Team 2'), (19, 3, 3, 'Present', 'N', 'Team 2'), (19, 5, 4, 'Present', 'N', 'Team 2'), (19, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 3
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. X-Men', 'Scrim', 'Online', '2025-10-10', '2025-10-10', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. X-Men', 'Scrim', 'Online', '2025-10-10', '2025-10-10', 'N/A', 'evaluated', 2, '2025-10-10 18:00:00', '2025-10-10 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (20, 4, 1, 'Present', 'N', 'Team 1'), (20, 7, 2, 'Present', 'N', 'Team 1'), (20, 15, 3, 'Present', 'N', 'Team 1'), (20, 5, 4, 'Present', 'N', 'Team 1'), (20, 6, 5, 'Present', 'N', 'Team 1'),
 (20, 13, 1, 'Present', 'N', 'Team 2'), (20, 14, 2, 'Present', 'N', 'Team 2'), (20, 3, 3, 'Present', 'N', 'Team 2'), (20, 9, 4, 'Present', 'N', 'Team 2'), (20, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 4
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Fantastic Four', 'Scrim', 'Online', '2025-11-15', '2025-11-15', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Fantastic Four', 'Scrim', 'Online', '2025-11-15', '2025-11-15', 'N/A', 'evaluated', 2, '2025-11-15 18:00:00', '2025-11-15 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (21, 13, 1, 'Present', 'N', 'Team 1'), (21, 14, 2, 'Present', 'N', 'Team 1'), (21, 3, 3, 'Present', 'N', 'Team 1'), (21, 16, 4, 'Present', 'N', 'Team 1'), (21, 6, 5, 'Present', 'N', 'Team 1'),
 (21, 4, 1, 'Present', 'N', 'Team 2'), (21, 7, 2, 'Present', 'N', 'Team 2'), (21, 15, 3, 'Present', 'N', 'Team 2'), (21, 5, 4, 'Present', 'N', 'Team 2'), (21, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 5
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Guardians of the Galaxy', 'Scrim', 'Online', '2025-12-20', '2025-12-20', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Guardians of the Galaxy', 'Scrim', 'Online', '2025-12-20', '2025-12-20', 'N/A', 'evaluated', 2, '2025-12-20 18:00:00', '2025-12-20 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (22, 4, 1, 'Present', 'N', 'Team 1'), (22, 7, 2, 'Present', 'N', 'Team 1'), (22, 14, 3, 'Present', 'N', 'Team 1'), (22, 9, 4, 'Present', 'N', 'Team 1'), (22, 17, 5, 'Present', 'N', 'Team 1'),
 (22, 13, 1, 'Present', 'N', 'Team 2'), (22, 15, 3, 'Present', 'N', 'Team 2'), (22, 3, 3, 'Present', 'N', 'Team 2'), (22, 5, 4, 'Present', 'N', 'Team 2'), (22, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 6
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Teen Titans', 'Scrim', 'Online', '2026-01-24', '2026-01-24', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Teen Titans', 'Scrim', 'Online', '2026-01-24', '2026-01-24', 'N/A', 'evaluated', 2, '2026-01-24 18:00:00', '2026-01-24 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (23, 13, 1, 'Present', 'N', 'Team 1'), (23, 7, 2, 'Present', 'N', 'Team 1'), (23, 15, 3, 'Present', 'N', 'Team 1'), (23, 5, 4, 'Present', 'N', 'Team 1'), (23, 6, 5, 'Present', 'N', 'Team 1'),
 (23, 4, 1, 'Present', 'N', 'Team 2'), (23, 14, 2, 'Present', 'N', 'Team 2'), (23, 3, 3, 'Present', 'N', 'Team 2'), (23, 9, 4, 'Present', 'N', 'Team 2'), (23, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 7
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Watchmen', 'Scrim', 'Online', '2026-03-01', '2026-03-01', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Watchmen', 'Scrim', 'Online', '2026-03-01', '2026-03-01', 'N/A', 'evaluated', 2, '2026-03-01 18:00:00', '2026-03-01 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (24, 4, 1, 'Present', 'N', 'Team 1'), (24, 14, 2, 'Present', 'N', 'Team 1'), (24, 3, 3, 'Present', 'N', 'Team 1'), (24, 16, 4, 'Present', 'N', 'Team 1'), (24, 17, 5, 'Present', 'N', 'Team 1'),
 (24, 13, 1, 'Present', 'N', 'Team 2'), (24, 7, 2, 'Present', 'N', 'Team 2'), (24, 15, 3, 'Present', 'N', 'Team 2'), (24, 5, 4, 'Present', 'N', 'Team 2'), (24, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 8
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Incredibles', 'Scrim', 'Online', '2026-04-05', '2026-04-05', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Incredibles', 'Scrim', 'Online', '2026-04-05', '2026-04-05', 'N/A', 'evaluated', 2, '2026-04-05 18:00:00', '2026-04-05 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (25, 13, 1, 'Present', 'N', 'Team 1'), (25, 7, 2, 'Present', 'N', 'Team 1'), (25, 14, 3, 'Present', 'N', 'Team 1'), (25, 9, 4, 'Present', 'N', 'Team 1'), (25, 6, 5, 'Present', 'N', 'Team 1'),
 (25, 4, 1, 'Present', 'N', 'Team 2'), (25, 15, 3, 'Present', 'N', 'Team 2'), (25, 3, 3, 'Present', 'N', 'Team 2'), (25, 5, 4, 'Present', 'N', 'Team 2'), (25, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 9
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Defenders', 'Scrim', 'Online', '2026-05-10', '2026-05-10', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Defenders', 'Scrim', 'Online', '2026-05-10', '2026-05-10', 'N/A', 'evaluated', 2, '2026-05-10 18:00:00', '2026-05-10 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (26, 4, 1, 'Present', 'N', 'Team 1'), (26, 7, 2, 'Present', 'N', 'Team 1'), (26, 15, 3, 'Present', 'N', 'Team 1'), (26, 5, 4, 'Present', 'N', 'Team 1'), (26, 17, 5, 'Present', 'N', 'Team 1'),
 (26, 13, 1, 'Present', 'N', 'Team 2'), (26, 14, 2, 'Present', 'N', 'Team 2'), (26, 3, 3, 'Present', 'N', 'Team 2'), (26, 9, 4, 'Present', 'N', 'Team 2'), (26, 6, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 10
-INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES ('UST Teletigers vs. Dark Avengers', 'Scrim', 'Online', '2026-06-15', '2026-06-15', 'N/A', 'evaluated', 2);
+INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES ('UST Teletigers vs. Dark Avengers', 'Scrim', 'Online', '2026-06-15', '2026-06-15', 'N/A', 'evaluated', 2, '2026-06-15 18:00:00', '2026-06-15 20:30:00');
 
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES (27, 13, 1, 'Present', 'N', 'Team 1'), (27, 14, 2, 'Present', 'N', 'Team 1'), (27, 3, 3, 'Present', 'N', 'Team 1'), (27, 16, 4, 'Present', 'N', 'Team 1'), (27, 6, 5, 'Present', 'N', 'Team 1'),
 (27, 4, 1, 'Present', 'N', 'Team 2'), (27, 7, 2, 'Present', 'N', 'Team 2'), (27, 15, 3, 'Present', 'N', 'Team 2'), (27, 5, 4, 'Present', 'N', 'Team 2'), (27, 17, 5, 'Present', 'N', 'Team 2');
 
 -- Scrim Event 11: UST Teletigers In-house (Focus on New Talent)
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES (58, 'Teletigers Alpha vs. Teletigers Beta', 'Scrim', 'Online', '2026-07-01', '2026-07-01', 'N/A', 'evaluated', 2);
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES (58, 'Teletigers Alpha vs. Teletigers Beta', 'Scrim', 'Online', '2026-07-01', '2026-07-01', 'N/A', 'evaluated', 2, '2026-07-01 18:00:00', '2026-07-01 20:30:00');
+
+-- Scrim Event 12: UST Teletigers vs. Gen.G (Trialing New Jungle/Top)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES (59, 'UST Teletigers vs. Gen.G', 'Scrim', 'Online', '2026-07-07', '2026-07-07', 'N/A', 'evaluated', 2, '2026-07-07 18:00:00', '2026-07-07 20:30:00');
+
+-- Scrim Event 13: UST Teletigers vs. T1 (Trialing New Core)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES (60, 'UST Teletigers vs. T1', 'Scrim', 'Online', '2026-07-13', '2026-07-13', 'N/A', 'evaluated', 2, '2026-07-13 18:00:00', '2026-07-13 20:30:00');
 
 -- Scrim 1 (eventId = 18) – 5star bad
 INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
@@ -695,8 +694,6 @@ VALUES
 -- ADDITIONAL SCRIMS FOR NEW PLAYERS
 -- -----------------------------------------------------
 
-
-
 -- Attendees for Event 58
 -- Team 1 (Alpha): New Players Philippines, Easy Eddie, Panix, MORS + Existing Maple
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
@@ -713,9 +710,6 @@ VALUES
 (58, 5, 4, 'Present', 'N', 'Team 2'),  -- Kalachuchi (ADC)
 (58, 6, 5, 'Present', 'N', 'Team 2');  -- VA Crowned (Support)
 
--- Scrim Event 12: UST Teletigers vs. Gen.G (Trialing New Jungle/Top)
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES (59, 'UST Teletigers vs. Gen.G', 'Scrim', 'Online', '2026-07-07', '2026-07-07', 'N/A', 'evaluated', 2);
 
 -- Attendees for Event 59
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
@@ -727,9 +721,7 @@ VALUES
 (59, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
 (59, 27, 2, 'Excused', 'Y', 'Sub');    -- Easy Eddie (Sub Jungle)
 
--- Scrim Event 13: UST Teletigers vs. T1 (Trialing New Core)
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
-VALUES (60, 'UST Teletigers vs. T1', 'Scrim', 'Online', '2026-07-13', '2026-07-13', 'N/A', 'evaluated', 2);
+
 
 -- Attendees for Event 60
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
@@ -765,48 +757,48 @@ VALUES
 
 
 -- TERM 1 (2025-08-04 to 2025-12-18)
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
 VALUES
-(28, 'Alliance Games (AllG) Season 5 - Group Stage', 'Tournament', 'Online', '2025-08-04', '2025-08-05', 'W', 'completed', 2),
-(29, 'Estudyante Esports National Championships Season 3 - Group Stage', 'Tournament', 'Online', '2025-08-25', '2025-08-26', 'L', 'completed', 2),
-(30, 'CCE (Collegiate Center for Esports) Season 4 - LAN Finals', 'Tournament', 'Campus Arena', '2025-09-15', '2025-09-16', 'N/A', 'completed', 2),
-(31, 'Philippine Collegiate Championship (PCC) Season 3 - Regional League', 'Tournament', 'Online', '2025-10-06', '2025-10-07', 'W', 'completed', 2),
-(32, 'Alliance Games (AllG) Season 5 - Grand Finals', 'Tournament', 'Online', '2025-10-27', '2025-10-28', 'L', 'completed', 2),
-(33, 'CCE Immersion Cup Season 2', 'Tournament', 'Online', '2025-08-11', '2025-08-12', 'W', 'completed', 2),
-(34, 'Estudyante Esports National Championships Season 3 - Playoffs', 'Tournament', 'Online', '2025-09-01', '2025-09-02', 'W', 'completed', 2),
-(35, 'Philippine Collegiate Championship (PCC) Season 3 - National League', 'Tournament', 'Online', '2025-09-22', '2025-09-23', 'W', 'completed', 2),
-(36, 'Friendship Games (CHED-CCE) Season 1', 'Tournament', 'Online', '2025-10-13', '2025-10-14', 'W', 'completed', 2),
-(37, 'MPS SEA Campus Invitational - Philippine Qualifiers', 'Tournament', 'Online', '2025-11-01', '2025-11-02', 'L', 'completed', 2);
+(28, 'Alliance Games (AllG) Season 5 - Group Stage', 'Tournament', 'Online', '2025-08-04', '2025-08-05', 'W', 'completed', 2, '2025-08-04 09:00:00', '2025-08-04 16:30:00'),
+(29, 'Estudyante Esports National Championships Season 3 - Group Stage', 'Tournament', 'Online', '2025-08-25', '2025-08-26', 'L', 'completed', 2, '2025-08-25 09:00:00', '2025-08-25 16:30:00'),
+(30, 'CCE (Collegiate Center for Esports) Season 4 - LAN Finals', 'Tournament', 'Campus Arena', '2025-09-15', '2025-09-16', 'N/A', 'completed', 2, '2025-09-16 09:00:00', '2025-09-16 16:30:00'),
+(31, 'Philippine Collegiate Championship (PCC) Season 3 - Regional League', 'Tournament', 'Online', '2025-10-06', '2025-10-07', 'W', 'completed', 2, '2025-10-07 09:00:00', '2025-10-07 16:30:00'),
+(32, 'Alliance Games (AllG) Season 5 - Grand Finals', 'Tournament', 'Online', '2025-10-27', '2025-10-28', 'L', 'completed', 2, '2025-10-27 09:00:00', '2025-10-27 16:30:00'),
+(33, 'CCE Immersion Cup Season 2', 'Tournament', 'Online', '2025-08-11', '2025-08-12', 'W', 'completed', 2, '2025-08-11 09:00:00', '2025-08-11 16:30:00'),
+(34, 'Estudyante Esports National Championships Season 3 - Playoffs', 'Tournament', 'Online', '2025-09-01', '2025-09-02', 'W', 'completed', 2, '2025-09-01 09:00:00', '2025-09-01 16:30:00'),
+(35, 'Philippine Collegiate Championship (PCC) Season 3 - National League', 'Tournament', 'Online', '2025-09-22', '2025-09-23', 'W', 'completed', 2, '2025-09-22 09:00:00', '2025-09-22 16:30:00'),
+(36, 'Friendship Games (CHED-CCE) Season 1', 'Tournament', 'Online', '2025-10-13', '2025-10-14', 'W', 'completed', 2, '2025-10-14 09:00:00', '2025-10-14 16:30:00'),
+(37, 'MPS SEA Campus Invitational - Philippine Qualifiers', 'Tournament', 'Online', '2025-11-01', '2025-11-02', 'L', 'completed', 2, '2025-11-02 09:00:00', '2025-11-02 16:30:00');
 
 
 -- TERM 2 (2026-01-10 to 2026-06-15) - unchanged, already fits
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
 VALUES
-(48, 'CCE (Collegiate Center for Esports) Season 5 - Regional Qualifiers', 'Tournament', 'Online', '2026-01-26', '2026-01-27', 'L', 'completed', 2),
-(49, 'Philippine Collegiate Championship (PCC) Season 4 - Open Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed', 2),
-(50, 'Alliance Games (AllG) Season 6 - Regional Qualifiers', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed', 2),
-(51, 'Estudyante Esports National Championships Season 4 - Regional Qualifiers', 'Tournament', 'Online', '2026-04-04', '2026-04-05', 'W', 'completed', 2),
-(52, 'Campus Playfest 2026 - League of Legends Grand Finals', 'Tournament', 'Online', '2026-04-18', '2026-04-19', 'L', 'completed', 2),
-(53, 'CCE Immersion Cup Season 3 - Qualifiers', 'Tournament', 'Online', '2026-01-31', '2026-02-01', 'L', 'completed', 2),
-(54, 'Friendship Games (CHED-CCE) Season 2 - Group Stage', 'Tournament', 'Online', '2026-02-21', '2026-02-22', 'L', 'completed', 2),
-(55, 'Philippine Collegiate Championship (PCC) Season 4 - Regional League (Luzon)', 'Tournament', 'Online', '2026-03-21', '2026-03-22', 'L', 'completed', 2),
-(56, 'MPS SEA Campus Invitational Season 2 - Philippine Qualifiers', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed', 2),
-(57, 'Alliance Games (AllG) Season 6 - Regional Finals', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed', 2);
+(48, 'CCE (Collegiate Center for Esports) Season 5 - Regional Qualifiers', 'Tournament', 'Online', '2026-01-26', '2026-01-27', 'L', 'completed', 2, '2026-01-26 09:00:00', '2026-01-26 16:30:00'),
+(49, 'Philippine Collegiate Championship (PCC) Season 4 - Open Cup', 'Tournament', 'Online', '2026-02-07', '2026-02-08', 'W', 'completed', 2, '2026-02-07 09:00:00', '2026-02-07 16:30:00'),
+(50, 'Alliance Games (AllG) Season 6 - Regional Qualifiers', 'Tournament', 'Online', '2026-03-07', '2026-03-08', 'N/A', 'completed', 2, '2026-03-07 09:00:00', '2026-03-07 16:30:00'),
+(51, 'Estudyante Esports National Championships Season 4 - Regional Qualifiers', 'Tournament', 'Online', '2026-04-04', '2026-04-05', 'W', 'completed', 2, '2026-04-04 09:00:00', '2026-04-04 16:30:00'),
+(52, 'Campus Playfest 2026 - League of Legends Grand Finals', 'Tournament', 'Online', '2026-04-18', '2026-04-19', 'L', 'completed', 2, '2026-04-18 09:00:00', '2026-04-18 16:30:00'),
+(53, 'CCE Immersion Cup Season 3 - Qualifiers', 'Tournament', 'Online', '2026-01-31', '2026-02-01', 'L', 'completed', 2, '2026-01-31 09:00:00', '2026-01-31 16:30:00'),
+(54, 'Friendship Games (CHED-CCE) Season 2 - Group Stage', 'Tournament', 'Online', '2026-02-21', '2026-02-22', 'L', 'completed', 2, '2026-02-21 09:00:00', '2026-02-21 16:30:00'),
+(55, 'Philippine Collegiate Championship (PCC) Season 4 - Regional League (Luzon)', 'Tournament', 'Online', '2026-03-21', '2026-03-22', 'L', 'completed', 2, '2026-03-21 09:00:00', '2026-03-21 16:30:00'),
+(56, 'MPS SEA Campus Invitational Season 2 - Philippine Qualifiers', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed', 2, '2026-04-11 09:00:00', '2026-04-11 16:30:00'),
+(57, 'Alliance Games (AllG) Season 6 - Regional Finals', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed', 2, '2026-04-25 09:00:00', '2026-04-25 16:30:00');
 
 
 -- TERM 3 (2026-08-03 to 2026-12-19)
-INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
 VALUES
-(38, 'Alliance Games (AllG) Season 6 - Group Stage', 'Tournament', 'Online', '2026-08-03', '2026-08-04', 'N/A', 'Upcoming', 2),
-(39, 'Estudyante Esports National Championships Season 4 - Group Stage', 'Tournament', 'Online', '2026-08-17', '2026-08-18', 'N/A', 'Upcoming', 2),
-(40, 'CCE (Collegiate Center for Esports) Season 5 - LAN Finals', 'Tournament', 'Online', '2026-08-24', '2026-08-25', 'N/A', 'Upcoming', 2),
-(41, 'Philippine Collegiate Championship (PCC) Season 4 - Grand Finals', 'Tournament', 'Online', '2026-09-07', '2026-09-08', 'N/A', 'Upcoming', 2),
-(42, 'Alliance Games (AllG) Season 6 - Grand Finals', 'Tournament', 'Online', '2026-09-21', '2026-09-22', 'N/A', 'Upcoming', 2),
-(43, 'CCE Immersion Cup Season 3 - Finals', 'Tournament', 'Online', '2026-10-05', '2026-10-06', 'N/A', 'Upcoming', 2),
-(44, 'Estudyante Esports National Championships Season 4 - Playoffs', 'Tournament', 'Online', '2026-10-12', '2026-10-13', 'N/A', 'Upcoming', 2),
-(45, 'Philippine Collegiate Championship (PCC) Season 4 - National League', 'Tournament', 'Online', '2026-10-19', '2026-10-20', 'N/A', 'Upcoming', 2),
-(46, 'Friendship Games (CHED-CCE) Season 2 - Finals', 'Tournament', 'Online', '2026-10-26', '2026-10-27', 'N/A', 'Upcoming', 2),
-(47, 'MPS SEA Campus Invitational Season 2 - Philippine Finals', 'Tournament', 'Online', '2026-10-09', '2026-10-09', 'N/A', 'Upcoming', 2);
+(38, 'Alliance Games (AllG) Season 6 - Group Stage', 'Tournament', 'Online', '2026-08-03', '2026-08-04', 'N/A', 'Upcoming', 2, '2026-08-03 09:00:00', '2026-08-03 16:30:00'),
+(39, 'Estudyante Esports National Championships Season 4 - Group Stage', 'Tournament', 'Online', '2026-08-17', '2026-08-18', 'N/A', 'Upcoming', 2, '2026-08-17 09:00:00', '2026-08-17 16:30:00'),
+(40, 'CCE (Collegiate Center for Esports) Season 5 - LAN Finals', 'Tournament', 'Online', '2026-08-24', '2026-08-25', 'N/A', 'Upcoming', 2, '2026-08-24 09:00:00', '2026-08-24 16:30:00'),
+(41, 'Philippine Collegiate Championship (PCC) Season 4 - Grand Finals', 'Tournament', 'Online', '2026-09-07', '2026-09-08', 'N/A', 'Upcoming', 2, '2026-09-07 09:00:00', '2026-09-07 16:30:00'),
+(42, 'Alliance Games (AllG) Season 6 - Grand Finals', 'Tournament', 'Online', '2026-09-21', '2026-09-22', 'N/A', 'Upcoming', 2, '2026-09-21 09:00:00', '2026-09-21 16:30:00'),
+(43, 'CCE Immersion Cup Season 3 - Finals', 'Tournament', 'Online', '2026-10-05', '2026-10-06', 'N/A', 'Upcoming', 2, '2026-10-05 09:00:00', '2026-10-05 16:30:00'),
+(44, 'Estudyante Esports National Championships Season 4 - Playoffs', 'Tournament', 'Online', '2026-10-12', '2026-10-13', 'N/A', 'Upcoming', 2, '2026-10-12 09:00:00', '2026-10-12 16:30:00'),
+(45, 'Philippine Collegiate Championship (PCC) Season 4 - National League', 'Tournament', 'Online', '2026-10-19', '2026-10-20', 'N/A', 'Upcoming', 2, '2026-10-19 09:00:00', '2026-10-19 16:30:00'),
+(46, 'Friendship Games (CHED-CCE) Season 2 - Finals', 'Tournament', 'Online', '2026-10-26', '2026-10-27', 'N/A', 'Upcoming', 2, '2026-10-26 09:00:00', '2026-10-26 16:30:00'),
+(47, 'MPS SEA Campus Invitational Season 2 - Philippine Finals', 'Tournament', 'Online', '2026-10-09', '2026-10-09', 'N/A', 'Upcoming', 2, '2026-10-09 09:00:00', '2026-10-09 16:30:00');
 
 
 -- Tournament 16 → Event 43 attendees
