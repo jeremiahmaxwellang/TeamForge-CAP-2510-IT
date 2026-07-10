@@ -25,44 +25,11 @@ VALUES
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
 (2,'charles_duelas@dlsu.edu.ph','teamForge123!!','Charles','Duelas','Team Coach','AgentDuelly#agentduelly','Active'),
-(
-    37,
-    'coach1@test.com',
-    'teamForge123!!',
-    'Coach',
-    'One',
-    'Team Coach',
-    'coach#1',
-    'Active'),
-    
-(
-    38,
-    'coach2@test.com',
-    'teamForge123!!',
-    'Coach',
-    'Two',
-    'Team Coach',
-    'coach#2',
-    'Active'),
-(
-    39,
-    'coach3@test.com',
-    'teamForge123!!',
-    'Coach',
-    'Three',
-    'Team Coach',
-    'coach#3',
-    'Active'),
-(
-    40,
-    'coach4@test.com',
-    'teamForge123!!',
-    'Coach',
-    'Four',
-    'Team Coach',
-    'coach#4',
-    'Active')
-    ;
+(37,'coach1@test.com','teamForge123!!','Coach','One','Team Coach','coach#1','Active')
+-- (38,'coach2@test.com','teamForge123!!','Coach','Two','Team Coach','coach#2','Active'),
+-- (39,'coach3@test.com','teamForge123!!','Coach','Three','Team Coach','coach#3','Active'),
+-- (40,'coach4@test.com','teamForge123!!','Coach','Four','Team Coach','coach#4','Active')
+;
 
 -- -----------------------------------------------------
 -- ANNOUNCEMENTS
@@ -70,7 +37,7 @@ VALUES
 INSERT INTO announcements
     (`userId`, `title`, `content`, `dateCreated`)
 VALUES
-    (2, 'Recruitment Period Coming Soon', 'The recruitment period will begin soon on July 20. Please stay posted for details.', NOW());
+    (2, 'Recruitment Period Coming Soon', 'The recruitment period will begin soon on July 12. Please stay posted for details.', NOW());
 
 -- Players
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
@@ -118,16 +85,8 @@ VALUES
     'not#applicable',
     'Active'
 ),
-(
-    13,
-    'hoshiyo2121@gmail.com',
-    'teamForge123!!',
-    'Haru',
-    'Yoshida',
-    'Player',
-    'Hoshiyo#2121',
-    'Active'
-),
+-- Hoshiyo
+(13,'hailrain.developer@gmail.com','teamForge123!!','Haru','Yoshida','Player','Hailrain#12','Active'),
 (
     14,
     'theblueprint000@gmail.com',
@@ -188,24 +147,7 @@ VALUES
 (3,'VA Tartaros','VA1','Diamond III','Grandmaster',3,2,'12304219','BSCS-SE','3.4','3.3','3rd Year','F',1,NULL),
 (4,'Haimehen','41yk','Diamond IV','Master',1,3,'12445678','BSCS-NIS','3.5','3.2','2nd Year','F',2,NULL),
 (5,'Kalachuchi','Wendy','Emerald I','Diamond IV',4,5,'12254321','BSIT','3.1','2.9','4th Year','F',1,NULL),
-(
-    6,
-    'VA Crowned',
-    '1013',
-    'Emerald III',
-    'Diamond III',
-    5,
-    5,
-    '12387654',
-    'BSND',
-    '3.5',
-    '3.2',
-    '3rd Year',
-    'F',
-    2,
-    NULL
-
-),
+(6,'VA Crowned','1013','Emerald III','Diamond III', 5,5,'12387654', 'BSND', '3.5','3.2','3rd Year','F',2,NULL),
 (
     7,
     '5star',
@@ -241,6 +183,7 @@ VALUES
     NULL
 ),
 (9,'lancr','1226','Emerald I','Diamond II',2,4,'12367890','BSIT','2.1','1.9','2nd Year','F',1, NULL),
+-- Hoshiyo
 (13,'Hoshiyo','2121','Challenger','Challenger',1,2,'12600013','BSND','3.0','3.2','4th Year','F',1,NULL),
 (14,'The Blueprint','000','Challenger','Challenger',2,1,'12600014','BS-ST','2.1','1.9','2nd Year','F',1,NULL),
 (
@@ -320,9 +263,9 @@ VALUES
 -- APPLICATION PERIODS (2 weeks each)
 -- -----------------------------------------------------
 INSERT INTO application_periods (periodId, startDate, endDate) VALUES
-(1, '2025-09-01', '2025-09-13'),
-(2, '2026-01-26', '2026-02-07'),
-(3, '2026-05-04', '2026-08-15'); -- period 3
+(1, '2025-07-10', '2025-07-20'),
+(2, '2026-01-10', '2026-01-26'),
+(3, '2026-07-10', '2026-08-10'); -- period 3
 
 -- -----------------------------------------------------
 -- APPLICANTS (Bad)
@@ -818,21 +761,23 @@ VALUES
 -- EVENTS: TOURNAMENTS (follows UST Calendar na)
 -- -----------------------------------------------------
 
--- Period 1: Term 1 (2025-05-04 to 2025-08-15)
+
+-- TERM 1 (2025-08-04 to 2025-12-18)
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
 VALUES
-(28, 'Alliance Games (AllG) Season 5 - Group Stage', 'Tournament', 'Online', '2025-05-17', '2025-05-18', 'W', 'completed', 2),
-(29, 'Estudyante Esports National Championships Season 3 - Group Stage', 'Tournament', 'Online', '2025-06-07', '2025-06-08', 'L', 'completed', 2),
-(30, 'CCE (Collegiate Center for Esports) Season 4 - LAN Finals', 'Tournament', 'Campus Arena', '2025-06-28', '2025-06-29', 'N/A', 'completed', 2),
-(31, 'Philippine Collegiate Championship (PCC) Season 3 - Regional League', 'Tournament', 'Online', '2025-07-19', '2025-07-20', 'W', 'completed', 2),
-(32, 'Alliance Games (AllG) Season 5 - Grand Finals', 'Tournament', 'Online', '2025-08-09', '2025-08-10', 'L', 'completed', 2),
-(33, 'CCE Immersion Cup Season 2', 'Tournament', 'Online', '2025-05-24', '2025-05-25', 'W', 'completed', 2),
-(34, 'Estudyante Esports National Championships Season 3 - Playoffs', 'Tournament', 'Online', '2025-06-14', '2025-06-15', 'W', 'completed', 2),
-(35, 'Philippine Collegiate Championship (PCC) Season 3 - National League', 'Tournament', 'Online', '2025-07-05', '2025-07-06', 'W', 'completed', 2),
-(36, 'Friendship Games (CHED-CCE) Season 1', 'Tournament', 'Online', '2025-07-26', '2025-07-27', 'W', 'completed', 2),
-(37, 'MPS SEA Campus Invitational - Philippine Qualifiers', 'Tournament', 'Online', '2025-08-14', '2025-08-15', 'L', 'completed', 2);
+(28, 'Alliance Games (AllG) Season 5 - Group Stage', 'Tournament', 'Online', '2025-08-04', '2025-08-05', 'W', 'completed', 2),
+(29, 'Estudyante Esports National Championships Season 3 - Group Stage', 'Tournament', 'Online', '2025-08-25', '2025-08-26', 'L', 'completed', 2),
+(30, 'CCE (Collegiate Center for Esports) Season 4 - LAN Finals', 'Tournament', 'Campus Arena', '2025-09-15', '2025-09-16', 'N/A', 'completed', 2),
+(31, 'Philippine Collegiate Championship (PCC) Season 3 - Regional League', 'Tournament', 'Online', '2025-10-06', '2025-10-07', 'W', 'completed', 2),
+(32, 'Alliance Games (AllG) Season 5 - Grand Finals', 'Tournament', 'Online', '2025-10-27', '2025-10-28', 'L', 'completed', 2),
+(33, 'CCE Immersion Cup Season 2', 'Tournament', 'Online', '2025-08-11', '2025-08-12', 'W', 'completed', 2),
+(34, 'Estudyante Esports National Championships Season 3 - Playoffs', 'Tournament', 'Online', '2025-09-01', '2025-09-02', 'W', 'completed', 2),
+(35, 'Philippine Collegiate Championship (PCC) Season 3 - National League', 'Tournament', 'Online', '2025-09-22', '2025-09-23', 'W', 'completed', 2),
+(36, 'Friendship Games (CHED-CCE) Season 1', 'Tournament', 'Online', '2025-10-13', '2025-10-14', 'W', 'completed', 2),
+(37, 'MPS SEA Campus Invitational - Philippine Qualifiers', 'Tournament', 'Online', '2025-11-01', '2025-11-02', 'L', 'completed', 2);
 
--- Period 3: Term 2 (2026-01-26 to 2026-04-30)
+
+-- TERM 2 (2026-01-10 to 2026-06-15) - unchanged, already fits
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
 VALUES
 (48, 'CCE (Collegiate Center for Esports) Season 5 - Regional Qualifiers', 'Tournament', 'Online', '2026-01-26', '2026-01-27', 'L', 'completed', 2),
@@ -846,19 +791,20 @@ VALUES
 (56, 'MPS SEA Campus Invitational Season 2 - Philippine Qualifiers', 'Tournament', 'Online', '2026-04-11', '2026-04-12', 'W', 'completed', 2),
 (57, 'Alliance Games (AllG) Season 6 - Regional Finals', 'Tournament', 'Online', '2026-04-25', '2026-04-26', 'L', 'completed', 2);
 
--- Period 2: remapped to Term 3 (2026-05-04 to 2026-08-15)
+
+-- TERM 3 (2026-08-03 to 2026-12-19)
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id)
 VALUES
-(38, 'Alliance Games (AllG) Season 6 - Group Stage', 'Tournament', 'Online', '2026-05-04', '2026-05-05', 'N/A', 'completed', 2),
-(39, 'Estudyante Esports National Championships Season 4 - Group Stage', 'Tournament', 'Online', '2026-05-18', '2026-05-19', 'W', 'completed', 2),
-(40, 'CCE (Collegiate Center for Esports) Season 5 - LAN Finals', 'Tournament', 'Online', '2026-05-25', '2026-05-26', 'L', 'completed', 2),
-(41, 'Philippine Collegiate Championship (PCC) Season 4 - Grand Finals', 'Tournament', 'Online', '2026-06-08', '2026-06-09', 'W', 'completed', 2),
-(42, 'Alliance Games (AllG) Season 6 - Grand Finals', 'Tournament', 'Online', '2026-06-22', '2026-06-23', 'N/A', 'completed', 2),
-(43, 'CCE Immersion Cup Season 3 - Finals', 'Tournament', 'Online', '2026-07-06', '2026-07-07', 'W', 'Upcoming', 2),
-(44, 'Estudyante Esports National Championships Season 4 - Playoffs', 'Tournament', 'Online', '2026-07-13', '2026-07-14', 'L', 'Upcoming', 2),
-(45, 'Philippine Collegiate Championship (PCC) Season 4 - National League', 'Tournament', 'Online', '2026-07-20', '2026-07-21', 'W', 'Upcoming', 2),
-(46, 'Friendship Games (CHED-CCE) Season 2 - Finals', 'Tournament', 'Online', '2026-07-27', '2026-07-28', 'L', 'Upcoming', 2),
-(47, 'MPS SEA Campus Invitational Season 2 - Philippine Finals', 'Tournament', 'Online', '2026-08-10', '2026-08-11', 'N/A', 'Upcoming', 2);
+(38, 'Alliance Games (AllG) Season 6 - Group Stage', 'Tournament', 'Online', '2026-08-03', '2026-08-04', 'N/A', 'Upcoming', 2),
+(39, 'Estudyante Esports National Championships Season 4 - Group Stage', 'Tournament', 'Online', '2026-08-17', '2026-08-18', 'N/A', 'Upcoming', 2),
+(40, 'CCE (Collegiate Center for Esports) Season 5 - LAN Finals', 'Tournament', 'Online', '2026-08-24', '2026-08-25', 'N/A', 'Upcoming', 2),
+(41, 'Philippine Collegiate Championship (PCC) Season 4 - Grand Finals', 'Tournament', 'Online', '2026-09-07', '2026-09-08', 'N/A', 'Upcoming', 2),
+(42, 'Alliance Games (AllG) Season 6 - Grand Finals', 'Tournament', 'Online', '2026-09-21', '2026-09-22', 'N/A', 'Upcoming', 2),
+(43, 'CCE Immersion Cup Season 3 - Finals', 'Tournament', 'Online', '2026-10-05', '2026-10-06', 'N/A', 'Upcoming', 2),
+(44, 'Estudyante Esports National Championships Season 4 - Playoffs', 'Tournament', 'Online', '2026-10-12', '2026-10-13', 'N/A', 'Upcoming', 2),
+(45, 'Philippine Collegiate Championship (PCC) Season 4 - National League', 'Tournament', 'Online', '2026-10-19', '2026-10-20', 'N/A', 'Upcoming', 2),
+(46, 'Friendship Games (CHED-CCE) Season 2 - Finals', 'Tournament', 'Online', '2026-10-26', '2026-10-27', 'N/A', 'Upcoming', 2),
+(47, 'MPS SEA Campus Invitational Season 2 - Philippine Finals', 'Tournament', 'Online', '2026-10-09', '2026-10-09', 'N/A', 'Upcoming', 2);
 
 
 -- Tournament 16 → Event 43 attendees
@@ -1010,11 +956,15 @@ VALUES
 (57, 9, 2, 'Excused', 'Y', 'Sub'),
 (57, 17, 5, 'Excused', 'Y', 'Sub');
 
+-- SEM 1
+-- August 2025 to December 2025.
+-- SEM 2
+-- January 2026 to June 2026.
 INSERT INTO `teamforgedb`.`academic_terms` (`termName`, `startDate`, `endDate`) VALUES 
-('Term 1', '2025-05-04', '2025-08-15'),
-('Term 2', '2026-01-26', '2026-04-30'),
-('Term 3', '2026-05-04', '2026-08-15');
--- Should follow UST Timeline: May to Aug, Jan to Apr
+('Term 1', '2025-08-04', '2025-12-18'),
+('Term 2', '2026-01-10', '2026-06-15'),
+('Term 3', '2026-08-03', '2026-12-19');
+
 
 -- =====================================================
 -- SCHOOL CLASS SCHEDULES (Term: 2026-05-04 to 2026-08-15)
@@ -1025,6 +975,7 @@ INSERT INTO `teamforgedb`.`academic_terms` (`termName`, `startDate`, `endDate`) 
 -- Earliest class start time is now 9:00 AM (no more 7am/8am classes).
 -- =====================================================
 
+-- include start_time and end_time, do not make them 12:00am
 INSERT INTO events (title_summary, type, location, start_date, end_date, win, status, creator_id)
 WITH RECURSIVE weeks AS (
     SELECT 0 AS wk
