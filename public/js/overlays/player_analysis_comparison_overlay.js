@@ -498,22 +498,17 @@ window.initComparisonTab = function () {
   function loadPlayerData(playerId, playerNumber, forceRoleId = null) {
     if (!playerId) return; // Safety check
 
-    Backend.fetchPlayer(playerId)
-      .then((player) => {
-        if (playerNumber === 1) {
-            player1Data.stats = stats;
-            if (selectedPlayer2 === "coach-benchmark") {
-              loadCoachBenchmark();
-            } else if (player1Data?.stats && player2Data?.stats) {
-              updatePlayerCard(player2Data, 2); // <--- to refresh Player 2's favorite state based on P1's role context
-              updateComparison();
-            }
+          Backend.fetchPlayer(playerId)
+        .then((player) => {
+          if (playerNumber === 1) {
+              player1Data = player;  // assign the player first
+              updatePlayerCard(player, 1);
           } else {
-          player2Data = player;
-          updatePlayerCard(player, 2);
-        }
+              player2Data = player;
+              updatePlayerCard(player, 2);
+          }
 
-        const roleToFetch = (playerNumber === 1) ? activeComparisonRoleId : (player.primaryRoleId || 1);
+        const roleToFetch = (playerNumber === 1) ? (activeComparisonRoleId || player.primaryRoleId || 1) : (player.primaryRoleId || 1);
         const actualPlayerId = player.userId || player.id || playerId; // Bulletproof ID extraction
 
         if (actualPlayerId && roleToFetch) {
@@ -817,11 +812,6 @@ const FALLBACK_SCALES = {
     statsContainer.innerHTML = html;
   }
   
-  // Lightweight redraw wrapper used by downstream calls.
-  function updateComparison() {
-    updateRadarChart();
-    if (typeof updateStatsTable === "function") updateStatsTable();
-  }
 
   // Syncs player 1 in comparison when the main page selected player changes.
   function checkAndUpdatePlayer1() {

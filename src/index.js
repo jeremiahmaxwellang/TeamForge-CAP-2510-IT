@@ -132,48 +132,47 @@ app.use(express.static(path.join(process.cwd(), './public')));
 
 global.viewsPath = path.join(process.cwd(), 'views');
 
-// =================== Login =================== 
-app.use("/", require("./routes/authRoutes")); // login routes
+// =================== Login ===================
+app.use("/", require("./routes/authRoutes"));
 
-// =================== Announcements Module =================== 
+// =================== Announcements Module ===================
 app.get('/get-latest-announcement', require('./modules/announcements/announcements_controller').getLatestAnnouncement);
 app.use('/announcements/static', express.static(path.join(__dirname, 'modules/announcements/public')));
-app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes')); // announcement routes
+app.use('/announcements', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/announcements/announcements_routes'));
 
-// =================== Attendance Module =================== 
-app.use('/attendance/static',    express.static(path.join(__dirname, 'modules/attendance/public')));
-app.use('/attendance', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/attendance/attendance_routes')); // attendance routes
+// =================== Attendance Module ===================
+app.use('/attendance/static', express.static(path.join(__dirname, 'modules/attendance/public')));
+app.use('/attendance', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/attendance/attendance_routes'));
 
-// =================== Calendar Scheduling Module =================== 
-app.use('/calendar/static',      express.static(path.join(__dirname, 'modules/calendar/public')));
-app.use('/calendar', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/calendar_routes')); // calendar routes
+// =================== Calendar Scheduling Module ===================
+app.use('/calendar/static', express.static(path.join(__dirname, 'modules/calendar/public')));
+app.use('/calendar', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/calendar_routes'));
 
 // =================== Recruitment Module ===================
-app.use('/recruitment/static',      express.static(path.join(__dirname, 'modules/recruitment/public')));
-app.use('/recruitment', require("./modules/recruitment/recruitment_routes")); // just gets the recruitment period
+app.use('/recruitment/static', express.static(path.join(__dirname, 'modules/recruitment/public')));
+app.use('/recruitment', require("./modules/recruitment/recruitment_routes"));
 
-app.get('/get-my-application', require('./modules/recruitment/applicant_list_controller').getApplicantByEmail); // Allow users to fetch their own application data without needing Coach privileges
-app.post('/claim_spot', require('./modules/recruitment/applicant_list_controller').claimRosterSpot); // Allow applicants to press the Claim Spot button
-app.get('/applicant_list/report_data', requireAnyRole(['Team Manager', 'Team Coach']), require('./modules/recruitment/applicant_list_controller').getReportData); // Allow both managers and coaches to download applicant report
+app.get('/get-my-application', require('./modules/recruitment/applicant_list_controller').getApplicantByEmail);
+app.post('/claim_spot', require('./modules/recruitment/applicant_list_controller').claimRosterSpot);
+app.get('/applicant_list/report_data', requireAnyRole(['Team Manager', 'Team Coach']), require('./modules/recruitment/applicant_list_controller').getReportData);
 
-// Put this route at the bottom so that the ones above will work for Applicants
-app.use('/applicant_list', requireRole('Team Coach'), require('./modules/recruitment/applicant_list_routes')); // applicant list routes
+app.use('/applicant_list', requireRole('Team Coach'), require('./modules/recruitment/applicant_list_routes'));
 
-// =================== Register =================== 
-app.use('/register/static',       express.static(path.join(__dirname, 'modules/register/public')));
-app.use('/register', require("./modules/register/registerRoutes")); // register routes
+// =================== Register ===================
+app.use('/register/static', express.static(path.join(__dirname, 'modules/register/public')));
+app.use('/register', require("./modules/register/registerRoutes"));
 
-// =================== Reports Module =================== 
-app.use('/reports/static',       express.static(path.join(__dirname, 'modules/reports/public')));
+// =================== Reports Module ===================
+app.use('/reports/static', express.static(path.join(__dirname, 'modules/reports/public')));
 app.use('/reports', requireAnyRole(['Team Manager', 'Team Coach']), require('./modules/reports/reports_routes'));
 
-// =================== Tournaments Module =================== 
-app.use('/tournaments/static',       express.static(path.join(__dirname, 'modules/tournaments/public'))); // public css and js
-app.use('/tournament', requireRole('Team Coach'), require('./modules/tournaments/tournament_routes')); // tournament routes
+// =================== Tournaments Module ===================
+app.use('/tournaments/static', express.static(path.join(__dirname, 'modules/tournaments/public')));
+app.use('/tournament', requireRole('Team Coach'), require('./modules/tournaments/tournament_routes'));
 
-// =================== Settings Page =================== 
-app.use('/settings/static',       express.static(path.join(__dirname, 'modules/settings/public'))); // public css and js
-app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/settings/settings_routes')); // Settings Routes
+// =================== Settings Page ===================
+app.use('/settings/static', express.static(path.join(__dirname, 'modules/settings/public')));
+app.use('/settings', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/settings/settings_routes'));
 
 // Routes
 app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), require('./modules/calendar/event_routes'));
@@ -181,21 +180,19 @@ app.use('/events', requireAnyRole(['Team Manager', 'Team Coach', 'Player']), req
 app.use('/player_analysis', requireAnyRole(['Team Coach', 'Player']), require('./routes/playerAnalysisRoutes'));
 app.use('/riot', requireAnyRole(['Team Coach', 'Player']), require('./routes/riotApiRoutes'));
 
-app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes')); // team management routes
+app.use('/team_management', requireRole('Team Manager'), require('./routes/team_managementRoutes'));
 
-app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes')); // coach dashboard
-app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes')); // Give the Manager their own secure API lane
-
+app.use('/coach_dashboard', requireRole('Team Coach'), require('./routes/coachDashboardRoutes'));
+app.use('/manager_dashboard', requireRole('Team Manager'), require('./routes/managerDashboardRoutes'));
 
 app.get('/api/user/profile', async (req, res) => {
     try {
         const userId = req.cookies && req.cookies.userId;
-        
+
         if (!userId) {
             return res.status(401).json({ error: "Not logged in" });
         }
 
-        // Query the database for the user's details and the saved profile photo, if available.
         const [rows] = await mySqlPool.query(
             `SELECT u.position, u.firstname, u.lastname, p.profilePhoto
              FROM users u
@@ -231,7 +228,6 @@ app.get('/applicant_profile', (req, res) => {
         res.clearCookie('userId');
         return res.redirect('/');
     }
-
     res.redirect('/applicant_list/profile');
 });
 
@@ -241,42 +237,46 @@ app.get('/applicant_profile.html', (req, res) => {
         res.clearCookie('userId');
         return res.redirect('/');
     }
-
     res.redirect('/applicant_list/profile');
 });
 
 app.use('/api/v1/users', require("./routes/userRoutes"));
 
+// --- GET CURRENT USER ROLE ---
+// FIXED: moved above app.listen() and protected by requireAnyRole so
+// unauthenticated requests cannot probe user roles.
+app.get(
+    '/api/current-role',
+    requireAnyRole(['Team Manager', 'Team Coach', 'Player']),
+    async (req, res) => {
+        try {
+            const userId = req.cookies.userId;
 
+            if (!userId) {
+                return res.status(401).json({ success: false, role: 'Guest' });
+            }
 
+            const [rows] = await mySqlPool.query(
+                'SELECT position FROM users WHERE userId = ?',
+                [userId]
+            );
+
+            if (rows.length > 0) {
+                res.status(200).json({ success: true, role: rows[0].position });
+            } else {
+                res.status(404).json({ success: false, role: 'Guest' });
+            }
+        } catch (error) {
+            console.error("Error fetching role:", error);
+            res.status(500).json({ success: false, role: 'Guest' });
+        }
+    }
+);
 
 mySqlPool.query('SELECT 1').then(() => {
     console.log('MySQL DB Connected');
-})
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
 });
 
-// --- GET CURRENT USER ROLE ---
-app.get('/api/current-role', async (req, res) => {
-    try {
-        // Grab the userId from the cookie (adjust if your cookie is named differently)
-        const userId = req.cookies.userId; 
-        
-        if (!userId) {
-            return res.status(401).json({ success: false, role: 'Guest' });
-        }
-
-        // Query the database for their exact position
-        const [rows] = await mySqlPool.query('SELECT position FROM users WHERE userId = ?', [userId]);
-        
-        if (rows.length > 0) {
-            res.status(200).json({ success: true, role: rows[0].position });
-        } else {
-            res.status(404).json({ success: false, role: 'Guest' });
-        }
-    } catch (error) {
-        console.error("Error fetching role:", error);
-        res.status(500).json({ success: false, role: 'Guest' });
-    }
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
