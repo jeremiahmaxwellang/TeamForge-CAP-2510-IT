@@ -222,6 +222,56 @@ function renderMonth() {
       const more = document.createElement('div');
       more.className = 'more-events';
       more.textContent = `+${dayEvents.length - max} more`;
+      more.onclick = (e) => {
+        e.stopPropagation();
+        const existing = cell.querySelector('.overflow-events');
+        if (existing) { existing.remove(); more.textContent = `+${dayEvents.length - max} more`; return; }
+        const overflow = document.createElement('div');
+        overflow.className = 'overflow-events';
+        overflow.style.cssText = `
+          position:fixed;
+          z-index:600;
+          background:var(--surface,#1e1e2e);
+          border:1px solid var(--border);
+          border-radius:8px;
+          padding:8px;
+          min-width:200px;
+          max-width:260px;
+          box-shadow:0 8px 24px rgba(0,0,0,0.5);
+        `;
+        const header = document.createElement('div');
+        header.style.cssText = 'font-size:11px;color:var(--muted);margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border);';
+        const cellDate = new Date(ds + 'T00:00:00');
+        header.textContent = cellDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        overflow.appendChild(header);
+        dayEvents.slice(max).forEach(ev => {
+          const el = document.createElement('div');
+          el.className = 'month-event';
+          el.style.cssText = `background:${ev.color || getEventColor(ev.type)};margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;`;
+          el.textContent = `${ev.start} ${ev.title}`;
+          el.onmouseenter = (e) => { e.stopPropagation(); showPopup(e, ev); };
+          el.onmousemove = (e) => { e.stopPropagation(); showPopup(e, ev); };
+          el.onmouseleave = hidePopup;
+          el.onclick = (e) => { e.stopPropagation(); showPopup(e, ev); };
+          overflow.appendChild(el);
+        });
+        document.body.appendChild(overflow);
+        const rect = more.getBoundingClientRect();
+        const top = Math.min(rect.bottom + 4, window.innerHeight - overflow.offsetHeight - 8);
+        const left = Math.min(rect.left, window.innerWidth - overflow.offsetWidth - 8);
+        overflow.style.top = top + 'px';
+        overflow.style.left = left + 'px';
+        more.textContent = 'Show less';
+        const closeOnOutside = (e) => {
+          if (!overflow.contains(e.target) && e.target !== more) {
+            overflow.remove();
+            more.textContent = `+${dayEvents.length - max} more`;
+            document.removeEventListener('click', closeOnOutside);
+            hidePopup();
+          }
+        };
+        setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+      };
       cell.appendChild(more);
     }
 
@@ -646,6 +696,7 @@ function showPopup(e, ev) {
   const y = Math.min(e.clientY + 12, window.innerHeight - 120);
   pop.style.left = x + 'px';
   pop.style.top = y + 'px';
+  pop.style.zIndex = '9999';
   pop.classList.add('visible');
   if (e.type === 'click') {
     popupTimeout = setTimeout(() => pop.classList.remove('visible'), 3000);
