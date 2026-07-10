@@ -50,7 +50,7 @@ function buildEventTitle(ev) {
 }
 
 // Current Date
-document.getElementById('filterStart').value = today(); // uses your existing today() helper
+
 
 // ── DYNAMIC COLORING & LEGEND ────────────────────────────
 function processEventColor(ev) {
