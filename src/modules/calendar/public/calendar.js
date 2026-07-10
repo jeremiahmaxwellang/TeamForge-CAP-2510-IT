@@ -222,10 +222,11 @@ function renderMonth() {
       const more = document.createElement('div');
       more.className = 'more-events';
       more.textContent = `+${dayEvents.length - max} more`;
-      more.onclick = (e) => {
-        e.stopPropagation();
-        const existing = cell.querySelector('.overflow-events');
-        if (existing) { existing.remove(); more.textContent = `+${dayEvents.length - max} more`; return; }
+
+      // Shared function to create the overflow popup
+      const createOverflow = () => {
+        const existing = document.querySelector('.overflow-events');
+        if (existing) return existing;
         const overflow = document.createElement('div');
         overflow.className = 'overflow-events';
         overflow.style.cssText = `
@@ -261,9 +262,18 @@ function renderMonth() {
         const left = Math.min(rect.left, window.innerWidth - overflow.offsetWidth - 8);
         overflow.style.top = top + 'px';
         overflow.style.left = left + 'px';
+        return overflow;
+      };
+
+      // Click toggles the overflow (existing behavior)
+      more.onclick = (e) => {
+        e.stopPropagation();
+        const existing = document.querySelector('.overflow-events');
+        if (existing) { existing.remove(); more.textContent = `+${dayEvents.length - max} more`; return; }
+        const overflow = createOverflow();
         more.textContent = 'Show less';
-        const closeOnOutside = (e) => {
-          if (!overflow.contains(e.target) && e.target !== more) {
+        const closeOnOutside = (evt) => {
+          if (!overflow.contains(evt.target) && evt.target !== more) {
             overflow.remove();
             more.textContent = `+${dayEvents.length - max} more`;
             document.removeEventListener('click', closeOnOutside);
@@ -272,6 +282,36 @@ function renderMonth() {
         };
         setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
       };
+
+      // Hover behavior: show on enter, hide when leaving both elements
+      let hoverCloseTimer = null;
+      more.onmouseenter = (e) => {
+        e.stopPropagation();
+        clearTimeout(hoverCloseTimer);
+        const overflow = createOverflow();
+        more.textContent = 'Show less';
+
+        // When mouse leaves overflow, schedule close
+        overflow.onmouseleave = () => {
+          hoverCloseTimer = setTimeout(() => {
+            overflow.remove();
+            more.textContent = `+${dayEvents.length - max} more`;
+            hidePopup();
+          }, 150);
+        };
+
+        // If mouse returns to more, cancel close
+        overflow.onmouseenter = () => clearTimeout(hoverCloseTimer);
+      };
+
+      more.onmouseleave = () => {
+        // Small delay to allow moving into the overflow
+        hoverCloseTimer = setTimeout(() => {
+          const overflow = document.querySelector('.overflow-events');
+          if (overflow) { overflow.remove(); more.textContent = `+${dayEvents.length - max} more`; hidePopup(); }
+        }, 150);
+      };
+
       cell.appendChild(more);
     }
 

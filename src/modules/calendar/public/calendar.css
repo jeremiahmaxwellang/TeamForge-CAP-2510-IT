@@ -432,6 +432,28 @@ body {
   padding: 1px 4px;
 }
 
+.more-events {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.more-events:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.overflow-events {
+  position: fixed;
+  z-index: 600;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 200px;
+  max-width: 260px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
 /* ── WEEK VIEW ── */
 .week-view {
   flex: 1;
