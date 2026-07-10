@@ -124,7 +124,7 @@ VALUES
 -- -----------------------------------------------------
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
-(26, 'philippines@gmail.com', 'teamForge123!!', 'Philippines', 'Country', 'Player', 'Philippines#1234', 'Active'),
+(26, 'dutchman@ust.edu.ph', 'teamForge123!!', 'Brian', 'Murray', 'Player', 'Flying Dutchman#GUARD', 'Active'),
 (27, 'easy_eddie@gmail.com', 'teamForge123!!', 'Easy', 'Eddie', 'Player', 'EasyEddie#1234', 'Active'),
 (28, 'panix@gmail.com', 'teamForge123!!', 'panix', 'burn', 'Player', 'panix#theburn', 'Active'),
 (29, 'asterx_mizu@gmail.com', 'teamForge123!!', 'Asterux', 'Mizu', 'Player', 'panix#theburn', 'Active'),
@@ -229,8 +229,8 @@ VALUES
 -- -----------------------------------------------------
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId, puuid)
 VALUES 
--- Philippines#PHP
-(26, 'Philippines', 'PHP', 'Diamond I', 'Master', 1, 4, '12345678', 'BSIT', '3.2', '4.0', '3rd Year', 'F', 1, NULL),
+-- Flying Dutchman#GUARD
+(26, 'Flying Dutchman', 'GUARD', 'Diamond I', 'Master', 1, 4, '12345678', 'BSIT', '3.2', '4.0', '3rd Year', 'F', 1, NULL),
 
 -- Easy Eddie#1111
 (27, 'Easy Eddie', '1111', 'Diamond I', 'Grandmaster', 2, 1, '12345678', 'BSIT', '3.2', '4.0', '3rd Year', 'F', 1, NULL),
