@@ -77,17 +77,16 @@ body {
 }
 
 .calendar-panel .create-btn {
-  margin: 0 12px 20px;
   background: var(--green);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 0;
+  padding: 10px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: background .2s;
-  width: calc(100% - 24px);
+  width: 100%;
 }
 
 .create-btn:hover {
