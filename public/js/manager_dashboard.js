@@ -219,6 +219,10 @@ function loadCalendar() {
             cell.className = `calendar-cell calendar-day ${isSunday ? 'color-sunday' : 'color-weekday'}`;
             cell.textContent = day;
 
+            cell.addEventListener('click', () => {
+                window.location.href = '/calendar';
+            });
+
             if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                 cell.classList.add('calendar-today');
             }

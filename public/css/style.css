@@ -563,3 +563,13 @@ header h1, header h2 {
 .profile-dropdown-menu a:hover {
     background-color: #3a3e44; /* Lighter hover state */
 }
+
+.calendar-page-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.calendar-page-link:hover {
+    color: #00f2c3;
+}
