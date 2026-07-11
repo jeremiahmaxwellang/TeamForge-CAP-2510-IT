@@ -752,6 +752,18 @@
     max-width: 66px;
 }
 
+.mc-teammate-selected {
+    font-weight: 700;
+}
+
+.mc-teammate-name-selected.mc-teammate-win {
+    color: #2563eb;
+}
+
+.mc-teammate-name-selected.mc-teammate-loss {
+    color: #dc2626;
+}
+
 /* ============================================
    MATCH DETAIL PANEL
    ============================================ */

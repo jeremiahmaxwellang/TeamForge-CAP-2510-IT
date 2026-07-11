@@ -458,8 +458,20 @@
           enemies = others.slice(4, 9);
         }
 
-        const makeTeamCol = (players, maxRows = 4) => {
+        const makeTeamCol = (players, maxRows = 4, includeSelected = false, matchResult = null) => {
           const rows = (Array.isArray(players) ? players : []).slice(0, maxRows);
+          
+          // If ally column, add selected player at the bottom
+          if (includeSelected && player) {
+            rows.push({
+              championName: player.championName || 'Unknown Champion',
+              riotIdGameName: player.riotIdGameName || player.summonerName || 'You',
+              puuid: player.puuid || puuid,
+              isSelected: true,
+              matchResult: matchResult
+            });
+          }
+
           if (rows.length === 0) {
             return `
               <div class="mc-teammate mc-teammate-empty">
@@ -467,12 +479,21 @@
               </div>`;
           }
 
-          return rows.map(p => `
-          <div class="mc-teammate" data-tooltip="${p.championName || 'Unknown Champion'}" title="${p.championName || 'Unknown Champion'}">
-            <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${p.championName}.png"
-                 alt="${p.championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
-            <span class="mc-teammate-name">${(p.riotIdGameName || p.summonerName || '').substring(0, 10)}</span>
-          </div>`).join('');
+          return rows.map((p) => {
+            const isSelected = Boolean(p.isSelected);
+            const displayName = (p.riotIdGameName || p.summonerName || p.name || '').substring(0, 10);
+            const championName = p.championName || 'Unknown Champion';
+            let resultClass = '';
+            if (isSelected) {
+              resultClass = p.matchResult === true ? ' mc-teammate-win' : p.matchResult === false ? ' mc-teammate-loss' : '';
+            }
+            return `
+            <div class="mc-teammate${isSelected ? ' mc-teammate-selected' : ''}" data-tooltip="${championName}" title="${championName}">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${championName}.png"
+                   alt="${championName}" class="mc-teammate-icon" onerror="this.src='/images/sample_hero.png'">
+              <span class="mc-teammate-name${isSelected ? ' mc-teammate-name-selected' + resultClass : ''}">${displayName || 'You'}</span>
+            </div>`;
+          }).join('');
         };
         // Items: always render 8 slots, but keep bought items first so empty slots stay on the right.
         const rawItemIds = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6]
@@ -567,8 +588,8 @@
             <div class="mc-vision" data-tooltip="Vision Score">${visionScore} vision</div>
           </div>
           <div class="mc-teams">
-            <div class="mc-team-col">${makeTeamCol(allies, 4)}</div>
-            <div class="mc-team-col">${makeTeamCol(enemies, 5)}</div>
+            <div class="mc-team-col">${makeTeamCol(allies, 4, true, isWin)}</div>
+            <div class="mc-team-col">${makeTeamCol(enemies, 5, false, null)}</div>
           </div>`;
         container.appendChild(card);
       });
