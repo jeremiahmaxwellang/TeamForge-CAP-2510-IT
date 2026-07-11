@@ -279,8 +279,11 @@ window.initComparisonTab = function () {
     const nameStr = player.gameName ? `${player.gameName}#${player.tagLine}` : (player.summonerName || `Player ${player.userId ?? player.id}`);
 
     if (nameEl) {
-        // Add the active role text in green next to the player's name
-        nameEl.innerHTML = `${nameStr} <span style="color:#1f77b4; font-size: 0.85em; margin-left: 5px;">(${activeRoleStr})</span>`;
+        // Determine the correct color based on the player side (Player 1: Blue, Player 2: Orange)
+        const roleColor = playerNumber === 1 ? '#1f77b4' : '#ff7f0e';
+        
+        // Add the active role text next to the player's name
+        nameEl.innerHTML = `${nameStr} <span style="color:${roleColor}; font-size: 0.85em; margin-left: 5px;">(${activeRoleStr})</span>`;
 
         // INJECT ROLE TOGGLES FOR PLAYER 1 IN THE OVERLAY
         if (playerNumber === 1) {
