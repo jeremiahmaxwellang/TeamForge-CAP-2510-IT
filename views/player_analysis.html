@@ -90,7 +90,7 @@
                                     <option value="" disabled selected>Select role</option>
                                 </select>
                                 <!-- Flex container holding both the Star Button and Memo Textbox -->
-                                <div style="display: flex; gap: 8px; align-items: stretch;">
+                                <div style="display: flex; gap: 8px; align-items: stretch; width: fit-content; max-width: 100%; align-self: flex-start;">
                                     <button id="candidateFavoriteBtn" type="button" aria-pressed="false"
                                         title="Mark as candidate favorite"
                                         style="width: 42px; height: 42px; flex-shrink: 0; border: 1px solid #d3d6dc; border-radius: 10px; background: #ffffff; color: #6b7280; font-size: 24px; line-height: 1; cursor: pointer;">☆</button>
@@ -104,29 +104,43 @@
                         </div>
 
                         <!-- Student info combined into player-info card -->
-                        <div class="student_info_container" style="margin-top: 16px;">
+                        <div class="student_info_container">
                             <h3>Student Information:</h3>
                             <p id="course"></p>
                             <p id="year"></p>
                         </div>
-                    </div>
 
-                    <!-- Right: rank sits directly in section, no wrapper -->
-                    <div class="rank_container">
-                        <div class="vertical_line"></div>
-                        <img id="currentRankIcon" alt="Rank Icon" class="rank_icon">
-                        <div class="current_rank">
-                            <h3>Current Rank:</h3>
-                            <p id="currentRank">Loading Current Rank...</p>
-                        </div>
-                        <div class="vertical_line"></div>
-                        <img id="peakRankIcon" alt="Rank Icon" class="rank_icon">
-                        <div class="peak_rank">
-                            <h3>Peak Rank:</h3>
-                            <p id="peakRank">Loading Peak Rank...</p>
+                        <!-- Rank information now inside player-info -->
+                        <div class="rank_container">
+                            <div class="rank_row peak_rank">
+                                <img
+                                    id="peakRankIcon"
+                                    alt="Peak Rank Icon"
+                                    class="rank_icon"
+                                >
+
+                                <div class="rank_text">
+                                    <h3>Peak Rank:</h3>
+                                    <p id="peakRank">Loading Peak Rank...</p>
+                                </div>
+                            </div>
+
+                            <div class="rank_divider"></div>
+
+                            <div class="rank_row current_rank">
+                                <img
+                                    id="currentRankIcon"
+                                    alt="Current Rank Icon"
+                                    class="rank_icon"
+                                >
+
+                                <div class="rank_text">
+                                    <h3>Current Rank:</h3>
+                                    <p id="currentRank">Loading Current Rank...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
                 </section>
 
                 <section class="tabs">

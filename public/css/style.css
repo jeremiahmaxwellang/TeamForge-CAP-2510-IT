@@ -156,13 +156,6 @@ header h1, header h2 {
     align-items: flex-start;
 }
 
-.player-info > .profile_with_details,
-.player-info > .player_contact,
-.player-info > .student_info_container {
-    flex: 1 1 260px;
-    min-width: 240px;
-}
-
 .profile-img {
     width: 100px;
     height: 100px;
@@ -274,44 +267,67 @@ header h1, header h2 {
     flex-direction: column;
 }
 
-/* Player's Current and Peak Rank */
-/* Top Container for Right Side */
 .rank_container {
-    width: fit-content;
-    margin: 0 20px 20px;
-    padding: 20px;
-    background-color: #2f3136;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    color: #fff;
-}
+    margin: 0;
+    padding: 0 0 0 20px;
+    background-color: transparent;
+    border-radius: 0;
+    border-left: 1px solid #fff;
+    align-self: stretch;
 
-.rank_and_student_info .rank_container .current_rank, .peak_rank {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 10px;
+
+    width: fit-content;
+    min-width: 210px;
+    color: var(--porcelain);
+}
+
+.rank_container .rank_row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin: 0;
     padding: 0;
+}
+
+.rank_container .rank_text {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    min-width: 0;
 }
 
-.rank_and_student_info .rank_container .current_rank h3,
-.rank_and_student_info .rank_container .current_rank p {
+.rank_container .rank_text h3,
+.rank_container .rank_text p {
     margin: 0;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 0;
     color: var(--porcelain);
 }
 
-.rank_and_student_info .rank_container .peak_rank h3,
-.rank_and_student_info .rank_container .peak_rank p {
-    margin: 0;
-    padding-left: 10px;
-    padding-right: 10px;
-    color: var(--porcelain);
+.rank_container .rank_text h3 {
+    font-size: 18px;
+}
+
+.rank_container .rank_text p {
+    font-size: 14px;
+}
+
+.rank_container .rank_divider {
+    width: 100%;
+    height: 1px;
+    flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.65);
+}
+
+.rank_container .rank_icon {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .vertical_line {
@@ -572,4 +588,16 @@ header h1, header h2 {
 
 .calendar-page-link:hover {
     color: #00f2c3;
+}
+
+@media (max-width: 1100px) {
+    .player-info > .rank_container {
+        flex-basis: auto;
+        width: fit-content;
+        min-width: 210px;
+
+        border-left: 1px solid #fff;
+        border-top: none;
+        padding: 0 0 0 20px;
+    }
 }
