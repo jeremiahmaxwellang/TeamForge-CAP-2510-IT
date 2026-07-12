@@ -309,11 +309,11 @@ header h1, header h2 {
 }
 
 .rank_container .rank_text h3 {
-    font-size: 18px;
+    font-size: 24px;
 }
 
 .rank_container .rank_text p {
-    font-size: 14px;
+    font-size: 18px;
 }
 
 .rank_container .rank_divider {
@@ -324,8 +324,8 @@ header h1, header h2 {
 }
 
 .rank_container .rank_icon {
-    width: 58px;
-    height: 58px;
+    width: 70px;
+    height: 70px;
     object-fit: contain;
     flex-shrink: 0;
 }
