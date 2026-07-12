@@ -1,6 +1,14 @@
 // --- COMMUNITY DRAGON HELPER ---
 const RANK_ICON_BASE_URL = "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/";
 
+const DASHBOARD_EVENT_COLORS = {
+    Scrim: '#f97316',
+    Tournament: '#facc15',
+    Meeting: '#22c55e'
+};
+
+const DASHBOARD_EVENT_TYPES = Object.keys(DASHBOARD_EVENT_COLORS);
+
 function getRankIconUrl(rankString) {
     if (!rankString) return `${RANK_ICON_BASE_URL}unranked.png`;
     const tier = rankString.split(' ')[0].toLowerCase();
@@ -20,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadTeamStats();
     await loadDraft();
     await loadScrims();
-    loadCalendar();
+    await loadCalendar();
     await promptRiotApiKeyOnFirstLoginToday();
 
     // Modal Close Logic
@@ -360,105 +368,265 @@ async function loadScrims() {
     }
 }
 
-// --- 6. CALENDAR LOGIC ---
-function loadCalendar() {
+// --- 6. DASHBOARD CALENDAR LOGIC ---
+async function loadCalendar() {
     const container = document.getElementById('calendar-container');
-    
-    // Inject the Dropdowns and Grid Container
+    if (!container) return;
+
     container.innerHTML = `
         <div class="calendar-controls">
             <select id="cal-month"></select>
             <select id="cal-year"></select>
         </div>
+
         <div id="cal-grid" class="calendar-grid"></div>
+
+        <div class="calendar-legend">
+            <span>
+                <i
+                    class="calendar-legend-dot"
+                    style="background-color: ${DASHBOARD_EVENT_COLORS.Scrim};"
+                ></i>
+                Scrim
+            </span>
+
+            <span>
+                <i
+                    class="calendar-legend-dot"
+                    style="background-color: ${DASHBOARD_EVENT_COLORS.Tournament};"
+                ></i>
+                Tournament
+            </span>
+
+            <span>
+                <i
+                    class="calendar-legend-dot"
+                    style="background-color: ${DASHBOARD_EVENT_COLORS.Meeting};"
+                ></i>
+                Meeting
+            </span>
+        </div>
     `;
 
     const monthSelect = document.getElementById('cal-month');
     const yearSelect = document.getElementById('cal-year');
     const calGrid = document.getElementById('cal-grid');
 
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-    
-    // Setup current date
+    const months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ];
+
+    const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
     const today = new Date();
     let currentMonth = today.getMonth();
     let currentYear = today.getFullYear();
+    let dashboardEvents = [];
 
-    // Populate Month Dropdown
+    try {
+        const response = await fetch('/calendar/api/events');
+
+        if (!response.ok) {
+            throw new Error(`Calendar request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.events)) {
+            /*
+             * Only retain Scrim, Tournament, and Meeting events.
+             * All other event types are ignored.
+             */
+            dashboardEvents = data.events.filter(event =>
+                DASHBOARD_EVENT_TYPES.includes(event.type)
+            );
+        }
+    } catch (error) {
+        console.error('Failed to load dashboard calendar events:', error);
+    }
+
+    /*
+     * Group the filtered events by their starting date.
+     */
+    const eventsByDate = dashboardEvents.reduce((groupedEvents, event) => {
+        if (!event.start_date) {
+            return groupedEvents;
+        }
+
+        const dateKey = String(event.start_date).slice(0, 10);
+
+        if (!groupedEvents[dateKey]) {
+            groupedEvents[dateKey] = [];
+        }
+
+        groupedEvents[dateKey].push(event);
+
+        return groupedEvents;
+    }, {});
+
     months.forEach((month, index) => {
         const option = document.createElement('option');
+
         option.value = index;
         option.textContent = month;
-        if (index === currentMonth) option.selected = true;
+        option.selected = index === currentMonth;
+
         monthSelect.appendChild(option);
     });
 
-    // Populate Year Dropdown (Current year +/- 5 years)
-    for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+    for (
+        let year = currentYear - 5;
+        year <= currentYear + 5;
+        year++
+    ) {
         const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        if (i === currentYear) option.selected = true;
+
+        option.value = year;
+        option.textContent = year;
+        option.selected = year === currentYear;
+
         yearSelect.appendChild(option);
     }
 
-    // Render the grid based on selected month/year
-    function renderGrid(month, year) {
-        calGrid.innerHTML = ''; // Clear previous grid
+    function createDateKey(year, month, day) {
+        const paddedMonth = String(month + 1).padStart(2, '0');
+        const paddedDay = String(day).padStart(2, '0');
 
-        // Add Day Headers (Su, Mo, Tu...)
+        return `${year}-${paddedMonth}-${paddedDay}`;
+    }
+
+    function renderGrid(month, year) {
+        calGrid.innerHTML = '';
+
         days.forEach((day, index) => {
             const header = document.createElement('div');
-            header.className = `calendar-cell calendar-header-cell ${index === 0 ? 'color-sunday' : 'color-weekday'}`;
+
+            header.className =
+                `calendar-cell calendar-header-cell ${
+                    index === 0
+                        ? 'color-sunday'
+                        : 'color-weekday'
+                }`;
+
             header.textContent = day;
             calGrid.appendChild(header);
         });
 
-        // Get the first day of the month and total days
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        // Add empty cells for the days before the 1st of the month
-        for (let i = 0; i < firstDay; i++) {
+        for (let index = 0; index < firstDay; index++) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'calendar-cell';
+
             calGrid.appendChild(emptyCell);
         }
 
-        // Add the actual days
         for (let day = 1; day <= daysInMonth; day++) {
             const cell = document.createElement('div');
             const cellDate = new Date(year, month, day);
             const isSunday = cellDate.getDay() === 0;
-            
-            cell.className = `calendar-cell calendar-day ${isSunday ? 'color-sunday' : 'color-weekday'}`;
-            cell.textContent = day;
+
+            const dateKey = createDateKey(year, month, day);
+            const eventsForDay = eventsByDate[dateKey] || [];
+
+            cell.className =
+                `calendar-cell calendar-day ${
+                    isSunday
+                        ? 'color-sunday'
+                        : 'color-weekday'
+                }`;
+
+            const dayNumber = document.createElement('span');
+            dayNumber.className = 'calendar-day-number';
+            dayNumber.textContent = day;
+
+            cell.appendChild(dayNumber);
+
+            if (eventsForDay.length > 0) {
+                const dotsContainer = document.createElement('div');
+                dotsContainer.className = 'calendar-event-dots';
+
+                /*
+                 * Only show one circle for each event type found on the day.
+                 *
+                 * Two Scrims on the same date still produce one orange circle.
+                 * A Scrim and Tournament produce two separate circles.
+                 */
+                const eventTypes = [
+                    ...new Set(
+                        eventsForDay
+                            .map(event => event.type)
+                            .filter(type =>
+                                DASHBOARD_EVENT_TYPES.includes(type)
+                            )
+                    )
+                ];
+
+                eventTypes.forEach(type => {
+                    const dot = document.createElement('span');
+
+                    dot.className = 'calendar-event-dot';
+                    dot.style.backgroundColor =
+                        DASHBOARD_EVENT_COLORS[type];
+
+                    dot.setAttribute('aria-label', type);
+                    dot.setAttribute('title', type);
+
+                    dotsContainer.appendChild(dot);
+                });
+
+                cell.appendChild(dotsContainer);
+
+                cell.title = eventsForDay
+                    .map(event => {
+                        const title =
+                            event.title_summary ||
+                            event.title ||
+                            'Untitled event';
+
+                        return `${event.type}: ${title}`;
+                    })
+                    .join('\n');
+            }
+
+            const isToday =
+                day === today.getDate() &&
+                month === today.getMonth() &&
+                year === today.getFullYear();
+
+            if (isToday) {
+                cell.classList.add('calendar-today');
+            }
 
             cell.addEventListener('click', () => {
                 window.location.href = '/calendar';
             });
 
-            // Highlight today
-            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                cell.classList.add('calendar-today');
-            }
-
             calGrid.appendChild(cell);
         }
     }
 
-    // Listen for dropdown changes to redraw the calendar
-    monthSelect.addEventListener('change', (e) => {
-        currentMonth = parseInt(e.target.value);
+    monthSelect.addEventListener('change', event => {
+        currentMonth = Number.parseInt(event.target.value, 10);
         renderGrid(currentMonth, currentYear);
     });
 
-    yearSelect.addEventListener('change', (e) => {
-        currentYear = parseInt(e.target.value);
+    yearSelect.addEventListener('change', event => {
+        currentYear = Number.parseInt(event.target.value, 10);
         renderGrid(currentMonth, currentYear);
     });
 
-    // Initial render
     renderGrid(currentMonth, currentYear);
 }

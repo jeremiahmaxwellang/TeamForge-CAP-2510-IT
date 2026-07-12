@@ -327,6 +327,62 @@
         .color-weekday {
             color: #333;
         }
+
+        .calendar-day {
+            min-height: 46px;
+            padding: 6px 2px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-day-number {
+            line-height: 1;
+        }
+
+        .calendar-event-dots {
+            min-height: 7px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+
+        .calendar-event-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex: 0 0 7px;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .calendar-legend {
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 8px 12px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            color: #333;
+        }
+
+        .calendar-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .calendar-legend-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
