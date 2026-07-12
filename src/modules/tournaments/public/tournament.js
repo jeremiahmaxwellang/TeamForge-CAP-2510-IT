@@ -826,10 +826,78 @@
 			await loadPlayers();
 			await loadFavoriteCandidates();
 			await loadTournaments();
+			openLinkedRosterCard();
 		} catch (error) {
 			console.error(error);
 			tournamentList.innerHTML = '<div class="empty-state">Failed to load tournament data.</div>';
 		}
+	};
+
+	const openLinkedRosterCard = () => {
+	const params = new URLSearchParams(window.location.search);
+	const requestedEventId = Number.parseInt(params.get('eventId'), 10);
+
+	if (!Number.isInteger(requestedEventId) || requestedEventId <= 0) {
+		return;
+	}
+
+	const targetTournament = state.tournaments.find(
+		(tournament) => tournament.tournamentId === requestedEventId
+	);
+
+	if (!targetTournament) {
+		console.warn(
+		`No Scrim or Tournament roster was found for event ${requestedEventId}.`
+		);
+		return;
+	}
+
+	/*
+	* Select the corresponding roster and switch to its event-type filter.
+	*/
+	state.selectedTournamentId = requestedEventId;
+	state.typeFilter = targetTournament.type;
+	state.resultFilter = 'All';
+
+	renderTypeFilters();
+	renderResultFilters();
+	renderTournamentList();
+
+	/*
+	* Wait until renderTournamentList() has inserted the card into the DOM.
+	*/
+	requestAnimationFrame(() => {
+		const targetCard = tournamentList.querySelector(
+		`.tournament-card[data-tournament-id="${requestedEventId}"]`
+		);
+
+		if (!targetCard) {
+		return;
+		}
+
+		const detailsBody = targetCard.querySelector(
+		'.tournament-card-body'
+		);
+
+		const toggleIndicator = targetCard.querySelector(
+		'.toggle-indicator'
+		);
+
+		if (detailsBody) {
+		detailsBody.classList.remove('hidden');
+		}
+
+		if (toggleIndicator) {
+		toggleIndicator.textContent = 'Hide details';
+		}
+
+		targetCard.classList.add('selected');
+
+		targetCard.scrollIntoView({
+		behavior: 'smooth',
+		block: 'center'
+		});
+	});
 	};
 
 	init();

@@ -157,6 +157,19 @@ function updateColorsAndLegend() {
   renderLegend();
 }
 
+function openRosterManagementEvent(event) {
+  if (!event || !['Scrim', 'Tournament'].includes(event.type)) {
+    return false;
+  }
+
+  const params = new URLSearchParams({
+    eventId: String(event.id)
+  });
+
+  window.location.href = `/tournament?${params.toString()}`;
+  return true;
+}
+
 function renderLegend() {
   const container = document.getElementById('dynamicLegend');
   if (!container) return;
@@ -370,7 +383,16 @@ function renderMonth() {
       el.onmouseenter = (e) => { e.stopPropagation(); showPopup(e, ev); };
       el.onmousemove = (e) => { e.stopPropagation(); showPopup(e, ev); };
       el.onmouseleave = hidePopup;
-      el.onclick = (e) => { e.stopPropagation(); showPopup(e, ev); };
+      el.onclick = (e) => {
+        e.stopPropagation();
+
+        if (openRosterManagementEvent(ev)) {
+          return;
+        }
+
+        showPopup(e, ev);
+      };
+
       cell.appendChild(el);
     });
 
@@ -409,7 +431,16 @@ function renderMonth() {
           el.onmouseenter = (e) => { e.stopPropagation(); showPopup(e, ev); };
           el.onmousemove = (e) => { e.stopPropagation(); showPopup(e, ev); };
           el.onmouseleave = hidePopup;
-          el.onclick = (e) => { e.stopPropagation(); showPopup(e, ev); };
+          el.onclick = (e) => {
+            e.stopPropagation();
+
+            if (openRosterManagementEvent(ev)) {
+              return;
+            }
+
+            showPopup(e, ev);
+          };
+          
           overflow.appendChild(el);
         });
         document.body.appendChild(overflow);
