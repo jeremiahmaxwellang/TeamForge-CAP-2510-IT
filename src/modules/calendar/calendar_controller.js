@@ -204,6 +204,7 @@ exports.getEvents = async (req, res) => {
                 e.title_summary, 
                 e.type, 
                 DATE_FORMAT(e.start_date, '%Y-%m-%d') as start_date, 
+                DATE_FORMAT(e.end_date, '%Y-%m-%d') as end_date,
                 DATE_FORMAT(e.start_datetime, '%H:%i') as start_time, 
                 DATE_FORMAT(e.end_datetime, '%H:%i') as end_time,
                 e.location, 

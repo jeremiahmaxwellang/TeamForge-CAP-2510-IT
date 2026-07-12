@@ -1,11 +1,53 @@
 const DASHBOARD_EVENT_COLORS = {
     Scrim: '#f97316',
     Tournament: '#facc15',
-    Meeting: '#22c55e',
-    Other: '#d1d5db'
+    Meeting: '#22c55e'
 };
 
 const DASHBOARD_EVENT_TYPES = Object.keys(DASHBOARD_EVENT_COLORS);
+
+function normalizeDashboardEventType(value) {
+    const normalizedValue = String(value || '').trim().toLowerCase();
+
+    return DASHBOARD_EVENT_TYPES.find(
+        type => type.toLowerCase() === normalizedValue
+    ) || null;
+}
+
+function normalizeDashboardDate(value) {
+    if (!value) return null;
+
+    const dateMatch = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return dateMatch ? dateMatch[0] : null;
+}
+
+function addOneDay(dateKey) {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+
+    date.setUTCDate(date.getUTCDate() + 1);
+    return date.toISOString().slice(0, 10);
+}
+
+function getDashboardEventDateKeys(event) {
+    const startDate = normalizeDashboardDate(event.start_date);
+    const endDate = normalizeDashboardDate(event.end_date) || startDate;
+
+    if (!startDate) return [];
+    if (!endDate || endDate < startDate) return [startDate];
+
+    const dateKeys = [];
+    let currentDate = startDate;
+    let guard = 0;
+
+    while (currentDate <= endDate && guard < 732) {
+        dateKeys.push(currentDate);
+        currentDate = addOneDay(currentDate);
+        guard += 1;
+    }
+
+    return dateKeys;
+}
 
 // --- DASHBOARD LOADER ---
 document.addEventListener("DOMContentLoaded", async () => {
@@ -286,36 +328,22 @@ async function loadCalendar() {
 
     container.innerHTML = `
         <div class="calendar-controls">
-            <select id="cal-month"></select>
-            <select id="cal-year"></select>
+            <select id="cal-month" aria-label="Calendar month"></select>
+            <select id="cal-year" aria-label="Calendar year"></select>
         </div>
 
         <div id="cal-grid" class="calendar-grid"></div>
 
         <div class="calendar-legend">
-            <span>
-                <i
-                    class="calendar-legend-dot"
-                    style="background-color: ${DASHBOARD_EVENT_COLORS.Scrim};"
-                ></i>
-                Scrim
-            </span>
-
-            <span>
-                <i
-                    class="calendar-legend-dot"
-                    style="background-color: ${DASHBOARD_EVENT_COLORS.Tournament};"
-                ></i>
-                Tournament
-            </span>
-
-            <span>
-                <i
-                    class="calendar-legend-dot"
-                    style="background-color: ${DASHBOARD_EVENT_COLORS.Meeting};"
-                ></i>
-                Meeting
-            </span>
+            ${DASHBOARD_EVENT_TYPES.map(type => `
+                <span>
+                    <i
+                        class="calendar-legend-dot"
+                        style="background-color: ${DASHBOARD_EVENT_COLORS[type]};"
+                    ></i>
+                    ${type}
+                </span>
+            `).join('')}
         </div>
     `;
 
@@ -324,20 +352,9 @@ async function loadCalendar() {
     const calGrid = document.getElementById('cal-grid');
 
     const months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
     ];
-
     const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
     const today = new Date();
@@ -346,7 +363,9 @@ async function loadCalendar() {
     let dashboardEvents = [];
 
     try {
-        const response = await fetch('/calendar/api/events');
+        const response = await fetch('/calendar/api/events', {
+            headers: { Accept: 'application/json' }
+        });
 
         if (!response.ok) {
             throw new Error(`Calendar request failed: ${response.status}`);
@@ -355,65 +374,48 @@ async function loadCalendar() {
         const data = await response.json();
 
         if (data.success && Array.isArray(data.events)) {
-            /*
-             * Only retain Scrim, Tournament, and Meeting events.
-             * All other event types are ignored.
-             */
-            dashboardEvents = data.events.filter(event =>
-                DASHBOARD_EVENT_TYPES.includes(event.type)
-            );
+            dashboardEvents = data.events
+                .map(event => ({
+                    ...event,
+                    type: normalizeDashboardEventType(event.type)
+                }))
+                .filter(event => event.type);
         }
     } catch (error) {
         console.error('Failed to load dashboard calendar events:', error);
     }
 
-    /*
-     * Group the filtered events by their starting date.
-     */
     const eventsByDate = dashboardEvents.reduce((groupedEvents, event) => {
-        if (!event.start_date) {
-            return groupedEvents;
-        }
+        getDashboardEventDateKeys(event).forEach(dateKey => {
+            if (!groupedEvents[dateKey]) {
+                groupedEvents[dateKey] = [];
+            }
 
-        const dateKey = String(event.start_date).slice(0, 10);
-
-        if (!groupedEvents[dateKey]) {
-            groupedEvents[dateKey] = [];
-        }
-
-        groupedEvents[dateKey].push(event);
+            groupedEvents[dateKey].push(event);
+        });
 
         return groupedEvents;
     }, {});
 
     months.forEach((month, index) => {
         const option = document.createElement('option');
-
         option.value = index;
         option.textContent = month;
         option.selected = index === currentMonth;
-
         monthSelect.appendChild(option);
     });
 
-    for (
-        let year = currentYear - 5;
-        year <= currentYear + 5;
-        year++
-    ) {
+    for (let year = currentYear - 5; year <= currentYear + 5; year += 1) {
         const option = document.createElement('option');
-
         option.value = year;
         option.textContent = year;
         option.selected = year === currentYear;
-
         yearSelect.appendChild(option);
     }
 
     function createDateKey(year, month, day) {
         const paddedMonth = String(month + 1).padStart(2, '0');
         const paddedDay = String(day).padStart(2, '0');
-
         return `${year}-${paddedMonth}-${paddedDay}`;
     }
 
@@ -422,14 +424,9 @@ async function loadCalendar() {
 
         days.forEach((day, index) => {
             const header = document.createElement('div');
-
-            header.className =
-                `calendar-cell calendar-header-cell ${
-                    index === 0
-                        ? 'color-sunday'
-                        : 'color-weekday'
-                }`;
-
+            header.className = `calendar-cell calendar-header-cell ${
+                index === 0 ? 'color-sunday' : 'color-weekday'
+            }`;
             header.textContent = day;
             calGrid.appendChild(header);
         });
@@ -437,76 +434,55 @@ async function loadCalendar() {
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        for (let index = 0; index < firstDay; index++) {
+        for (let index = 0; index < firstDay; index += 1) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'calendar-cell';
-
             calGrid.appendChild(emptyCell);
         }
 
-        for (let day = 1; day <= daysInMonth; day++) {
+        for (let day = 1; day <= daysInMonth; day += 1) {
             const cell = document.createElement('div');
             const cellDate = new Date(year, month, day);
             const isSunday = cellDate.getDay() === 0;
-
             const dateKey = createDateKey(year, month, day);
             const eventsForDay = eventsByDate[dateKey] || [];
 
-            cell.className =
-                `calendar-cell calendar-day ${
-                    isSunday
-                        ? 'color-sunday'
-                        : 'color-weekday'
-                }`;
+            cell.className = `calendar-cell calendar-day ${
+                isSunday ? 'color-sunday' : 'color-weekday'
+            }`;
 
             const dayNumber = document.createElement('span');
             dayNumber.className = 'calendar-day-number';
             dayNumber.textContent = day;
-
             cell.appendChild(dayNumber);
 
-            if (eventsForDay.length > 0) {
+            const eventTypesForDay = DASHBOARD_EVENT_TYPES.filter(type =>
+                eventsForDay.some(event => event.type === type)
+            );
+
+            if (eventTypesForDay.length > 0) {
+                cell.classList.add('calendar-has-events');
+
                 const dotsContainer = document.createElement('div');
                 dotsContainer.className = 'calendar-event-dots';
+                dotsContainer.setAttribute(
+                    'aria-label',
+                    eventTypesForDay.join(', ')
+                );
 
-                /*
-                 * Only show one circle for each event type found on the day.
-                 *
-                 * Two Scrims on the same date still produce one orange circle.
-                 * A Scrim and Tournament produce two separate circles.
-                 */
-                const eventTypes = [
-                    ...new Set(
-                        eventsForDay
-                            .map(event => event.type)
-                            .filter(type =>
-                                DASHBOARD_EVENT_TYPES.includes(type)
-                            )
-                    )
-                ];
-
-                eventTypes.forEach(type => {
+                eventTypesForDay.forEach(type => {
                     const dot = document.createElement('span');
-
                     dot.className = 'calendar-event-dot';
-                    dot.style.backgroundColor =
-                        DASHBOARD_EVENT_COLORS[type];
-
-                    dot.setAttribute('aria-label', type);
+                    dot.style.backgroundColor = DASHBOARD_EVENT_COLORS[type];
                     dot.setAttribute('title', type);
-
                     dotsContainer.appendChild(dot);
                 });
 
                 cell.appendChild(dotsContainer);
-
                 cell.title = eventsForDay
                     .map(event => {
                         const title =
-                            event.title_summary ||
-                            event.title ||
-                            'Untitled event';
-
+                            event.title_summary || event.title || 'Untitled event';
                         return `${event.type}: ${title}`;
                     })
                     .join('\n');
