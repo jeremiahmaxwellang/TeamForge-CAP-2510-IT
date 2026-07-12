@@ -29,8 +29,20 @@ let colorIndex = 0;
 
 let events = [];
 // Visible filters for legend-driven filtering
-let visibleTypes = { Scrim: true, Tournament: true, Meeting: true };
+let visibleTypes = {
+  Scrim: true,
+  Tournament: true,
+  Meeting: true
+};
+
 let visiblePlayers = new Set();
+
+/*
+ * Distinguishes the initial empty Set from an empty Set created
+ * intentionally through Clear All.
+ */
+let playerFiltersInitialized = false;
+
 let _legendListenerAttached = false;
 
 // ── UTILS ────────────────────────────────────────────────
@@ -42,15 +54,24 @@ function today() { const t = new Date(); return dateStr(t.getFullYear(), t.getMo
 // Returns whether an event should be shown based on the active legend filters
 function isEventVisible(ev) {
   if (!ev) return true;
-  // Team event types are filtered by type
+
+  /*
+   * Official team events are filtered separately by event type.
+   */
   if (['Scrim', 'Tournament', 'Meeting'].includes(ev.type)) {
-    return !!visibleTypes[ev.type];
+    return Boolean(visibleTypes[ev.type]);
   }
-  // Everything else is grouped by creator/player
-  const name = ev.creatorName || 'Unknown Player';
-  // If we haven't built any player filters yet, default to visible
-  if (visiblePlayers.size === 0) return true;
-  return visiblePlayers.has(name);
+
+  /*
+   * Player schedules are visible only when the creator is
+   * explicitly included in visiblePlayers.
+   *
+   * An empty Set now correctly means that no player schedules
+   * should be shown.
+   */
+  const playerName = ev.creatorName || 'Unknown Player';
+
+  return visiblePlayers.has(playerName);
 }
 
 function eventsForDate(ds) { return events.filter(e => e.date === ds && isEventVisible(e)); }
@@ -89,22 +110,49 @@ function processEventColor(ev) {
   }
 }
 function updateColorsAndLegend() {
-  // Reset color mapping so we don't keep orphaned players
+  /*
+   * Save the previous player list before rebuilding playerColors.
+   * This lets us determine whether every player was previously shown.
+   */
+  const previousPlayers = Object.keys(playerColors);
+
+  const previouslyShowingAllPlayers =
+    playerFiltersInitialized &&
+    previousPlayers.length > 0 &&
+    previousPlayers.every(player => visiblePlayers.has(player));
+
+  /*
+   * Rebuild the player-to-color mapping from the current events.
+   */
   playerColors = {};
   colorIndex = 0;
 
-  events.forEach(e => {
-    e.color = processEventColor(e);
+  events.forEach(event => {
+    event.color = processEventColor(event);
   });
 
-  // Reconcile visiblePlayers set with the players we currently have
-  const players = Object.keys(playerColors);
-  if (visiblePlayers.size === 0) {
-    players.forEach(p => visiblePlayers.add(p));
+  const currentPlayers = Object.keys(playerColors);
+
+  /*
+   * On the initial load, all players should be visible.
+   *
+   * If Show All was active before the event list changed, continue
+   * showing everyone, including newly added players.
+   *
+   * Otherwise, preserve the user's selections. This includes an
+   * intentionally empty Set produced by Clear All.
+   */
+  if (!playerFiltersInitialized || previouslyShowingAllPlayers) {
+    visiblePlayers = new Set(currentPlayers);
   } else {
-    // Remove players that no longer exist
-    visiblePlayers = new Set([...visiblePlayers].filter(p => players.includes(p)));
+    visiblePlayers = new Set(
+      [...visiblePlayers].filter(player =>
+        currentPlayers.includes(player)
+      )
+    );
   }
+
+  playerFiltersInitialized = true;
 
   renderLegend();
 }
@@ -175,9 +223,11 @@ function renderLegend() {
         } else if (act === 'clear-team') {
           Object.keys(visibleTypes).forEach(k => visibleTypes[k] = false);
         } else if (act === 'show-players') {
+          playerFiltersInitialized = true;
           visiblePlayers = new Set(players);
         } else if (act === 'clear-players') {
-          visiblePlayers = new Set();
+          playerFiltersInitialized = true;
+          visiblePlayers.clear();
         }
         // Re-render legend so DOM reflects new selected state
         renderLegend();
@@ -201,12 +251,25 @@ function renderLegend() {
 
       // Player entries
       if (item.dataset.player) {
-        const p = decodeURIComponent(item.dataset.player);
-        if (visiblePlayers.has(p)) visiblePlayers.delete(p);
-        else visiblePlayers.add(p);
+        const playerName = decodeURIComponent(item.dataset.player);
+
+        playerFiltersInitialized = true;
+
+        if (visiblePlayers.has(playerName)) {
+          visiblePlayers.delete(playerName);
+        } else {
+          visiblePlayers.add(playerName);
+        }
+
+        const isVisible = visiblePlayers.has(playerName);
         const dot = item.querySelector('.cal-dot');
-        if (dot) dot.classList.toggle('checked', visiblePlayers.has(p));
-        item.classList.toggle('selected', visiblePlayers.has(p));
+
+        if (dot) {
+          dot.classList.toggle('checked', isVisible);
+        }
+
+        item.classList.toggle('selected', isVisible);
+
         render();
         return;
       }
