@@ -153,7 +153,6 @@ header h1, header h2 {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    align-items: flex-start;
 }
 
 .profile-img {
@@ -344,7 +343,6 @@ header h1, header h2 {
 /* Student's Information */
 /* Bottom Container for Left S1ide */
 .student_info_container {
-    padding: 20px;
     background-color: #2f3136;
     border-radius: 20px;
     height: auto;
