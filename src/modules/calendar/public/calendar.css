@@ -377,11 +377,18 @@ body {
 }
 
 /* ── MONTH VIEW ── */
+.calendar-area,
+.month-view,
+.month-grid {
+  min-height: 0;
+}
+
 .month-view {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .month-header {
@@ -403,11 +410,18 @@ body {
 
 .month-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+
+  /* Preserve a readable height for every week */
+  grid-auto-rows: minmax(105px, 1fr);
+
   flex: 1;
-  overflow: hidden;
   min-width: 860px;
+  min-height: 0;
+
+  /* Scroll instead of crushing the final rows */
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .month-cell {
@@ -415,11 +429,15 @@ body {
   border-bottom: 1px solid var(--border);
   padding: 6px 8px;
   cursor: pointer;
+
   display: flex;
   flex-direction: column;
   gap: 3px;
-  min-height: 90px;
-  transition: background .15s;
+
+  /* Row height is controlled by month-grid */
+  min-height: 0;
+
+  transition: background 0.15s;
   position: relative;
   overflow: hidden;
 }
@@ -455,14 +473,24 @@ body {
   margin-bottom: 2px;
 }
 
+.day-num,
+.month-event,
+.more-events {
+  flex-shrink: 0;
+}
+
 .month-event {
   font-size: 10px;
   font-weight: 600;
+  line-height: 14px;
+  min-height: 18px;
   padding: 2px 6px;
   border-radius: 3px;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
   cursor: pointer;
   color: #fff;
 }
