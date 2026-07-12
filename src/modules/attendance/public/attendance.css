@@ -331,15 +331,6 @@ body {
     color: #5b6069;
 }
 
-/* ── RSVP Icons ── */
-.rsvp-icon {
-    font-size: 20px;
-    display: inline-block;
-}
-
-.rsvp-yes { filter: hue-rotate(100deg) saturate(1.5); }  /* green tint */
-.rsvp-no  { filter: hue-rotate(320deg) saturate(2);   }  /* red tint   */
-
 /* ── Footer / Save ── */
 .attendance-footer {
     display: flex;

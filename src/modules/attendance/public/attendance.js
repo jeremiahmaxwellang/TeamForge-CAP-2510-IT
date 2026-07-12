@@ -52,7 +52,7 @@ const renderAttendanceRows = (participants) => {
 
   if (!participants || participants.length === 0) {
     updateParticipantCount(0);
-    attendanceBody.innerHTML = '<tr><td colspan="4" class="no-participants">Select an event to display participants.</td></tr>';
+    attendanceBody.innerHTML = '<tr><td colspan="3" class="no-participants">Select an event to display participants.</td></tr>';
     return;
   }
 
@@ -91,9 +91,6 @@ const renderAttendanceRows = (participants) => {
           const name = participant.name || 'Unnamed participant';
           const noteValue = participant.notes ? participant.notes.replace(/"/g, '&quot;') : '';
           const status = participant.attendance_status || '';
-          const rsvpClass = status === 'Present' || status === 'Late' ? 'rsvp-yes' : 'rsvp-no';
-          const rsvpIcon = status === 'Present' || status === 'Late' ? '👍' : '👎';
-          const rsvpTitle = status === 'Present' || status === 'Late' ? 'Accepted' : 'Declined';
 
           return `
             <tr class="attendance-row" data-user-id="${participant.userId}">
@@ -111,7 +108,6 @@ const renderAttendanceRows = (participants) => {
                 </select>
               </td>
               <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>
-              <td><span class="rsvp-icon ${rsvpClass}" title="${rsvpTitle}">${rsvpIcon}</span></td>
             </tr>
           `;
         })
@@ -120,7 +116,7 @@ const renderAttendanceRows = (participants) => {
       if (teamMap) {
         return `
           <tr class="team-group-header">
-            <td colspan="4">${groupLabel}</td>
+            <td colspan="3">${groupLabel}</td>
           </tr>
           ${rows}
         `;
