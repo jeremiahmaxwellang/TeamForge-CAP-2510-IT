@@ -73,7 +73,7 @@
 
 	const openCreateModal = () => {
 		state.editingTournamentId = null;
-		modalTitle.textContent = 'Create Tournament';
+		modalTitle.textContent = 'Create Roster';
 		confirmTournamentBtn.textContent = 'Confirm';
 		resetModalState();
 		renderRosters();
