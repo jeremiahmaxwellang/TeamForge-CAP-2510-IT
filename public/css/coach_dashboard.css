@@ -564,3 +564,86 @@
     border-radius: 50%;
     flex-shrink: 0;
 }
+
+/* Upcoming Tournament Draft */
+.draft-tournament-info {
+    margin-bottom: 14px;
+    padding: 10px 8px;
+    border-bottom: 1px solid #ddd;
+    border-radius: 5px;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.draft-tournament-name {
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.draft-tournament-date {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.draft-message {
+    color: #fff;
+}
+
+.draft-error-message {
+    color: #ff6b6b;
+}
+
+.draft-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    color: #fff;
+}
+
+.draft-table thead tr {
+    border-bottom: 2px solid #ddd;
+    transition: background-color 0.2s ease;
+}
+
+.draft-table th {
+    padding: 10px;
+    color: #fff;
+}
+
+.draft-table th:last-child,
+.draft-table td:last-child {
+    text-align: right;
+}
+
+.draft-player-row {
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.draft-player-row td {
+    padding: 12px 10px;
+    color: #fff;
+    transition: color 0.2s ease;
+}
+
+.draft-player-ign {
+    font-weight: 700;
+}
+
+/* Invert to black text on a white background */
+.draft-tournament-info:hover,
+.draft-table thead tr:hover,
+.draft-player-row:hover {
+    background-color: #fff;
+}
+
+.draft-tournament-info:hover .draft-tournament-name,
+.draft-tournament-info:hover .draft-tournament-date,
+.draft-table thead tr:hover th,
+.draft-player-row:hover td {
+    color: #000;
+}

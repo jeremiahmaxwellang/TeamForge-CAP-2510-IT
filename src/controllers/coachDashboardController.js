@@ -57,33 +57,74 @@ exports.getLatestScrims = async (req, res) => {
 };
 
 // 3. Fetch Tournament Draft (Main Roster)
+// Fetch the roster draft for the nearest upcoming tournament
 exports.getDraft = async (req, res) => {
     try {
-        const query = `
-            SELECT u.userId, p.gameName, u.firstname, u.lastname, r.displayedRole 
-            FROM users u 
-            JOIN players p ON u.userId = p.userId 
-            JOIN leagueroles r ON p.primaryRoleId = r.roleId 
-            WHERE u.position = 'Player' AND u.status = 'Active' AND p.isSub = 'F'
-            ORDER BY r.roleId ASC
-        `;
-        const [draft] = await db.query(query);
-        
-        // Ensure we only send one player per role to avoid duplicates if data is messy
-        const mainRoster = [];
-        const seenRoles = new Set();
-        
-        draft.forEach(player => {
-            if (!seenRoles.has(player.displayedRole)) {
-                seenRoles.add(player.displayedRole);
-                mainRoster.push(player);
-            }
-        });
+        res.set('Cache-Control', 'no-store');
 
-        res.status(200).json({ success: true, draft: mainRoster });
+        // Get the nearest tournament scheduled for today or later
+        const [tournamentRows] = await db.query(`
+            SELECT
+                e.eventId,
+                e.title_summary AS tournamentName,
+                DATE_FORMAT(
+                    COALESCE(e.start_date, DATE(e.start_datetime)),
+                    '%Y-%m-%d'
+                ) AS tournamentDate
+            FROM events e
+            WHERE e.type = 'Tournament'
+              AND COALESCE(e.start_date, DATE(e.start_datetime)) >= CURDATE()
+            ORDER BY
+                COALESCE(e.start_date, DATE(e.start_datetime)) ASC,
+                e.eventId ASC
+            LIMIT 1
+        `);
+
+        if (tournamentRows.length === 0) {
+            return res.status(200).json({
+                success: true,
+                tournament: null,
+                draft: []
+            });
+        }
+
+        const tournament = tournamentRows[0];
+
+        // Get Team 1's main roster for that specific tournament
+        const [draft] = await db.query(`
+            SELECT
+                u.userId,
+                p.gameName,
+                u.firstname,
+                u.lastname,
+                r.displayedRole,
+                ea.team,
+                ea.is_sub AS isSub
+            FROM event_attendees ea
+            JOIN users u
+                ON u.userId = ea.userId
+            JOIN players p
+                ON p.userId = ea.userId
+            JOIN leagueroles r
+                ON r.roleId = ea.player_role
+            WHERE ea.eventId = ?
+              AND ea.team = 'Team 1'
+              AND ea.is_sub = 'N'
+            ORDER BY ea.player_role ASC
+        `, [tournament.eventId]);
+
+        return res.status(200).json({
+            success: true,
+            tournament,
+            draft
+        });
     } catch (error) {
-        console.error('Error fetching draft:', error);
-        res.status(500).json({ success: false, message: 'Failed to fetch draft.' });
+        console.error('Error fetching upcoming tournament draft:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch upcoming tournament draft.'
+        });
     }
 };
 

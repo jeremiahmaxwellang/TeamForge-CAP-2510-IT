@@ -117,48 +117,165 @@ async function loadAnnouncements() {
 }
 
 // --- 3. UPCOMING TOURNAMENT DRAFT LOGIC ---
+function formatTournamentDate(dateValue) {
+    if (!dateValue) return 'Date unavailable';
+
+    const dateParts = String(dateValue)
+        .slice(0, 10)
+        .split('-')
+        .map(Number);
+
+    const [year, month, day] = dateParts;
+
+    if (!year || !month || !day) {
+        return 'Date unavailable';
+    }
+
+    return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+// --- UPCOMING TOURNAMENT DRAFT LOGIC ---
 async function loadDraft() {
     const container = document.getElementById('draft-list-container');
     if (!container) return;
 
     try {
-        const res = await fetch('/manager_dashboard/api/draft');
-        const data = await res.json();
+        const response = await fetch('/manager_dashboard/api/draft', {
+            cache: 'no-store'
+        });
 
-        if (data.success && data.draft.length > 0) {
-            let html = `
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid #ddd; color: #333;">
-                            <th style="padding: 10px;">Player IGN</th>
-                            <th style="padding: 10px;">Real Name</th>
-                            <th style="padding: 10px; text-align: right;">Role Played</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || 'Unable to load tournament draft.');
+        }
+
+        if (!data.tournament) {
+            container.innerHTML = `
+                <p style="color: #666;">
+                    No upcoming tournament scheduled.
+                </p>
+            `;
+            return;
+        }
+
+        const tournamentName =
+            data.tournament.tournamentName || 'Upcoming Tournament';
+
+        const tournamentDate =
+            formatTournamentDate(data.tournament.tournamentDate);
+
+        let html = `
+            <div style="
+                margin-bottom: 14px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #ddd;
+            ">
+                <div style="
+                    color: #111;
+                    font-size: 17px;
+                    font-weight: 700;
+                    margin-bottom: 4px;
+                ">
+                    ${tournamentName}
+                </div>
+
+                <div style="
+                    color: #555;
+                    font-size: 13px;
+                    font-weight: 500;
+                ">
+                    Tournament Date: ${tournamentDate}
+                </div>
+            </div>
+        `;
+
+        if (!Array.isArray(data.draft) || data.draft.length === 0) {
+            html += `
+                <p style="color: #666;">
+                    No players have been assigned to this tournament yet.
+                </p>
             `;
 
-            data.draft.forEach(p => {
-                html += `
-                    <tr style="border-bottom: 1px solid #eee; transition: background-color 0.2s;" 
-                        onmouseover="this.style.backgroundColor='#f8f9fa'" 
-                        onmouseout="this.style.backgroundColor='transparent'">
-                        
-                        <td style="padding: 12px 10px; font-weight: bold; color: #111;">${p.gameName}</td>
-                        <td style="padding: 12px 10px; color: #555;">${p.firstname} ${p.lastname}</td>
-                        <td style="padding: 12px 10px; text-align: right; font-weight: 500;">${p.displayedRole}</td>
-                    </tr>
-                `;
-            });
-
-            html += `</tbody></table>`;
             container.innerHTML = html;
-        } else {
-            container.innerHTML = "<p style='color: #666;'>No draft roster available.</p>";
+            return;
         }
+
+        html += `
+            <table style="
+                width: 100%;
+                border-collapse: collapse;
+                text-align: left;
+            ">
+                <thead>
+                    <tr style="
+                        border-bottom: 2px solid #ddd;
+                        color: #333;
+                    ">
+                        <th style="padding: 10px;">Player IGN</th>
+                        <th style="padding: 10px;">Real Name</th>
+                        <th style="padding: 10px; text-align: right;">
+                            Role Played
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+        `;
+
+        data.draft.forEach(player => {
+            html += `
+                <tr style="
+                    border-bottom: 1px solid #eee;
+                    transition: background-color 0.2s;
+                "
+                onmouseover="this.style.backgroundColor='#f8f9fa'"
+                onmouseout="this.style.backgroundColor='transparent'">
+                    <td style="
+                        padding: 12px 10px;
+                        font-weight: bold;
+                        color: #111;
+                    ">
+                        ${player.gameName}
+                    </td>
+
+                    <td style="padding: 12px 10px; color: #555;">
+                        ${player.firstname} ${player.lastname}
+                    </td>
+
+                    <td style="
+                        padding: 12px 10px;
+                        text-align: right;
+                        font-weight: 500;
+                    ">
+                        ${player.displayedRole}
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        `;
+
+        container.innerHTML = html;
     } catch (error) {
-        console.error("Failed to load draft", error);
-        container.innerHTML = "<p style='color:red;'>Error loading draft.</p>";
+        console.error('Failed to load upcoming tournament draft:', error);
+
+        container.innerHTML = `
+            <p style="color: red;">
+                Error loading upcoming tournament draft.
+            </p>
+        `;
     }
 }
 
@@ -424,3 +541,27 @@ async function loadCalendar() {
 
     renderGrid(currentMonth, currentYear);
 }
+
+/*
+ * Refresh when the user returns from Roster Management
+ * or switches back to the dashboard tab.
+ */
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        loadDraft();
+    }
+});
+
+window.addEventListener('focus', () => {
+    loadDraft();
+});
+
+/*
+ * Also check periodically in case another user or device
+ * changes the tournament roster.
+ */
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        loadDraft();
+    }
+}, 30000);

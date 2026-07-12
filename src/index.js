@@ -29,15 +29,28 @@ app.use((err, req, res, next) => {
 
 app.use(cookieParser());
 
+function isApiRequest(req) {
+    return req.originalUrl.includes('/api/');
+}
+
 function requireRole(requiredRole) {
     return async (req, res, next) => {
         try {
-            const role = req.cookies && req.cookies.userRole;
-            const userId = req.cookies && req.cookies.userId;
+            const role = req.cookies?.userRole;
+            const userId = req.cookies?.userId;
 
-            if (role !== requiredRole || !userId) {
+            // No active login
+            if (!role || !userId) {
                 res.clearCookie('userRole');
                 res.clearCookie('userId');
+
+                if (isApiRequest(req)) {
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Authentication required.'
+                    });
+                }
+
                 return res.redirect('/');
             }
 
@@ -46,17 +59,45 @@ function requireRole(requiredRole) {
                 [userId]
             );
 
-            if (!rows.length || rows[0].position !== requiredRole) {
+            // Invalid or stale authentication cookies
+            if (!rows.length || rows[0].position !== role) {
                 res.clearCookie('userRole');
                 res.clearCookie('userId');
+
+                if (isApiRequest(req)) {
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Invalid or expired session.'
+                    });
+                }
+
                 return res.redirect('/');
             }
 
+            // Valid user, but wrong role for this route.
+            // Do not destroy their valid login session.
+            if (role !== requiredRole) {
+                if (isApiRequest(req)) {
+                    return res.status(403).json({
+                        success: false,
+                        message: `This endpoint requires the ${requiredRole} role.`
+                    });
+                }
+
+                return res.status(403).send('Forbidden');
+            }
+
             return next();
-        } catch (err) {
-            console.error(err);
-            res.clearCookie('userRole');
-            res.clearCookie('userId');
+        } catch (error) {
+            console.error('Role authorization error:', error);
+
+            if (isApiRequest(req)) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Unable to authorize request.'
+                });
+            }
+
             return res.redirect('/');
         }
     };

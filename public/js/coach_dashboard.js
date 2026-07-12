@@ -1,3 +1,34 @@
+async function fetchJson(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            Accept: 'application/json',
+            ...(options.headers || {})
+        }
+    });
+
+    const contentType = response.headers.get('content-type') || '';
+
+    if (!contentType.includes('application/json')) {
+        const responseText = await response.text();
+
+        throw new Error(
+            `${url} returned ${response.status} instead of JSON. ` +
+            `Response: ${responseText.substring(0, 100)}`
+        );
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || `${url} failed with status ${response.status}`
+        );
+    }
+
+    return data;
+}
+
 // --- COMMUNITY DRAGON HELPER ---
 const RANK_ICON_BASE_URL = "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/";
 
@@ -44,10 +75,7 @@ async function promptRiotApiKeyOnFirstLoginToday() {
     // Prompt whenever no Riot API key is configured.
     // This avoids stale client-side suppression after DB resets/uploads.
     try {
-        const res = await fetch('/settings/api/riot-api-key');
-        if (!res.ok) return;
-
-        const data = await res.json();
+        const data = await fetchJson('/settings/api/riot-api-key');
 
         if (data.hasKey) {
             return;
@@ -256,47 +284,135 @@ function resetCarouselInterval() {
 }
 
 // --- 4. UPCOMING TOURNAMENT DRAFT LOGIC ---
+function formatTournamentDate(dateValue) {
+    if (!dateValue) return 'Date unavailable';
+
+    const dateParts = String(dateValue)
+        .slice(0, 10)
+        .split('-')
+        .map(Number);
+
+    const [year, month, day] = dateParts;
+
+    if (!year || !month || !day) {
+        return 'Date unavailable';
+    }
+
+    return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+// --- UPCOMING TOURNAMENT DRAFT LOGIC ---
 async function loadDraft() {
     const container = document.getElementById('draft-list-container');
-    try {
-        const res = await fetch('/coach_dashboard/api/draft');
-        const data = await res.json();
+    if (!container) return;
 
-        if (data.success && data.draft.length > 0) {
-            let html = `
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid #333; color: #fff;">
-                            <th style="padding: 10px;">Player IGN</th>
-                            <th style="padding: 10px;">Real Name</th>
-                            <th style="padding: 10px; text-align: right;">Role Played</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    try {
+        const response = await fetch('/coach_dashboard/api/draft', {
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(
+                data.message || 'Unable to load tournament draft.'
+            );
+        }
+
+        if (!data.tournament) {
+            container.innerHTML = `
+                <p class="draft-message">
+                    No upcoming tournament scheduled.
+                </p>
+            `;
+            return;
+        }
+
+        const tournamentName =
+            data.tournament.tournamentName || 'Upcoming Tournament';
+
+        const tournamentDate =
+            formatTournamentDate(data.tournament.tournamentDate);
+
+        let html = `
+            <div class="draft-tournament-info">
+                <div class="draft-tournament-name">
+                    ${tournamentName}
+                </div>
+
+                <div class="draft-tournament-date">
+                    Tournament Date: ${tournamentDate}
+                </div>
+            </div>
+        `;
+
+        if (!Array.isArray(data.draft) || data.draft.length === 0) {
+            html += `
+                <p class="draft-message">
+                    No players have been assigned to this tournament yet.
+                </p>
             `;
 
-            data.draft.forEach(p => {
-                html += `
-                    <tr style="border-bottom: 1px solid #333; cursor: pointer; transition: background-color 0.2s;" 
-                        onmouseover="this.style.backgroundColor='#181818'" 
-                        onmouseout="this.style.backgroundColor='transparent'"
-                        onclick="window.location.href='/player_analysis?id=${p.userId}'">
-                        
-                        <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${p.gameName}</td>
-                        <td style="padding: 12px 10px; color: #fff;">${p.firstname} ${p.lastname}</td>
-                        <td style="padding: 12px 10px; text-align: right; font-weight: 500;">${p.displayedRole}</td>
-                    </tr>
-                `;
-            });
-
-            html += `</tbody></table>`;
             container.innerHTML = html;
-        } else {
-            container.innerHTML = "<p style='color: #fff;'>No draft roster available.</p>";
+            return;
         }
+
+        html += `
+            <table class="draft-table">
+                <thead>
+                    <tr>
+                        <th>Player IGN</th>
+                        <th>Real Name</th>
+                        <th>Role Played</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+        `;
+
+        data.draft.forEach(player => {
+            html += `
+                <tr class="draft-player-row">
+                    <td class="draft-player-ign">
+                        ${player.gameName || 'N/A'}
+                    </td>
+
+                    <td>
+                        ${player.firstname || ''} ${player.lastname || ''}
+                    </td>
+
+                    <td>
+                        ${player.displayedRole || 'N/A'}
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        `;
+
+        container.innerHTML = html;
     } catch (error) {
-        console.error("Failed to load draft", error);
-        container.innerHTML = "<p style='color:red;'>Error loading draft.</p>";
+        console.error(
+            'Failed to load upcoming tournament draft:',
+            error
+        );
+
+        container.innerHTML = `
+            <p class="draft-error-message">
+                Error loading upcoming tournament draft.
+            </p>
+        `;
     }
 }
 
@@ -304,8 +420,7 @@ async function loadDraft() {
 async function loadScrims() {
     const container = document.getElementById('scrim-list-container');
     try {
-        const res = await fetch('/coach_dashboard/api/scrims');
-        const data = await res.json();
+        const data = await fetchJson('/coach_dashboard/api/scrims');
 
         if (data.success && data.scrims.length > 0) {
             let html = `
@@ -435,13 +550,11 @@ async function loadCalendar() {
     let dashboardEvents = [];
 
     try {
-        const response = await fetch('/calendar/api/events');
+        const data = await fetchJson('/calendar/api/events');
 
         if (!response.ok) {
             throw new Error(`Calendar request failed: ${response.status}`);
         }
-
-        const data = await response.json();
 
         if (data.success && Array.isArray(data.events)) {
             /*
@@ -630,3 +743,27 @@ async function loadCalendar() {
 
     renderGrid(currentMonth, currentYear);
 }
+
+/*
+ * Refresh when the user returns from Roster Management
+ * or switches back to the dashboard tab.
+ */
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        loadDraft();
+    }
+});
+
+window.addEventListener('focus', () => {
+    loadDraft();
+});
+
+/*
+ * Also check periodically in case another user or device
+ * changes the tournament roster.
+ */
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        loadDraft();
+    }
+}, 30000);
