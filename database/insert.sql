@@ -131,7 +131,8 @@ VALUES
 (30, 'rinku_ai@gmail.com', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'RinkuAI#1234', 'Active'),
 (31, 'mors@gmail.com', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'MORS#1234', 'Active'),
 (32, 'jade@gmail.com', 'teamForge123!!', 'jade', 'hook', 'Player', 'jade#1234', 'Active'),
-(33, 'carebears@gmail.com', 'teamForge123!!', 'Ashura', 'Goat', 'Player', 'caredto#4102', 'Active');
+(33, 'carebears@gmail.com', 'teamForge123!!', 'Ashura', 'Goat', 'Player', 'caredto#4102', 'Active'),
+(34, 'magsin_keso@gmail.com', 'teamForge123!!', 'Magsin', 'Keso', 'Player', 'Magsin#Keso', 'Active');
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId, puuid)
 VALUES 
@@ -248,7 +249,8 @@ VALUES
 (32, 'na hook si jade', 'poopp', 'Platinum III', 'Platinum III', 1, 5, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL),
 
 -- caredto#kedto (ID adjusted to 33 to avoid conflict)
-(33, 'caredto', 'kedto', 'Master I', 'Challenger', 2, 1, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL);
+(33, 'caredto', 'kedto', 'Master I', 'Challenger', 2, 1, NULL, 'N/A', '0.0', '0.0', 'N/A', 'F', 1, NULL),
+(34, 'Magsin', 'Keso', 'Diamond IV', 'Master I', 1, 2, '12299999', 'BSCS', '3.0', '3.0', '3rd Year', 'F', 1, NULL);
 
 -- -----------------------------------------------------
 -- APPLICATION PERIODS (2 weeks each)
@@ -600,6 +602,75 @@ VALUES (59, 'UST Teletigers vs. Gen.G', 'Scrim', 'Online', '2026-07-07', '2026-0
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
 VALUES (60, 'UST Teletigers vs. T1', 'Scrim', 'Online', '2026-07-13', '2026-07-13', 'N/A', 'evaluated', 2, '2026-07-13 18:00:00', '2026-07-13 20:30:00');
 
+-- In-house August scrims with Magsin as Team 1 top laner and Hoshiyo as Team 2 top laner
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES (61, 'UST Teletigers In-house August 5', 'Scrim', 'Online', '2026-08-05', '2026-08-05', 'N/A', 'evaluated', 2, '2026-08-05 18:00:00', '2026-08-05 20:30:00');
+
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES (62, 'UST Teletigers In-house August 12', 'Scrim', 'Online', '2026-08-12', '2026-08-12', 'N/A', 'evaluated', 2, '2026-08-12 18:00:00', '2026-08-12 20:30:00');
+
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES (63, 'UST Teletigers In-house August 19', 'Scrim', 'Online', '2026-08-19', '2026-08-19', 'N/A', 'evaluated', 2, '2026-08-19 18:00:00', '2026-08-19 20:30:00');
+
+INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
+VALUES (64, 'UST Teletigers In-house August 26', 'Scrim', 'Online', '2026-08-26', '2026-08-26', 'N/A', 'evaluated', 2, '2026-08-26 18:00:00', '2026-08-26 20:30:00');
+
+-- Attendees for Event 61
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES
+(61, 34, 1, 'Present', 'N', 'Team 1'), -- Magsin (Top)
+(61, 29, 2, 'Present', 'N', 'Team 1'), -- Asterux (Jungle)
+(61, 28, 3, 'Present', 'N', 'Team 1'), -- Panix (Mid)
+(61, 31, 4, 'Present', 'N', 'Team 1'), -- MORS (ADC)
+(61, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
+(61, 13, 1, 'Present', 'N', 'Team 2'), -- Hoshiyo (Top)
+(61, 32, 2, 'Present', 'N', 'Team 2'), -- na hook si jade (Jungle)
+(61, 15, 3, 'Present', 'N', 'Team 2'), -- Stellar (Mid)
+(61, 5, 4, 'Present', 'N', 'Team 2'), -- Kalachuchi (ADC)
+(61, 6, 5, 'Present', 'N', 'Team 2'); -- VA Crowned (Support)
+
+-- Attendees for Event 62
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES
+(62, 34, 1, 'Absent', 'Y', 'Team 1'), -- Magsin absent
+(62, 29, 2, 'Present', 'N', 'Team 1'), -- Asterux (Jungle)
+(62, 28, 3, 'Present', 'N', 'Team 1'), -- Panix (Mid)
+(62, 31, 4, 'Present', 'N', 'Team 1'), -- MORS (ADC)
+(62, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
+(62, 13, 1, 'Present', 'N', 'Team 2'), -- Hoshiyo (Top)
+(62, 32, 2, 'Present', 'N', 'Team 2'), -- na hook si jade (Jungle)
+(62, 15, 3, 'Present', 'N', 'Team 2'), -- Stellar (Mid)
+(62, 5, 4, 'Present', 'N', 'Team 2'), -- Kalachuchi (ADC)
+(62, 6, 5, 'Present', 'N', 'Team 2'); -- VA Crowned (Support)
+
+-- Attendees for Event 63
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES
+(63, 34, 1, 'Absent', 'Y', 'Team 1'), -- Magsin absent
+(63, 29, 2, 'Present', 'N', 'Team 1'), -- Asterux (Jungle)
+(63, 28, 3, 'Present', 'N', 'Team 1'), -- Panix (Mid)
+(63, 31, 4, 'Present', 'N', 'Team 1'), -- MORS (ADC)
+(63, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
+(63, 13, 1, 'Absent', 'Y', 'Team 2'), -- Hoshiyo absent
+(63, 32, 2, 'Present', 'N', 'Team 2'), -- na hook si jade (Jungle)
+(63, 15, 3, 'Present', 'N', 'Team 2'), -- Stellar (Mid)
+(63, 5, 4, 'Present', 'N', 'Team 2'), -- Kalachuchi (ADC)
+(63, 6, 5, 'Present', 'N', 'Team 2'); -- VA Crowned (Support)
+
+-- Attendees for Event 64
+INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
+VALUES
+(64, 34, 1, 'Absent', 'Y', 'Team 1'), -- Magsin absent
+(64, 29, 2, 'Present', 'N', 'Team 1'), -- Asterux (Jungle)
+(64, 28, 3, 'Present', 'N', 'Team 1'), -- Panix (Mid)
+(64, 31, 4, 'Present', 'N', 'Team 1'), -- MORS (ADC)
+(64, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
+(64, 13, 1, 'Present', 'N', 'Team 2'), -- Hoshiyo (Top)
+(64, 32, 2, 'Present', 'N', 'Team 2'), -- na hook si jade (Jungle)
+(64, 15, 3, 'Present', 'N', 'Team 2'), -- Stellar (Mid)
+(64, 5, 4, 'Present', 'N', 'Team 2'), -- Kalachuchi (ADC)
+(64, 6, 5, 'Present', 'N', 'Team 2'); -- VA Crowned (Support)
+
 -- Scrim 1 (eventId = 18) – 5star bad
 INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
 VALUES
@@ -750,6 +821,12 @@ INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, rat
 VALUES
 (59, 33, 'Pathing was unpredictable for the enemy, very efficient', 5, 4, 4, 2),
 (59, 32, 'Handled the 1v2 dive pressure well', 4, 4, 3, 2);
+
+-- Evaluation for Event 61 (Magsin and Hoshiyo)
+INSERT INTO player_evaluations (eventId, playerId, comment, ratingGameSense, ratingCommunication, ratingChampionPool, coachId)
+VALUES
+(61, 34, 'Showed promise on lane assignment but lacked consistency after long breaks', 3, 3, 2, 2),
+(61, 13, 'Played strong top with good map awareness in this scrim', 4, 4, 3, 2);
 
 -- -----------------------------------------------------
 -- EVENTS: TOURNAMENTS (follows UST Calendar na)
