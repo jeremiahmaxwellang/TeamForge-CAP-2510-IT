@@ -1123,10 +1123,10 @@ class_schedule (userId, weekday_offset, title_summary, location, start_time, end
     ROW(17, 5, 'Class: Elective 4 (9:00-10:30 AM)', 'Room IS-401', '09:00:00', '10:30:00'),
 
     -- userId 26: Flying Dutchman (BSIT) - no Tuesday classes; Data Communications moved Tue -> Mon
-    ROW(26, 0, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301', '09:00:00', '10:30:00'),
-    ROW(26, 2, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302', '13:00:00', '14:30:00'),
-    ROW(26, 3, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301', '10:00:00', '11:30:00'),
-    ROW(26, 4, 'Class: IT Elective 1 (9:00-10:30 AM)', 'Room IT-303', '09:00:00', '10:30:00'),
+    ROW(26, 0, 'Class: Data Communications (1:00-2:30 PM)', 'Room IT-301', '13:00:00', '14:30:00'),
+    ROW(26, 3, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302', '13:00:00', '14:30:00'),
+    ROW(26, 2, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301', '10:00:00', '11:30:00'),
+    ROW(26, 5, 'Class: IT Elective 1 (9:00-10:30 AM)', 'Room IT-303', '09:00:00', '10:30:00'),
 
     -- userId 32: Jade - added Tuesday class (placeholder course/room/time, swap in real details)
     ROW(32, 1, 'Class: Object-Oriented Programming (9:00-10:30 AM)', 'Room IT-105', '09:00:00', '10:30:00'),
