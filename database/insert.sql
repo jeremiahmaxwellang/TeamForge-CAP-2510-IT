@@ -174,7 +174,7 @@ VALUES
     2,
     NULL
 ),
-(9,'lancr','1226','Emerald I','Diamond II',2,4,'12367890','BSIT','2.1','1.9','2nd Year','F',1, NULL),
+(9,'lancr','1226','Emerald I','Diamond II',2,4,'12367890','BSIT','2.1','1.9','4th Year','F',1, NULL),
 -- Hoshiyo
 (13,'Hoshiyo','2121','Challenger','Challenger',1,2,'12600013','BSND','3.0','3.2','4th Year','F',1,NULL),
 (14,'The Blueprint','000','Challenger','Challenger',2,1,'12600014','BS-ST','2.1','1.9','2nd Year','F',1,NULL),
@@ -207,7 +207,7 @@ VALUES
     'BSCS-ST',
     '3.0',
     '3.2',
-    '2nd Year',
+    '4th Year',
     'F',
     1,
     NULL
@@ -231,7 +231,7 @@ VALUES
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId, puuid)
 VALUES 
 -- Flying Dutchman#GUARD
-(26, 'Flying Dutchman', 'GUARD', 'Diamond I', 'Master', 1, 4, '12345678', 'BSIT', '3.2', '4.0', '3rd Year', 'F', 1, NULL),
+(26, 'Flying Dutchman', 'GUARD', 'Diamond I', 'Master', 1, 4, '12345678', 'BSIT', '3.2', '4.0', '4th Year', 'F', 1, NULL),
 
 -- Easy Eddie#1111
 (27, 'Easy Eddie', '1111', 'Diamond I', 'Grandmaster', 2, 1, '12345678', 'BSIT', '3.2', '4.0', '3rd Year', 'F', 1, NULL),
@@ -347,6 +347,19 @@ INSERT INTO applications (periodId, userId, primaryRoleId, status) VALUES
 (2, 23, 4, 'Rejected'), -- Venzyx ADC
 (2, 24, 5, 'Rejected'); -- MrBedroom Support
 
+-- -----------------------------------------------------
+-- APPLICATION PERIOD 3 EVALUATIONS (Bad)
+-- -----------------------------------------------------
+
+INSERT INTO applicantevaluations (userId, coachId, comment, ratingGameSense, ratingCommunication, ratingChampionPool)
+VALUES
+(18, 2, 'Top/Mid trial: made several unforced trades and misread wave states, leading to early deaths. Comms were sparse and reactive rather than proactive, though he does have a wide champion pool to work with.', 2, 1, 4),
+(19, 2, 'Jungle/Support trial: pathing was predictable and got counter-jungled repeatedly. Support reps showed hesitant ward placement, but callouts once fights started were clear.', 1, 5, 2),
+(20, 2, 'Jungle/Jungle trial: struggled to track enemy jungler and gave up multiple objectives uncontested. Champion pool felt one-dimensional, defaulted to the same pick both games.', 2, 2, 1),
+(21, 2, 'Mid/Mid trial: fell behind in lane both games and didn''t adjust playstyle after falling behind. Very little callouts on enemy jungle pressure, but showed a decent variety of picks across both games.', 1, 1, 3),
+(22, 2, 'Mid/Top trial: mechanically shaky in lane, missed several key ability combos. Communication was minimal, mostly silent during skirmishes, though game sense around objectives was passable.', 3, 1, 2),
+(23, 2, 'ADC/Support trial: positioning in teamfights was consistently too aggressive, died early in most engagements. Support pairing lacked coordination, though the champion pool covered most matchups.', 2, 4, 4),
+(24, 2, 'Support/Support trial: one-trick on Teemo severely limited draft flexibility, opponents banned it out with ease in game 2. Game sense on wards and rotations was otherwise solid.', 4, 3, 1);
 
 -- -----------------------------------------------------
 -- METRICS
@@ -836,10 +849,10 @@ VALUES
 -- TERM 1 (2025-08-04 to 2025-12-18)
 INSERT INTO events (eventId, title_summary, type, location, start_date, end_date, win, status, creator_id, start_datetime, end_datetime)
 VALUES
-(28, 'Alliance Games (AllG) Season 5 - Group Stage', 'Tournament', 'Online', '2025-08-04', '2025-08-05', 'W', 'completed', 2, '2025-08-04 09:00:00', '2025-08-04 16:30:00'),
+(28, 'Alliance Games (AllG) Season 5 - Group Stage', 'Tournament', 'Online', '2025-08-04', '2025-08-05', 'L', 'completed', 2, '2025-08-04 09:00:00', '2025-08-04 16:30:00'),
 (29, 'Estudyante Esports National Championships Season 3 - Group Stage', 'Tournament', 'Online', '2025-08-25', '2025-08-26', 'L', 'completed', 2, '2025-08-25 09:00:00', '2025-08-25 16:30:00'),
 (30, 'CCE (Collegiate Center for Esports) Season 4 - LAN Finals', 'Tournament', 'Campus Arena', '2025-09-15', '2025-09-16', 'N/A', 'completed', 2, '2025-09-16 09:00:00', '2025-09-16 16:30:00'),
-(31, 'Philippine Collegiate Championship (PCC) Season 3 - Regional League', 'Tournament', 'Online', '2025-10-06', '2025-10-07', 'W', 'completed', 2, '2025-10-07 09:00:00', '2025-10-07 16:30:00'),
+(31, 'Philippine Collegiate Championship (PCC) Season 3 - Regional League', 'Tournament', 'Online', '2025-10-06', '2025-10-07', 'L', 'completed', 2, '2025-10-07 09:00:00', '2025-10-07 16:30:00'),
 (32, 'Alliance Games (AllG) Season 5 - Grand Finals', 'Tournament', 'Online', '2025-10-27', '2025-10-28', 'L', 'completed', 2, '2025-10-27 09:00:00', '2025-10-27 16:30:00'),
 (33, 'CCE Immersion Cup Season 2', 'Tournament', 'Online', '2025-08-11', '2025-08-12', 'W', 'completed', 2, '2025-08-11 09:00:00', '2025-08-11 16:30:00'),
 (34, 'Estudyante Esports National Championships Season 3 - Playoffs', 'Tournament', 'Online', '2025-09-01', '2025-09-02', 'W', 'completed', 2, '2025-09-01 09:00:00', '2025-09-01 16:30:00'),
