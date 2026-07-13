@@ -18,14 +18,17 @@ exports.getAvailability = async (req, res) => {
         const { date, start, end } = req.query;
 
         // Fetch active players (Fixed case-sensitivity for Railway)
+        // Ordered by primaryRoleId so the list is always Top, Jungle, Mid, ADC, Support —
+        // regardless of what text is stored in leagueroles.displayedRole.
         const [players] = await db.query(`
-            SELECT u.userId, u.firstname, u.lastname, p.gameName, 
+            SELECT u.userId, u.firstname, u.lastname, p.gameName, p.tagLine, p.primaryRoleId,
                    r1.displayedRole as primaryRole, r2.displayedRole as secondaryRole
             FROM users u
             JOIN players p ON u.userId = p.userId
             LEFT JOIN leagueroles r1 ON p.primaryRoleId = r1.roleId
             LEFT JOIN leagueroles r2 ON p.secondaryRoleId = r2.roleId
             WHERE u.position IN ('Player', 'Sub') AND u.status = 'Active'
+            ORDER BY p.primaryRoleId ASC
         `);
 
         if (!date || !start || !end) {
