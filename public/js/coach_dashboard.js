@@ -533,8 +533,10 @@ async function loadCalendar() {
 
     container.innerHTML = `
         <div class="calendar-controls">
+            <button id="cal-prev-month" class="cal-nav-btn" aria-label="Previous month">&#9664;</button>
             <select id="cal-month" aria-label="Calendar month"></select>
             <select id="cal-year" aria-label="Calendar year"></select>
+            <button id="cal-next-month" class="cal-nav-btn" aria-label="Next month">&#9654;</button>
         </div>
 
         <div id="cal-grid" class="calendar-grid"></div>
@@ -709,6 +711,28 @@ async function loadCalendar() {
             calGrid.appendChild(cell);
         }
     }
+
+    prevBtn.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11; // Wrap around to December
+            currentYear--;
+            yearSelect.value = currentYear;
+        }
+        monthSelect.value = currentMonth;
+        renderGrid(currentMonth, currentYear);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0; // Wrap around to January
+            currentYear++;
+            yearSelect.value = currentYear;
+        }
+        monthSelect.value = currentMonth;
+        renderGrid(currentMonth, currentYear);
+    });
 
     monthSelect.addEventListener('change', event => {
         currentMonth = Number.parseInt(event.target.value, 10);

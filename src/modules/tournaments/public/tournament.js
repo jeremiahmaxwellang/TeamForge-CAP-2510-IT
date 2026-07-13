@@ -624,6 +624,12 @@
 			head.className = 'tournament-card-head';
 
 			const isSelectedTournament = state.selectedTournamentId === tournament.tournamentId;
+			const dateObj = new Date(tournament.tournamentDate);
+			const monthStr = dateObj.toLocaleString('en-US', { month: 'short' });
+			const dayStr = String(dateObj.getDate()).padStart(2, '0');
+			const yearStr = dateObj.getFullYear();
+			const formattedDate = `${monthStr}-${dayStr}-${yearStr}`;
+
 			head.innerHTML = `
 				<div class="card-head-left">
 					<input
@@ -634,6 +640,7 @@
 					/>
 					<h3>${tournament.name}</h3>
 					<span class="tournament-type">${tournament.type || 'Tournament'}</span>
+					<span class="tournament-date" style="font-size: 0.8rem; color: var(--muted);">${formattedDate}</span>
 				</div>
 				<button type="button" class="details-toggle-btn">
 					<span class="toggle-indicator">Show details</span>

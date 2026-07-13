@@ -229,7 +229,16 @@ const createTournament = async (req, res) => {
 
 		await connection.beginTransaction();
 
-		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
+		let eventResult = normalizedResult;
+		if (normalizedType === 'Scrim') {
+			if (normalizedResult === 'Team 1 Win') {
+				eventResult = 'W';
+			} else if (normalizedResult === 'Team 2 Win') {
+				eventResult = 'L';
+			} else {
+				eventResult = 'N/A';
+			}
+		}
 
 		const [insertTournamentResult] = await connection.query(
 			`INSERT INTO events (title_summary, type, start_date, end_date, win, creator_id) VALUES (?, ?, ?, ?, ?, ?)`,
@@ -416,7 +425,16 @@ const updateTournament = async (req, res) => {
 			});
 		}
 
-		const eventResult = normalizedType === 'Scrim' ? 'N/A' : normalizedResult;
+		let eventResult = normalizedResult;
+		if (normalizedType === 'Scrim') {
+			if (normalizedResult === 'Team 1 Win') {
+				eventResult = 'W';
+			} else if (normalizedResult === 'Team 2 Win') {
+				eventResult = 'L';
+			} else {
+				eventResult = 'N/A';
+			}
+		}
 
 		await connection.query(
 			`

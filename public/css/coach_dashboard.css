@@ -649,3 +649,29 @@
 .draft-player-row:hover td {
     color: #000;
 }
+
+/* --- CALENDAR NAVIGATION BUTTONS --- */
+.cal-nav-btn {
+    background-color: #111;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+
+.cal-nav-btn:hover {
+    background-color: #333;
+    color: #00f2c3; /* Matches your accent colors */
+    transform: scale(1.05);
+}
+
+.cal-nav-btn:active {
+    transform: scale(0.95);
+}
