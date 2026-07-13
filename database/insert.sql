@@ -77,7 +77,7 @@ VALUES
     'Active'
 ),
 -- Hoshiyo
-(13,'hailrain.developer@gmail.com','teamForge123!!','Haru','Yoshida','Player','Hailrain#12','Active'),
+(13,'hailrain.developer@gmail.com','teamForge123!!','Hoshiyo','Yoshida','Player','Hailrain#12','Active'),
 (
     14,
     'theblueprint000@gmail.com',
@@ -870,9 +870,9 @@ VALUES
 (39, 'Estudyante Esports National Championships Season 4 - Group Stage', 'Tournament', 'Online', '2026-08-17', '2026-08-18', 'N/A', 'Upcoming', 2, '2026-08-17 09:00:00', '2026-08-17 16:30:00'),
 (40, 'CCE (Collegiate Center for Esports) Season 5 - LAN Finals', 'Tournament', 'Online', '2026-08-24', '2026-08-25', 'N/A', 'Upcoming', 2, '2026-08-24 09:00:00', '2026-08-24 16:30:00'),
 (41, 'Philippine Collegiate Championship (PCC) Season 4 - Grand Finals', 'Tournament', 'Online', '2026-09-07', '2026-09-08', 'N/A', 'Upcoming', 2, '2026-09-07 09:00:00', '2026-09-07 16:30:00'),
-(42, 'Alliance Games (AllG) Season 6 - Grand Finals', 'Tournament', 'Online', '2026-09-21', '2026-09-22', 'N/A', 'Upcoming', 2, '2026-09-21 09:00:00', '2026-09-21 16:30:00'),
+(42, 'Estudyante Esports National Championships Season 4 - Playoffs 1', 'Tournament', 'Online', '2026-09-21', '2026-09-22', 'N/A', 'Upcoming', 2, '2026-09-21 09:00:00', '2026-09-21 16:30:00'),
 (43, 'CCE Immersion Cup Season 3 - Finals', 'Tournament', 'Online', '2026-10-05', '2026-10-06', 'N/A', 'Upcoming', 2, '2026-10-05 09:00:00', '2026-10-05 16:30:00'),
-(44, 'Estudyante Esports National Championships Season 4 - Playoffs', 'Tournament', 'Online', '2026-10-12', '2026-10-13', 'N/A', 'Upcoming', 2, '2026-10-12 09:00:00', '2026-10-12 16:30:00'),
+(44, 'Estudyante Esports National Championships Season 4 - Playoffs 2', 'Tournament', 'Online', '2026-10-12', '2026-10-13', 'N/A', 'Upcoming', 2, '2026-10-12 09:00:00', '2026-10-12 16:30:00'),
 (45, 'Philippine Collegiate Championship (PCC) Season 4 - National League', 'Tournament', 'Online', '2026-10-19', '2026-10-20', 'N/A', 'Upcoming', 2, '2026-10-19 09:00:00', '2026-10-19 16:30:00'),
 (46, 'Friendship Games (CHED-CCE) Season 2 - Finals', 'Tournament', 'Online', '2026-10-26', '2026-10-27', 'N/A', 'Upcoming', 2, '2026-10-26 09:00:00', '2026-10-26 16:30:00'),
 (47, 'MPS SEA Campus Invitational Season 2 - Philippine Finals', 'Tournament', 'Online', '2026-10-09', '2026-10-09', 'N/A', 'Upcoming', 2, '2026-10-09 09:00:00', '2026-10-09 16:30:00');
