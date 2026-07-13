@@ -217,10 +217,14 @@ exports.getEvents = async (req, res) => {
                 u.lastname,
                 u.position AS creatorRole,
                 e.google_event_id,
-                p.gameName 
+                p.gameName,
+                p.tagLine,
+                p.primaryRoleId,
+                lr.displayedRole AS primaryRole
             FROM events e
             LEFT JOIN users u ON e.creator_id = u.userId
             LEFT JOIN players p ON e.creator_id = p.userId
+            LEFT JOIN leagueroles lr ON p.primaryRoleId = lr.roleId
         `);
         
         res.json({ success: true, events });

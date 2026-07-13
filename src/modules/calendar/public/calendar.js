@@ -78,7 +78,13 @@ function eventsForDate(ds) { return events.filter(e => e.date === ds && isEventV
 function timeToMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
 function formatTime12(t) { const [h, m] = t.split(':').map(Number); const ap = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${String(m).padStart(2, '0')}${ap}`; }
 function getEventColor(type) { return TYPE_COLORS[type] || TYPE_COLORS.Default; }
-function buildCreatorName(firstname, lastname, role) {
+function buildCreatorName(firstname, lastname, role, gameName, primaryRole) {
+  const isPlayer = role === 'Player' || role === 'Sub';
+
+  if (isPlayer && gameName) {
+    return primaryRole ? `${gameName} (${primaryRole})` : gameName;
+  }
+
   const fullName = [firstname, lastname].filter(Boolean).join(' ').trim();
   if (!fullName) return role || 'Unknown creator';
   return role ? `${fullName} (${role})` : fullName;
@@ -717,7 +723,7 @@ async function loadEvents() {
         location: e.location,
         videoLink: e.videoLink,
         win: e.win,
-        creatorName: buildCreatorName(e.firstname, e.lastname, e.creatorRole),
+        creatorName: buildCreatorName(e.firstname, e.lastname, e.creatorRole, e.gameName, e.primaryRole),
         google_event_id: e.google_event_id || null, // ad 
         color: getEventColor(e.type)
       }));
@@ -792,16 +798,8 @@ function renderPlayers(players) {
   document.getElementById('semiAvailablePlayers').innerHTML = '';
   document.getElementById('unavailablePlayers').innerHTML = '';
 
-  // Sort players by Primary Role
-  const ROLE_ORDER = ['Top', 'Jungle', 'Mid', 'AD Carry', 'Support'];
-
-  players.sort((a, b) => {
-    const aIdx = ROLE_ORDER.indexOf(a.primaryRole);
-    const bIdx = ROLE_ORDER.indexOf(b.primaryRole);
-    const aOrder = aIdx === -1 ? 99 : aIdx;
-    const bOrder = bIdx === -1 ? 99 : bIdx;
-    return aOrder - bOrder;
-  });
+  // Players already arrive ordered by primaryRoleId (Top, Jungle, Mid, ADC, Support)
+  // from the /api/availability query — no need to re-sort here.
 
   players.forEach(p => {
     const isUnavailable = p.availability === 'Unavailable';
@@ -815,14 +813,19 @@ function renderPlayers(players) {
       return;
     }
 
+    const riotName = p.gameName
+      ? (p.tagLine ? `${p.gameName}#${p.tagLine}` : p.gameName)
+      : (p.firstname || 'Unnamed Player');
+
     const card = document.createElement('div');
     card.className = `player-card ${isUnavailable ? 'unavailable' : ''}`;
     card.setAttribute('draggable', !isUnavailable);
     card.dataset.userId = p.userId;
+          
     card.innerHTML = `
-      <span>${p.gameName || p.firstname}</span>
-      <span style="color:#888;font-size:0.75rem;">${p.primaryRole || 'None'}/${p.secondaryRole || 'None'}</span>`;
+      <span>${riotName} <span style="color:#888;font-size:0.75rem;">(${p.primaryRole || 'No Role'}/${p.secondaryRole || ''})</span></span>`;
 
+      // <span>${riotName} <span style="color:#888;font-size:0.75rem;">(${p.primaryRole || 'No Role'})</span></span>`;
     if (!isUnavailable) {
       card.addEventListener('dragstart', handleDragStart);
       card.addEventListener('dragend', handleDragEnd);
