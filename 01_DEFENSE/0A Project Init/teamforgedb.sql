@@ -1,4 +1,4 @@
--- TeamForge Railway DB Version
+-- TeamForge Database Creation Script
 
 -- MySQL Workbench Forward Engineering
 

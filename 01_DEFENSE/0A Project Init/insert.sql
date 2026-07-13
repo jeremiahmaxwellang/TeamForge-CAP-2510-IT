@@ -37,7 +37,7 @@ VALUES
 INSERT INTO announcements
     (`userId`, `title`, `content`, `dateCreated`)
 VALUES
-    (2, 'Recruitment Period Coming Soon', 'The recruitment period will begin soon on July 12. Please stay posted for details.', NOW());
+    (2, 'Recruitment Period Coming Soon', 'The recruitment period will begin soon on July 13. Please stay posted for details.', NOW());
 
 -- Players
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
@@ -77,7 +77,7 @@ VALUES
     'Active'
 ),
 -- Hoshiyo
-(13,'hailrain.developer@gmail.com','teamForge123!!','Haru','Yoshida','Player','Hailrain#12','Active'),
+(13,'hailrain.developer@gmail.com','teamForge123!!','Hoshiyo','Yoshida','Player','Hailrain#12','Active'),
 (
     14,
     'theblueprint000@gmail.com',
@@ -124,15 +124,15 @@ VALUES
 -- -----------------------------------------------------
 INSERT INTO users(userId, email, passwordHash, firstname, lastname, position, discord, status) 
 VALUES 
-(26, 'dutchman@ust.edu.ph', 'teamForge123!!', 'Brian', 'Murray', 'Player', 'Flying Dutchman#GUARD', 'Active'),
-(27, 'easy_eddie@gmail.com', 'teamForge123!!', 'Easy', 'Eddie', 'Player', 'EasyEddie#1234', 'Active'),
-(28, 'panix@gmail.com', 'teamForge123!!', 'panix', 'burn', 'Player', 'panix#theburn', 'Active'),
-(29, 'asterx_mizu@gmail.com', 'teamForge123!!', 'Asterux', 'Mizu', 'Player', 'panix#theburn', 'Active'),
-(30, 'rinku_ai@gmail.com', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'RinkuAI#1234', 'Active'),
-(31, 'mors@gmail.com', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'MORS#1234', 'Active'),
-(32, 'jade@gmail.com', 'teamForge123!!', 'jade', 'hook', 'Player', 'jade#1234', 'Active'),
-(33, 'carebears@gmail.com', 'teamForge123!!', 'Ashura', 'Goat', 'Player', 'caredto#4102', 'Active'),
-(34, 'magsin_keso@gmail.com', 'teamForge123!!', 'Magsin', 'Keso', 'Player', 'Magsin#Keso', 'Active');
+(26, 'dutchman@ust.edu.ph', 'teamForge123!!', 'Dutch', 'Murray', 'Player', 'Flying Dutchman#GUARD', 'Active'),
+(27, 'easy_eddie@ust.edu.ph', 'teamForge123!!', 'Easy', 'Eddie', 'Player', 'EasyEddie#1234', 'Active'),
+(28, 'panix@ust.edu.ph', 'teamForge123!!', 'panix', 'burn', 'Player', 'panix#theburn', 'Active'),
+(29, 'asterx_mizu@ust.edu.ph', 'teamForge123!!', 'Asterux', 'Mizu', 'Player', 'panix#theburn', 'Active'),
+(30, 'rinku_ai@ust.edu.ph', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'RinkuAI#1234', 'Active'),
+(31, 'mors@ust.edu.ph', 'teamForge123!!', 'Rinku', 'AI', 'Player', 'MORS#1234', 'Active'),
+(32, 'jade@ust.edu.ph', 'teamForge123!!', 'Jade', 'Hook', 'Player', 'jade#1234', 'Active'),
+(33, 'carebears@ust.edu.ph', 'teamForge123!!', 'Ashura', 'Goat', 'Player', 'caredto#4102', 'Active'),
+(34, 'magsin_keso@ust.edu.ph', 'teamForge123!!', 'Magsin', 'Keso', 'Player', 'Magsin#Keso', 'Active');
 
 INSERT INTO players(userId, gameName, tagLine, currentRank, peakRank, primaryRoleId, secondaryRoleId, schoolId, course, lastGPA, CGPA, yearLevel, isSub, teamId, puuid)
 VALUES 
@@ -258,7 +258,7 @@ VALUES
 INSERT INTO application_periods (periodId, startDate, endDate) VALUES
 (1, '2025-07-10', '2025-07-20'),
 (2, '2026-01-10', '2026-01-26'),
-(3, '2026-07-10', '2026-08-10'); -- period 3
+(3, '2026-07-13', '2026-08-10'); -- period 3
 
 -- -----------------------------------------------------
 -- APPLICANTS (Bad)
@@ -619,7 +619,7 @@ VALUES (64, 'UST Teletigers In-house August 26', 'Scrim', 'Online', '2026-08-26'
 INSERT INTO event_attendees (eventId, userId, player_role, attendance_status, is_sub, team)
 VALUES
 (61, 34, 1, 'Present', 'N', 'Team 1'), -- Magsin (Top)
-(61, 29, 2, 'Present', 'N', 'Team 1'), -- Asterux (Jungle)
+(61, 29, 2, 'Absent', 'N', 'Team 1'), -- Asterux (Jungle)
 (61, 28, 3, 'Present', 'N', 'Team 1'), -- Panix (Mid)
 (61, 31, 4, 'Present', 'N', 'Team 1'), -- MORS (ADC)
 (61, 17, 5, 'Present', 'N', 'Team 1'), -- Maple (Support)
@@ -870,9 +870,9 @@ VALUES
 (39, 'Estudyante Esports National Championships Season 4 - Group Stage', 'Tournament', 'Online', '2026-08-17', '2026-08-18', 'N/A', 'Upcoming', 2, '2026-08-17 09:00:00', '2026-08-17 16:30:00'),
 (40, 'CCE (Collegiate Center for Esports) Season 5 - LAN Finals', 'Tournament', 'Online', '2026-08-24', '2026-08-25', 'N/A', 'Upcoming', 2, '2026-08-24 09:00:00', '2026-08-24 16:30:00'),
 (41, 'Philippine Collegiate Championship (PCC) Season 4 - Grand Finals', 'Tournament', 'Online', '2026-09-07', '2026-09-08', 'N/A', 'Upcoming', 2, '2026-09-07 09:00:00', '2026-09-07 16:30:00'),
-(42, 'Alliance Games (AllG) Season 6 - Grand Finals', 'Tournament', 'Online', '2026-09-21', '2026-09-22', 'N/A', 'Upcoming', 2, '2026-09-21 09:00:00', '2026-09-21 16:30:00'),
+(42, 'Estudyante Esports National Championships Season 4 - Playoffs 1', 'Tournament', 'Online', '2026-09-21', '2026-09-22', 'N/A', 'Upcoming', 2, '2026-09-21 09:00:00', '2026-09-21 16:30:00'),
 (43, 'CCE Immersion Cup Season 3 - Finals', 'Tournament', 'Online', '2026-10-05', '2026-10-06', 'N/A', 'Upcoming', 2, '2026-10-05 09:00:00', '2026-10-05 16:30:00'),
-(44, 'Estudyante Esports National Championships Season 4 - Playoffs', 'Tournament', 'Online', '2026-10-12', '2026-10-13', 'N/A', 'Upcoming', 2, '2026-10-12 09:00:00', '2026-10-12 16:30:00'),
+(44, 'Estudyante Esports National Championships Season 4 - Playoffs 2', 'Tournament', 'Online', '2026-10-12', '2026-10-13', 'N/A', 'Upcoming', 2, '2026-10-12 09:00:00', '2026-10-12 16:30:00'),
 (45, 'Philippine Collegiate Championship (PCC) Season 4 - National League', 'Tournament', 'Online', '2026-10-19', '2026-10-20', 'N/A', 'Upcoming', 2, '2026-10-19 09:00:00', '2026-10-19 16:30:00'),
 (46, 'Friendship Games (CHED-CCE) Season 2 - Finals', 'Tournament', 'Online', '2026-10-26', '2026-10-27', 'N/A', 'Upcoming', 2, '2026-10-26 09:00:00', '2026-10-26 16:30:00'),
 (47, 'MPS SEA Campus Invitational Season 2 - Philippine Finals', 'Tournament', 'Online', '2026-10-09', '2026-10-09', 'N/A', 'Upcoming', 2, '2026-10-09 09:00:00', '2026-10-09 16:30:00');
@@ -1109,11 +1109,17 @@ class_schedule (userId, weekday_offset, title_summary, location, start_time, end
     ROW(17, 4, 'Class: Capstone Project II (10:00-11:30 AM)', 'Room IS-401', '10:00:00', '11:30:00'),
     ROW(17, 5, 'Class: Elective 4 (9:00-10:30 AM)', 'Room IS-401', '09:00:00', '10:30:00'),
 
-    -- userId 26: Philippines (BSIT) - Top laner, NO Monday class
-    ROW(26, 1, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301', '09:00:00', '10:30:00'),
+    -- userId 26: Flying Dutchman (BSIT) - no Tuesday classes; Data Communications moved Tue -> Mon
+    ROW(26, 0, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301', '09:00:00', '10:30:00'),
     ROW(26, 2, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302', '13:00:00', '14:30:00'),
     ROW(26, 3, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301', '10:00:00', '11:30:00'),
     ROW(26, 4, 'Class: IT Elective 1 (9:00-10:30 AM)', 'Room IT-303', '09:00:00', '10:30:00'),
+
+    -- userId 32: Jade - added Tuesday class (placeholder course/room/time, swap in real details)
+    ROW(32, 1, 'Class: Object-Oriented Programming (9:00-10:30 AM)', 'Room IT-105', '09:00:00', '10:30:00'),
+    ROW(32, 2, 'Class: Systems Integration and Architecture (1:00-2:30 PM)', 'Room IT-302', '13:00:00', '14:30:00'),
+    ROW(32, 3, 'Class: Information Assurance and Security (10:00-11:30 AM)', 'Room IT-301', '10:00:00', '11:30:00'),
+    ROW(32, 4, 'Class: IT Elective 1 (9:00-10:30 AM)', 'Room IT-303', '09:00:00', '10:30:00'),
 
     -- userId 27: Easy Eddie (BSIT)
     ROW(27, 0, 'Class: Data Communications (9:00-10:30 AM)', 'Room IT-301', '09:00:00', '10:30:00'),
