@@ -831,9 +831,8 @@ function renderPlayers(players) {
       card.addEventListener('dragend', handleDragEnd);
     }
 
-    if (p.availability === 'Available') document.getElementById('availablePlayers').appendChild(card);
-    else if (p.availability === 'Semi') document.getElementById('semiAvailablePlayers').appendChild(card);
-    else document.getElementById('unavailablePlayers').appendChild(card);
+    if (p.availability === 'Available' || p.availability === 'Semi') document.getElementById('availablePlayers').appendChild(card);
+else document.getElementById('unavailablePlayers').appendChild(card);
   });
 }
 
