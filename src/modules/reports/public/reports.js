@@ -40,18 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const termBreakdownModal = document.getElementById('termBreakdownModal');
     const closeTermBreakdownBtn = document.getElementById('closeTermBreakdownBtn');
     const saveTermReportBtn = document.getElementById('saveTermReportBtn');
+    const termSummaryElements = Array.from(document.querySelectorAll('.term-report-card [id^="termSummary"]'));
+    const termResultDetailElements = Array.from(document.querySelectorAll('.term-report-card [id^="termResultDetails"]'));
+    const termChartCanvasIds = Array.from(document.querySelectorAll('.term-chart-wrap canvas')).map((canvas) => canvas.id);
     const termSelectElements = Array.from(document.querySelectorAll('.term-select'));
-    const termSummaryElements = [
-        document.getElementById('termSummary1'),
-        document.getElementById('termSummary2'),
-        document.getElementById('termSummary3')
-    ];
-    const termResultDetailElements = [
-        document.getElementById('termResultDetails1'),
-        document.getElementById('termResultDetails2'),
-        document.getElementById('termResultDetails3')
-    ];
-    const termChartCanvasIds = ['termPieChart1', 'termPieChart2', 'termPieChart3'];
 
 
     /* ============================================================
@@ -69,6 +61,57 @@ document.addEventListener('DOMContentLoaded', async () => {
         'Term 3': { start: '2026-01-01', end: '2026-04-30' }
     };
 
+    const getSelectedTournamentRange = () => {
+        const startValue = tournamentStartDateInput ? tournamentStartDateInput.value : '';
+        const endValue = tournamentEndDateInput ? tournamentEndDateInput.value : '';
+
+        if (!startValue && !endValue) {
+            return null;
+        }
+
+        const startDate = startValue ? normalizeDateOnly(`${startValue}T00:00:00`) : null;
+        const endDate = endValue ? normalizeDateOnly(`${endValue}T00:00:00`) : null;
+
+        if (startDate && endDate && startDate > endDate) {
+            return null;
+        }
+
+        return { startDate, endDate };
+    };
+
+    const getVisibleTermNames = () => {
+        const selectedRange = getSelectedTournamentRange();
+        const terms = Object.keys(termDateRanges || {});
+
+        if (!selectedRange) {
+            return terms;
+        }
+
+        const { startDate, endDate } = selectedRange;
+
+        return terms.filter((termName) => {
+            const termRange = termDateRanges[termName];
+            if (!termRange) return false;
+
+            const termStart = normalizeDateOnly(`${termRange.start}T00:00:00`);
+            const termEnd = normalizeDateOnly(`${termRange.end}T00:00:00`);
+            if (!termStart || !termEnd) return false;
+
+            if (startDate && termEnd < startDate) return false;
+            if (endDate && termStart > endDate) return false;
+            return true;
+        });
+    };
+
+    const syncTermReportCards = () => {
+        const visibleTerms = getVisibleTermNames();
+        const cards = Array.from(document.querySelectorAll('.term-report-card'));
+
+        cards.forEach((card, index) => {
+            card.style.display = index < visibleTerms.length ? '' : 'none';
+        });
+    };
+
     // Dynamically fetch term dates from the database
     const loadTermDates = async () => {
         try {
@@ -79,6 +122,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (err) {
             console.warn('[Reports] Could not load term dates from database:', err);
+        } finally {
+            syncTermReportCards();
         }
     };
 
@@ -89,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
        ============================================================ */
     let allTournamentRows = [];
     let tournamentResultChart = null;
-    let termCharts = [null, null, null];
+    let termCharts = new Array(termChartCanvasIds.length).fill(null);
 
 
     /* ============================================================
@@ -190,6 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
     const buildDomExportHeader = (subtitle) => {
         const header = document.createElement('div');
+        header.className = 'report-export-header';
         Object.assign(header.style, {
             display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
             gap: '12px', padding: '4px 0 16px'
@@ -230,6 +276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         header.append(logoImg, textWrapper, rightLogos);
 
         const footer = document.createElement('p');
+        footer.className = 'report-export-footer';
         footer.textContent = 'powered by TeamForge';
         Object.assign(footer.style, {
             margin: '18px 0 0', textAlign: 'center',
@@ -323,7 +370,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const endDate = normalizeDateOnly(`${termRange.end}T00:00:00`);
         if (!startDate || !endDate) return [];
 
-        return getRowsInDateRange(startDate, endDate);
+        const selectedRange = getSelectedTournamentRange();
+        const effectiveStart = selectedRange?.startDate || startDate;
+        const effectiveEnd = selectedRange?.endDate || endDate;
+
+        const overlapStart = startDate > effectiveStart ? startDate : effectiveStart;
+        const overlapEnd = endDate < effectiveEnd ? endDate : effectiveEnd;
+
+        if (overlapStart && overlapEnd && overlapStart > overlapEnd) {
+            return [];
+        }
+
+        return getRowsInDateRange(overlapStart, overlapEnd);
     };
 
 
@@ -433,6 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderTournamentLegend();
         renderTournamentChart(wins, losses);
         updateTournamentSummary(wins, losses, filteredRows.length, startValue, endValue);
+        renderAllTermCharts();
     };
 
 
@@ -479,8 +538,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const renderAllTermCharts = () => {
-        termSelectElements.forEach((selectEl, idx) => {
-            renderTermChart(idx, selectEl.value || 'Term 1');
+        syncTermReportCards();
+        const visibleTerms = getVisibleTermNames();
+
+        visibleTerms.forEach((termName, idx) => {
+            renderTermChart(idx, termName);
+        });
+
+        const cards = Array.from(document.querySelectorAll('.term-report-card'));
+        cards.forEach((card, idx) => {
+            if (idx >= visibleTerms.length) {
+                const summaryEl = termSummaryElements[idx];
+                const detailEl = termResultDetailElements[idx];
+                if (summaryEl) summaryEl.textContent = 'No matching tournament range.';
+                if (detailEl) detailEl.innerHTML = '<p class="tournament-empty-msg">No matching tournament range.</p>';
+            }
         });
     };
 
@@ -609,10 +681,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const originalMaxHeight = target.style.maxHeight;
         const originalOverflow = target.style.overflow;
         const originalScrollTop = target.scrollTop;
-        const termSelectDisplays = termSelectElements.map((el) => ({ element: el, display: el.style.display }));
+        const termSelectDisplays = Array.isArray(termSelectElements)
+            ? termSelectElements.map((el) => ({ element: el, display: el.style.display }))
+            : [];
 
         let exportHeader = null;
         let exportFooter = null;
+
+        const cleanupExportArtifacts = () => {
+            if (!target) return;
+            target.querySelectorAll('.report-export-header, .report-export-footer').forEach((el) => el.remove());
+        };
 
         saveTermReportBtn.disabled = true;
         saveTermReportBtn.textContent = 'Saving...';
@@ -622,6 +701,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             saveTermReportBtn.style.display = 'none';
             if (closeTermBreakdownBtn) closeTermBreakdownBtn.style.display = 'none';
             termSelectDisplays.forEach(({ element }) => { element.style.display = 'none'; });
+
+            cleanupExportArtifacts();
 
             const { header: exportHeader, footer: exportFooter, imageEls } = buildDomExportHeader('Team Tournament Breakdown Report');
 
@@ -689,8 +770,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Failed to save term report screenshot:', error);
             alert('Failed to save report. Please try again.');
         } finally {
-            if (exportHeader && exportHeader.parentNode) exportHeader.parentNode.removeChild(exportHeader);
-            if (exportFooter && exportFooter.parentNode) exportFooter.parentNode.removeChild(exportFooter);
+            cleanupExportArtifacts();
 
             saveTermReportBtn.style.display = originalSaveDisplay;
             if (closeTermBreakdownBtn) closeTermBreakdownBtn.style.display = originalCloseDisplay;
@@ -1256,12 +1336,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (event.target.matches('[data-close-term-modal]')) closeTermModal();
         });
     }
-
-    termSelectElements.forEach((selectEl, idx) => {
-        selectEl.addEventListener('change', () => {
-            renderTermChart(idx, selectEl.value || 'Term 1');
-        });
-    });
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && termBreakdownModal && termBreakdownModal.classList.contains('show')) {

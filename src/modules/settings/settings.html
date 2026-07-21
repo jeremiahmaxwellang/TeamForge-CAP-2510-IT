@@ -222,8 +222,22 @@
                 </div>
 
                 <div class="settings-card" id="academic-terms-section" style="display: none;">
-                    <table class="academic-terms-table">
+                    <div class="academic-terms-header">
                         <h3>Academic Terms</h3>
+                        <label class="academic-terms-cadence">
+                            <span>Cadence</span>
+                            <select id="academic-term-cadence-select">
+                                <option value="semestral">Semestral</option>
+                                <option value="trisem">Trisem</option>
+                                <option value="quarterly">Quarterly</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div style="text-align: right; margin-top: 12px;">
+                        <button class="btn-confirm" id="btn-save-academic-terms">Save Academic Terms</button>
+                    </div>
+                    <p id="academic-terms-status" class="status-text"></p>
+                    <table class="academic-terms-table">
                         <thead>
                             <tr>
                                 <th>Term</th>
@@ -232,7 +246,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr class="academic-term-row" id="term-1-row">
                                 <td>Term 1</td>
                                 <td>
                                     <input type="date" id="term-1-start" class="value-input">
@@ -241,7 +255,7 @@
                                     <input type="date" id="term-1-end" class="value-input">
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="academic-term-row" id="term-2-row">
                                 <td>Term 2</td>
                                 <td>
                                     <input type="date" id="term-2-start" class="value-input">
@@ -250,13 +264,22 @@
                                     <input type="date" id="term-2-end" class="value-input">
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="academic-term-row" id="term-3-row">
                                 <td>Term 3</td>
                                 <td>
                                     <input type="date" id="term-3-start" class="value-input">
                                 </td>
                                 <td>
                                     <input type="date" id="term-3-end" class="value-input">
+                                </td>
+                            </tr>
+                            <tr class="academic-term-row" id="term-4-row" style="display: none;">
+                                <td>Term 4</td>
+                                <td>
+                                    <input type="date" id="term-4-start" class="value-input">
+                                </td>
+                                <td>
+                                    <input type="date" id="term-4-end" class="value-input">
                                 </td>
                             </tr>
                         </tbody>

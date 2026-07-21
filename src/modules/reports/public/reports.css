@@ -603,7 +603,7 @@ tbody td {
 
 .term-modal-content {
   position: relative;
-  width: min(980px, calc(100% - 28px));
+  width: min(1180px, calc(100% - 28px));
   max-height: calc(100vh - 40px);
   margin: 20px auto;
   background: #2d3038;
@@ -646,7 +646,7 @@ tbody td {
 
 .term-reports-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
 }
 

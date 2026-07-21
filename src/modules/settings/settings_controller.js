@@ -394,6 +394,13 @@ exports.updateAcademicRequirements = async (req, res) => {
     }
 };
 
+function inferCadenceFromTerms(terms) {
+    if (!Array.isArray(terms)) return 'trisem';
+    if (terms.length <= 2) return 'semestral';
+    if (terms.length >= 4) return 'quarterly';
+    return 'trisem';
+}
+
 exports.getAcademicTerms = async (req, res) => {
     try {
         const user = await ensureManagerOrCoach(req, res);
@@ -403,7 +410,8 @@ exports.getAcademicTerms = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            terms
+            terms,
+            cadence: inferCadenceFromTerms(terms)
         });
     } catch (error) {
         console.error('Error fetching academic terms:', error);
@@ -421,6 +429,7 @@ exports.updateAcademicTerms = async (req, res) => {
         if (!user) return;
 
         const terms = req.body && req.body.terms;
+        const cadence = req.body && req.body.cadence;
 
         if (!Array.isArray(terms)) {
             return res.status(400).json({
@@ -429,12 +438,13 @@ exports.updateAcademicTerms = async (req, res) => {
             });
         }
 
-        const updatedTerms = await academicTermsService.updateAcademicTerms(terms, user.userId);
+        const updatedTerms = await academicTermsService.updateAcademicTerms(terms, cadence || inferCadenceFromTerms(terms));
 
         return res.status(200).json({
             success: true,
             message: 'Academic terms updated successfully.',
-            terms: updatedTerms
+            terms: updatedTerms,
+            cadence: cadence || inferCadenceFromTerms(updatedTerms)
         });
     } catch (error) {
         console.error('Error updating academic terms:', error);

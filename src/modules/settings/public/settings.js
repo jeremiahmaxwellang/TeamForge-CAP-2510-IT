@@ -7,12 +7,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Making the Academic Terms Dynamic ---
     const academicTermsSection = document.getElementById('academic-terms-section');
+    const academicTermCadenceSelect = document.getElementById('academic-term-cadence-select');
     const term1StartInput = document.getElementById('term-1-start');
     const term1EndInput = document.getElementById('term-1-end');
     const term2StartInput = document.getElementById('term-2-start');
     const term2EndInput = document.getElementById('term-2-end');
     const term3StartInput = document.getElementById('term-3-start');
     const term3EndInput = document.getElementById('term-3-end');
+    const term4StartInput = document.getElementById('term-4-start');
+    const term4EndInput = document.getElementById('term-4-end');
     const btnSaveAcademicTerms = document.getElementById('btn-save-academic-terms');
     const academicTermsStatus = document.getElementById('academic-terms-status');
 
@@ -244,12 +247,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- DYNAMIC ACADEMIC TERMS ---
-    function populateAcademicTerms(terms) {
+    function getAcademicTermCount(cadence) {
+        if (cadence === 'semestral') return 2;
+        if (cadence === 'quarterly') return 4;
+        return 3;
+    }
+
+    function updateAcademicTermRows(cadence) {
+        const termCount = getAcademicTermCount(cadence);
+        const rowIds = ['term-1-row', 'term-2-row', 'term-3-row', 'term-4-row'];
+
+        rowIds.forEach((rowId, index) => {
+            const rowEl = document.getElementById(rowId);
+            if (rowEl) {
+                rowEl.style.display = index < termCount ? '' : 'none';
+            }
+        });
+    }
+
+    function populateAcademicTerms(terms, cadence = 'trisem') {
         const termMap = {};
 
         (terms || []).forEach((term) => {
             termMap[term.termName] = term;
         });
+
+        if (academicTermCadenceSelect) {
+            academicTermCadenceSelect.value = cadence || 'trisem';
+        }
+
+        updateAcademicTermRows(academicTermCadenceSelect?.value || cadence);
 
         if (term1StartInput) term1StartInput.value = termMap['Term 1']?.startDate || '';
         if (term1EndInput) term1EndInput.value = termMap['Term 1']?.endDate || '';
@@ -259,6 +286,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (term3StartInput) term3StartInput.value = termMap['Term 3']?.startDate || '';
         if (term3EndInput) term3EndInput.value = termMap['Term 3']?.endDate || '';
+
+        if (term4StartInput) term4StartInput.value = termMap['Term 4']?.startDate || '';
+        if (term4EndInput) term4EndInput.value = termMap['Term 4']?.endDate || '';
     }
 
     async function loadAcademicTerms() {
@@ -275,7 +305,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            populateAcademicTerms(result.terms);
+            const cadence = result.cadence || (result.terms?.length <= 2 ? 'semestral' : result.terms?.length >= 4 ? 'quarterly' : 'trisem');
+            populateAcademicTerms(result.terms, cadence);
             setStatus(academicTermsStatus, 'Academic terms loaded.', true);
         } catch (error) {
             console.error('Failed to load academic terms:', error);
@@ -347,6 +378,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (error) {
         console.error("Network error fetching profile:", error);
+    }
+
+    if (academicTermCadenceSelect) {
+        academicTermCadenceSelect.addEventListener('change', () => {
+            updateAcademicTermRows(academicTermCadenceSelect.value);
+        });
+    }
+
+    if (btnSaveAcademicTerms) {
+        btnSaveAcademicTerms.addEventListener('click', async () => {
+            const cadence = academicTermCadenceSelect?.value || 'trisem';
+            const termCount = getAcademicTermCount(cadence);
+            const terms = [];
+
+            for (let index = 1; index <= termCount; index += 1) {
+                const startInput = document.getElementById(`term-${index}-start`);
+                const endInput = document.getElementById(`term-${index}-end`);
+
+                if (!startInput || !endInput) continue;
+                if (!startInput.value || !endInput.value) {
+                    setStatus(academicTermsStatus, `Please complete the dates for Term ${index}.`, false);
+                    return;
+                }
+
+                terms.push({
+                    termName: `Term ${index}`,
+                    startDate: startInput.value,
+                    endDate: endInput.value
+                });
+            }
+
+            btnSaveAcademicTerms.disabled = true;
+            btnSaveAcademicTerms.textContent = 'Saving...';
+            setStatus(academicTermsStatus, 'Saving academic terms...', true);
+
+            try {
+                const response = await fetch('/settings/api/academic-terms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cadence, terms })
+                });
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Failed to save academic terms.');
+                }
+
+                populateAcademicTerms(result.terms, result.cadence || cadence);
+                setStatus(academicTermsStatus, 'Academic terms updated successfully.', true);
+            } catch (error) {
+                console.error('Failed to save academic terms:', error);
+                setStatus(academicTermsStatus, error.message || 'Network error while saving academic terms.', false);
+            } finally {
+                btnSaveAcademicTerms.disabled = false;
+                btnSaveAcademicTerms.textContent = 'Save Academic Terms';
+            }
+        });
     }
 
     // --- CLICK TO EDIT LOGIC ---

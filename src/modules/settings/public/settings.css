@@ -1,4 +1,27 @@
 /* Inherit core dashboard styles */
+.academic-terms-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.academic-terms-cadence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.academic-terms-cadence select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    min-width: 140px;
+}
+
 .academic-terms-table {
     width: 100%;
     border-collapse: collapse;

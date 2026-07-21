@@ -6,6 +6,35 @@ const DEFAULT_TERMS = [
     { termName: 'Term 3', startDate: '2027-01-01', endDate: '2027-04-30' }
 ];
 
+const TERM_COUNTS = {
+    semestral: 2,
+    trisem: 3,
+    quarterly: 4
+};
+
+function normalizeCadence(value) {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'semestral') return 'semestral';
+    if (normalized === 'quarterly') return 'quarterly';
+    return 'trisem';
+}
+
+function inferCadenceFromTermCount(termCount) {
+    if (termCount === 2) return 'semestral';
+    if (termCount === 4) return 'quarterly';
+    return 'trisem';
+}
+
+function getExpectedTermCount(cadence, termCount) {
+    const normalizedCadence = normalizeCadence(cadence);
+
+    if (termCount && [2, 3, 4].includes(termCount)) {
+        return termCount;
+    }
+
+    return TERM_COUNTS[normalizedCadence] || 3;
+}
+
 let ensureTablePromise = null;
 
 async function ensureAcademicTermsTable() {
@@ -104,17 +133,20 @@ async function getAcademicTerms() {
             DATE_FORMAT(endDate, "%Y-%m-%d") AS endDate
         FROM academic_terms
         ORDER BY termId ASC
-        LIMIT 3
     `);
 
     return rows;
 }
 
-async function updateAcademicTerms(terms) {
+async function updateAcademicTerms(terms, cadence) {
     await ensureAcademicTermsTable();
 
-    if (!Array.isArray(terms) || terms.length !== 3) {
-        throw createValidationError('Exactly three academic terms are required.');
+    const incomingTermCount = Array.isArray(terms) ? terms.length : 0;
+    const expectedTermCount = getExpectedTermCount(cadence, incomingTermCount);
+    const resolvedCadence = normalizeCadence(cadence) || inferCadenceFromTermCount(incomingTermCount);
+
+    if (!Array.isArray(terms) || incomingTermCount !== expectedTermCount) {
+        throw createValidationError(`Exactly ${expectedTermCount} academic terms are required for ${resolvedCadence}.`);
     }
 
     const normalizedTerms = terms.map(normalizeTerm);
