@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/register/static/register.css">
 
     <!-- Register Page JavaScript -->
-     <script src="/register/static/register.js"></script>
+    <script src="/register/static/register.js"></script>
     <script src="/recruitment/static/recruitment.js"></script>
 
     <script>
@@ -26,7 +26,6 @@
                 currentPeriodInput.value = "";
             }
         });
-
     </script>
 </head>
 
@@ -42,7 +41,7 @@
         <input type="text" id="lastName" placeholder="Enter your last name" required>
 
         <label>Riot ID</label>
-        <input type="text" id="riotId" placeholder="Enter your Riot ID" required>
+        <input type="text" id="riotId" placeholder="Enter your Riot ID (e.g. Name#TAG)" required>
 
         <label>Discord</label>
         <input type="text" id="discord" placeholder="Enter your Discord (e.g. User#1234)" required>
@@ -50,13 +49,30 @@
         <label>Profile Photo</label>
         <input type="file" id="profilePhoto" accept=".png,.jpg,.jpeg,image/png,image/jpeg" required>
 
+        <!-- ── Academic Grades CSV Upload ── -->
+        <div class="csv-section">
+            <div class="csv-section-header">
+                <label class="csv-label">Academic Grades</label>
+                <button type="button" class="csv-download-btn" onclick="downloadGradesTemplate()">
+                    ⬇ Download Template
+                </button>
+            </div>
+            <p class="csv-hint">Download the template, fill in your GPA and CGPA, then upload it below.</p>
 
+            <div id="registration-criteria-message" class="criteria-message">Loading academic requirements...</div>
 
-        <label>GPA</label>
-        <input type="number" id="gpa" placeholder="Enter your previous Term GPA" required>
+            <input type="file" id="gradesCSV" accept=".csv,text/csv" required>
 
-        <label>CGPA</label>
-        <input type="number" id="cgpa" placeholder="Enter your CGPA" required>
+            <div id="csv-preview" class="csv-preview" style="display: none;">
+                <span id="csv-preview-gpa"></span>
+                <span id="csv-preview-cgpa"></span>
+            </div>
+            <div id="csv-error" class="csv-error" style="display: none;"></div>
+        </div>
+
+        <!-- Hidden GPA/CGPA fields populated from CSV -->
+        <input type="hidden" id="gpa">
+        <input type="hidden" id="cgpa">
 
         <label>Year Level</label>
         <select id="yearLevel" required>
