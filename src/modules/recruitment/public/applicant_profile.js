@@ -112,6 +112,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
+  function getDisplayText(value) {
+    if (value === null || value === undefined) return '';
+
+    const text = String(value).trim();
+    if (!text) return '';
+
+    return text.toUpperCase() === 'N/A' || text.toUpperCase() === 'NONE' ? '' : text;
+  }
+
   // DOM Elements Map (Fixed IDs to match HTML)
   const UI = {
     name: document.getElementById('app-name'),
@@ -126,6 +135,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     peakRankImg: document.getElementById('img-peak-rank'),
     peakRankText: document.getElementById('text-peak-rank'),
     studentYear: document.getElementById('student-year'),
+    studentCourseRow: document.getElementById('student-course-row'),
     studentCourse: document.getElementById('student-course'),
     studentGpa: document.getElementById('student-gpa'),
     studentCgpa: document.getElementById('student-cgpa'),
@@ -359,11 +369,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       };
     }
 
-    // Student Info (Removed repetitive text labels)
-    UI.studentYear.textContent = applicant.yearLevel || 'N/A';
-    UI.studentCourse.textContent = applicant.course || 'N/A';
-    UI.studentGpa.textContent = applicant.lastGPA || '-';
-    UI.studentCgpa.textContent = applicant.CGPA || '-';
+    // Student Info (Only show values that actually exist)
+    const yearValue = getDisplayText(applicant.yearLevel);
+    const courseValue = getDisplayText(applicant.course);
+    const gpaValue = getDisplayText(applicant.lastGPA);
+    const cgpaValue = getDisplayText(applicant.CGPA);
+
+    if (UI.studentYear) UI.studentYear.textContent = yearValue || '-';
+    if (UI.studentCourseRow) UI.studentCourseRow.style.display = courseValue ? '' : 'none';
+    if (UI.studentCourse) UI.studentCourse.textContent = courseValue;
+    if (UI.studentGpa) UI.studentGpa.textContent = gpaValue || '-';
+    if (UI.studentCgpa) UI.studentCgpa.textContent = cgpaValue || '-';
 
     // Roles
     if (UI.rolePrimary) UI.rolePrimary.textContent = getRoleName(applicant.primaryRoleId);
