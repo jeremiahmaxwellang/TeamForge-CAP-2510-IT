@@ -13,68 +13,177 @@
 <body>
   <div class="overlay">
     <div class="overlay-container">
-      <h1>Scrims Details</h1>
+      <h1>Scrims</h1>
 
-      <div class="overlay-content">
+      <div class="scrims-subtabs" role="tablist" aria-label="Scrims views">
+        <button
+          type="button"
+          id="scrimsDetailsTab"
+          class="scrims-subtab active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="scrims-details-panel"
+          data-scrims-view="details">
+          Scrim Details
+        </button>
+        <button
+          type="button"
+          id="scrimsComparisonTab"
+          class="scrims-subtab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="scrims-comparison-panel"
+          data-scrims-view="comparison">
+          Rating Comparison
+        </button>
+      </div>
 
-        <!-- LEFT: Played With Table -->
-        <div class="times-played-list">
-          <h2>Played with:</h2>
-          <div class="times-played-table-frame">
-            <table class="times-played-table">
-              <thead>
-                <tr class="times-played-row">
-                  <th>Player</th>
-                  <th>Games</th>
-                  <th>Avg Comms</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="times-played-row">
-                  <td colspan="3">No player found.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <section
+        id="scrims-details-panel"
+        class="scrims-tab-panel"
+        role="tabpanel"
+        aria-labelledby="scrimsDetailsTab">
+        <div class="overlay-content">
 
-        <!-- RIGHT: Scrim Matches Table with inline evaluation -->
-        <div class="scrim-list">
-          <div class="scrim-list-header">
-            <h2>Scrim Matches</h2>
-            <div class="scrim-filter-wrapper">
-              <label for="scrimStatusFilter" class="scrim-filter-label">Filter</label>
-              <select id="scrimStatusFilter" class="scrim-filter-select">
-                <option value="all">All</option>
-                <option value="evaluated">Evaluated</option>
-                <option value="unevaluated">Unevaluated</option>
-              </select>
+          <!-- LEFT: Played With Table -->
+          <div class="times-played-list">
+            <h2>Played with:</h2>
+            <div class="times-played-table-frame">
+              <table class="times-played-table">
+                <thead>
+                  <tr class="times-played-row">
+                    <th>Player</th>
+                    <th>Games</th>
+                    <th>Avg Comms</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="times-played-row">
+                    <td colspan="3">No player found.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div class="scrim-table-frame">
-            <table class="scrim-table" id="scrimTable">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Date</th>
-                  <th>Team</th>
-                  <th>W/L</th>
-                  <th>VOD Link</th>
-                  <th>See Evaluation</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="scrim-empty-row">
-                  <td colspan="7">No scrims found.</td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- RIGHT: Scrim Matches Table with inline evaluation -->
+          <div class="scrim-list">
+            <div class="scrim-list-header">
+              <h2>Scrim Matches</h2>
+              <div class="scrim-filter-wrapper">
+                <label for="scrimStatusFilter" class="scrim-filter-label">Filter</label>
+                <select id="scrimStatusFilter" class="scrim-filter-select">
+                  <option value="all">All</option>
+                  <option value="evaluated">Evaluated</option>
+                  <option value="unevaluated">Unevaluated</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="scrim-table-frame">
+              <table class="scrim-table" id="scrimTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Team</th>
+                    <th>W/L</th>
+                    <th>VOD Link</th>
+                    <th>See Evaluation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="scrim-empty-row">
+                    <td colspan="7">No scrims found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section
+        id="scrims-comparison-panel"
+        class="scrims-tab-panel hidden"
+        role="tabpanel"
+        aria-labelledby="scrimsComparisonTab">
+
+        <div class="scrims-comparison-header">
+          <div>
+            <h2>Player Scrim Rating Comparison</h2>
+            <p>Average coach ratings from evaluated scrims. Ratings use a 1–5 scale.</p>
+          </div>
+          <div class="comparison-filter">
+            <label for="scrimRoleFilter">Role</label>
+            <select id="scrimRoleFilter" class="scrim-filter-select">
+              <option value="all">All roles</option>
+            </select>
           </div>
         </div>
 
-      </div>
+        <div class="comparison-summary-grid">
+          <div class="comparison-summary-card">
+            <span>Players compared</span>
+            <strong id="comparisonPlayerCount">0</strong>
+          </div>
+          <div class="comparison-summary-card">
+            <span>Highest overall</span>
+            <strong id="comparisonTopPlayer">—</strong>
+          </div>
+          <div class="comparison-summary-card">
+            <span>Selected player rank</span>
+            <strong id="comparisonSelectedRank">—</strong>
+          </div>
+        </div>
+
+        <div id="scrimComparisonContent" class="scrim-comparison-content hidden">
+          <div class="scrim-chart-section">
+            <div class="scrim-chart-heading">
+              <div>
+                <h3>Average Rating Breakdown</h3>
+                <p>Compare each player across Game Sense, Communication, and Champion Pool.</p>
+              </div>
+              <div class="rating-legend" aria-label="Rating legend">
+                <span><i class="legend-swatch game-sense"></i>Game Sense</span>
+                <span><i class="legend-swatch communication"></i>Communication</span>
+                <span><i class="legend-swatch champion-pool"></i>Champion Pool</span>
+              </div>
+            </div>
+            <div id="scrimRatingBreakdown" class="rating-comparison-chart"></div>
+          </div>
+
+          <div class="scrim-chart-section">
+            <div class="scrim-chart-heading">
+              <div>
+                <h3>Overall Average Ranking</h3>
+                <p>The overall score is the mean of the three rating categories.</p>
+              </div>
+            </div>
+            <div id="scrimOverallRanking" class="overall-ranking-chart"></div>
+          </div>
+
+          <div class="scrim-comparison-table-frame">
+            <table class="scrim-comparison-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Player</th>
+                  <th>Role</th>
+                  <th>Evaluated Scrims</th>
+                  <th>Game Sense</th>
+                  <th>Communication</th>
+                  <th>Champion Pool</th>
+                  <th>Overall</th>
+                </tr>
+              </thead>
+              <tbody id="scrimComparisonTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </body>
