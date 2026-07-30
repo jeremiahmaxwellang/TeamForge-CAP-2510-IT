@@ -42,6 +42,9 @@ router.get('/players/:id/scrims', scrimsController.getScrims);
 // Get scrims played with other players
 router.get('/players/:id/timesPlayed', scrimsController.getTimesPlayed);
 
+// Get team-wide average scrim ratings for comparison graphs
+router.get('/scrims/ratings-comparison', scrimsController.getRatingComparison);
+
 // Get Evaluation
 router.get('/players/:playerId/:scrimId/evaluation', scrimsController.getEvaluation);
 

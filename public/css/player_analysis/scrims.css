@@ -646,3 +646,369 @@
   background-color: var(--scrims-accent);
   color: #082f49;
 }
+
+/* ── SCRIMS INTERNAL TABS ─────────────────────────────────────────────── */
+.scrims-subtabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--scrims-border);
+}
+
+.scrims-subtab {
+  appearance: none;
+  background: transparent;
+  color: var(--scrims-text-muted);
+  border: 0;
+  border-bottom: 3px solid transparent;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scrims-subtab:hover {
+  color: var(--scrims-text);
+}
+
+.scrims-subtab.active {
+  color: var(--scrims-accent);
+  border-bottom-color: var(--scrims-accent);
+}
+
+.scrims-subtab:focus-visible {
+  outline: 2px solid var(--scrims-accent);
+  outline-offset: 2px;
+}
+
+.scrims-tab-panel.hidden,
+.scrim-comparison-content.hidden {
+  display: none;
+}
+
+/* ── RATING COMPARISON VIEW ──────────────────────────────────────────── */
+.scrims-comparison-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.scrims-comparison-header h2,
+.scrim-chart-heading h3 {
+  margin: 0;
+  color: var(--scrims-text);
+}
+
+.scrims-comparison-header p,
+.scrim-chart-heading p {
+  margin: 5px 0 0;
+  color: var(--scrims-text-muted);
+  font-size: 13px;
+}
+
+.comparison-filter {
+  min-width: 170px;
+}
+
+.comparison-filter label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--scrims-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.comparison-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.comparison-summary-card {
+  min-width: 0;
+  padding: 14px 16px;
+  background: #1e293b;
+  border: 1px solid var(--scrims-border);
+  border-radius: 10px;
+}
+
+.comparison-summary-card span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--scrims-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.comparison-summary-card strong {
+  display: block;
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comparison-status {
+  padding: 18px;
+  color: var(--scrims-text-muted);
+  background: #1e293b;
+  border: 1px solid var(--scrims-border);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.scrim-comparison-content {
+  display: grid;
+  gap: 18px;
+}
+
+.scrim-chart-section {
+  padding: 18px;
+  background: #1e293b;
+  border: 1px solid var(--scrims-border);
+  border-radius: 12px;
+}
+
+.scrim-chart-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.rating-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 14px;
+  color: var(--scrims-text-muted);
+  font-size: 12px;
+}
+
+.rating-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legend-swatch.game-sense,
+.rating-bar-fill.game-sense {
+  background: #38bdf8;
+}
+
+.legend-swatch.communication,
+.rating-bar-fill.communication {
+  background: #a78bfa;
+}
+
+.legend-swatch.champion-pool,
+.rating-bar-fill.champion-pool {
+  background: #34d399;
+}
+
+.rating-comparison-chart,
+.overall-ranking-chart {
+  display: grid;
+  gap: 12px;
+}
+
+.rating-comparison-row,
+.overall-ranking-row {
+  display: grid;
+  grid-template-columns: minmax(155px, 220px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+
+.rating-comparison-row:nth-child(odd),
+.overall-ranking-row:nth-child(odd) {
+  background: #172032;
+}
+
+.rating-comparison-row.is-selected,
+.overall-ranking-row.is-selected {
+  border-color: var(--scrims-accent);
+  background: #0c4a6e33;
+}
+
+.rating-player-label,
+.ranking-player-label {
+  min-width: 0;
+}
+
+.rating-player-label strong,
+.ranking-player-label strong {
+  display: block;
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rating-player-label span,
+.ranking-player-label span {
+  display: block;
+  margin-top: 3px;
+  color: var(--scrims-text-muted);
+  font-size: 12px;
+}
+
+.rating-series-list {
+  display: grid;
+  gap: 7px;
+}
+
+.rating-series,
+.ranking-series {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr) 34px;
+  gap: 9px;
+  align-items: center;
+}
+
+.rating-series-name {
+  color: var(--scrims-text-muted);
+  font-size: 12px;
+}
+
+.rating-bar-track {
+  height: 10px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 999px;
+}
+
+.rating-bar-fill {
+  width: var(--rating-width, 0%);
+  height: 100%;
+  border-radius: inherit;
+}
+
+.rating-bar-fill.overall {
+  background: var(--scrims-accent);
+}
+
+.rating-bar-value {
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.scrim-comparison-table-frame {
+  overflow-x: auto;
+  background: #1e293b;
+  border: 1px solid var(--scrims-border);
+  border-radius: 12px;
+}
+
+.scrim-comparison-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--scrims-text);
+}
+
+.scrim-comparison-table th,
+.scrim-comparison-table td {
+  padding: 10px 12px;
+  border-right: 1px solid var(--scrims-border);
+  border-bottom: 1px solid var(--scrims-border);
+  font-size: 13px;
+  text-align: center;
+}
+
+.scrim-comparison-table th {
+  background: #0b1220;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.scrim-comparison-table td:nth-child(2),
+.scrim-comparison-table th:nth-child(2) {
+  text-align: left;
+}
+
+.scrim-comparison-table tr > *:last-child {
+  border-right: 0;
+}
+
+.scrim-comparison-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.scrim-comparison-table tbody tr.is-selected {
+  background: #0c4a6e33;
+  outline: 1px solid var(--scrims-accent);
+  outline-offset: -1px;
+}
+
+@media (max-width: 760px) {
+  .scrims-subtabs,
+  .scrims-comparison-header,
+  .scrim-chart-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .comparison-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-filter {
+    width: 100%;
+  }
+
+  .rating-legend {
+    justify-content: flex-start;
+  }
+
+  .rating-comparison-row,
+  .overall-ranking-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .rating-series,
+  .ranking-series {
+    grid-template-columns: 86px minmax(0, 1fr) 32px;
+  }
+}
+
+/* Keep the overlay full width while the Rating Comparison tab is active. */
+.overlay:has(.scrim-comparison-content:not(.hidden)) {
+  width: calc(100% - 40px);
+  max-width: none;
+}
+
+.overlay:has(.scrim-comparison-content:not(.hidden)) .overlay-container,
+.overlay:has(.scrim-comparison-content:not(.hidden)) .scrim-comparison-content {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 680px) {
+  .overlay:has(.scrim-comparison-content:not(.hidden)) {
+    width: calc(100% - 20px);
+  }
+}
+

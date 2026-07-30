@@ -197,6 +197,61 @@ exports.createEvaluation = async (req, res) => {
   }
 };
 
+// ── TEAM-WIDE RATING COMPARISON ───────────────────────────────────────────────
+exports.getRatingComparison = async (req, res) => {
+  try {
+    const sql = `
+      SELECT
+        pe.playerId,
+        p.gameName,
+        COALESCE(r.displayedRole, 'Unassigned') AS role,
+        COUNT(DISTINCT pe.eventId) AS evaluatedScrims,
+        ROUND(AVG(CAST(pe.ratingGameSense AS DECIMAL(10,2))), 2) AS averageGameSense,
+        ROUND(AVG(CAST(pe.ratingCommunication AS DECIMAL(10,2))), 2) AS averageCommunication,
+        ROUND(AVG(CAST(pe.ratingChampionPool AS DECIMAL(10,2))), 2) AS averageChampionPool,
+        ROUND(
+          AVG(
+            (
+              CAST(pe.ratingGameSense AS DECIMAL(10,2)) +
+              CAST(pe.ratingCommunication AS DECIMAL(10,2)) +
+              CAST(pe.ratingChampionPool AS DECIMAL(10,2))
+            ) / 3
+          ),
+          2
+        ) AS overallAverage
+      FROM player_evaluations pe
+      JOIN events e
+        ON e.eventId = pe.eventId AND e.type = 'Scrim'
+      JOIN players p
+        ON p.userId = pe.playerId
+      JOIN users u
+        ON u.userId = p.userId
+      LEFT JOIN leagueroles r
+        ON r.roleId = p.primaryRoleId
+      WHERE
+        u.position = 'Player'
+        AND u.status = 'Active'
+        AND pe.ratingGameSense IS NOT NULL
+        AND pe.ratingCommunication IS NOT NULL
+        AND pe.ratingChampionPool IS NOT NULL
+      GROUP BY
+        pe.playerId,
+        p.gameName,
+        COALESCE(r.displayedRole, 'Unassigned')
+      ORDER BY
+        overallAverage DESC,
+        evaluatedScrims DESC,
+        p.gameName ASC
+    `;
+
+    const [rows] = await db.query(sql);
+    res.json(rows);
+  } catch (err) {
+    console.error('[getRatingComparison] Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // ── SCRIM SUMMARY ─────────────────────────────────────────────────────────────
 exports.getScrimSummary = async (req, res) => {
   try {

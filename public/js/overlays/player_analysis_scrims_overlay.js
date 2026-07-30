@@ -23,14 +23,218 @@ window.initScrimsTab = function (userId) {
     return String(value || 'unevaluated').toLowerCase();
   }
 
-  console.log('[SCRIMS] Tab initialized for userId:', userId);
+  let activePlayerId = userId;
+
+  console.log('[SCRIMS] Tab initialized for userId:', activePlayerId);
 
   // ── DOM REFS ──────────────────────────────────────────
   const tableBody  = document.querySelector('.scrim-table tbody');
   const timesBody  = document.querySelector('.times-played-table tbody');
   const statusFilter = document.getElementById('scrimStatusFilter');
+  const subtabButtons = document.querySelectorAll('[data-scrims-view]');
+  const detailsPanel = document.getElementById('scrims-details-panel');
+  const comparisonPanel = document.getElementById('scrims-comparison-panel');
+  const roleFilter = document.getElementById('scrimRoleFilter');
+  const comparisonStatus = document.getElementById('scrimComparisonStatus');
+  const comparisonContent = document.getElementById('scrimComparisonContent');
+  const ratingBreakdown = document.getElementById('scrimRatingBreakdown');
+  const overallRanking = document.getElementById('scrimOverallRanking');
+  const comparisonTableBody = document.getElementById('scrimComparisonTableBody');
+  const comparisonPlayerCount = document.getElementById('comparisonPlayerCount');
+  const comparisonTopPlayer = document.getElementById('comparisonTopPlayer');
+  const comparisonSelectedRank = document.getElementById('comparisonSelectedRank');
 
   let allEvents = [];
+  let comparisonRows = [];
+  let comparisonLoaded = false;
+  let comparisonLoading = false;
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function toRating(value) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? Math.max(0, Math.min(5, numeric)) : 0;
+  }
+
+  function ratingBar(metricClass, label, value) {
+    const rating = toRating(value);
+    const width = (rating / 5) * 100;
+    return `
+      <div class="rating-series">
+        <span class="rating-series-name">${label}</span>
+        <div class="rating-bar-track" aria-hidden="true">
+          <div class="rating-bar-fill ${metricClass}" style="--rating-width:${width}%"></div>
+        </div>
+        <span class="rating-bar-value">${rating.toFixed(2)}</span>
+      </div>`;
+  }
+
+  function getFilteredComparisonRows() {
+    const selectedRole = roleFilter?.value || 'all';
+    return selectedRole === 'all'
+      ? [...comparisonRows]
+      : comparisonRows.filter(row => row.role === selectedRole);
+  }
+
+  function populateRoleFilter() {
+    if (!roleFilter) return;
+
+    const selectedValue = roleFilter.value || 'all';
+    const roles = [...new Set(comparisonRows.map(row => row.role).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b));
+
+    roleFilter.innerHTML = '<option value="all">All roles</option>' + roles
+      .map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`)
+      .join('');
+
+    roleFilter.value = roles.includes(selectedValue) ? selectedValue : 'all';
+  }
+
+  function renderComparisonViews() {
+    const rows = getFilteredComparisonRows()
+      .sort((a, b) => Number(b.overallAverage) - Number(a.overallAverage));
+
+    if (comparisonPlayerCount) comparisonPlayerCount.textContent = String(rows.length);
+
+    if (rows.length === 0) {
+      if (comparisonStatus) {
+        comparisonStatus.textContent = 'No evaluated scrim ratings match this filter.';
+        comparisonStatus.classList.remove('hidden');
+      }
+      comparisonContent?.classList.add('hidden');
+      return;
+    }
+
+    if (comparisonStatus) comparisonStatus.classList.add('hidden');
+    comparisonContent?.classList.remove('hidden');
+
+    const top = rows[0];
+    if (comparisonTopPlayer) {
+      comparisonTopPlayer.textContent = `${top.gameName} (${toRating(top.overallAverage).toFixed(2)})`;
+    }
+
+    const selectedIndex = rows.findIndex(
+      row => Number(row.playerId) === Number(activePlayerId)
+    );
+    if (comparisonSelectedRank) {
+      comparisonSelectedRank.textContent = selectedIndex >= 0
+        ? `#${selectedIndex + 1} of ${rows.length}`
+        : 'Not in filter';
+    }
+
+    if (ratingBreakdown) {
+      ratingBreakdown.innerHTML = rows.map(row => {
+        const selected = Number(row.playerId) === Number(activePlayerId);
+        return `
+          <div class="rating-comparison-row ${selected ? 'is-selected' : ''}">
+            <div class="rating-player-label">
+              <strong>${escapeHtml(row.gameName)}</strong>
+              <span>${escapeHtml(row.role)} · ${Number(row.evaluatedScrims)} evaluated scrims</span>
+            </div>
+            <div class="rating-series-list">
+              ${ratingBar('game-sense', 'Game Sense', row.averageGameSense)}
+              ${ratingBar('communication', 'Communication', row.averageCommunication)}
+              ${ratingBar('champion-pool', 'Champion Pool', row.averageChampionPool)}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    if (overallRanking) {
+      overallRanking.innerHTML = rows.map((row, index) => {
+        const overall = toRating(row.overallAverage);
+        const selected = Number(row.playerId) === Number(activePlayerId);
+        return `
+          <div class="overall-ranking-row ${selected ? 'is-selected' : ''}">
+            <div class="ranking-player-label">
+              <strong>#${index + 1} ${escapeHtml(row.gameName)}</strong>
+              <span>${escapeHtml(row.role)}</span>
+            </div>
+            <div class="ranking-series">
+              <span class="rating-series-name">Overall</span>
+              <div class="rating-bar-track" aria-hidden="true">
+                <div class="rating-bar-fill overall" style="--rating-width:${(overall / 5) * 100}%"></div>
+              </div>
+              <span class="rating-bar-value">${overall.toFixed(2)}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    if (comparisonTableBody) {
+      comparisonTableBody.innerHTML = rows.map((row, index) => {
+        const selected = Number(row.playerId) === Number(activePlayerId);
+        return `
+          <tr class="${selected ? 'is-selected' : ''}">
+            <td>${index + 1}</td>
+            <td>${escapeHtml(row.gameName)}</td>
+            <td>${escapeHtml(row.role)}</td>
+            <td>${Number(row.evaluatedScrims)}</td>
+            <td>${toRating(row.averageGameSense).toFixed(2)}</td>
+            <td>${toRating(row.averageCommunication).toFixed(2)}</td>
+            <td>${toRating(row.averageChampionPool).toFixed(2)}</td>
+            <td><strong>${toRating(row.overallAverage).toFixed(2)}</strong></td>
+          </tr>`;
+      }).join('');
+    }
+  }
+
+  function loadRatingComparison(forceReload = false) {
+    if (comparisonLoading || (comparisonLoaded && !forceReload)) {
+      renderComparisonViews();
+      return;
+    }
+
+    comparisonLoading = true;
+    if (comparisonStatus) {
+      comparisonStatus.textContent = 'Loading player rating comparison…';
+      comparisonStatus.classList.remove('hidden');
+    }
+    comparisonContent?.classList.add('hidden');
+
+    Backend.fetchRatingComparison()
+      .then((rows) => {
+        comparisonRows = Array.isArray(rows) ? rows : [];
+        comparisonLoaded = true;
+        populateRoleFilter();
+        renderComparisonViews();
+      })
+      .catch((err) => {
+        comparisonRows = [];
+        comparisonLoaded = false;
+        console.error('[SCRIMS] ✗ Error loading rating comparison:', err);
+        if (comparisonStatus) {
+          comparisonStatus.textContent = 'Failed to load the scrim rating comparison.';
+          comparisonStatus.classList.remove('hidden');
+        }
+        comparisonContent?.classList.add('hidden');
+      })
+      .finally(() => {
+        comparisonLoading = false;
+      });
+  }
+
+  function setScrimsView(view) {
+    const showComparison = view === 'comparison';
+
+    subtabButtons.forEach(button => {
+      const isActive = button.dataset.scrimsView === view;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-selected', String(isActive));
+    });
+
+    detailsPanel?.classList.toggle('hidden', showComparison);
+    comparisonPanel?.classList.toggle('hidden', !showComparison);
+
+    if (showComparison) loadRatingComparison();
+  }
 
   // ── RENDER SCRIM TABLE ROWS ───────────────────────────
   function renderScrimRows(filterValue) {
@@ -175,7 +379,7 @@ window.initScrimsTab = function (userId) {
 
   // ── LOAD EXISTING EVALUATION ──────────────────────────
   function loadEvaluation(eventId) {
-    Backend.fetchEvaluation(userId, eventId)
+    Backend.fetchEvaluation(activePlayerId, eventId)
       .then((evalData) => {
         // Update title with player name if returned
         const titleEl = document.getElementById(`eval-title-${eventId}`);
@@ -232,7 +436,7 @@ window.initScrimsTab = function (userId) {
     };
 
     try {
-      const result = await Backend.saveEvaluation(userId, eventId, data);
+      const result = await Backend.saveEvaluation(activePlayerId, eventId, data);
 
       if (result.success) {
         alert('Evaluation saved!');
@@ -242,6 +446,10 @@ window.initScrimsTab = function (userId) {
         if (target) {
           target.status = 'evaluated';
           renderScrimRows(statusFilter?.value || 'all');
+          comparisonLoaded = false;
+          if (!comparisonPanel?.classList.contains('hidden')) {
+            loadRatingComparison(true);
+          }
         }
       } else {
         alert('Error: ' + result.error);
@@ -315,19 +523,45 @@ window.initScrimsTab = function (userId) {
       });
   }
 
+  // ── INTERNAL TAB CONTROLS ─────────────────────────────
+  subtabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      setScrimsView(button.dataset.scrimsView);
+    });
+  });
+
+  if (roleFilter) {
+    roleFilter.addEventListener('change', renderComparisonViews);
+  }
+
   // Initial load
-  loadScrimsForPlayer(userId);
-  loadTimesPlayedForPlayer(userId);
+  loadScrimsForPlayer(activePlayerId);
+  loadTimesPlayedForPlayer(activePlayerId);
+  setScrimsView('details');
 
   // ── LISTEN FOR PLAYER CHANGES ─────────────────────
-  document.addEventListener('playeranalysis:player-changed', (event) => {
+  if (window.__scrimsPlayerChangeHandler) {
+    document.removeEventListener(
+      'playeranalysis:player-changed',
+      window.__scrimsPlayerChangeHandler
+    );
+  }
+
+  window.__scrimsPlayerChangeHandler = (event) => {
     const newPlayerId = event.detail?.userId;
     if (newPlayerId) {
-      console.log('[SCRIMS] Player changed, reloading scrims and times played for player:', newPlayerId);
-      loadScrimsForPlayer(newPlayerId);
-      loadTimesPlayedForPlayer(newPlayerId);
+      activePlayerId = newPlayerId;
+      console.log('[SCRIMS] Player changed, reloading scrims and times played for player:', activePlayerId);
+      loadScrimsForPlayer(activePlayerId);
+      loadTimesPlayedForPlayer(activePlayerId);
+      renderComparisonViews();
     }
-  });
+  };
+
+  document.addEventListener(
+    'playeranalysis:player-changed',
+    window.__scrimsPlayerChangeHandler
+  );
 
   // ── FILTER CHANGE ─────────────────────────────────────
   if (statusFilter) {

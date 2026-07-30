@@ -19,6 +19,15 @@
       });
   };
 
+  // Fetch team-wide average scrim ratings for comparison graphs
+  Backend.fetchRatingComparison = async function () {
+    return fetch('/player_analysis/scrims/ratings-comparison')
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return res.json();
+      });
+  };
+
   // Fetch existing evaluation — now uses eventId
   Backend.fetchEvaluation = async function (playerId, eventId) {
     return fetch(`/player_analysis/players/${playerId}/${eventId}/evaluation`)
