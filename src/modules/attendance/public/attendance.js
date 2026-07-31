@@ -105,6 +105,7 @@ const renderAttendanceRows = (participants) => {
                   <option value="Late" ${status === 'Late' ? 'selected' : ''}>Late</option>
                   <option value="Absent" ${status === 'Absent' ? 'selected' : ''}>Absent</option>
                   <option value="Excused" ${status === 'Excused' ? 'selected' : ''}>Excused</option>
+                  <option value="Sick" ${status === 'Sick' ? 'selected' : ''}>Sick</option>
                 </select>
               </td>
               <td><input type="text" class="note-input" placeholder="Enter note" value="${noteValue}"></td>

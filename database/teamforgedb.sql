@@ -513,7 +513,7 @@ CREATE TABLE IF NOT EXISTS `teamforgedb`.`event_attendees` (
   `eventId` INT UNSIGNED NOT NULL,
   `userId` INT UNSIGNED NOT NULL,
   `player_role` INT NULL,
-  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused') NULL COMMENT 'attendance status\nENUM(\'Present\', \'Late\', \'Absent\', \'Excused\')',
+  `attendance_status` ENUM('Present', 'Late', 'Absent', 'Excused', 'Sick') NULL COMMENT 'attendance status\nENUM(\'Present\', \'Late\', \'Absent\', \'Excused\', \'Sick\')',
   `notes` LONGTEXT NULL,
   `is_sub` ENUM('Y', 'N') NULL DEFAULT 'N',
   `team` ENUM('Team 1', 'Team 2', 'Sub') NOT NULL DEFAULT 'Team 1',
